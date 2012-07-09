@@ -1,0 +1,50 @@
+save
+
+// Update is called once per frame
+	void Update () {
+		
+		_count++;
+		_timer += Time.deltaTime;
+		if(_timer >= 1f){
+			fps = _count;
+			_count = 0L;
+			_timer = 0;
+		}
+		
+		//< ou <= ? A revoir !!!!! (ou pas ?)
+		if(nextSwitchBPM < thesong.bpms.Count && (thesong.bpms.ElementAt(nextSwitchBPM).Key < (double)timechart)){
+			Debug.Log ("Changement BPM : " + thesong.bpms.ElementAt(nextSwitchBPM).Value);
+			actualBPM = thesong.bpms.ElementAt(nextSwitchBPM).Value;
+			
+			changeBPM = arrowLeft.transform.position.y;
+			timebpm = 0;
+			nextSwitchBPM++;
+		}
+		
+		if(Input.GetKeyDown(KeyCode.UpArrow)){
+			
+			var ar = findNextUpArrow();
+			double prec = Mathf.Abs((float)ar.Value - timechart);
+			if(prec < (double)0.102){ //great
+				arrowUpList.Remove(ar.Key);
+				DestroyImmediate(ar.Key);
+			//Start coroutine score
+			}else if(prec < (double)0.300){ //miss
+				ar.Key.GetComponent<ArrowScript>().missed = true;
+				arrowUpList.Remove(ar.Key);
+			}
+		
+		}
+		timechart += Time.deltaTime;
+		timebpm += Time.deltaTime;
+	}
+	
+	
+	
+	
+		var bps = thesong.getBPS(actualBPM);
+		MainCamera.transform.position = new Vector3(3f, -((float)(bps*timebpm))*speedmod + changeBPM - 6, -10f);
+		arrowLeft.transform.position = new Vector3(0f, -((float)(bps*timebpm))*speedmod  + changeBPM, 2f);
+		arrowRight.transform.position = new Vector3(6f, -((float)(bps*timebpm))*speedmod + changeBPM, 2f);
+		arrowDown.transform.position = new Vector3(2f, -((float)(bps*timebpm))*speedmod + changeBPM, 2f);
+		arrowUp.transform.position = new Vector3(4f, -((float)(bps*timebpm))*speedmod + changeBPM, 2f);
