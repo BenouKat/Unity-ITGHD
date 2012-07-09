@@ -85,25 +85,8 @@ public class InGameScript : MonoBehaviour {
 		
 		timetotalchart = timebpm + timechart + totaltimestop;
 		
-		//A revoir :)
-		if(Input.GetKeyDown(KeyCode.UpArrow)){
-			var ar = findNextUpArrow();
-			double prec = Mathf.Abs((float)(ar.Value - (timetotalchart - Time.deltaTime)));
-			Debug.Log("AL ! " + prec);
-			if(prec < (double)0.102){ //great
-				arrowUpList.Remove(ar.Key);
-				DestroyImmediate(ar.Key);
-				Debug.Log("Great !");
-			//Start coroutine score
-			}else if(prec < (double)0.300){ //miss
-				ar.Key.GetComponent<ArrowScript>().missed = true;
-				arrowUpList.Remove(ar.Key);
-				Debug.Log("Miss... !");
-			}else{
-				Debug.Log("Not so close");
-			}
+		VerifyKeys();
 		
-		}
 		
 		if(nextSwitchBPM < thesong.bpms.Count && (thesong.bpms.ElementAt(nextSwitchBPM).Key <= timetotalchart)){
 			
@@ -153,14 +136,6 @@ public class InGameScript : MonoBehaviour {
 		
 		
 		
-		
-		
-		
-		
-		
-		
-		
-		
 	}
 	
 	void FixedUpdate(){
@@ -171,6 +146,81 @@ public class InGameScript : MonoBehaviour {
 		arrowRight.transform.position = new Vector3(6f, -((float)(bps*timechart))*speedmod + changeBPM, 2f);
 		arrowDown.transform.position = new Vector3(2f, -((float)(bps*timechart))*speedmod + changeBPM, 2f);
 		arrowUp.transform.position = new Vector3(4f, -((float)(bps*timechart))*speedmod + changeBPM, 2f);
+	}
+	
+	
+	
+	void VerifyKeys(){
+		if(Input.GetKeyDown(KeyCode.LeftArrow)){
+			var ar = findNextLeftArrow();
+			double prec = Mathf.Abs((float)(ar.Value - (timetotalchart - Time.deltaTime)));
+			Debug.Log("AL ! " + prec);
+			if(prec < (double)0.102){ //great
+				arrowLeftList.Remove(ar.Key);
+				DestroyImmediate(ar.Key);
+				Debug.Log("Great !");
+			//Start coroutine score
+			}else if(prec < (double)0.300){ //miss
+				ar.Key.GetComponent<ArrowScript>().missed = true;
+				arrowLeftList.Remove(ar.Key);
+				Debug.Log("Miss... !");
+			}else{
+				Debug.Log("Not so close");
+			}
+		
+		}else if(Input.GetKeyDown(KeyCode.DownArrow)){
+			var ar = findNextDownArrow();
+			double prec = Mathf.Abs((float)(ar.Value - (timetotalchart - Time.deltaTime)));
+			Debug.Log("AL ! " + prec);
+			if(prec < (double)0.102){ //great
+				arrowDownList.Remove(ar.Key);
+				DestroyImmediate(ar.Key);
+				Debug.Log("Great !");
+			//Start coroutine score
+			}else if(prec < (double)0.300){ //miss
+				ar.Key.GetComponent<ArrowScript>().missed = true;
+				arrowDownList.Remove(ar.Key);
+				Debug.Log("Miss... !");
+			}else{
+				Debug.Log("Not so close");
+			}
+		
+		}else if(Input.GetKeyDown(KeyCode.UpArrow)){
+			var ar = findNextUpArrow();
+			double prec = Mathf.Abs((float)(ar.Value - (timetotalchart - Time.deltaTime)));
+			Debug.Log("AL ! " + prec);
+			if(prec < (double)0.102){ //great
+				arrowUpList.Remove(ar.Key);
+				DestroyImmediate(ar.Key);
+				Debug.Log("Great !");
+			//Start coroutine score
+			}else if(prec < (double)0.300){ //miss
+				ar.Key.GetComponent<ArrowScript>().missed = true;
+				arrowUpList.Remove(ar.Key);
+				Debug.Log("Miss... !");
+			}else{
+				Debug.Log("Not so close");
+			}
+		
+		}else if(Input.GetKeyDown(KeyCode.RightArrow)){
+			var ar = findNextRightArrow();
+			double prec = Mathf.Abs((float)(ar.Value - (timetotalchart - Time.deltaTime)));
+			Debug.Log("AL ! " + prec);
+			if(prec < (double)0.102){ //great
+				arrowRightList.Remove(ar.Key);
+				DestroyImmediate(ar.Key);
+				Debug.Log("Great !");
+			//Start coroutine score
+			}else if(prec < (double)0.300){ //miss
+				ar.Key.GetComponent<ArrowScript>().missed = true;
+				arrowRightList.Remove(ar.Key);
+				Debug.Log("Miss... !");
+			}else{
+				Debug.Log("Not so close");
+			}
+		
+		}
+		
 	}
 	
 	void createTheChart(Song s){
@@ -194,7 +244,7 @@ public class InGameScript : MonoBehaviour {
 				timetotal = timeBPM + timecounter + timestop;
 				
 				char[] note = mesure.ElementAt(beat).Trim().ToCharArray();
-				//var barrow = false;
+				var barrow = false;
 				for(int i =0;i<4; i++){
 					if(note[i] == '1' || note[i] == '2'){
 						//var theArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos  + (float)s.offset, 0f), arrow.transform.rotation);
@@ -215,7 +265,7 @@ public class InGameScript : MonoBehaviour {
 							break;
 						}
 						
-						//barrow = true;
+						barrow = true;
 					}
 					
 				
@@ -224,41 +274,36 @@ public class InGameScript : MonoBehaviour {
 				
 				
 				
-				//if(barrow)Debug.Log("ARROW : " + timetotal);
-				//if(!barrow)Debug.Log("no arrow : " + timetotal);	
+				if(barrow)Debug.Log("ARROW : " + timetotal);
+				if(!barrow)Debug.Log("no arrow : " + timetotal);	
 				
 				
-				
-				if(theBPMCounter+1 < s.bpms.Count){ //< ou <= ?
-					if(s.bpms.ElementAt(theBPMCounter+1).Key <= timetotal){
-						timeBPM += timecounter;
-						timecounter = (double)0;
-						theBPMCounter++;
-						//Debug.Log("and change bpm : " + timetotal);
-						//Debug.Log ("Changement BPM : " + s.bpms.ElementAt(theBPMCounter).Value);
+				if(theBPMCounter+1 < s.bpms.Count){
+					while((s.bpms.ElementAt(theBPMCounter+1).Key <= timetotal)){
+						if(theBPMCounter+1 < s.bpms.Count){ //< ou <= ?
+							if(s.bpms.ElementAt(theBPMCounter+1).Key <= timetotal){
+								timeBPM += (s.bpms.ElementAt(theBPMCounter+1).Key - s.bpms.ElementAt(theBPMCounter).Key);
+								timecounter = (double)0;
+								theBPMCounter++;
+							}
+						}
 					}
-					
 				}
-				
-				if(theSTOPCounter < s.stops.Count){ //< ou <= ?
-					if(s.stops.ElementAt(theSTOPCounter).Key <= timetotal){
-						timestop += s.stops.ElementAt(theSTOPCounter).Value;
-						theSTOPCounter++;
-						//Debug.Log("and stop : " + timetotal);
-						//Debug.Log ("Changement BPM : " + s.bpms.ElementAt(theBPMCounter).Value);
+				if(theSTOPCounter < s.stops.Count){
+					while((s.stops.ElementAt(theSTOPCounter).Key <= timetotal)){
+						if(theSTOPCounter < s.stops.Count){ //< ou <= ?
+							if(s.stops.ElementAt(theSTOPCounter).Key <= timetotal){
+								timestop += s.stops.ElementAt(theSTOPCounter).Value;
+								theSTOPCounter++;
+							}
+							
+						}
 					}
-					
 				}
-				
-				
+				/*Debug.Log (mesurecount + " : " + timetotal + " / mesure.count : " + mesure.Count + " / beat : " + mesure.ElementAt(beat) + " / bps : " + ((double)1)/bps + " / timeBPM : " + timeBPM);*/
 				
 				var bps = s.getBPS(s.bpms.ElementAt(theBPMCounter).Value);
 				timecounter += (((double)4)/(double)mesure.Count)/bps;
-				
-				
-				/*Debug.Log (mesurecount + " : " + timetotal + " / mesure.count : " + mesure.Count + " / beat : " + mesure.ElementAt(beat) + " / bps : " + ((double)1)/bps + " / timeBPM : " + timeBPM);*/
-				
-				
 				
 				ypos += (4f/(float)mesure.Count)*speedmod;
 				//ypos = Mathf.RoundToInt(ypos*100f)/100f;
