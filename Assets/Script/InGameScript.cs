@@ -230,18 +230,25 @@ public class InGameScript : MonoBehaviour {
 		arrowUpList = new Dictionary<GameObject, double>();
 		arrowDownList = new Dictionary<GameObject, double>();
 		arrowRightList = new Dictionary<GameObject, double>();
-		var theBPMCounter = 0;
+		
+		
+		var theBPMCounter = 1;
 		var theSTOPCounter = 0;
-		double timecounter = 0;
-		double timetotal = 0;
-		double timestop = 0;
-		double timeBPM = 0;
+		bool stopforBPM = false;
+		bool stopforSTOP = false;
 		int mesurecount = 0;
 		foreach(var mesure in s.stepchart){
-			mesurecount++;
+			
 			for(int beat=0;beat<mesure.Count;beat++){
-				
-				timetotal = timeBPM + timecounter + timestop;
+			
+				var bps = s.getBPS(s.bpms.ElementAt(theBPMCounter-1).Value);
+				if(theBPMCounter < s.bpms.Count && theSTOPCounter < s.stops.Count){
+					while(s.bpms.ElementAt(theBPMCounter).Key*bps < mesurecount || s.stops.ElementAt(theSTOPCounter).Key*bps < mesurecount){
+						
+							
+					
+					}
+				}
 				
 				char[] note = mesure.ElementAt(beat).Trim().ToCharArray();
 				var barrow = false;
@@ -278,35 +285,9 @@ public class InGameScript : MonoBehaviour {
 				if(!barrow)Debug.Log("no arrow : " + timetotal);	
 				
 				
-				if(theBPMCounter+1 < s.bpms.Count){
-					while((s.bpms.ElementAt(theBPMCounter+1).Key <= timetotal)){
-						if(theBPMCounter+1 < s.bpms.Count){ //< ou <= ?
-							if(s.bpms.ElementAt(theBPMCounter+1).Key <= timetotal){
-								timeBPM += (s.bpms.ElementAt(theBPMCounter+1).Key - s.bpms.ElementAt(theBPMCounter).Key);
-								timecounter = (double)0;
-								theBPMCounter++;
-							}
-						}
-					}
-				}
-				if(theSTOPCounter < s.stops.Count){
-					while((s.stops.ElementAt(theSTOPCounter).Key <= timetotal)){
-						if(theSTOPCounter < s.stops.Count){ //< ou <= ?
-							if(s.stops.ElementAt(theSTOPCounter).Key <= timetotal){
-								timestop += s.stops.ElementAt(theSTOPCounter).Value;
-								theSTOPCounter++;
-							}
-							
-						}
-					}
-				}
-				/*Debug.Log (mesurecount + " : " + timetotal + " / mesure.count : " + mesure.Count + " / beat : " + mesure.ElementAt(beat) + " / bps : " + ((double)1)/bps + " / timeBPM : " + timeBPM);*/
 				
-				var bps = s.getBPS(s.bpms.ElementAt(theBPMCounter).Value);
-				timecounter += (((double)4)/(double)mesure.Count)/bps;
-				
+				mesurecount += (4f/(float)mesure.Count);
 				ypos += (4f/(float)mesure.Count)*speedmod;
-				//ypos = Mathf.RoundToInt(ypos*100f)/100f;
 				
 			}
 		}
