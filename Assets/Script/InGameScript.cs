@@ -49,7 +49,7 @@ public class InGameScript : MonoBehaviour {
 	// Use this for initialization
 	
 	void Start () {
-		thesong = OpenChart.Instance.readChart("TrueBulletProof")[0];
+		thesong = OpenChart.Instance.readChart("BrokenTheMoon")[0];
 		createTheChart(thesong);
 		Application.targetFrameRate = -1;
 		nextSwitchBPM = 1;
