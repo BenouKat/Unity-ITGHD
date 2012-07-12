@@ -168,7 +168,10 @@ public class InGameScript : MonoBehaviour {
 				Debug.Log("Not so close");
 			}
 		
-		}else if(Input.GetKeyDown(KeyCode.DownArrow)){
+		}
+		
+		
+		if(Input.GetKeyDown(KeyCode.DownArrow)){
 			var ar = findNextDownArrow();
 			double prec = Mathf.Abs((float)(ar.Value - (timetotalchart - Time.deltaTime)));
 			Debug.Log("AL ! " + prec);
@@ -185,7 +188,10 @@ public class InGameScript : MonoBehaviour {
 				Debug.Log("Not so close");
 			}
 		
-		}else if(Input.GetKeyDown(KeyCode.UpArrow)){
+		}
+		
+		
+		if(Input.GetKeyDown(KeyCode.UpArrow)){
 			var ar = findNextUpArrow();
 			double prec = Mathf.Abs((float)(ar.Value - (timetotalchart - Time.deltaTime)));
 			Debug.Log("AL ! " + prec);
@@ -202,7 +208,10 @@ public class InGameScript : MonoBehaviour {
 				Debug.Log("Not so close");
 			}
 		
-		}else if(Input.GetKeyDown(KeyCode.RightArrow)){
+		}
+		
+		
+		if(Input.GetKeyDown(KeyCode.RightArrow)){
 			var ar = findNextRightArrow();
 			double prec = Mathf.Abs((float)(ar.Value - (timetotalchart - Time.deltaTime)));
 			Debug.Log("AL ! " + prec);
@@ -234,14 +243,13 @@ public class InGameScript : MonoBehaviour {
 		
 		var theBPMCounter = 1;
 		var theSTOPCounter = 0;
-		bool stopforBPM = false;
-		bool stopforSTOP = false;
 		double mesurecount = 0;
 		double prevmesure = 0;
 		double timecounter = 0;
 		double timeBPM = 0;
 		double timestop = 0;
 		double timetotal = 0;
+		float prec = 0.001f;
 		foreach(var mesure in s.stepchart){
 			
 			for(int beat=0;beat<mesure.Count;beat++){
@@ -249,47 +257,51 @@ public class InGameScript : MonoBehaviour {
 			
 				var bps = s.getBPS(s.bpms.ElementAt(theBPMCounter-1).Value);
 				if(theBPMCounter < s.bpms.Count && theSTOPCounter < s.stops.Count){
-					while((s.bpms.ElementAt(theBPMCounter).Key*bps < mesurecount || s.stops.ElementAt(theSTOPCounter).Key*bps < mesurecount) 
-					&& (theBPMCounter < s.bpms.Count && theSTOPCounter < s.stops.Count)){
+					while((theBPMCounter < s.bpms.Count && theSTOPCounter < s.stops.Count) 
+						&& (s.mesureBPMS.ElementAt(theBPMCounter) < mesurecount - prec || s.mesureSTOPS.ElementAt(theSTOPCounter) < mesurecount - prec)){
 					
-						if(s.bpms.ElementAt(theBPMCounter).Key*bps < s.stops.ElementAt(theSTOPCounter).Key*bps){
-							timecounter += (s.bpms.ElementAt(theBPMCounter).Key*bps - previousmesure))/bps;
+						if(s.mesureBPMS.ElementAt(theBPMCounter) < s.mesureSTOPS.ElementAt(theSTOPCounter)){
+							timecounter += (s.mesureBPMS.ElementAt(theBPMCounter) - prevmesure)/bps;
 							
 							timeBPM += timecounter;
 							timecounter = 0;
-							previousmesure = s.bpms.ElementAt(theBPMCounter).Key*bps;
+							prevmesure = s.mesureBPMS.ElementAt(theBPMCounter);
 							theBPMCounter++;
 							bps = s.getBPS(s.bpms.ElementAt(theBPMCounter-1).Value);
-						}else if(s.bpms.ElementAt(theBPMCounter).Key*bps > s.stops.ElementAt(theSTOPCounter).Key*bps){
+							//Debug.Log("And bpm change before / bpm");
+						}else if(s.mesureBPMS.ElementAt(theBPMCounter) > s.mesureSTOPS.ElementAt(theSTOPCounter)){
 							timestop += s.stops.ElementAt(theSTOPCounter).Value;
 							theSTOPCounter++;
+							//Debug.Log("And stop change before");
 						}else{
-							timecounter += (s.bpms.ElementAt(theBPMCounter).Key*bps - previousmesure))/bps;
+							timecounter += (s.mesureBPMS.ElementAt(theBPMCounter) - prevmesure)/bps;
 							timeBPM += timecounter;
 							timecounter = 0;
-							previousmesure = s.bpms.ElementAt(theBPMCounter).Key*bps;
+							prevmesure = s.mesureBPMS.ElementAt(theBPMCounter);
 							theBPMCounter++;
 							bps = s.getBPS(s.bpms.ElementAt(theBPMCounter-1).Value);
 							
 							timestop += s.stops.ElementAt(theSTOPCounter).Value;
 							theSTOPCounter++;
+							//Debug.Log("And bpm change before");
+							//Debug.Log("And stop change before");
 						}
 						
 					}
 				}else if(theBPMCounter < s.bpms.Count){
-					while(s.bpms.ElementAt(theBPMCounter).Key*bps < mesurecount){
+					while((theBPMCounter < s.bpms.Count) && s.mesureBPMS.ElementAt(theBPMCounter) < mesurecount - prec){
 						
-						timecounter += (s.bpms.ElementAt(theBPMCounter).Key*bps - previousmesure))/bps;
+						timecounter += (s.mesureBPMS.ElementAt(theBPMCounter) - prevmesure)/bps;
 							
 						timeBPM += timecounter;
 						timecounter = 0;
-						previousmesure = s.bpms.ElementAt(theBPMCounter).Key*bps;
+						prevmesure = s.mesureBPMS.ElementAt(theBPMCounter);
 						theBPMCounter++;
 						bps = s.getBPS(s.bpms.ElementAt(theBPMCounter-1).Value);
 					
 					}
-				}else if(theSTOPCounter < s.stops.Count){
-					while(s.stops.ElementAt(theSTOPCounter).Key*bps < mesurecount){
+				}else if((theSTOPCounter < s.stops.Count) && theSTOPCounter < s.stops.Count){
+					while(s.mesureSTOPS.ElementAt(theSTOPCounter) < mesurecount - prec){
 						
 						timestop += s.stops.ElementAt(theSTOPCounter).Value;
 						theSTOPCounter++;
@@ -298,13 +310,13 @@ public class InGameScript : MonoBehaviour {
 				}
 				
 				
-				timecounter += (mesurecount - previousmesure)/bps;
+				timecounter += (mesurecount - prevmesure)/bps;
 				
 				
 				timetotal = timecounter + timeBPM + timestop;
 				
 				char[] note = mesure.ElementAt(beat).Trim().ToCharArray();
-				var barrow = false;
+				//var barrow = false;
 				for(int i =0;i<4; i++){
 					if(note[i] == '1' || note[i] == '2'){
 						//var theArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos  + (float)s.offset, 0f), arrow.transform.rotation);
@@ -325,7 +337,7 @@ public class InGameScript : MonoBehaviour {
 							break;
 						}
 						
-						barrow = true;
+						//barrow = true;
 					}
 					
 				
@@ -334,22 +346,27 @@ public class InGameScript : MonoBehaviour {
 				
 				
 				
-				if(barrow)Debug.Log("ARROW : " + timetotal);
-				if(!barrow)Debug.Log("no arrow : " + timetotal);	
+				//if(barrow)Debug.Log("ARROW : " + timetotal);
+				//if(!barrow)Debug.Log("no arrow : " + timetotal);	
 				
 				
-				if(Math.Abs(s.bpms.ElementAt(theBPMCounter).Key*bps - mesurecount) < (double)0.0001){
-						timeBPM += timecounter;
-						timecounter = 0;
-						theBPMCounter++;
+				if(theBPMCounter < s.bpms.Count){
+					if(Mathf.Abs((float)(s.mesureBPMS.ElementAt(theBPMCounter) - mesurecount)) < prec){
+							timeBPM += timecounter;
+							timecounter = 0;
+							theBPMCounter++;
+							//Debug.Log("And bpm change");
+					}
 				}
 				
-				if(Math.Abs(s.stops.ElementAt(theSTOPCounter).Key*bps - mesurecount) < (double)0.0001){
-						timestop += s.stops.ElementAt(theSTOPCounter).Value;
-						theSTOPCounter++;
+				if(theSTOPCounter < s.stops.Count){
+					if(Mathf.Abs((float)(s.mesureSTOPS.ElementAt(theSTOPCounter) - mesurecount)) < prec){
+							timestop += s.stops.ElementAt(theSTOPCounter).Value;
+							theSTOPCounter++;
+							//Debug.Log("And stop");
+					}
 				}
-				
-				previousmesure = mesurecount;
+				prevmesure = mesurecount;
 				mesurecount += (4f/(float)mesure.Count);
 				
 				

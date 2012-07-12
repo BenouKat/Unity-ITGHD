@@ -80,6 +80,8 @@ public class OpenChart{
 		var theBpmList = new Dictionary<double, double>();
 		var theStopList = new Dictionary<double, double>();
 		
+		var theBpmMesureList = new List<double>();
+		var theStopMesureList = new List<double>();
 		//getting bpms with mesure
 		string[] thebpm = listLine.FirstOrDefault(c => c.Contains("BPMS")).Split(':');
 		string thebpmline = thebpm[1];
@@ -151,7 +153,7 @@ public class OpenChart{
 				
 				
 				theStopList.Add(previoustime + stoptime + (theStopListMesured.First().Key - previousmesure)/previousbps, theStopListMesured.First().Value);
-				
+				theStopMesureList.Add(theStopListMesured.First().Key);
 				
 				previoustime += (theStopListMesured.First().Key - previousmesure)/previousbps;
 				previousmesure = theStopListMesured.First().Key;
@@ -165,7 +167,7 @@ public class OpenChart{
 				
 				
 				theBpmList.Add(previousbps == 0 ? 0 : previoustime + stoptime + (theBpmListMesured.First().Key - previousmesure)/previousbps, theBpmListMesured.First().Value);
-				
+				theBpmMesureList.Add(theBpmListMesured.First().Key);
 				
 				previoustime += (previousbps == 0 ? 0 : (theBpmListMesured.First().Key - previousmesure)/previousbps);
 				previousbps = theBpmList.Last().Value/(double)60.0;
@@ -178,10 +180,10 @@ public class OpenChart{
 				
 				
 				theStopList.Add(previousbps == 0 ? 0 : previoustime + stoptime + (theStopListMesured.First().Key - previousmesure)/previousbps, theStopListMesured.First().Value);
-			
+				theStopMesureList.Add(theStopListMesured.First().Key);
 				
 				theBpmList.Add(previousbps == 0 ? 0 : previoustime + stoptime + (theBpmListMesured.First().Key - previousmesure)/previousbps, theBpmListMesured.First().Value);
-				
+				theBpmMesureList.Add(theBpmListMesured.First().Key);
 				
 				previoustime += (previousbps == 0 ? 0 : (theBpmListMesured.First().Key - previousmesure)/previousbps);
 				previousbps = theBpmList.Last().Value/(double)60.0;
@@ -200,7 +202,7 @@ public class OpenChart{
 
 				
 				theStopList.Add(previoustime + stoptime + (theStopListMesured.First().Key - previousmesure)/previousbps, theStopListMesured.First().Value);
-				
+				theStopMesureList.Add(theStopListMesured.First().Key);
 				
 				previoustime += (theStopListMesured.First().Key - previousmesure)/previousbps;
 				previousmesure = theStopListMesured.First().Key;
@@ -215,7 +217,7 @@ public class OpenChart{
 			
 				
 				theBpmList.Add(previousbps == 0 ? 0 : previoustime + stoptime + (theBpmListMesured.First().Key - previousmesure)/previousbps, theBpmListMesured.First().Value);
-				
+				theBpmMesureList.Add(theBpmListMesured.First().Key);
 				
 				previoustime += (previousbps == 0 ? 0 : (theBpmListMesured.First().Key - previousmesure)/previousbps);
 				previousbps = theBpmList.Last().Value/(double)60.0;
@@ -245,7 +247,8 @@ public class OpenChart{
 			theNewsong.samplelenght = samplelenght;
 			theNewsong.bpms = theBpmList;
 			theNewsong.stops = theStopList;
-			
+			theNewsong.mesureBPMS = theBpmMesureList;
+			theNewsong.mesureSTOPS = theStopMesureList;
 			
 			//getting song information
 			int beginInformation = index;

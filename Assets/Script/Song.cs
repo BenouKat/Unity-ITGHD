@@ -14,6 +14,8 @@ public class Song {
 	public double offset;
 	public double samplestart;
 	public double samplelenght;
+	public List<double> mesureBPMS;
+	public List<double> mesureSTOPS;
 	public Dictionary<double, double> bpms;
 	public Dictionary<double, double> stops;
 	public string stepartist;

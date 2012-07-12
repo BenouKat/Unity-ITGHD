@@ -2,8 +2,8 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\InGameScript.cs">
     <Files>
-      <File FileName="Assets\Script\InGameScript.cs" Line="101" Column="4" />
-      <File FileName="Assets\Script\ArrowScript.cs" Line="39" Column="4" />
+      <File FileName="Assets\Script\InGameScript.cs" Line="262" Column="5" />
+      <File FileName="Assets\Script\ArrowScript.cs" Line="32" Column="2" />
       <File FileName="Assets\Script\OpenChart.cs" Line="216" Column="5" />
     </Files>
   </MonoDevelop.Ide.Workbench>
