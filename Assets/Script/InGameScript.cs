@@ -236,19 +236,72 @@ public class InGameScript : MonoBehaviour {
 		var theSTOPCounter = 0;
 		bool stopforBPM = false;
 		bool stopforSTOP = false;
-		int mesurecount = 0;
+		double mesurecount = 0;
+		double prevmesure = 0;
+		double timecounter = 0;
+		double timeBPM = 0;
+		double timestop = 0;
+		double timetotal = 0;
 		foreach(var mesure in s.stepchart){
 			
 			for(int beat=0;beat<mesure.Count;beat++){
 			
+			
 				var bps = s.getBPS(s.bpms.ElementAt(theBPMCounter-1).Value);
 				if(theBPMCounter < s.bpms.Count && theSTOPCounter < s.stops.Count){
-					while(s.bpms.ElementAt(theBPMCounter).Key*bps < mesurecount || s.stops.ElementAt(theSTOPCounter).Key*bps < mesurecount){
-						
+					while((s.bpms.ElementAt(theBPMCounter).Key*bps < mesurecount || s.stops.ElementAt(theSTOPCounter).Key*bps < mesurecount) 
+					&& (theBPMCounter < s.bpms.Count && theSTOPCounter < s.stops.Count)){
+					
+						if(s.bpms.ElementAt(theBPMCounter).Key*bps < s.stops.ElementAt(theSTOPCounter).Key*bps){
+							timecounter += (s.bpms.ElementAt(theBPMCounter).Key*bps - previousmesure))/bps;
 							
+							timeBPM += timecounter;
+							timecounter = 0;
+							previousmesure = s.bpms.ElementAt(theBPMCounter).Key*bps;
+							theBPMCounter++;
+							bps = s.getBPS(s.bpms.ElementAt(theBPMCounter-1).Value);
+						}else if(s.bpms.ElementAt(theBPMCounter).Key*bps > s.stops.ElementAt(theSTOPCounter).Key*bps){
+							timestop += s.stops.ElementAt(theSTOPCounter).Value;
+							theSTOPCounter++;
+						}else{
+							timecounter += (s.bpms.ElementAt(theBPMCounter).Key*bps - previousmesure))/bps;
+							timeBPM += timecounter;
+							timecounter = 0;
+							previousmesure = s.bpms.ElementAt(theBPMCounter).Key*bps;
+							theBPMCounter++;
+							bps = s.getBPS(s.bpms.ElementAt(theBPMCounter-1).Value);
+							
+							timestop += s.stops.ElementAt(theSTOPCounter).Value;
+							theSTOPCounter++;
+						}
+						
+					}
+				}else if(theBPMCounter < s.bpms.Count){
+					while(s.bpms.ElementAt(theBPMCounter).Key*bps < mesurecount){
+						
+						timecounter += (s.bpms.ElementAt(theBPMCounter).Key*bps - previousmesure))/bps;
+							
+						timeBPM += timecounter;
+						timecounter = 0;
+						previousmesure = s.bpms.ElementAt(theBPMCounter).Key*bps;
+						theBPMCounter++;
+						bps = s.getBPS(s.bpms.ElementAt(theBPMCounter-1).Value);
+					
+					}
+				}else if(theSTOPCounter < s.stops.Count){
+					while(s.stops.ElementAt(theSTOPCounter).Key*bps < mesurecount){
+						
+						timestop += s.stops.ElementAt(theSTOPCounter).Value;
+						theSTOPCounter++;
 					
 					}
 				}
+				
+				
+				timecounter += (mesurecount - previousmesure)/bps;
+				
+				
+				timetotal = timecounter + timeBPM + timestop;
 				
 				char[] note = mesure.ElementAt(beat).Trim().ToCharArray();
 				var barrow = false;
@@ -285,8 +338,21 @@ public class InGameScript : MonoBehaviour {
 				if(!barrow)Debug.Log("no arrow : " + timetotal);	
 				
 				
+				if(Math.Abs(s.bpms.ElementAt(theBPMCounter).Key*bps - mesurecount) < (double)0.0001){
+						timeBPM += timecounter;
+						timecounter = 0;
+						theBPMCounter++;
+				}
 				
+				if(Math.Abs(s.stops.ElementAt(theSTOPCounter).Key*bps - mesurecount) < (double)0.0001){
+						timestop += s.stops.ElementAt(theSTOPCounter).Value;
+						theSTOPCounter++;
+				}
+				
+				previousmesure = mesurecount;
 				mesurecount += (4f/(float)mesure.Count);
+				
+				
 				ypos += (4f/(float)mesure.Count)*speedmod;
 				
 			}
