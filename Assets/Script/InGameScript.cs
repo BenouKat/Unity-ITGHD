@@ -5,7 +5,10 @@ using System.Linq;
 
 public class InGameScript : MonoBehaviour {
 	
+	
+	//Game object song scene
 	public GameObject arrow;
+	public GameObject freeze;
 	public Camera MainCamera;
 	public GameObject arrowLeft;
 	public GameObject arrowRight;
@@ -34,6 +37,9 @@ public class InGameScript : MonoBehaviour {
 	
 	public float speedmod = 4f; //speedmod (trop lent ?)
 	
+	//Temps pour le lachement de freeze
+	public float unfrozed = 0.375f;
+	
 	
 	//fps count
 	private long _count;
@@ -41,15 +47,19 @@ public class InGameScript : MonoBehaviour {
 	private float _timer;
 	
 	//stepchart divisé par input
-	private Dictionary<GameObject, double> arrowLeftList;
-	private Dictionary<GameObject, double> arrowRightList;
-	private Dictionary<GameObject, double> arrowDownList;
-	private Dictionary<GameObject, double> arrowUpList;
+	private List<Arrow> arrowLeftList;
+	private List<Arrow> arrowRightList;
+	private List<Arrow> arrowDownList;
+	private List<Arrow> arrowUpList;
+	
+	
+	
+	private Dictionary<Arrow, float> arrowFrozen;
 	
 	// Use this for initialization
 	
 	void Start () {
-		thesong = OpenChart.Instance.readChart("BrokenTheMoon")[0];
+		thesong = OpenChart.Instance.readChart("Still Blastin'")[0];
 		createTheChart(thesong);
 		Application.targetFrameRate = -1;
 		nextSwitchBPM = 1;
@@ -64,17 +74,29 @@ public class InGameScript : MonoBehaviour {
 		timechart = 0f;
 		timetotalchart = (double)0;
 		
+		
+		arrowFrozen = new Dictionary<Arrow, float>();
 		dontstopmenow = true;
 	}
 	
 	
+	
+	
+	//only for FPS
 	void OnGUI(){
 		GUI.Label(new Rect(0.9f*Screen.width, 0.05f*Screen.height, 200f, 200f), fps.ToString());	
 	}
 	
+	
+	
+	
+	
+	
 	// Update is called once per frame
 	void Update () {
 		
+		
+		//FPS
 		_count++;
 		_timer += Time.deltaTime;
 		if(_timer >= 1f){
@@ -83,11 +105,18 @@ public class InGameScript : MonoBehaviour {
 			_timer = 0;
 		}
 		
+		
+		//timetotal for this frame
 		timetotalchart = timebpm + timechart + totaltimestop;
 		
-		VerifyKeys();
+		//Verify inputs
+		VerifyValidFrozenArrow();
+		VerifyKeysInput();
+		VerifyKeysOutput();
 		
 		
+		
+		//BPM change verify
 		if(nextSwitchBPM < thesong.bpms.Count && (thesong.bpms.ElementAt(nextSwitchBPM).Key <= timetotalchart)){
 			
 			
@@ -101,6 +130,7 @@ public class InGameScript : MonoBehaviour {
 		}
 		
 		
+		//Stop verif
 		if(nextSwitchStop < thesong.stops.Count && (thesong.stops.ElementAt(nextSwitchStop).Key <= timetotalchart)){
 			timetotalchart = timebpm + timechart + totaltimestop;
 			timechart -= (float)timetotalchart - (float)thesong.stops.ElementAt(nextSwitchStop).Key;
@@ -111,7 +141,7 @@ public class InGameScript : MonoBehaviour {
 			//Debug.Log("entry stop : " + timetotalchart);
 		}
 		
-		
+		//timechart ++
 		if(actualstop != 0){
 			if(timestop >= actualstop){
 				timechart += timestop - (float)actualstop;
@@ -138,6 +168,9 @@ public class InGameScript : MonoBehaviour {
 		
 	}
 	
+	
+	
+	//For moving arrows or do some displaying things
 	void FixedUpdate(){
 		
 		var bps = thesong.getBPS(actualBPM);
@@ -146,26 +179,85 @@ public class InGameScript : MonoBehaviour {
 		arrowRight.transform.position = new Vector3(6f, -((float)(bps*timechart))*speedmod + changeBPM, 2f);
 		arrowDown.transform.position = new Vector3(2f, -((float)(bps*timechart))*speedmod + changeBPM, 2f);
 		arrowUp.transform.position = new Vector3(4f, -((float)(bps*timechart))*speedmod + changeBPM, 2f);
+		
+		foreach(var el in arrowFrozen.Keys){
+			var pos = el.goArrow.transform.position;
+			el.goArrow.transform.position = new Vector3(pos.x, -((float)(bps*timechart))*speedmod  + changeBPM, pos.z);
+			pos = el.goArrow.transform.position;
+			
+			el.goFreeze.transform.position = new Vector3(el.goFreeze.transform.position.x, (pos.y + ((el.posEnding.y - pos.y)/2f)) , el.goFreeze.transform.position.z);
+			el.goFreeze.transform.localScale = new Vector3(1f, -((el.posEnding.y - pos.y)/2f), 0.1f);
+			el.goFreeze.transform.GetChild(0).transform.localScale = new Vector3((el.posEnding.y - pos.y)/(el.posEnding.y - el.posBegining.y), 1f, 0.1f);
+			el.changeColorFreeze(arrowFrozen[el], unfrozed);
+		}
 	}
 	
 	
 	
-	void VerifyKeys(){
+	//Valid or deny the frozen arrow
+	void VerifyValidFrozenArrow(){
+		if(arrowFrozen.Count > 0){
+			var KeyToRemove = new List<Arrow>();
+			for(int i=0; i<arrowFrozen.Count;i++){
+				var el = arrowFrozen.ElementAt(i);
+				arrowFrozen[el.Key] += Time.deltaTime;
+				
+				if(el.Key.timeEndingFreeze <= timetotalchart){
+					
+					DestroyImmediate(el.Key.goArrow);
+					DestroyImmediate(el.Key.goFreeze);
+					KeyToRemove.Add(el.Key);
+				}
+				
+				
+				if(el.Value >= unfrozed && !KeyToRemove.Contains(el.Key)){
+					el.Key.goArrow.GetComponent<ArrowScript>().missed = true;
+					KeyToRemove.Add(el.Key);
+				}
+				
+				
+			}
+			
+			
+			
+			foreach(var k in KeyToRemove){
+				arrowFrozen.Remove(k);
+			}
+			
+		}
+	}
+	
+	
+	//Verify keys Input at this frame
+	void VerifyKeysInput(){
 		if(Input.GetKeyDown(KeyCode.LeftArrow)){
 			var ar = findNextLeftArrow();
-			double prec = Mathf.Abs((float)(ar.Value - (timetotalchart - Time.deltaTime)));
-			Debug.Log("AL ! " + prec);
+			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
+			//Debug.Log("AL ! " + prec);
 			if(prec < (double)0.102){ //great
-				arrowLeftList.Remove(ar.Key);
-				DestroyImmediate(ar.Key);
-				Debug.Log("Great !");
-			//Start coroutine score
+				if(ar.arrowType == Arrow.ArrowType.NORMAL || ar.arrowType == Arrow.ArrowType.MINE){
+					arrowLeftList.Remove(ar);
+					DestroyImmediate(ar.goArrow);
+				}else{
+					arrowLeftList.Remove(ar);
+					arrowFrozen.Add(ar,0f);
+					ar.displayFrozenBar();
+				}
+				//Debug.Log("Great !");
+				
 			}else if(prec < (double)0.300){ //miss
-				ar.Key.GetComponent<ArrowScript>().missed = true;
-				arrowLeftList.Remove(ar.Key);
-				Debug.Log("Miss... !");
+				ar.goArrow.GetComponent<ArrowScript>().missed = true;
+				arrowLeftList.Remove(ar);
+				//Debug.Log("Miss... !");
 			}else{
-				Debug.Log("Not so close");
+				//Debug.Log("Not so close");
+			}
+			
+			
+			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 0f && c.Key.arrowType == Arrow.ArrowType.ROLL))
+			{
+				var froz = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 0f);
+				arrowFrozen[froz.Key] = 0f;
 			}
 		
 		}
@@ -173,39 +265,62 @@ public class InGameScript : MonoBehaviour {
 		
 		if(Input.GetKeyDown(KeyCode.DownArrow)){
 			var ar = findNextDownArrow();
-			double prec = Mathf.Abs((float)(ar.Value - (timetotalchart - Time.deltaTime)));
-			Debug.Log("AL ! " + prec);
+			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
+			//Debug.Log("AL ! " + prec);
 			if(prec < (double)0.102){ //great
-				arrowDownList.Remove(ar.Key);
-				DestroyImmediate(ar.Key);
-				Debug.Log("Great !");
+				if(ar.arrowType == Arrow.ArrowType.NORMAL || ar.arrowType == Arrow.ArrowType.MINE){
+					arrowDownList.Remove(ar);
+					DestroyImmediate(ar.goArrow);
+				}else{
+					arrowDownList.Remove(ar);
+					arrowFrozen.Add(ar,0f);
+					ar.displayFrozenBar();
+				}
+				//Debug.Log("Great !");
 			//Start coroutine score
 			}else if(prec < (double)0.300){ //miss
-				ar.Key.GetComponent<ArrowScript>().missed = true;
-				arrowDownList.Remove(ar.Key);
-				Debug.Log("Miss... !");
+				ar.goArrow.GetComponent<ArrowScript>().missed = true;
+				arrowDownList.Remove(ar);
+				//Debug.Log("Miss... !");
 			}else{
-				Debug.Log("Not so close");
+				//Debug.Log("Not so close");
 			}
 		
+			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 2f && c.Key.arrowType == Arrow.ArrowType.ROLL))
+			{
+				var froz = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 2f);
+				arrowFrozen[froz.Key] = 0f;
+			}
 		}
 		
 		
 		if(Input.GetKeyDown(KeyCode.UpArrow)){
 			var ar = findNextUpArrow();
-			double prec = Mathf.Abs((float)(ar.Value - (timetotalchart - Time.deltaTime)));
-			Debug.Log("AL ! " + prec);
+			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
+			//Debug.Log("AL ! " + prec);
 			if(prec < (double)0.102){ //great
-				arrowUpList.Remove(ar.Key);
-				DestroyImmediate(ar.Key);
-				Debug.Log("Great !");
+				if(ar.arrowType == Arrow.ArrowType.NORMAL || ar.arrowType == Arrow.ArrowType.MINE){
+					arrowUpList.Remove(ar);
+					DestroyImmediate(ar.goArrow);
+				}else{
+					arrowUpList.Remove(ar);
+					arrowFrozen.Add(ar,0f);
+					ar.displayFrozenBar();
+				}
+			//	Debug.Log("Great !");
 			//Start coroutine score
 			}else if(prec < (double)0.300){ //miss
-				ar.Key.GetComponent<ArrowScript>().missed = true;
-				arrowUpList.Remove(ar.Key);
-				Debug.Log("Miss... !");
+				ar.goArrow.GetComponent<ArrowScript>().missed = true;
+				arrowUpList.Remove(ar);
+				//Debug.Log("Miss... !");
 			}else{
-				Debug.Log("Not so close");
+				//Debug.Log("Not so close");
+			}
+			
+			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 4f && c.Key.arrowType == Arrow.ArrowType.ROLL))
+			{
+				var froz = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 4f);
+				arrowFrozen[froz.Key] = 0f;
 			}
 		
 		}
@@ -213,32 +328,88 @@ public class InGameScript : MonoBehaviour {
 		
 		if(Input.GetKeyDown(KeyCode.RightArrow)){
 			var ar = findNextRightArrow();
-			double prec = Mathf.Abs((float)(ar.Value - (timetotalchart - Time.deltaTime)));
-			Debug.Log("AL ! " + prec);
+			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
+			//Debug.Log("AL ! " + prec);
 			if(prec < (double)0.102){ //great
-				arrowRightList.Remove(ar.Key);
-				DestroyImmediate(ar.Key);
-				Debug.Log("Great !");
+				if(ar.arrowType == Arrow.ArrowType.NORMAL || ar.arrowType == Arrow.ArrowType.MINE){
+					arrowRightList.Remove(ar);
+					DestroyImmediate(ar.goArrow);
+				}else{
+					arrowRightList.Remove(ar);
+					arrowFrozen.Add(ar,0f);
+					ar.displayFrozenBar();
+				}
+				//Debug.Log("Great !");
 			//Start coroutine score
 			}else if(prec < (double)0.300){ //miss
-				ar.Key.GetComponent<ArrowScript>().missed = true;
-				arrowRightList.Remove(ar.Key);
-				Debug.Log("Miss... !");
+				ar.goArrow.GetComponent<ArrowScript>().missed = true;
+				arrowRightList.Remove(ar);
+				//Debug.Log("Miss... !");
 			}else{
-				Debug.Log("Not so close");
+				//Debug.Log("Not so close");
+			}
+			
+			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 6f && c.Key.arrowType == Arrow.ArrowType.ROLL))
+			{
+				var froz = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 6f);
+				arrowFrozen[froz.Key] = 0f;
 			}
 		
 		}
 		
 	}
 	
+	
+	//Verify Key for all frames
+	void VerifyKeysOutput(){
+		if(arrowFrozen.Count > 0){
+			if(Input.GetKey(KeyCode.LeftArrow)){
+				if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 0f && c.Key.arrowType == Arrow.ArrowType.FREEZE)){
+					var ar = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 0f);
+					arrowFrozen[ar.Key] = 0f;
+				}
+			
+			}
+			
+			
+			if(Input.GetKey(KeyCode.DownArrow)){
+				if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 2f && c.Key.arrowType == Arrow.ArrowType.FREEZE)){
+					var ar = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 2f);
+					arrowFrozen[ar.Key] = 0f;
+				}
+			
+			}
+			
+			
+			if(Input.GetKey(KeyCode.UpArrow)){
+				if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 4f && c.Key.arrowType == Arrow.ArrowType.FREEZE)){
+					var ar = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 4f);
+					arrowFrozen[ar.Key] = 0f;
+				}
+			}
+			
+			
+			if(Input.GetKey(KeyCode.RightArrow)){
+				if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 6f && c.Key.arrowType == Arrow.ArrowType.FREEZE)){
+					var ar = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 6f);
+					arrowFrozen[ar.Key] = 0f;
+				}
+			}
+		}
+	}
+	
+	
+	
+	
+	
+	//Create the chart
 	void createTheChart(Song s){
 		
 		var ypos = 0f;
-		arrowLeftList = new Dictionary<GameObject, double>();
-		arrowUpList = new Dictionary<GameObject, double>();
-		arrowDownList = new Dictionary<GameObject, double>();
-		arrowRightList = new Dictionary<GameObject, double>();
+		arrowLeftList = new List<Arrow>();
+		arrowUpList = new List<Arrow>();
+		arrowDownList = new List<Arrow>();
+		arrowRightList = new List<Arrow>();
 		
 		
 		var theBPMCounter = 1;
@@ -250,6 +421,8 @@ public class InGameScript : MonoBehaviour {
 		double timestop = 0;
 		double timetotal = 0;
 		float prec = 0.001f;
+		
+		var ArrowFreezed = new Arrow[4];
 		foreach(var mesure in s.stepchart){
 			
 			for(int beat=0;beat<mesure.Count;beat++){
@@ -318,29 +491,97 @@ public class InGameScript : MonoBehaviour {
 				char[] note = mesure.ElementAt(beat).Trim().ToCharArray();
 				//var barrow = false;
 				for(int i =0;i<4; i++){
-					if(note[i] == '1' || note[i] == '2'){
+					if(note[i] == '1'){
 						//var theArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos  + (float)s.offset, 0f), arrow.transform.rotation);
-						var theArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
-						theArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
+						
+						
+						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
+						goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
+						var theArrow = new Arrow(goArrow, Arrow.ArrowType.NORMAL, timetotal);
 						switch(i){
 						case 0:
-							arrowLeftList.Add(theArrow, timetotal);
+							arrowLeftList.Add(theArrow);
 							break;
 						case 1:
-							arrowDownList.Add(theArrow, timetotal);
+							arrowDownList.Add(theArrow);
 							break;
 						case 2:
-							arrowUpList.Add(theArrow, timetotal);
+							arrowUpList.Add(theArrow);
 							break;
 						case 3:
-							arrowRightList.Add(theArrow, timetotal);
+							arrowRightList.Add(theArrow);
 							break;
 						}
 						
 						//barrow = true;
-					}
+					}else if(note[i] == '2'){
+						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
+						goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
+						var theArrow = new Arrow(goArrow, Arrow.ArrowType.FREEZE, timetotal);
+						ArrowFreezed[i] = theArrow;
+						switch(i){
+						case 0:
+							arrowLeftList.Add(theArrow);
+							break;
+						case 1:
+							arrowDownList.Add(theArrow);
+							break;
+						case 2:
+							arrowUpList.Add(theArrow);
+							break;
+						case 3:
+							arrowRightList.Add(theArrow);
+							break;
+						}
+						
+					}else if(note[i] == '3'){
+						var theArrow = ArrowFreezed[i];
+						var goFreeze = (GameObject) Instantiate(freeze, new Vector3(i*2, (theArrow.goArrow.transform.position.y + ((-ypos - theArrow.goArrow.transform.position.y)/2f)) , 0.5f), arrow.transform.rotation);
+						goFreeze.transform.localScale = new Vector3(1f, -((-ypos - theArrow.goArrow.transform.position.y)/2f), 0.1f);
+						goFreeze.transform.GetChild(0).renderer.material.color = theArrow.goArrow.renderer.material.color;
+						theArrow.setArrowFreeze(timetotal, new Vector3(i*2,-ypos, 0f), goFreeze, null);
 					
-				
+					}else if(note[i] == '4'){
+						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
+						goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
+						var theArrow = new Arrow(goArrow, Arrow.ArrowType.FREEZE, timetotal);
+						ArrowFreezed[i] = theArrow;
+						switch(i){
+						case 0:
+							arrowLeftList.Add(theArrow);
+							break;
+						case 1:
+							arrowDownList.Add(theArrow);
+							break;
+						case 2:
+							arrowUpList.Add(theArrow);
+							break;
+						case 3:
+							arrowRightList.Add(theArrow);
+							break;
+						}
+						
+					}else if(note[i] == 'M'){
+						/*var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
+						goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
+						var theArrow = new Arrow(goArrow, Arrow.ArrowType.MINE, timetotal);
+						switch(i){
+						case 0:
+							arrowLeftList.Add(theArrow);
+							break;
+						case 1:
+							arrowDownList.Add(theArrow);
+							break;
+						case 2:
+							arrowUpList.Add(theArrow);
+							break;
+						case 3:
+							arrowRightList.Add(theArrow);
+							break;
+						}*/
+						
+					
+					}
 					
 				}
 				
@@ -378,7 +619,10 @@ public class InGameScript : MonoBehaviour {
 	
 	
 	
-	public void removeArrowFromList(GameObject ar, string state){
+	
+	
+	//Remove key from arrow list
+	public void removeArrowFromList(Arrow ar, string state){
 		
 		switch(state){
 			case "left":
@@ -397,29 +641,37 @@ public class InGameScript : MonoBehaviour {
 		}
 	}
 	
-	public KeyValuePair<GameObject, double> findNextUpArrow(){
+	
+	
+	
+	
+	public Arrow findNextUpArrow(){
 
-		return arrowUpList.FirstOrDefault(s => s.Value == arrowUpList.Min(c => c.Value));
+		return arrowUpList.FirstOrDefault(s => s.time == arrowUpList.Min(c => c.time));
 			
 	}
 	
-	public KeyValuePair<GameObject, double> findNextDownArrow(){
+	public Arrow findNextDownArrow(){
 
-		return arrowDownList.FirstOrDefault(s => s.Value == arrowDownList.Min(c => c.Value));
+		return arrowDownList.FirstOrDefault(s => s.time == arrowDownList.Min(c => c.time));
 			
 	}
 	
-	public KeyValuePair<GameObject, double> findNextLeftArrow(){
+	public Arrow findNextLeftArrow(){
 
-		return arrowLeftList.FirstOrDefault(s => s.Value == arrowLeftList.Min(c => c.Value));
+		return arrowLeftList.FirstOrDefault(s => s.time == arrowLeftList.Min(c => c.time));
 			
 	}
 	
-	public KeyValuePair<GameObject, double> findNextRightArrow(){
+	public Arrow findNextRightArrow(){
 
-		return arrowRightList.FirstOrDefault(s => s.Value == arrowRightList.Min(c => c.Value));
+		return arrowRightList.FirstOrDefault(s => s.time == arrowRightList.Min(c => c.time));
 			
 	}
+	
+	
+	
+	
 	
 	
 	Color chooseColor(int posmesure, int mesuretot){

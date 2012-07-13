@@ -4,6 +4,7 @@ using System.Collections;
 public class ArrowScript : MonoBehaviour {
 	public GameObject arrowLeft;
 	public GameObject Engine;
+	private Arrow associatedArrow;
 	public float seuilMiss = 4f;
 	
 	public string state;
@@ -34,7 +35,11 @@ public class ArrowScript : MonoBehaviour {
 	void LateUpdate () {
 		if(!missed && (transform.position.y - arrowLeft.transform.position.y) >= seuilMiss){
 			missed = true;
-			igs.removeArrowFromList(gameObject, state);
+			igs.removeArrowFromList(associatedArrow, state);
 		}
+	}
+	
+	public void setArrowAssociated(Arrow ar){
+		associatedArrow = ar;
 	}
 }
