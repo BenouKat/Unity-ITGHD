@@ -9,7 +9,8 @@ Stepchart :
 - combo-rush ?
 - audio
 - song progressbar
-
+- offset
+- changement de background
 
 Screens :
 - Score Screen
