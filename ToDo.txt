@@ -1,0 +1,47 @@
+//TO DO FILE :
+
+Stepchart :
+- prec displaying
+- Score
+- life (harder ?)
+- Mine
+- combo
+- combo-rush ?
+- audio
+- song progressbar
+
+
+Screens :
+- Score Screen
+- Press start
+- Mode Screen
+	-> Aventure
+		-> Normal (1-13)
+		-> Expert (9 - 20)
+		-> Super Expert (9 - 20) (higher goals)
+	-> Fun : 1j / 2j / mode 8t ?
+	-> Modes : Courses Random ? Survival ? Zone ? Boss battle ?
+	-> Option
+		-> Key Mapping
+		-> Arrow selections
+		-> Preferences ? Ultra customizable ? 
+		
+- Song wheel screen
+	-> Interface ?
+	
+- Song option screen
+	-> Light options (speedmod, perspective, ...)
+
+
+
+
+- Profiles screen
+
+- Achievements
+
+
+		
+Others :
+Mode keyboard/dancepad ?
+
+		
