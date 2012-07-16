@@ -536,7 +536,7 @@ public class InGameScript : MonoBehaviour {
 						
 					}else if(note[i] == '3'){
 						var theArrow = ArrowFreezed[i];
-						var goFreeze = (GameObject) Instantiate(freeze, new Vector3(i*2, (theArrow.goArrow.transform.position.y + ((-ypos - theArrow.goArrow.transform.position.y)/2f)) , 0.5f), arrow.transform.rotation);
+						var goFreeze = (GameObject) Instantiate(freeze, new Vector3(i*2, (theArrow.goArrow.transform.position.y + ((-ypos - theArrow.goArrow.transform.position.y)/2f)) , 0.5f), freeze.transform.rotation);
 						goFreeze.transform.localScale = new Vector3(1f, -((-ypos - theArrow.goArrow.transform.position.y)/2f), 0.1f);
 						goFreeze.transform.GetChild(0).renderer.material.color = theArrow.goArrow.renderer.material.color;
 						theArrow.setArrowFreeze(timetotal, new Vector3(i*2,-ypos, 0f), goFreeze, null);
@@ -544,7 +544,7 @@ public class InGameScript : MonoBehaviour {
 					}else if(note[i] == '4'){
 						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
 						goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
-						var theArrow = new Arrow(goArrow, Arrow.ArrowType.FREEZE, timetotal);
+						var theArrow = new Arrow(goArrow, Arrow.ArrowType.ROLL, timetotal);
 						ArrowFreezed[i] = theArrow;
 						switch(i){
 						case 0:
@@ -670,7 +670,9 @@ public class InGameScript : MonoBehaviour {
 	}
 	
 	
-	
+	public double getTotalTimeChart(){
+		return timetotalchart;	
+	}
 	
 	
 	

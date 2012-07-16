@@ -49,7 +49,7 @@ public class Arrow {
 	}
 	
 	public void changeColorFreeze(float valueFreeze, float maxValue){	
-		goFreeze.renderer.material.color = new Color(1f - (valueFreeze/maxValue)*0.9f, 1f - (valueFreeze/maxValue)*0.9f, 1f - (valueFreeze/maxValue)*0.9f, 1f);
+		goFreeze.renderer.material.color = new Color(1f - (valueFreeze/maxValue)*1.5f, 1f - (valueFreeze/maxValue)*1.5f, 1f - (valueFreeze/maxValue)*1.5f, 1f);
 	}
 	
 	
