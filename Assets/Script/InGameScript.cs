@@ -40,6 +40,11 @@ public class InGameScript : MonoBehaviour {
 	//Temps pour le lachement de freeze
 	public float unfrozed = 0.350f;
 	
+	//Temps pour l'affichage des scores
+	public float limitDisplayScore = 1f;
+	public float timeDisplayScore = 0f;
+	public Precision scoreToDisplay;
+	public Rect posScore = new Rect(0.38f,0.3f,0.25f,0.25f);
 	
 	//fps count
 	private long _count;
@@ -52,12 +57,20 @@ public class InGameScript : MonoBehaviour {
 	private List<Arrow> arrowDownList;
 	private List<Arrow> arrowUpList;
 	
+	//Particle System
 	private GameObject precLeft;
 	private GameObject precRight;
 	private GameObject precUp;
 	private GameObject precDown;
 	
+	//Dico des arrow prises en freeze
 	private Dictionary<Arrow, float> arrowFrozen;
+	
+	
+	//bdd de textures
+	private Dictionary<string, Texture2D> TextureBase;
+	
+	
 	
 	// Use this for initialization
 	
@@ -67,6 +80,7 @@ public class InGameScript : MonoBehaviour {
 		GREAT,
 		DECENT,
 		WAYOFF,
+		MISS,
 		FREEZE,
 		NONE
 	}
@@ -95,11 +109,21 @@ public class InGameScript : MonoBehaviour {
 		
 		//Prepare the scene
 		
-		//TO DO : Vérifier si ça marche...
 		precLeft = (GameObject) arrowLeft.transform.GetChild(0).gameObject;
 		precDown = (GameObject) arrowDown.transform.GetChild(0).gameObject;
 		precRight = (GameObject) arrowRight.transform.GetChild(0).gameObject;
 		precUp = (GameObject) arrowUp.transform.GetChild(0).gameObject;
+		
+		//Textures
+		TextureBase = new Dictionary<string, Texture2D>();
+		TextureBase.Add("FANTASTIC", (Texture2D) Resources.Load("Fantastic"));
+		TextureBase.Add("EXCELLENT", (Texture2D) Resources.Load("Excellent"));
+		TextureBase.Add("GREAT", (Texture2D) Resources.Load("Great"));
+		TextureBase.Add("DECENT", (Texture2D) Resources.Load("Decent"));
+		TextureBase.Add("WAYOFF", (Texture2D) Resources.Load("Wayoff"));
+		TextureBase.Add("MISS", (Texture2D) Resources.Load("Miss"));
+		
+		scoreToDisplay = Precision.NONE;
 	}
 	
 	
@@ -108,6 +132,9 @@ public class InGameScript : MonoBehaviour {
 	//only for FPS
 	void OnGUI(){
 		GUI.Label(new Rect(0.9f*Screen.width, 0.05f*Screen.height, 200f, 200f), fps.ToString());	
+		GUI.Label(new Rect(0.9f*Screen.width, 0.1f*Screen.height, 200f, 200f), ((float)Screen.width/(float)Screen.height).ToString());
+		
+		GUI.DrawTexture(new Rect(posScore.x*Screen.width, posScore.y*Screen.height, posScore.width*Screen.width, posScore.height*Screen.height), TextureBase["FANTASTIC"]);
 	}
 	
 	
@@ -362,8 +389,9 @@ public class InGameScript : MonoBehaviour {
 	}
 	
 	//Verify keys Input at this frame
+	//Null ref exception quand il n'y a plus de flèche !
 	void VerifyKeysInput(){
-		if(Input.GetKeyDown(KeyCode.LeftArrow)){
+		if(Input.GetKeyDown(KeyCode.LeftArrow) && arrowLeftList.Any()){
 			var ar = findNextLeftArrow();
 			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
 			//Debug.Log("AL ! " + prec);
@@ -400,7 +428,7 @@ public class InGameScript : MonoBehaviour {
 		}
 		
 		
-		if(Input.GetKeyDown(KeyCode.DownArrow)){
+		if(Input.GetKeyDown(KeyCode.DownArrow) && arrowDownList.Any()){
 			var ar = findNextDownArrow();
 			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
 			//Debug.Log("AL ! " + prec);
@@ -435,7 +463,7 @@ public class InGameScript : MonoBehaviour {
 		}
 		
 		
-		if(Input.GetKeyDown(KeyCode.UpArrow)){
+		if(Input.GetKeyDown(KeyCode.UpArrow) && arrowUpList.Any()){
 			var ar = findNextUpArrow();
 			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
 			//Debug.Log("AL ! " + prec);
@@ -471,7 +499,7 @@ public class InGameScript : MonoBehaviour {
 		}
 		
 		
-		if(Input.GetKeyDown(KeyCode.RightArrow)){
+		if(Input.GetKeyDown(KeyCode.RightArrow) && arrowRightList.Any()){
 			var ar = findNextRightArrow();
 			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
 			//Debug.Log("AL ! " + prec);
