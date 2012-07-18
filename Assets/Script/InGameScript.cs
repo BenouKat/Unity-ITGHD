@@ -109,6 +109,9 @@ public class InGameScript : MonoBehaviour {
 		//timetotal for this frame
 		timetotalchart = timebpm + timechart + totaltimestop;
 		
+		//Move Arrows
+		MoveArrows();
+			
 		//Verify inputs
 		VerifyValidFrozenArrow();
 		VerifyKeysInput();
@@ -171,7 +174,7 @@ public class InGameScript : MonoBehaviour {
 	
 	
 	//For moving arrows or do some displaying things
-	void FixedUpdate(){
+	void MoveArrows(){
 		
 		var bps = thesong.getBPS(actualBPM);
 		MainCamera.transform.position = new Vector3(3f, -((float)(bps*timechart))*speedmod +  changeBPM - 6, -10f);
