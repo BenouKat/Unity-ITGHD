@@ -33,7 +33,7 @@ public class ArrowScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void LateUpdate () {
-		if(!missed && associatedArrow.time <= (igs.getTotalTimeChart() - (double)0.4)){
+		if(!missed && associatedArrow.time <= (igs.getTotalTimeChart() - (double)0.18)){
 			missed = true;
 			igs.removeArrowFromList(associatedArrow, state);
 		}

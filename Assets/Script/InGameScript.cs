@@ -14,7 +14,7 @@ public class InGameScript : MonoBehaviour {
 	public GameObject arrowRight;
 	public GameObject arrowDown;
 	public GameObject arrowUp;
-	
+	public GameObject particlePrec;
 	
 	
 	private Song thesong;
@@ -38,7 +38,7 @@ public class InGameScript : MonoBehaviour {
 	public float speedmod = 4f; //speedmod (trop lent ?)
 	
 	//Temps pour le lachement de freeze
-	public float unfrozed = 0.375f;
+	public float unfrozed = 0.350f;
 	
 	
 	//fps count
@@ -52,11 +52,25 @@ public class InGameScript : MonoBehaviour {
 	private List<Arrow> arrowDownList;
 	private List<Arrow> arrowUpList;
 	
-	
+	private GameObject precLeft;
+	private GameObject precRight;
+	private GameObject precUp;
+	private GameObject precDown;
 	
 	private Dictionary<Arrow, float> arrowFrozen;
 	
 	// Use this for initialization
+	
+	public enum Precision{
+		FANTASTIC,
+		EXCELLENT,
+		GREAT,
+		DECENT,
+		WAYOFF,
+		FREEZE,
+		NONE
+	}
+	
 	
 	void Start () {
 		thesong = OpenChart.Instance.readChart("Still Blastin'")[0];
@@ -77,6 +91,15 @@ public class InGameScript : MonoBehaviour {
 		
 		arrowFrozen = new Dictionary<Arrow, float>();
 		dontstopmenow = true;
+		
+		
+		//Prepare the scene
+		
+		//TO DO : Vérifier si ça marche...
+		precLeft = (GameObject) arrowLeft.transform.GetChild(0).gameObject;
+		precDown = (GameObject) arrowDown.transform.GetChild(0).gameObject;
+		precRight = (GameObject) arrowRight.transform.GetChild(0).gameObject;
+		precUp = (GameObject) arrowUp.transform.GetChild(0).gameObject;
 	}
 	
 	
@@ -206,15 +229,43 @@ public class InGameScript : MonoBehaviour {
 				arrowFrozen[el.Key] += Time.deltaTime;
 				
 				if(el.Key.timeEndingFreeze <= timetotalchart){
-					
+					switch((int)el.Key.goArrow.transform.position.x){
+					case 0:
+						StartParticleFreezeLeft(false);
+						break;
+					case 2:
+						StartParticleFreezeDown(false);
+						break;
+					case 4:
+						StartParticleFreezeUp(false);
+						break;
+					case 6:
+						StartParticleFreezeRight(false);
+						break;
+					}
 					DestroyImmediate(el.Key.goArrow);
 					DestroyImmediate(el.Key.goFreeze);
+					
 					KeyToRemove.Add(el.Key);
 				}
 				
 				
 				if(el.Value >= unfrozed && !KeyToRemove.Contains(el.Key)){
 					el.Key.goArrow.GetComponent<ArrowScript>().missed = true;
+					switch((int)el.Key.goArrow.transform.position.x){
+					case 0:
+						StartParticleFreezeLeft(false);
+						break;
+					case 2:
+						StartParticleFreezeDown(false);
+						break;
+					case 4:
+						StartParticleFreezeUp(false);
+						break;
+					case 6:
+						StartParticleFreezeRight(false);
+						break;
+					}
 					KeyToRemove.Add(el.Key);
 				}
 				
@@ -231,26 +282,109 @@ public class InGameScript : MonoBehaviour {
 	}
 	
 	
+	void StartParticleLeft(Precision prec){
+		((ParticleSystem) precLeft.transform.FindChild(prec.ToString()).particleSystem).Play();
+	}
+	
+	void StartParticleDown(Precision prec){
+		((ParticleSystem) precDown.transform.FindChild(prec.ToString()).particleSystem).Play();
+	}
+	
+	void StartParticleUp(Precision prec){
+		((ParticleSystem) precUp.transform.FindChild(prec.ToString()).particleSystem).Play();
+	}
+	
+	void StartParticleRight(Precision prec){
+		((ParticleSystem) precRight.transform.FindChild(prec.ToString()).particleSystem).Play();
+	}
+	
+	void StartParticleFreezeLeft(bool state){
+		var ps = ((ParticleSystem) precLeft.transform.FindChild("FREEZE").particleSystem);
+		ps.Play();
+		ps.loop = state;
+		
+	}
+	
+	void StartParticleFreezeRight(bool state){
+		var ps = ((ParticleSystem) precRight.transform.FindChild("FREEZE").particleSystem);
+		ps.Play();
+		ps.loop = state;
+		
+	}
+	
+	void StartParticleFreezeDown(bool state){
+		var ps = ((ParticleSystem) precDown.transform.FindChild("FREEZE").particleSystem);
+		ps.Play();
+		ps.loop = state;
+		
+	}
+	
+	void StartParticleFreezeUp(bool state){
+		var ps = ((ParticleSystem) precUp.transform.FindChild("FREEZE").particleSystem);
+		ps.Play();
+		ps.loop = state;
+		
+	}
+	
+	
+	
+	double precToTime(Precision prec){
+		switch(prec){
+		case Precision.FANTASTIC:
+			return 0.0215;
+		case Precision.EXCELLENT:
+			return 0.043;
+		case Precision.GREAT:
+			return 0.102;
+		case Precision.DECENT:
+			return 0.135;
+		case Precision.WAYOFF:
+			return 0.180;
+		default:
+			return 0;
+		}
+	}
+	
+	Precision timeToPrec(double prec){
+		if(prec <= 0.0215){
+			return Precision.FANTASTIC;
+		}else if(prec <= 0.043){
+			return Precision.EXCELLENT;
+		}else if(prec <= 0.102){
+			return Precision.GREAT;
+		}else if(prec <= 0.135){
+			return Precision.DECENT;
+		}else if(prec <= 0.180){
+			return Precision.WAYOFF;
+		}
+		return Precision.NONE;
+		
+	}
+	
 	//Verify keys Input at this frame
 	void VerifyKeysInput(){
 		if(Input.GetKeyDown(KeyCode.LeftArrow)){
 			var ar = findNextLeftArrow();
 			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
 			//Debug.Log("AL ! " + prec);
-			if(prec < (double)0.102){ //great
+			if(prec < precToTime(Precision.GREAT)){ //great
 				if(ar.arrowType == Arrow.ArrowType.NORMAL || ar.arrowType == Arrow.ArrowType.MINE){
 					arrowLeftList.Remove(ar);
 					DestroyImmediate(ar.goArrow);
+					StartParticleLeft(timeToPrec(prec));
 				}else{
 					arrowLeftList.Remove(ar);
 					arrowFrozen.Add(ar,0f);
 					ar.displayFrozenBar();
+					StartParticleLeft(timeToPrec(prec));
+					StartParticleFreezeLeft(true);
 				}
 				//Debug.Log("Great !");
 				
-			}else if(prec < (double)0.300){ //miss
+			}else if(prec < precToTime(Precision.WAYOFF)){ //miss
 				ar.goArrow.GetComponent<ArrowScript>().missed = true;
 				arrowLeftList.Remove(ar);
+				StartParticleLeft(timeToPrec(prec));
 				//Debug.Log("Miss... !");
 			}else{
 				//Debug.Log("Not so close");
@@ -274,16 +408,20 @@ public class InGameScript : MonoBehaviour {
 				if(ar.arrowType == Arrow.ArrowType.NORMAL || ar.arrowType == Arrow.ArrowType.MINE){
 					arrowDownList.Remove(ar);
 					DestroyImmediate(ar.goArrow);
+					StartParticleDown(timeToPrec(prec));
 				}else{
 					arrowDownList.Remove(ar);
 					arrowFrozen.Add(ar,0f);
 					ar.displayFrozenBar();
+					StartParticleDown(timeToPrec(prec));
+					StartParticleFreezeDown(true);
 				}
 				//Debug.Log("Great !");
 			//Start coroutine score
 			}else if(prec < (double)0.300){ //miss
 				ar.goArrow.GetComponent<ArrowScript>().missed = true;
 				arrowDownList.Remove(ar);
+				StartParticleDown(timeToPrec(prec));
 				//Debug.Log("Miss... !");
 			}else{
 				//Debug.Log("Not so close");
@@ -305,16 +443,20 @@ public class InGameScript : MonoBehaviour {
 				if(ar.arrowType == Arrow.ArrowType.NORMAL || ar.arrowType == Arrow.ArrowType.MINE){
 					arrowUpList.Remove(ar);
 					DestroyImmediate(ar.goArrow);
+					StartParticleUp(timeToPrec(prec));
 				}else{
 					arrowUpList.Remove(ar);
 					arrowFrozen.Add(ar,0f);
 					ar.displayFrozenBar();
+					StartParticleUp(timeToPrec(prec));
+					StartParticleFreezeUp(true);
 				}
 			//	Debug.Log("Great !");
 			//Start coroutine score
 			}else if(prec < (double)0.300){ //miss
 				ar.goArrow.GetComponent<ArrowScript>().missed = true;
 				arrowUpList.Remove(ar);
+				StartParticleUp(timeToPrec(prec));
 				//Debug.Log("Miss... !");
 			}else{
 				//Debug.Log("Not so close");
@@ -337,16 +479,20 @@ public class InGameScript : MonoBehaviour {
 				if(ar.arrowType == Arrow.ArrowType.NORMAL || ar.arrowType == Arrow.ArrowType.MINE){
 					arrowRightList.Remove(ar);
 					DestroyImmediate(ar.goArrow);
+					StartParticleRight(timeToPrec(prec));
 				}else{
 					arrowRightList.Remove(ar);
 					arrowFrozen.Add(ar,0f);
 					ar.displayFrozenBar();
+					StartParticleRight(timeToPrec(prec));
+					StartParticleFreezeRight(true);
 				}
 				//Debug.Log("Great !");
 			//Start coroutine score
 			}else if(prec < (double)0.300){ //miss
 				ar.goArrow.GetComponent<ArrowScript>().missed = true;
 				arrowRightList.Remove(ar);
+				StartParticleRight(timeToPrec(prec));
 				//Debug.Log("Miss... !");
 			}else{
 				//Debug.Log("Not so close");
