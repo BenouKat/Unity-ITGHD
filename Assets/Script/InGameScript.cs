@@ -132,6 +132,8 @@ public class InGameScript : MonoBehaviour {
 		TextureBase.Add("DECENT", (Texture2D) Resources.Load("Decent"));
 		TextureBase.Add("WAYOFF", (Texture2D) Resources.Load("Wayoff"));
 		TextureBase.Add("MISS", (Texture2D) Resources.Load("Miss"));
+		TextureBase.Add("SCORENUMBER", (Texture2D) Resources.Load("ScoreNumber"));
+		TextureBase.Add("SCORESYMBOL", (Texture2D) Resources.Load("ScoreSymbol"));
 		
 		//stuff
 		scoreToDisplay = Precision.NONE;
