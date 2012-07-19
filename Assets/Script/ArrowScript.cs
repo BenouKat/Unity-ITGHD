@@ -39,6 +39,7 @@ public class ArrowScript : MonoBehaviour {
 			missed = true;
 			igs.removeArrowFromList(associatedArrow, state);
 			igs.displayPrec(1);
+			igs.GainScoreAndLife("MISS");
 		}
 	}
 	

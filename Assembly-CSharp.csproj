@@ -47,7 +47,8 @@
      <Compile Include="Assets\Script\Arrow.cs" />
      <Compile Include="Assets\Script\ArrowScript.cs" />
      <Compile Include="Assets\Script\CreateChart.cs" />
-     <Compile Include="Assets\Script\Difficulty.cs" />
+     <Compile Include="Assets\Script\DataManager.cs" />
+     <Compile Include="Assets\Script\EnumManager.cs" />
      <Compile Include="Assets\Script\InGameScript.cs" />
      <Compile Include="Assets\Script\OpenChart.cs" />
      <Compile Include="Assets\Script\Song.cs" />

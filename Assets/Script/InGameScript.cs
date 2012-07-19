@@ -2,10 +2,11 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 public class InGameScript : MonoBehaviour {
 	
-	
+	#region Declarations
 	//Game object song scene
 	public GameObject arrow;
 	public GameObject freeze;
@@ -19,6 +20,7 @@ public class InGameScript : MonoBehaviour {
 	
 	private Song thesong;
 	
+	//USED FOR UPDATE FUNCTION
 	private double timebpm; //Temps joué sur la totalité, non live, non remise à 0
 	private float timechart; //Temps joué sur le bpm actuel en live avec remise à 0
 	private float timestop; //Temps utilisé pour le freeze
@@ -40,6 +42,8 @@ public class InGameScript : MonoBehaviour {
 	//Temps pour le lachement de freeze
 	public float unfrozed = 0.350f;
 	
+	//DISPLAY PREC
+	
 	//Temps pour l'affichage des scores
 	public float limitDisplayScore = 2f;
 	private float timeDisplayScore = 0f;
@@ -52,46 +56,47 @@ public class InGameScript : MonoBehaviour {
 	private Precision scoreToDisplay;
 	public Rect posScore = new Rect(0.38f,0.3f,0.25f,0.25f);
 	
-	//fps count
+	
+	//LIFE
+	private float life;
+	private Dictionary<string, float> lifeBase;
+	
+	
+	//SCORE
+	private float score;
+	private Dictionary<string, float> scoreBase;
+	
+	
+	
+	//FPS
 	private long _count;
 	private long fps;
 	private float _timer;
 	
-	//stepchart divisé par input
+	//CHART
 	private List<Arrow> arrowLeftList;
 	private List<Arrow> arrowRightList;
 	private List<Arrow> arrowDownList;
 	private List<Arrow> arrowUpList;
+	//Dico des arrow prises en freeze
+	private Dictionary<Arrow, float> arrowFrozen;
 	
-	//Particle System
+	//PARTICLE SYSTEM
 	private GameObject precLeft;
 	private GameObject precRight;
 	private GameObject precUp;
 	private GameObject precDown;
 	
-	//Dico des arrow prises en freeze
-	private Dictionary<Arrow, float> arrowFrozen;
 	
 	
-	//bdd de textures
+	//GUI
 	private Dictionary<string, Texture2D> TextureBase;
 	
 	
-	
-	// Use this for initialization
-	
-	public enum Precision{
-		FANTASTIC,
-		EXCELLENT,
-		GREAT,
-		DECENT,
-		WAYOFF,
-		MISS,
-		FREEZE,
-		NONE
-	}
+	#endregion
 	
 	
+	//Start
 	void Start () {
 		thesong = OpenChart.Instance.readChart("Still Blastin'")[0];
 		createTheChart(thesong);
@@ -114,7 +119,6 @@ public class InGameScript : MonoBehaviour {
 		
 		
 		//Prepare the scene
-		
 		precLeft = (GameObject) arrowLeft.transform.GetChild(0).gameObject;
 		precDown = (GameObject) arrowDown.transform.GetChild(0).gameObject;
 		precRight = (GameObject) arrowRight.transform.GetChild(0).gameObject;
@@ -129,10 +133,30 @@ public class InGameScript : MonoBehaviour {
 		TextureBase.Add("WAYOFF", (Texture2D) Resources.Load("Wayoff"));
 		TextureBase.Add("MISS", (Texture2D) Resources.Load("Miss"));
 		
+		//stuff
 		scoreToDisplay = Precision.NONE;
 		timeDisplayScore = Mathf.Infinity;
 		sensFantastic = true;
 		alpha = 1f;
+		
+		
+		
+		
+		//init score and lifebase
+		scoreBase = new Dictionary<string, float>();
+		lifeBase = new Dictionary<string, float>();
+		var fantasticValue = 100f/(thesong.numberOfSteps + thesong.numberOfFreezes + thesong.numberOfRolls);
+		foreach(Precision el in Enum.GetValues(typeof(Precision))){
+			if(el != Precision.NONE){
+				scoreBase.Add(el.ToString(), fantasticValue*DataManager.Instance.ScoreWeightValues[el.ToString()]);
+				lifeBase.Add(el.ToString(), DataManager.Instance.LifeWeightValues[el.ToString()]);
+			}
+		}
+		
+		life = 50f;
+		score = 0f;
+		
+		
 	}
 	
 	
@@ -140,15 +164,19 @@ public class InGameScript : MonoBehaviour {
 	
 	//only for FPS
 	void OnGUI(){
+		
+		//fake stuff
 		GUI.Label(new Rect(0.9f*Screen.width, 0.05f*Screen.height, 200f, 200f), fps.ToString());	
 		GUI.Label(new Rect(0.9f*Screen.width, 0.1f*Screen.height, 200f, 200f), ((float)Screen.width/(float)Screen.height).ToString());
+		GUI.Label(new Rect(0.9f*Screen.width, 0.15f*Screen.height, 200f, 200f), life.ToString() + " hp");
+		GUI.Label(new Rect(0.9f*Screen.width, 0.20f*Screen.height, 200f, 200f), score.ToString("0.00") + "%");
+		//end fake stuff
+		
 		
 		if(timeDisplayScore < limitDisplayScore){
-			//A optimiser
+
 			GUI.color = new Color(1f, 1f, 1f, alpha);
 			GUI.DrawTexture(new Rect(posScore.x*Screen.width - zoom, posScore.y*Screen.height, posScore.width*Screen.width + zoom*2, posScore.height*Screen.height), TextureBase[scoreToDisplay.ToString()]); 
-			
-			
 			
 		}
 		
@@ -184,86 +212,40 @@ public class InGameScript : MonoBehaviour {
 		VerifyKeysInput();
 		VerifyKeysOutput();
 		
+		//Changement bpm et stops
+		VerifyBPMnSTOP();
 		
 		
-		//BPM change verify
-		if(nextSwitchBPM < thesong.bpms.Count && (thesong.bpms.ElementAt(nextSwitchBPM).Key <= timetotalchart)){
-			
-			
-			var bps = thesong.getBPS(actualBPM);
-			changeBPM += -((float)(bps*(timechart - (float)(timetotalchart - thesong.bpms.ElementAt(nextSwitchBPM).Key))))*speedmod;
-			timebpm += (double)timechart - (double)(timetotalchart - thesong.bpms.ElementAt(nextSwitchBPM).Key);
-			timechart = 0f;
-			actualBPM = thesong.bpms.ElementAt(nextSwitchBPM).Value;
-			
-			nextSwitchBPM++;
-		}
-		
-		
-		//Stop verif
-		if(nextSwitchStop < thesong.stops.Count && (thesong.stops.ElementAt(nextSwitchStop).Key <= timetotalchart)){
-			timetotalchart = timebpm + timechart + totaltimestop;
-			timechart -= (float)timetotalchart - (float)thesong.stops.ElementAt(nextSwitchStop).Key;
-			timetotalchart = timebpm + timechart + totaltimestop;
-			actualstop = thesong.stops.ElementAt(nextSwitchStop).Value;
-			dontstopmenow =  true;
-			nextSwitchStop++;
-			//Debug.Log("entry stop : " + timetotalchart);
-		}
-		
-		//timechart ++
+		//Progress time chart
 		if(actualstop != 0){
 			if(timestop >= actualstop){
 				timechart += timestop - (float)actualstop;
 				totaltimestop += (float)actualstop;
 				timetotalchart = timebpm + timechart + totaltimestop;
-				//Debug.Log("exit stop : " + timetotalchart);
 				actualstop = (double)0;
 				timestop = 0f;
-				//may be ?
-				//timechart += Time.deltaTime;
 			}else if(!dontstopmenow){
 				
 				timestop += Time.deltaTime;
-				//totaltimestop += Time.deltaTime;
 			}else{
 				dontstopmenow = false;
 			}
-			//Debug.Log("stopped : " + timestop);
 		}else{
 			timechart += Time.deltaTime;
 		}
 		
 		
 		
-		
 		//GUI part, because GUI is so slow :(
 		//Utile ?
-		if(scoreToDisplay == Precision.FANTASTIC){
-			if(sensFantastic){
-				alpha -= 0.2f*Time.deltaTime/timeClignotementFantastic;
-				sensFantastic = alpha > 0.8f;
-			}else{
-				alpha += 0.2f*Time.deltaTime/timeClignotementFantastic;
-				sensFantastic = alpha >= 1f;
-			}
-		}else{
-			alpha = 1f;
-		}
-		
-		if(zoom > 0 && scoreToDisplay != Precision.DECENT && scoreToDisplay != Precision.WAYOFF){
-			zoom -= baseZoom*Time.deltaTime/vitesseZoom;
-		}else{
-			zoom = 0;
-		}
-		
-		
-		timeDisplayScore += Time.deltaTime;
+		RefreshGUIPart();
 	}
 	
 	
 	
 	//For moving arrows or do some displaying things
+	
+	#region Defilement chart
 	void MoveArrows(){
 		
 		var bps = thesong.getBPS(actualBPM);
@@ -286,7 +268,62 @@ public class InGameScript : MonoBehaviour {
 	}
 	
 	
+	void VerifyBPMnSTOP(){
+		//BPM change verify
+		if(nextSwitchBPM < thesong.bpms.Count && (thesong.bpms.ElementAt(nextSwitchBPM).Key <= timetotalchart)){
+			
+			
+			var bps = thesong.getBPS(actualBPM);
+			changeBPM += -((float)(bps*(timechart - (float)(timetotalchart - thesong.bpms.ElementAt(nextSwitchBPM).Key))))*speedmod;
+			timebpm += (double)timechart - (double)(timetotalchart - thesong.bpms.ElementAt(nextSwitchBPM).Key);
+			timechart = 0f;
+			actualBPM = thesong.bpms.ElementAt(nextSwitchBPM).Value;
+			
+			nextSwitchBPM++;
+		}
+		
+		
+		//Stop verif
+		if(nextSwitchStop < thesong.stops.Count && (thesong.stops.ElementAt(nextSwitchStop).Key <= timetotalchart)){
+			timetotalchart = timebpm + timechart + totaltimestop;
+			timechart -= (float)timetotalchart - (float)thesong.stops.ElementAt(nextSwitchStop).Key;
+			timetotalchart = timebpm + timechart + totaltimestop;
+			actualstop = thesong.stops.ElementAt(nextSwitchStop).Value;
+			dontstopmenow =  true;
+			nextSwitchStop++;
+		}
+		
+	}
 	
+	#endregion
+	
+	
+	void RefreshGUIPart(){
+		if(scoreToDisplay == Precision.FANTASTIC){
+			if(sensFantastic){
+				alpha -= 0.2f*Time.deltaTime/timeClignotementFantastic;
+				sensFantastic = alpha > 0.8f;
+			}else{
+				alpha += 0.2f*Time.deltaTime/timeClignotementFantastic;
+				sensFantastic = alpha >= 1f;
+			}
+		}else{
+			alpha = 1f;
+		}
+		
+		if(zoom > 0 && scoreToDisplay != Precision.DECENT && scoreToDisplay != Precision.WAYOFF){
+			zoom -= baseZoom*Time.deltaTime/vitesseZoom;
+		}else{
+			zoom = 0;
+		}
+		
+		
+		timeDisplayScore += Time.deltaTime;
+		
+	}
+	
+	
+	#region Inputs verify
 	//Valid or deny the frozen arrow
 	void VerifyValidFrozenArrow(){
 		if(arrowFrozen.Count > 0){
@@ -310,6 +347,7 @@ public class InGameScript : MonoBehaviour {
 						StartParticleFreezeRight(false);
 						break;
 					}
+					GainScoreAndLife("FREEZE");
 					DestroyImmediate(el.Key.goArrow);
 					DestroyImmediate(el.Key.goFreeze);
 					
@@ -333,6 +371,7 @@ public class InGameScript : MonoBehaviour {
 						StartParticleFreezeRight(false);
 						break;
 					}
+					GainScoreAndLife("UNFREEZE");
 					KeyToRemove.Add(el.Key);
 				}
 				
@@ -349,6 +388,197 @@ public class InGameScript : MonoBehaviour {
 	}
 	
 	
+	
+	//Verify keys Input at this frame
+	//Null ref exception quand il n'y a plus de flèche !
+	void VerifyKeysInput(){
+		if(Input.GetKeyDown(KeyCode.LeftArrow) && arrowLeftList.Any()){
+			var ar = findNextLeftArrow();
+			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
+
+			if(prec < precToTime(Precision.GREAT)){ //great
+				if(ar.arrowType == ArrowType.NORMAL || ar.arrowType == ArrowType.MINE){
+					DestroyImmediate(ar.goArrow);
+				}else{
+					ar.goArrow.GetComponent<ArrowScript>().valid = true;
+					arrowFrozen.Add(ar,0f);
+					ar.displayFrozenBar();
+					StartParticleFreezeLeft(true);
+				}
+				arrowLeftList.Remove(ar);
+				StartParticleLeft(timeToPrec(prec));
+				GainScoreAndLife(timeToPrec(prec).ToString());
+				displayPrec(prec);
+				
+			}else if(prec < precToTime(Precision.WAYOFF)){ //miss
+				ar.goArrow.GetComponent<ArrowScript>().missed = true;
+				arrowLeftList.Remove(ar);
+				StartParticleLeft(timeToPrec(prec));
+				displayPrec(prec);
+				GainScoreAndLife(timeToPrec(prec).ToString());
+			}
+			
+			
+			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 0f && c.Key.arrowType == ArrowType.ROLL))
+			{
+				var froz = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 0f);
+				arrowFrozen[froz.Key] = 0f;
+			}
+		
+		}
+		
+		
+		if(Input.GetKeyDown(KeyCode.DownArrow) && arrowDownList.Any()){
+			var ar = findNextDownArrow();
+			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
+
+			if(prec < (double)0.102){ //great
+				if(ar.arrowType == ArrowType.NORMAL || ar.arrowType == ArrowType.MINE){
+					
+					DestroyImmediate(ar.goArrow);
+					StartParticleDown(timeToPrec(prec));
+				}else{
+					ar.goArrow.GetComponent<ArrowScript>().valid = true;
+					arrowFrozen.Add(ar,0f);
+					ar.displayFrozenBar();
+					StartParticleFreezeDown(true);
+				}
+				arrowDownList.Remove(ar);
+				StartParticleDown(timeToPrec(prec));
+				GainScoreAndLife(timeToPrec(prec).ToString());
+				displayPrec(prec);
+				
+			}else if(prec < precToTime(Precision.WAYOFF)){ //miss
+				ar.goArrow.GetComponent<ArrowScript>().missed = true;
+				arrowDownList.Remove(ar);
+				StartParticleDown(timeToPrec(prec));
+				GainScoreAndLife(timeToPrec(prec).ToString());
+				displayPrec(prec);
+				
+			}
+		
+			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 2f && c.Key.arrowType == ArrowType.ROLL))
+			{
+				var froz = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 2f);
+				arrowFrozen[froz.Key] = 0f;
+			}
+		}
+		
+		
+		if(Input.GetKeyDown(KeyCode.UpArrow) && arrowUpList.Any()){
+			var ar = findNextUpArrow();
+			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
+			
+			if(prec < (double)0.102){ //great
+				if(ar.arrowType == ArrowType.NORMAL || ar.arrowType == ArrowType.MINE){
+					DestroyImmediate(ar.goArrow);
+				}else{
+					ar.goArrow.GetComponent<ArrowScript>().valid = true;
+					arrowFrozen.Add(ar,0f);
+					ar.displayFrozenBar();
+					StartParticleFreezeUp(true);
+				}
+				arrowUpList.Remove(ar);
+				StartParticleUp(timeToPrec(prec));
+				GainScoreAndLife(timeToPrec(prec).ToString());
+				displayPrec(prec);
+				
+
+			}else if(prec < precToTime(Precision.WAYOFF)){ //miss
+				ar.goArrow.GetComponent<ArrowScript>().missed = true;
+				arrowUpList.Remove(ar);
+				StartParticleUp(timeToPrec(prec));
+				GainScoreAndLife(timeToPrec(prec).ToString());
+				displayPrec(prec);
+			}
+			
+			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 4f && c.Key.arrowType == ArrowType.ROLL))
+			{
+				var froz = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 4f);
+				arrowFrozen[froz.Key] = 0f;
+			}
+		
+		}
+		
+		
+		if(Input.GetKeyDown(KeyCode.RightArrow) && arrowRightList.Any()){
+			var ar = findNextRightArrow();
+			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
+
+			if(prec < (double)0.102){ //great
+				if(ar.arrowType == ArrowType.NORMAL || ar.arrowType == ArrowType.MINE){
+					DestroyImmediate(ar.goArrow);
+				}else{
+					ar.goArrow.GetComponent<ArrowScript>().valid = true;
+					arrowFrozen.Add(ar,0f);
+					ar.displayFrozenBar();
+					StartParticleFreezeRight(true);
+				}
+				arrowRightList.Remove(ar);
+				StartParticleRight(timeToPrec(prec));
+				GainScoreAndLife(timeToPrec(prec).ToString());
+				displayPrec(prec);
+			//Start coroutine score
+			}else if(prec < precToTime(Precision.WAYOFF)){ //miss
+				ar.goArrow.GetComponent<ArrowScript>().missed = true;
+				arrowRightList.Remove(ar);
+				StartParticleRight(timeToPrec(prec));
+				GainScoreAndLife(timeToPrec(prec).ToString());
+				displayPrec(prec);
+			}
+			
+			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 6f && c.Key.arrowType == ArrowType.ROLL))
+			{
+				var froz = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 6f);
+				arrowFrozen[froz.Key] = 0f;
+			}
+		
+		}
+		
+	}
+	
+	
+	//Verify Key for all frames
+	void VerifyKeysOutput(){
+		if(arrowFrozen.Count > 0){
+			if(Input.GetKey(KeyCode.LeftArrow)){
+				if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 0f && c.Key.arrowType == ArrowType.FREEZE)){
+					var ar = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 0f);
+					arrowFrozen[ar.Key] = 0f;
+				}
+			
+			}
+			
+			
+			if(Input.GetKey(KeyCode.DownArrow)){
+				if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 2f && c.Key.arrowType == ArrowType.FREEZE)){
+					var ar = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 2f);
+					arrowFrozen[ar.Key] = 0f;
+				}
+			
+			}
+			
+			
+			if(Input.GetKey(KeyCode.UpArrow)){
+				if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 4f && c.Key.arrowType == ArrowType.FREEZE)){
+					var ar = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 4f);
+					arrowFrozen[ar.Key] = 0f;
+				}
+			}
+			
+			
+			if(Input.GetKey(KeyCode.RightArrow)){
+				if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 6f && c.Key.arrowType == ArrowType.FREEZE)){
+					var ar = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 6f);
+					arrowFrozen[ar.Key] = 0f;
+				}
+			}
+		}
+	}
+	
+	#endregion
+	
+	#region Particules	
 	void StartParticleLeft(Precision prec){
 		((ParticleSystem) precLeft.transform.FindChild(prec.ToString()).particleSystem).Play();
 	}
@@ -393,8 +623,26 @@ public class InGameScript : MonoBehaviour {
 		
 	}
 	
+	#endregion
 	
 	
+	public void GainScoreAndLife(string s){
+		life += lifeBase[s];
+		if(life > 100f){
+			life = 100f;	
+		}else if(life < 0f){
+			life = 0f;	
+		}
+		score += scoreBase[s];
+		if(score > 100f){
+			score = 100f;	
+		}else if(score < 0f){
+			score = 0f;	
+		}
+	}
+	
+	
+	#region Precision
 	double precToTime(Precision prec){
 		switch(prec){
 		case Precision.FANTASTIC:
@@ -435,194 +683,62 @@ public class InGameScript : MonoBehaviour {
 		
 	}
 	
-	//Verify keys Input at this frame
-	//Null ref exception quand il n'y a plus de flèche !
-	void VerifyKeysInput(){
-		if(Input.GetKeyDown(KeyCode.LeftArrow) && arrowLeftList.Any()){
-			var ar = findNextLeftArrow();
-			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
+	
+	#endregion
+	
+	#region Arrow and time
+	public Arrow findNextUpArrow(){
 
-			if(prec < precToTime(Precision.GREAT)){ //great
-				if(ar.arrowType == Arrow.ArrowType.NORMAL || ar.arrowType == Arrow.ArrowType.MINE){
-					arrowLeftList.Remove(ar);
-					DestroyImmediate(ar.goArrow);
-					StartParticleLeft(timeToPrec(prec));
-				}else{
-					ar.goArrow.GetComponent<ArrowScript>().valid = true;
-					arrowLeftList.Remove(ar);
-					arrowFrozen.Add(ar,0f);
-					ar.displayFrozenBar();
-					StartParticleLeft(timeToPrec(prec));
-					StartParticleFreezeLeft(true);
-				}
-				displayPrec(prec);
-				
-			}else if(prec < precToTime(Precision.WAYOFF)){ //miss
-				ar.goArrow.GetComponent<ArrowScript>().missed = true;
+		return arrowUpList.FirstOrDefault(s => s.time == arrowUpList.Min(c => c.time));
+			
+	}
+	
+	public Arrow findNextDownArrow(){
+
+		return arrowDownList.FirstOrDefault(s => s.time == arrowDownList.Min(c => c.time));
+			
+	}
+	
+	public Arrow findNextLeftArrow(){
+
+		return arrowLeftList.FirstOrDefault(s => s.time == arrowLeftList.Min(c => c.time));
+			
+	}
+	
+	public Arrow findNextRightArrow(){
+
+		return arrowRightList.FirstOrDefault(s => s.time == arrowRightList.Min(c => c.time));
+			
+	}
+	
+	//Remove key from arrow list
+	public void removeArrowFromList(Arrow ar, string state){
+		
+		switch(state){
+			case "left":
 				arrowLeftList.Remove(ar);
-				StartParticleLeft(timeToPrec(prec));
-				displayPrec(prec);
-			}
-			
-			
-			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 0f && c.Key.arrowType == Arrow.ArrowType.ROLL))
-			{
-				var froz = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 0f);
-				arrowFrozen[froz.Key] = 0f;
-			}
-		
-		}
-		
-		
-		if(Input.GetKeyDown(KeyCode.DownArrow) && arrowDownList.Any()){
-			var ar = findNextDownArrow();
-			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
-
-			if(prec < (double)0.102){ //great
-				if(ar.arrowType == Arrow.ArrowType.NORMAL || ar.arrowType == Arrow.ArrowType.MINE){
-					arrowDownList.Remove(ar);
-					DestroyImmediate(ar.goArrow);
-					StartParticleDown(timeToPrec(prec));
-				}else{
-					ar.goArrow.GetComponent<ArrowScript>().valid = true;
-					arrowDownList.Remove(ar);
-					arrowFrozen.Add(ar,0f);
-					ar.displayFrozenBar();
-					StartParticleDown(timeToPrec(prec));
-					StartParticleFreezeDown(true);
-				}
-				displayPrec(prec);
-				
-			}else if(prec < precToTime(Precision.WAYOFF)){ //miss
-				ar.goArrow.GetComponent<ArrowScript>().missed = true;
+				break;
+			case "down":
 				arrowDownList.Remove(ar);
-				StartParticleDown(timeToPrec(prec));
-				displayPrec(prec);
-			}
-		
-			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 2f && c.Key.arrowType == Arrow.ArrowType.ROLL))
-			{
-				var froz = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 2f);
-				arrowFrozen[froz.Key] = 0f;
-			}
-		}
-		
-		
-		if(Input.GetKeyDown(KeyCode.UpArrow) && arrowUpList.Any()){
-			var ar = findNextUpArrow();
-			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
-			
-			if(prec < (double)0.102){ //great
-				if(ar.arrowType == Arrow.ArrowType.NORMAL || ar.arrowType == Arrow.ArrowType.MINE){
-					arrowUpList.Remove(ar);
-					DestroyImmediate(ar.goArrow);
-					StartParticleUp(timeToPrec(prec));
-				}else{
-					ar.goArrow.GetComponent<ArrowScript>().valid = true;
-					arrowUpList.Remove(ar);
-					arrowFrozen.Add(ar,0f);
-					ar.displayFrozenBar();
-					StartParticleUp(timeToPrec(prec));
-					StartParticleFreezeUp(true);
-				}
-				displayPrec(prec);
-				
-
-			}else if(prec < precToTime(Precision.WAYOFF)){ //miss
-				ar.goArrow.GetComponent<ArrowScript>().missed = true;
+				break;
+			case "up":
 				arrowUpList.Remove(ar);
-				StartParticleUp(timeToPrec(prec));
-				displayPrec(prec);
-			}
-			
-			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 4f && c.Key.arrowType == Arrow.ArrowType.ROLL))
-			{
-				var froz = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 4f);
-				arrowFrozen[froz.Key] = 0f;
-			}
-		
-		}
-		
-		
-		if(Input.GetKeyDown(KeyCode.RightArrow) && arrowRightList.Any()){
-			var ar = findNextRightArrow();
-			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
-
-			if(prec < (double)0.102){ //great
-				if(ar.arrowType == Arrow.ArrowType.NORMAL || ar.arrowType == Arrow.ArrowType.MINE){
-					arrowRightList.Remove(ar);
-					DestroyImmediate(ar.goArrow);
-					StartParticleRight(timeToPrec(prec));
-				}else{
-					ar.goArrow.GetComponent<ArrowScript>().valid = true;
-					arrowRightList.Remove(ar);
-					arrowFrozen.Add(ar,0f);
-					ar.displayFrozenBar();
-					StartParticleRight(timeToPrec(prec));
-					StartParticleFreezeRight(true);
-				}
-				displayPrec(prec);
-			//Start coroutine score
-			}else if(prec < precToTime(Precision.WAYOFF)){ //miss
-				ar.goArrow.GetComponent<ArrowScript>().missed = true;
+				break;
+			case "right":
 				arrowRightList.Remove(ar);
-				StartParticleRight(timeToPrec(prec));
-				displayPrec(prec);
-			}
-			
-			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 6f && c.Key.arrowType == Arrow.ArrowType.ROLL))
-			{
-				var froz = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 6f);
-				arrowFrozen[froz.Key] = 0f;
-			}
-		
-		}
-		
-	}
-	
-	
-	//Verify Key for all frames
-	void VerifyKeysOutput(){
-		if(arrowFrozen.Count > 0){
-			if(Input.GetKey(KeyCode.LeftArrow)){
-				if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 0f && c.Key.arrowType == Arrow.ArrowType.FREEZE)){
-					var ar = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 0f);
-					arrowFrozen[ar.Key] = 0f;
-				}
-			
-			}
-			
-			
-			if(Input.GetKey(KeyCode.DownArrow)){
-				if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 2f && c.Key.arrowType == Arrow.ArrowType.FREEZE)){
-					var ar = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 2f);
-					arrowFrozen[ar.Key] = 0f;
-				}
-			
-			}
-			
-			
-			if(Input.GetKey(KeyCode.UpArrow)){
-				if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 4f && c.Key.arrowType == Arrow.ArrowType.FREEZE)){
-					var ar = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 4f);
-					arrowFrozen[ar.Key] = 0f;
-				}
-			}
-			
-			
-			if(Input.GetKey(KeyCode.RightArrow)){
-				if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 6f && c.Key.arrowType == Arrow.ArrowType.FREEZE)){
-					var ar = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 6f);
-					arrowFrozen[ar.Key] = 0f;
-				}
-			}
+				break;
+				
 		}
 	}
 	
 	
+	public double getTotalTimeChart(){
+		return timetotalchart;	
+	}
 	
+	#endregion
 	
-	
+	#region Chart creation
 	//Create the chart
 	void createTheChart(Song s){
 		
@@ -718,7 +834,7 @@ public class InGameScript : MonoBehaviour {
 						
 						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
 						goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
-						var theArrow = new Arrow(goArrow, Arrow.ArrowType.NORMAL, timetotal);
+						var theArrow = new Arrow(goArrow, ArrowType.NORMAL, timetotal);
 						switch(i){
 						case 0:
 							arrowLeftList.Add(theArrow);
@@ -738,7 +854,7 @@ public class InGameScript : MonoBehaviour {
 					}else if(note[i] == '2'){
 						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
 						goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
-						var theArrow = new Arrow(goArrow, Arrow.ArrowType.FREEZE, timetotal);
+						var theArrow = new Arrow(goArrow, ArrowType.FREEZE, timetotal);
 						ArrowFreezed[i] = theArrow;
 						switch(i){
 						case 0:
@@ -765,7 +881,7 @@ public class InGameScript : MonoBehaviour {
 					}else if(note[i] == '4'){
 						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
 						goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
-						var theArrow = new Arrow(goArrow, Arrow.ArrowType.ROLL, timetotal);
+						var theArrow = new Arrow(goArrow, ArrowType.ROLL, timetotal);
 						ArrowFreezed[i] = theArrow;
 						switch(i){
 						case 0:
@@ -785,7 +901,7 @@ public class InGameScript : MonoBehaviour {
 					}else if(note[i] == 'M'){
 						/*var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
 						goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
-						var theArrow = new Arrow(goArrow, Arrow.ArrowType.MINE, timetotal);
+						var theArrow = new Arrow(goArrow, ArrowType.MINE, timetotal);
 						switch(i){
 						case 0:
 							arrowLeftList.Add(theArrow);
@@ -836,63 +952,6 @@ public class InGameScript : MonoBehaviour {
 				
 			}
 		}
-	}
-	
-	
-	
-	
-	
-	//Remove key from arrow list
-	public void removeArrowFromList(Arrow ar, string state){
-		
-		switch(state){
-			case "left":
-				arrowLeftList.Remove(ar);
-				break;
-			case "down":
-				arrowDownList.Remove(ar);
-				break;
-			case "up":
-				arrowUpList.Remove(ar);
-				break;
-			case "right":
-				arrowRightList.Remove(ar);
-				break;
-				
-		}
-	}
-	
-	
-	
-	
-	
-	public Arrow findNextUpArrow(){
-
-		return arrowUpList.FirstOrDefault(s => s.time == arrowUpList.Min(c => c.time));
-			
-	}
-	
-	public Arrow findNextDownArrow(){
-
-		return arrowDownList.FirstOrDefault(s => s.time == arrowDownList.Min(c => c.time));
-			
-	}
-	
-	public Arrow findNextLeftArrow(){
-
-		return arrowLeftList.FirstOrDefault(s => s.time == arrowLeftList.Min(c => c.time));
-			
-	}
-	
-	public Arrow findNextRightArrow(){
-
-		return arrowRightList.FirstOrDefault(s => s.time == arrowRightList.Min(c => c.time));
-			
-	}
-	
-	
-	public double getTotalTimeChart(){
-		return timetotalchart;	
 	}
 	
 	
@@ -988,4 +1047,6 @@ public class InGameScript : MonoBehaviour {
 	
 		
 	}
+	
+	#endregion
 }

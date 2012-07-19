@@ -15,13 +15,6 @@ public class Arrow {
 	public Vector3 posBegining;
 	
 	
-	public enum ArrowType{
-		NORMAL,
-		FREEZE,
-		ROLL,
-		MINE
-	}
-	
 	public Arrow(GameObject go, ArrowType at, double passedTime){
 		
 		go.GetComponent<ArrowScript>().setArrowAssociated(this);

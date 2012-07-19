@@ -82,6 +82,9 @@ public class OpenChart{
 		
 		var theBpmMesureList = new List<double>();
 		var theStopMesureList = new List<double>();
+		
+		
+		
 		//getting bpms with mesure
 		string[] thebpm = listLine.FirstOrDefault(c => c.Contains("BPMS")).Split(':');
 		string thebpmline = thebpm[1];
@@ -263,16 +266,29 @@ public class OpenChart{
 				beginstepchart++;	
 			}
 			
+			var numberOfSteps = 0;
+			var numberOfMines = 0;
+			var numberOfRoll = 0;
+			var numberOfFreezes = 0;
 			theNewsong.stepchart.Add(new List<string>());
 			for(int i = beginstepchart; !listLine.ElementAt(i).Contains(";"); i++){
 				if(listLine.ElementAt(i).Contains(",")){
 					theNewsong.stepchart.Add(new List<string>());
 				}else{
 					theNewsong.stepchart.Last().Add(listLine.ElementAt(i));	
+					numberOfSteps += listLine.ElementAt(i).Count(c => c == '1');
+					numberOfSteps += listLine.ElementAt(i).Count(c => c == '2');
+					numberOfSteps += listLine.ElementAt(i).Count(c => c == '4');
+					numberOfFreezes += listLine.ElementAt(i).Count(c => c == '2');
+					numberOfRoll += listLine.ElementAt(i).Count(c => c == '4');
+					numberOfMines += listLine.ElementAt(i).Count(c => c == 'M');
 				}
 			}
 			
-			
+			theNewsong.numberOfSteps = numberOfSteps;
+			theNewsong.numberOfFreezes = numberOfFreezes;
+			theNewsong.numberOfRolls = numberOfRoll;
+			theNewsong.numberOfMines = numberOfMines;
 			outputSongs.Add(theNewsong);
 			
 		
