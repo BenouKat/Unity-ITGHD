@@ -5,12 +5,12 @@ public class ArrowScript : MonoBehaviour {
 	public GameObject arrowLeft;
 	public GameObject Engine;
 	private Arrow associatedArrow;
-	public float seuilMiss = 4f;
 	
 	public string state;
 	
 	private InGameScript igs;
 	public bool missed;
+	public bool valid;
 	// Use this for initialization
 	void Start () {
 		igs = Engine.GetComponent<InGameScript>();
@@ -29,13 +29,16 @@ public class ArrowScript : MonoBehaviour {
 				state = "right";
 				break;
 		}
+		missed = false;
+		valid = false;
 	}
 	
 	// Update is called once per frame
 	void LateUpdate () {
-		if(!missed && associatedArrow.time <= (igs.getTotalTimeChart() - (double)0.18)){
+		if(!missed && !valid && associatedArrow.time <= (igs.getTotalTimeChart() - (double)0.18)){
 			missed = true;
 			igs.removeArrowFromList(associatedArrow, state);
+			igs.displayPrec(1);
 		}
 	}
 	

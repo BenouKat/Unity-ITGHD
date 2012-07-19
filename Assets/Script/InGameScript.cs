@@ -41,9 +41,15 @@ public class InGameScript : MonoBehaviour {
 	public float unfrozed = 0.350f;
 	
 	//Temps pour l'affichage des scores
-	public float limitDisplayScore = 1f;
-	public float timeDisplayScore = 0f;
-	public Precision scoreToDisplay;
+	public float limitDisplayScore = 2f;
+	private float timeDisplayScore = 0f;
+	public float timeClignotementFantastic = 0.05f;
+	public float baseZoom = 20f;
+	public float vitesseZoom = 0.1f;
+	private bool sensFantastic;
+	private float alpha;
+	private float zoom;
+	private Precision scoreToDisplay;
 	public Rect posScore = new Rect(0.38f,0.3f,0.25f,0.25f);
 	
 	//fps count
@@ -124,6 +130,9 @@ public class InGameScript : MonoBehaviour {
 		TextureBase.Add("MISS", (Texture2D) Resources.Load("Miss"));
 		
 		scoreToDisplay = Precision.NONE;
+		timeDisplayScore = Mathf.Infinity;
+		sensFantastic = true;
+		alpha = 1f;
 	}
 	
 	
@@ -134,7 +143,15 @@ public class InGameScript : MonoBehaviour {
 		GUI.Label(new Rect(0.9f*Screen.width, 0.05f*Screen.height, 200f, 200f), fps.ToString());	
 		GUI.Label(new Rect(0.9f*Screen.width, 0.1f*Screen.height, 200f, 200f), ((float)Screen.width/(float)Screen.height).ToString());
 		
-		GUI.DrawTexture(new Rect(posScore.x*Screen.width, posScore.y*Screen.height, posScore.width*Screen.width, posScore.height*Screen.height), TextureBase["FANTASTIC"]);
+		if(timeDisplayScore < limitDisplayScore){
+			//A optimiser
+			GUI.color = new Color(1f, 1f, 1f, alpha);
+			GUI.DrawTexture(new Rect(posScore.x*Screen.width - zoom, posScore.y*Screen.height, posScore.width*Screen.width + zoom*2, posScore.height*Screen.height), TextureBase[scoreToDisplay.ToString()]); 
+			
+			
+			
+		}
+		
 	}
 	
 	
@@ -219,6 +236,29 @@ public class InGameScript : MonoBehaviour {
 		
 		
 		
+		
+		//GUI part, because GUI is so slow :(
+		//Utile ?
+		if(scoreToDisplay == Precision.FANTASTIC){
+			if(sensFantastic){
+				alpha -= 0.2f*Time.deltaTime/timeClignotementFantastic;
+				sensFantastic = alpha > 0.8f;
+			}else{
+				alpha += 0.2f*Time.deltaTime/timeClignotementFantastic;
+				sensFantastic = alpha >= 1f;
+			}
+		}else{
+			alpha = 1f;
+		}
+		
+		if(zoom > 0 && scoreToDisplay != Precision.DECENT && scoreToDisplay != Precision.WAYOFF){
+			zoom -= baseZoom*Time.deltaTime/vitesseZoom;
+		}else{
+			zoom = 0;
+		}
+		
+		
+		timeDisplayScore += Time.deltaTime;
 	}
 	
 	
@@ -372,6 +412,13 @@ public class InGameScript : MonoBehaviour {
 		}
 	}
 	
+	
+	public void displayPrec(double prec){
+		timeDisplayScore = 0f;
+		zoom = baseZoom;
+		scoreToDisplay = timeToPrec(prec);
+	}
+	
 	Precision timeToPrec(double prec){
 		if(prec <= 0.0215){
 			return Precision.FANTASTIC;
@@ -384,7 +431,7 @@ public class InGameScript : MonoBehaviour {
 		}else if(prec <= 0.180){
 			return Precision.WAYOFF;
 		}
-		return Precision.NONE;
+		return Precision.MISS;
 		
 	}
 	
@@ -394,28 +441,27 @@ public class InGameScript : MonoBehaviour {
 		if(Input.GetKeyDown(KeyCode.LeftArrow) && arrowLeftList.Any()){
 			var ar = findNextLeftArrow();
 			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
-			//Debug.Log("AL ! " + prec);
+
 			if(prec < precToTime(Precision.GREAT)){ //great
 				if(ar.arrowType == Arrow.ArrowType.NORMAL || ar.arrowType == Arrow.ArrowType.MINE){
 					arrowLeftList.Remove(ar);
 					DestroyImmediate(ar.goArrow);
 					StartParticleLeft(timeToPrec(prec));
 				}else{
+					ar.goArrow.GetComponent<ArrowScript>().valid = true;
 					arrowLeftList.Remove(ar);
 					arrowFrozen.Add(ar,0f);
 					ar.displayFrozenBar();
 					StartParticleLeft(timeToPrec(prec));
 					StartParticleFreezeLeft(true);
 				}
-				//Debug.Log("Great !");
+				displayPrec(prec);
 				
 			}else if(prec < precToTime(Precision.WAYOFF)){ //miss
 				ar.goArrow.GetComponent<ArrowScript>().missed = true;
 				arrowLeftList.Remove(ar);
 				StartParticleLeft(timeToPrec(prec));
-				//Debug.Log("Miss... !");
-			}else{
-				//Debug.Log("Not so close");
+				displayPrec(prec);
 			}
 			
 			
@@ -431,28 +477,27 @@ public class InGameScript : MonoBehaviour {
 		if(Input.GetKeyDown(KeyCode.DownArrow) && arrowDownList.Any()){
 			var ar = findNextDownArrow();
 			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
-			//Debug.Log("AL ! " + prec);
+
 			if(prec < (double)0.102){ //great
 				if(ar.arrowType == Arrow.ArrowType.NORMAL || ar.arrowType == Arrow.ArrowType.MINE){
 					arrowDownList.Remove(ar);
 					DestroyImmediate(ar.goArrow);
 					StartParticleDown(timeToPrec(prec));
 				}else{
+					ar.goArrow.GetComponent<ArrowScript>().valid = true;
 					arrowDownList.Remove(ar);
 					arrowFrozen.Add(ar,0f);
 					ar.displayFrozenBar();
 					StartParticleDown(timeToPrec(prec));
 					StartParticleFreezeDown(true);
 				}
-				//Debug.Log("Great !");
-			//Start coroutine score
-			}else if(prec < (double)0.300){ //miss
+				displayPrec(prec);
+				
+			}else if(prec < precToTime(Precision.WAYOFF)){ //miss
 				ar.goArrow.GetComponent<ArrowScript>().missed = true;
 				arrowDownList.Remove(ar);
 				StartParticleDown(timeToPrec(prec));
-				//Debug.Log("Miss... !");
-			}else{
-				//Debug.Log("Not so close");
+				displayPrec(prec);
 			}
 		
 			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 2f && c.Key.arrowType == Arrow.ArrowType.ROLL))
@@ -466,28 +511,28 @@ public class InGameScript : MonoBehaviour {
 		if(Input.GetKeyDown(KeyCode.UpArrow) && arrowUpList.Any()){
 			var ar = findNextUpArrow();
 			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
-			//Debug.Log("AL ! " + prec);
+			
 			if(prec < (double)0.102){ //great
 				if(ar.arrowType == Arrow.ArrowType.NORMAL || ar.arrowType == Arrow.ArrowType.MINE){
 					arrowUpList.Remove(ar);
 					DestroyImmediate(ar.goArrow);
 					StartParticleUp(timeToPrec(prec));
 				}else{
+					ar.goArrow.GetComponent<ArrowScript>().valid = true;
 					arrowUpList.Remove(ar);
 					arrowFrozen.Add(ar,0f);
 					ar.displayFrozenBar();
 					StartParticleUp(timeToPrec(prec));
 					StartParticleFreezeUp(true);
 				}
-			//	Debug.Log("Great !");
-			//Start coroutine score
-			}else if(prec < (double)0.300){ //miss
+				displayPrec(prec);
+				
+
+			}else if(prec < precToTime(Precision.WAYOFF)){ //miss
 				ar.goArrow.GetComponent<ArrowScript>().missed = true;
 				arrowUpList.Remove(ar);
 				StartParticleUp(timeToPrec(prec));
-				//Debug.Log("Miss... !");
-			}else{
-				//Debug.Log("Not so close");
+				displayPrec(prec);
 			}
 			
 			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 4f && c.Key.arrowType == Arrow.ArrowType.ROLL))
@@ -502,28 +547,27 @@ public class InGameScript : MonoBehaviour {
 		if(Input.GetKeyDown(KeyCode.RightArrow) && arrowRightList.Any()){
 			var ar = findNextRightArrow();
 			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
-			//Debug.Log("AL ! " + prec);
+
 			if(prec < (double)0.102){ //great
 				if(ar.arrowType == Arrow.ArrowType.NORMAL || ar.arrowType == Arrow.ArrowType.MINE){
 					arrowRightList.Remove(ar);
 					DestroyImmediate(ar.goArrow);
 					StartParticleRight(timeToPrec(prec));
 				}else{
+					ar.goArrow.GetComponent<ArrowScript>().valid = true;
 					arrowRightList.Remove(ar);
 					arrowFrozen.Add(ar,0f);
 					ar.displayFrozenBar();
 					StartParticleRight(timeToPrec(prec));
 					StartParticleFreezeRight(true);
 				}
-				//Debug.Log("Great !");
+				displayPrec(prec);
 			//Start coroutine score
-			}else if(prec < (double)0.300){ //miss
+			}else if(prec < precToTime(Precision.WAYOFF)){ //miss
 				ar.goArrow.GetComponent<ArrowScript>().missed = true;
 				arrowRightList.Remove(ar);
 				StartParticleRight(timeToPrec(prec));
-				//Debug.Log("Miss... !");
-			}else{
-				//Debug.Log("Not so close");
+				displayPrec(prec);
 			}
 			
 			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 6f && c.Key.arrowType == Arrow.ArrowType.ROLL))
