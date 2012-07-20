@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-
+using System.Collections.Generic;
 public class Arrow {
 	
 	public GameObject goArrow;
@@ -14,9 +14,15 @@ public class Arrow {
 	public Vector3 posEnding;
 	public Vector3 posBegining;
 	
+	public bool alreadyValid;
+	public bool imJump;
+	
+	public List<Arrow> neighboors;
+	
 	
 	public Arrow(GameObject go, ArrowType at, double passedTime){
-		
+		alreadyValid = false;
+		imJump = false;
 		go.GetComponent<ArrowScript>().setArrowAssociated(this);
 		goArrow = go;
 		arrowType = at;

@@ -270,6 +270,8 @@ public class OpenChart{
 			var numberOfMines = 0;
 			var numberOfRoll = 0;
 			var numberOfFreezes = 0;
+			var numberOfJump = 0;
+			var numberOfStepsWJ = 0;
 			theNewsong.stepchart.Add(new List<string>());
 			for(int i = beginstepchart; !listLine.ElementAt(i).Contains(";"); i++){
 				if(listLine.ElementAt(i).Contains(",")){
@@ -282,6 +284,15 @@ public class OpenChart{
 					numberOfFreezes += listLine.ElementAt(i).Count(c => c == '2');
 					numberOfRoll += listLine.ElementAt(i).Count(c => c == '4');
 					numberOfMines += listLine.ElementAt(i).Count(c => c == 'M');
+					numberOfStepsWJ += listLine.ElementAt(i).Count(c => c == '1');
+					numberOfStepsWJ += listLine.ElementAt(i).Count(c => c == '2');
+					numberOfStepsWJ += listLine.ElementAt(i).Count(c => c == '4');
+					
+					var countmesure = listLine.ElementAt(i).Count(c => c == '1') + listLine.ElementAt(i).Count(c => c == '2') + listLine.ElementAt(i).Count(c => c == '4');
+					if(countmesure >= 2){
+						numberOfStepsWJ -= countmesure;
+						numberOfJump++;
+					}
 				}
 			}
 			
@@ -289,6 +300,8 @@ public class OpenChart{
 			theNewsong.numberOfFreezes = numberOfFreezes;
 			theNewsong.numberOfRolls = numberOfRoll;
 			theNewsong.numberOfMines = numberOfMines;
+			theNewsong.numberOfJumps = numberOfJump;
+			theNewsong.numberOfStepsWithoutJumps = numberOfStepsWJ;
 			outputSongs.Add(theNewsong);
 			
 		

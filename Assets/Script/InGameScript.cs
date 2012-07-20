@@ -65,9 +65,7 @@ public class InGameScript : MonoBehaviour {
 	//SCORE
 	private float score;
 	private Dictionary<string, float> scoreBase;
-	
-	
-	
+	public Rect posPercent = new Rect(0.39f, 0f, 0.45f, 0.05f);
 	//FPS
 	private long _count;
 	private long fps;
@@ -98,7 +96,7 @@ public class InGameScript : MonoBehaviour {
 	
 	//Start
 	void Start () {
-		thesong = OpenChart.Instance.readChart("Still Blastin'")[0];
+		thesong = OpenChart.Instance.readChart("BrokenTheMoon")[0];
 		createTheChart(thesong);
 		Application.targetFrameRate = -1;
 		nextSwitchBPM = 1;
@@ -132,8 +130,8 @@ public class InGameScript : MonoBehaviour {
 		TextureBase.Add("DECENT", (Texture2D) Resources.Load("Decent"));
 		TextureBase.Add("WAYOFF", (Texture2D) Resources.Load("Wayoff"));
 		TextureBase.Add("MISS", (Texture2D) Resources.Load("Miss"));
-		TextureBase.Add("SCORENUMBER", (Texture2D) Resources.Load("ScoreNumber"));
-		TextureBase.Add("SCORESYMBOL", (Texture2D) Resources.Load("ScoreSymbol"));
+		TextureBase.Add("SCORENUMBER", (Texture2D) Resources.Load("NumberScore"));
+		TextureBase.Add("SCORESYMBOL", (Texture2D) Resources.Load("SymbolScore"));
 		
 		//stuff
 		scoreToDisplay = Precision.NONE;
@@ -147,7 +145,7 @@ public class InGameScript : MonoBehaviour {
 		//init score and lifebase
 		scoreBase = new Dictionary<string, float>();
 		lifeBase = new Dictionary<string, float>();
-		var fantasticValue = 100f/(thesong.numberOfSteps + thesong.numberOfFreezes + thesong.numberOfRolls);
+		var fantasticValue = 100f/(thesong.numberOfStepsWithoutJumps + thesong.numberOfJumps + thesong.numberOfFreezes + thesong.numberOfRolls);
 		foreach(Precision el in Enum.GetValues(typeof(Precision))){
 			if(el != Precision.NONE){
 				scoreBase.Add(el.ToString(), fantasticValue*DataManager.Instance.ScoreWeightValues[el.ToString()]);
@@ -180,6 +178,21 @@ public class InGameScript : MonoBehaviour {
 			GUI.color = new Color(1f, 1f, 1f, alpha);
 			GUI.DrawTexture(new Rect(posScore.x*Screen.width - zoom, posScore.y*Screen.height, posScore.width*Screen.width + zoom*2, posScore.height*Screen.height), TextureBase[scoreToDisplay.ToString()]); 
 			
+		}
+		
+		if(Event.current.type.Equals(EventType.Repaint)){
+			var wd = posPercent.width*128;
+			var hg = posPercent.height*1024;
+			var hgt = posPercent.height*254;
+			var ecart = 92f;
+			var displaying = scoreDecoupe(score);
+			if(score >= 10f) Graphics.DrawTexture(new Rect(posPercent.x*Screen.width, posPercent.y*Screen.height, wd, hg), TextureBase["SCORENUMBER"], new Rect(0f, - displaying.x, 1f, 0.1f), 0,0,0,0);
+			Graphics.DrawTexture(new Rect(posPercent.x*Screen.width + posPercent.width*ecart, posPercent.y*Screen.height, wd, hg), TextureBase["SCORENUMBER"], new Rect(0f, - displaying.y, 1f, 0.1f), 0,0,0,0);
+			Graphics.DrawTexture(new Rect(posPercent.x*Screen.width + posPercent.width*(ecart+(ecart/2f)), posPercent.y*Screen.height, wd, hgt*4), TextureBase["SCORESYMBOL"], new Rect(0f, 0f, 1f, 0.5f), 0,0,0,0);
+			Graphics.DrawTexture(new Rect(posPercent.x*Screen.width + posPercent.width*ecart*2, posPercent.y*Screen.height, wd, hg), TextureBase["SCORENUMBER"], new Rect(0f, - displaying.width, 1f, 0.1f), 0,0,0,0);
+			Graphics.DrawTexture(new Rect(posPercent.x*Screen.width + posPercent.width*ecart*3, posPercent.y*Screen.height, wd, hg), TextureBase["SCORENUMBER"], new Rect(0f, - displaying.height, 1f, 0.1f), 0,0,0,0);
+			Graphics.DrawTexture(new Rect(posPercent.x*Screen.width + posPercent.width*ecart*4, posPercent.y*Screen.height, wd, hgt*4), TextureBase["SCORESYMBOL"], new Rect(0f, 0.5f, 1f, 0.5f), 0,0,0,0);
+		
 		}
 		
 	}
@@ -394,30 +407,140 @@ public class InGameScript : MonoBehaviour {
 	//Verify keys Input at this frame
 	//Null ref exception quand il n'y a plus de flèche !
 	void VerifyKeysInput(){
+		
 		if(Input.GetKeyDown(KeyCode.LeftArrow) && arrowLeftList.Any()){
 			var ar = findNextLeftArrow();
 			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
-
+			
 			if(prec < precToTime(Precision.GREAT)){ //great
-				if(ar.arrowType == ArrowType.NORMAL || ar.arrowType == ArrowType.MINE){
-					DestroyImmediate(ar.goArrow);
-				}else{
+				
+				
+				if(ar.imJump){
+					ar.alreadyValid = true;
 					ar.goArrow.GetComponent<ArrowScript>().valid = true;
-					arrowFrozen.Add(ar,0f);
-					ar.displayFrozenBar();
-					StartParticleFreezeLeft(true);
+					
+					if(!ar.neighboors.Any(c => c.alreadyValid == false)){
+						var left = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 0);
+						var down = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 2);
+						var up = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 4);
+						var right = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 6);
+						if(left != null){
+							if(left.arrowType == ArrowType.NORMAL || left.arrowType == ArrowType.MINE){
+								DestroyImmediate(left.goArrow);
+								
+							}else{
+								arrowFrozen.Add(left,0f);
+								left.displayFrozenBar();
+								StartParticleFreezeLeft(true);
+								
+							}
+							
+							arrowLeftList.Remove(left);
+							StartParticleLeft(timeToPrec(prec));
+						}
+						if(down != null){
+							if(down.arrowType == ArrowType.NORMAL || down.arrowType == ArrowType.MINE){
+								DestroyImmediate(down.goArrow);
+								
+							}else{
+								arrowFrozen.Add(down,0f);
+								down.displayFrozenBar();
+								StartParticleFreezeDown(true);
+								
+							}
+							
+							arrowDownList.Remove(down);
+							StartParticleDown(timeToPrec(prec));
+						}
+						if(up != null){
+							if(up.arrowType == ArrowType.NORMAL || up.arrowType == ArrowType.MINE){
+								DestroyImmediate(up.goArrow);
+								
+							}else{
+								arrowFrozen.Add(up,0f);
+								up.displayFrozenBar();
+								StartParticleFreezeUp(true);
+								
+							}
+							arrowUpList.Remove(up);
+							StartParticleUp(timeToPrec(prec));
+						}
+						if(right != null){
+							if(right.arrowType == ArrowType.NORMAL || right.arrowType == ArrowType.MINE){
+								DestroyImmediate(right.goArrow);
+								
+							}else{
+								arrowFrozen.Add(right,0f);
+								right.displayFrozenBar();
+								StartParticleFreezeRight(true);
+								
+							}
+							arrowRightList.Remove(up);
+							StartParticleRight(timeToPrec(prec));
+						}
+						GainScoreAndLife(timeToPrec(prec).ToString());
+						displayPrec(prec);
+					}
+				}else{
+					if(ar.arrowType == ArrowType.NORMAL || ar.arrowType == ArrowType.MINE){
+						DestroyImmediate(ar.goArrow);
+						
+					}else{
+						ar.goArrow.GetComponent<ArrowScript>().valid = true;
+						arrowFrozen.Add(ar,0f);
+						ar.displayFrozenBar();
+						StartParticleFreezeLeft(true);
+						
+					}
+					
+					arrowLeftList.Remove(ar);
+					StartParticleLeft(timeToPrec(prec));
+					GainScoreAndLife(timeToPrec(prec).ToString());
+					displayPrec(prec);
 				}
-				arrowLeftList.Remove(ar);
-				StartParticleLeft(timeToPrec(prec));
-				GainScoreAndLife(timeToPrec(prec).ToString());
-				displayPrec(prec);
 				
 			}else if(prec < precToTime(Precision.WAYOFF)){ //miss
-				ar.goArrow.GetComponent<ArrowScript>().missed = true;
-				arrowLeftList.Remove(ar);
-				StartParticleLeft(timeToPrec(prec));
-				displayPrec(prec);
-				GainScoreAndLife(timeToPrec(prec).ToString());
+					if(ar.imJump){
+					
+						ar.alreadyValid = true;
+						ar.goArrow.GetComponent<ArrowScript>().missed = true;
+						if(!ar.neighboors.Any(c => c.alreadyValid == false)){
+							var left = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 0);
+							var down = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 2);
+							var up = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 4);
+							var right = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 6);
+							if(left != null){
+								
+								arrowLeftList.Remove(left);
+								StartParticleLeft(timeToPrec(prec));
+							}
+							if(down != null){
+								
+								
+								arrowDownList.Remove(down);
+								StartParticleDown(timeToPrec(prec));
+							}
+							if(up != null){
+								
+								arrowUpList.Remove(up);
+								StartParticleUp(timeToPrec(prec));
+							}
+							if(right != null){
+								
+								arrowRightList.Remove(up);
+								StartParticleRight(timeToPrec(prec));
+							}
+							GainScoreAndLife(timeToPrec(prec).ToString());
+							displayPrec(prec);
+						}
+					}else{
+						ar.goArrow.GetComponent<ArrowScript>().missed = true;
+						arrowLeftList.Remove(ar);
+						StartParticleLeft(timeToPrec(prec));
+						displayPrec(prec);
+						GainScoreAndLife(timeToPrec(prec).ToString());
+					}
+				
 			}
 			
 			
@@ -426,7 +549,7 @@ public class InGameScript : MonoBehaviour {
 				var froz = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 0f);
 				arrowFrozen[froz.Key] = 0f;
 			}
-		
+			
 		}
 		
 		
@@ -434,28 +557,134 @@ public class InGameScript : MonoBehaviour {
 			var ar = findNextDownArrow();
 			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
 
-			if(prec < (double)0.102){ //great
-				if(ar.arrowType == ArrowType.NORMAL || ar.arrowType == ArrowType.MINE){
-					
-					DestroyImmediate(ar.goArrow);
-					StartParticleDown(timeToPrec(prec));
-				}else{
+			if(prec < precToTime(Precision.GREAT)){ //great
+				
+				
+				if(ar.imJump){
+					ar.alreadyValid = true;
 					ar.goArrow.GetComponent<ArrowScript>().valid = true;
-					arrowFrozen.Add(ar,0f);
-					ar.displayFrozenBar();
-					StartParticleFreezeDown(true);
+					
+					if(!ar.neighboors.Any(c => c.alreadyValid == false)){
+						var left = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 0);
+						var down = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 2);
+						var up = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 4);
+						var right = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 6);
+						if(left != null){
+							if(left.arrowType == ArrowType.NORMAL || left.arrowType == ArrowType.MINE){
+								DestroyImmediate(left.goArrow);
+								
+							}else{
+								arrowFrozen.Add(left,0f);
+								left.displayFrozenBar();
+								StartParticleFreezeLeft(true);
+								
+							}
+							
+							arrowLeftList.Remove(left);
+							StartParticleLeft(timeToPrec(prec));
+						}
+						if(down != null){
+							if(down.arrowType == ArrowType.NORMAL || down.arrowType == ArrowType.MINE){
+								DestroyImmediate(down.goArrow);
+								
+							}else{
+								arrowFrozen.Add(down,0f);
+								down.displayFrozenBar();
+								StartParticleFreezeDown(true);
+								
+							}
+							
+							arrowDownList.Remove(down);
+							StartParticleDown(timeToPrec(prec));
+						}
+						if(up != null){
+							if(up.arrowType == ArrowType.NORMAL || up.arrowType == ArrowType.MINE){
+								DestroyImmediate(up.goArrow);
+								
+							}else{
+								arrowFrozen.Add(up,0f);
+								up.displayFrozenBar();
+								StartParticleFreezeUp(true);
+								
+							}
+							arrowUpList.Remove(up);
+							StartParticleUp(timeToPrec(prec));
+						}
+						if(right != null){
+							if(right.arrowType == ArrowType.NORMAL || right.arrowType == ArrowType.MINE){
+								DestroyImmediate(right.goArrow);
+								
+							}else{
+								arrowFrozen.Add(right,0f);
+								right.displayFrozenBar();
+								StartParticleFreezeRight(true);
+								
+							}
+							arrowRightList.Remove(up);
+							StartParticleRight(timeToPrec(prec));
+						}
+						GainScoreAndLife(timeToPrec(prec).ToString());
+						displayPrec(prec);
+					}
+				}else{
+					if(ar.arrowType == ArrowType.NORMAL || ar.arrowType == ArrowType.MINE){
+						DestroyImmediate(ar.goArrow);
+						
+					}else{
+						ar.goArrow.GetComponent<ArrowScript>().valid = true;
+						arrowFrozen.Add(ar,0f);
+						ar.displayFrozenBar();
+						StartParticleFreezeDown(true);
+						
+					}
+					
+					arrowDownList.Remove(ar);
+					StartParticleDown(timeToPrec(prec));
+					GainScoreAndLife(timeToPrec(prec).ToString());
+					displayPrec(prec);
 				}
-				arrowDownList.Remove(ar);
-				StartParticleDown(timeToPrec(prec));
-				GainScoreAndLife(timeToPrec(prec).ToString());
-				displayPrec(prec);
 				
 			}else if(prec < precToTime(Precision.WAYOFF)){ //miss
-				ar.goArrow.GetComponent<ArrowScript>().missed = true;
-				arrowDownList.Remove(ar);
-				StartParticleDown(timeToPrec(prec));
-				GainScoreAndLife(timeToPrec(prec).ToString());
-				displayPrec(prec);
+					if(ar.imJump){
+					
+						ar.alreadyValid = true;
+						ar.goArrow.GetComponent<ArrowScript>().missed = true;
+						if(!ar.neighboors.Any(c => c.alreadyValid == false)){
+							var left = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 0);
+							var down = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 2);
+							var up = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 4);
+							var right = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 6);
+							if(left != null){
+								
+								arrowLeftList.Remove(left);
+								StartParticleLeft(timeToPrec(prec));
+							}
+							if(down != null){
+								
+								
+								arrowDownList.Remove(down);
+								StartParticleDown(timeToPrec(prec));
+							}
+							if(up != null){
+								
+								arrowUpList.Remove(up);
+								StartParticleUp(timeToPrec(prec));
+							}
+							if(right != null){
+								
+								arrowRightList.Remove(up);
+								StartParticleRight(timeToPrec(prec));
+							}
+							GainScoreAndLife(timeToPrec(prec).ToString());
+							displayPrec(prec);
+						}
+					}else{
+						ar.goArrow.GetComponent<ArrowScript>().missed = true;
+						arrowDownList.Remove(ar);
+						StartParticleDown(timeToPrec(prec));
+						displayPrec(prec);
+						GainScoreAndLife(timeToPrec(prec).ToString());
+					}
 				
 			}
 		
@@ -471,27 +700,135 @@ public class InGameScript : MonoBehaviour {
 			var ar = findNextUpArrow();
 			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
 			
-			if(prec < (double)0.102){ //great
-				if(ar.arrowType == ArrowType.NORMAL || ar.arrowType == ArrowType.MINE){
-					DestroyImmediate(ar.goArrow);
-				}else{
-					ar.goArrow.GetComponent<ArrowScript>().valid = true;
-					arrowFrozen.Add(ar,0f);
-					ar.displayFrozenBar();
-					StartParticleFreezeUp(true);
-				}
-				arrowUpList.Remove(ar);
-				StartParticleUp(timeToPrec(prec));
-				GainScoreAndLife(timeToPrec(prec).ToString());
-				displayPrec(prec);
+			if(prec < precToTime(Precision.GREAT)){ //great
 				
-
+				
+				if(ar.imJump){
+					ar.alreadyValid = true;
+					ar.goArrow.GetComponent<ArrowScript>().valid = true;
+					
+					if(!ar.neighboors.Any(c => c.alreadyValid == false)){
+						var left = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 0);
+						var down = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 2);
+						var up = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 4);
+						var right = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 6);
+						if(left != null){
+							if(left.arrowType == ArrowType.NORMAL || left.arrowType == ArrowType.MINE){
+								DestroyImmediate(left.goArrow);
+								
+							}else{
+								arrowFrozen.Add(left,0f);
+								left.displayFrozenBar();
+								StartParticleFreezeLeft(true);
+								
+							}
+							
+							arrowLeftList.Remove(left);
+							StartParticleLeft(timeToPrec(prec));
+						}
+						if(down != null){
+							if(down.arrowType == ArrowType.NORMAL || down.arrowType == ArrowType.MINE){
+								DestroyImmediate(down.goArrow);
+								
+							}else{
+								arrowFrozen.Add(down,0f);
+								down.displayFrozenBar();
+								StartParticleFreezeDown(true);
+								
+							}
+							
+							arrowDownList.Remove(down);
+							StartParticleDown(timeToPrec(prec));
+						}
+						if(up != null){
+							if(up.arrowType == ArrowType.NORMAL || up.arrowType == ArrowType.MINE){
+								DestroyImmediate(up.goArrow);
+								
+							}else{
+								arrowFrozen.Add(up,0f);
+								up.displayFrozenBar();
+								StartParticleFreezeUp(true);
+								
+							}
+							arrowUpList.Remove(up);
+							StartParticleUp(timeToPrec(prec));
+						}
+						if(right != null){
+							if(right.arrowType == ArrowType.NORMAL || right.arrowType == ArrowType.MINE){
+								DestroyImmediate(right.goArrow);
+								
+							}else{
+								arrowFrozen.Add(right,0f);
+								right.displayFrozenBar();
+								StartParticleFreezeRight(true);
+								
+							}
+							arrowRightList.Remove(up);
+							StartParticleRight(timeToPrec(prec));
+						}
+						GainScoreAndLife(timeToPrec(prec).ToString());
+						displayPrec(prec);
+					}
+				}else{
+					if(ar.arrowType == ArrowType.NORMAL || ar.arrowType == ArrowType.MINE){
+						DestroyImmediate(ar.goArrow);
+						
+					}else{
+						ar.goArrow.GetComponent<ArrowScript>().valid = true;
+						arrowFrozen.Add(ar,0f);
+						ar.displayFrozenBar();
+						StartParticleFreezeUp(true);
+						
+					}
+					
+					arrowUpList.Remove(ar);
+					StartParticleUp(timeToPrec(prec));
+					GainScoreAndLife(timeToPrec(prec).ToString());
+					displayPrec(prec);
+				}
+				
 			}else if(prec < precToTime(Precision.WAYOFF)){ //miss
-				ar.goArrow.GetComponent<ArrowScript>().missed = true;
-				arrowUpList.Remove(ar);
-				StartParticleUp(timeToPrec(prec));
-				GainScoreAndLife(timeToPrec(prec).ToString());
-				displayPrec(prec);
+					if(ar.imJump){
+					
+						ar.alreadyValid = true;
+						ar.goArrow.GetComponent<ArrowScript>().missed = true;
+						if(!ar.neighboors.Any(c => c.alreadyValid == false)){
+							var left = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 0);
+							var down = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 2);
+							var up = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 4);
+							var right = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 6);
+							if(left != null){
+								
+								arrowLeftList.Remove(left);
+								StartParticleLeft(timeToPrec(prec));
+							}
+							if(down != null){
+								
+								
+								arrowDownList.Remove(down);
+								StartParticleDown(timeToPrec(prec));
+							}
+							if(up != null){
+								
+								arrowUpList.Remove(up);
+								StartParticleUp(timeToPrec(prec));
+							}
+							if(right != null){
+								
+								arrowRightList.Remove(up);
+								StartParticleRight(timeToPrec(prec));
+							}
+							GainScoreAndLife(timeToPrec(prec).ToString());
+							displayPrec(prec);
+						}
+					}else{
+						ar.goArrow.GetComponent<ArrowScript>().missed = true;
+						arrowUpList.Remove(ar);
+						StartParticleUp(timeToPrec(prec));
+						displayPrec(prec);
+						GainScoreAndLife(timeToPrec(prec).ToString());
+					}
+				
 			}
 			
 			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 4f && c.Key.arrowType == ArrowType.ROLL))
@@ -507,26 +844,135 @@ public class InGameScript : MonoBehaviour {
 			var ar = findNextRightArrow();
 			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
 
-			if(prec < (double)0.102){ //great
-				if(ar.arrowType == ArrowType.NORMAL || ar.arrowType == ArrowType.MINE){
-					DestroyImmediate(ar.goArrow);
-				}else{
+			if(prec < precToTime(Precision.GREAT)){ //great
+				
+				
+				if(ar.imJump){
+					ar.alreadyValid = true;
 					ar.goArrow.GetComponent<ArrowScript>().valid = true;
-					arrowFrozen.Add(ar,0f);
-					ar.displayFrozenBar();
-					StartParticleFreezeRight(true);
+					
+					if(!ar.neighboors.Any(c => c.alreadyValid == false)){
+						var left = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 0);
+						var down = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 2);
+						var up = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 4);
+						var right = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 6);
+						if(left != null){
+							if(left.arrowType == ArrowType.NORMAL || left.arrowType == ArrowType.MINE){
+								DestroyImmediate(left.goArrow);
+								
+							}else{
+								arrowFrozen.Add(left,0f);
+								left.displayFrozenBar();
+								StartParticleFreezeLeft(true);
+								
+							}
+							
+							arrowLeftList.Remove(left);
+							StartParticleLeft(timeToPrec(prec));
+						}
+						if(down != null){
+							if(down.arrowType == ArrowType.NORMAL || down.arrowType == ArrowType.MINE){
+								DestroyImmediate(down.goArrow);
+								
+							}else{
+								arrowFrozen.Add(down,0f);
+								down.displayFrozenBar();
+								StartParticleFreezeDown(true);
+								
+							}
+							
+							arrowDownList.Remove(down);
+							StartParticleDown(timeToPrec(prec));
+						}
+						if(up != null){
+							if(up.arrowType == ArrowType.NORMAL || up.arrowType == ArrowType.MINE){
+								DestroyImmediate(up.goArrow);
+								
+							}else{
+								arrowFrozen.Add(up,0f);
+								up.displayFrozenBar();
+								StartParticleFreezeUp(true);
+								
+							}
+							arrowUpList.Remove(up);
+							StartParticleUp(timeToPrec(prec));
+						}
+						if(right != null){
+							if(right.arrowType == ArrowType.NORMAL || right.arrowType == ArrowType.MINE){
+								DestroyImmediate(right.goArrow);
+								
+							}else{
+								arrowFrozen.Add(right,0f);
+								right.displayFrozenBar();
+								StartParticleFreezeRight(true);
+								
+							}
+							arrowRightList.Remove(up);
+							StartParticleRight(timeToPrec(prec));
+						}
+						GainScoreAndLife(timeToPrec(prec).ToString());
+						displayPrec(prec);
+					}
+				}else{
+					if(ar.arrowType == ArrowType.NORMAL || ar.arrowType == ArrowType.MINE){
+						DestroyImmediate(ar.goArrow);
+						
+					}else{
+						ar.goArrow.GetComponent<ArrowScript>().valid = true;
+						arrowFrozen.Add(ar,0f);
+						ar.displayFrozenBar();
+						StartParticleFreezeRight(true);
+						
+					}
+					
+					arrowRightList.Remove(ar);
+					StartParticleRight(timeToPrec(prec));
+					GainScoreAndLife(timeToPrec(prec).ToString());
+					displayPrec(prec);
 				}
-				arrowRightList.Remove(ar);
-				StartParticleRight(timeToPrec(prec));
-				GainScoreAndLife(timeToPrec(prec).ToString());
-				displayPrec(prec);
-			//Start coroutine score
+				
 			}else if(prec < precToTime(Precision.WAYOFF)){ //miss
-				ar.goArrow.GetComponent<ArrowScript>().missed = true;
-				arrowRightList.Remove(ar);
-				StartParticleRight(timeToPrec(prec));
-				GainScoreAndLife(timeToPrec(prec).ToString());
-				displayPrec(prec);
+					if(ar.imJump){
+					
+						ar.alreadyValid = true;
+						ar.goArrow.GetComponent<ArrowScript>().missed = true;
+						if(!ar.neighboors.Any(c => c.alreadyValid == false)){
+							var left = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 0);
+							var down = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 2);
+							var up = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 4);
+							var right = ar.neighboors.FirstOrDefault(c => c.goArrow.transform.position.x == 6);
+							if(left != null){
+								
+								arrowLeftList.Remove(left);
+								StartParticleLeft(timeToPrec(prec));
+							}
+							if(down != null){
+								
+								
+								arrowDownList.Remove(down);
+								StartParticleDown(timeToPrec(prec));
+							}
+							if(up != null){
+								
+								arrowUpList.Remove(up);
+								StartParticleUp(timeToPrec(prec));
+							}
+							if(right != null){
+								
+								arrowRightList.Remove(up);
+								StartParticleRight(timeToPrec(prec));
+							}
+							GainScoreAndLife(timeToPrec(prec).ToString());
+							displayPrec(prec);
+						}
+					}else{
+						ar.goArrow.GetComponent<ArrowScript>().missed = true;
+						arrowRightList.Remove(ar);
+						StartParticleRight(timeToPrec(prec));
+						displayPrec(prec);
+						GainScoreAndLife(timeToPrec(prec).ToString());
+					}
+				
 			}
 			
 			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 6f && c.Key.arrowType == ArrowType.ROLL))
@@ -627,7 +1073,7 @@ public class InGameScript : MonoBehaviour {
 	
 	#endregion
 	
-	
+	#region util
 	public void GainScoreAndLife(string s){
 		life += lifeBase[s];
 		if(life > 100f){
@@ -643,6 +1089,22 @@ public class InGameScript : MonoBehaviour {
 		}
 	}
 	
+	Rect scoreDecoupe(float dascore){
+		var thescorestring = dascore.ToString("00.00");
+		var thescorestringentier = thescorestring.Split('.')[0];
+		var thescorestringdecim = thescorestring.Split('.')[1];
+		return new Rect(roolInt("0." + thescorestringentier[0]), roolInt("0." + thescorestringentier[1]), roolInt("0." + thescorestringdecim[0]), roolInt("0." + thescorestringdecim[1]));
+	}
+	
+	float roolInt(string i){
+		var ic = (float)Convert.ToDouble(i);
+		if(ic == 0.9f){
+			return 0f;	
+		}else{
+			return ic+0.1f;		
+		}
+	}
+	#endregion
 	
 	#region Precision
 	double precToTime(Precision prec){
@@ -828,7 +1290,8 @@ public class InGameScript : MonoBehaviour {
 				timetotal = timecounter + timeBPM + timestop;
 				
 				char[] note = mesure.ElementAt(beat).Trim().ToCharArray();
-				//var barrow = false;
+				
+				var listNeighboors = new List<Arrow>();
 				for(int i =0;i<4; i++){
 					if(note[i] == '1'){
 						//var theArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos  + (float)s.offset, 0f), arrow.transform.rotation);
@@ -851,7 +1314,7 @@ public class InGameScript : MonoBehaviour {
 							arrowRightList.Add(theArrow);
 							break;
 						}
-						
+						listNeighboors.Add(theArrow);
 						//barrow = true;
 					}else if(note[i] == '2'){
 						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
@@ -872,7 +1335,7 @@ public class InGameScript : MonoBehaviour {
 							arrowRightList.Add(theArrow);
 							break;
 						}
-						
+						listNeighboors.Add(theArrow);
 					}else if(note[i] == '3'){
 						var theArrow = ArrowFreezed[i];
 						var goFreeze = (GameObject) Instantiate(freeze, new Vector3(i*2, (theArrow.goArrow.transform.position.y + ((-ypos - theArrow.goArrow.transform.position.y)/2f)) , 0.5f), freeze.transform.rotation);
@@ -899,7 +1362,7 @@ public class InGameScript : MonoBehaviour {
 							arrowRightList.Add(theArrow);
 							break;
 						}
-						
+						listNeighboors.Add(theArrow);
 					}else if(note[i] == 'M'){
 						/*var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
 						goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
@@ -924,10 +1387,12 @@ public class InGameScript : MonoBehaviour {
 					
 				}
 				
-				
-				
-				//if(barrow)Debug.Log("ARROW : " + timetotal);
-				//if(!barrow)Debug.Log("no arrow : " + timetotal);	
+				if(listNeighboors.Count > 1){
+					foreach(var el in listNeighboors){
+						el.neighboors = listNeighboors;
+						el.imJump = true;
+					}
+				}
 				
 				
 				if(theBPMCounter < s.bpms.Count){

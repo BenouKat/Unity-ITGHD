@@ -22,9 +22,11 @@ public class Song {
 	public Difficulty difficulty;
 	public int level;
 	public int numberOfSteps;
+	public int numberOfStepsWithoutJumps;
 	public int numberOfFreezes;
 	public int numberOfRolls;
 	public int numberOfMines;
+	public int numberOfJumps;
 	
 	//stepchart
 	public List<List<string>> stepchart;

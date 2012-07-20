@@ -11,6 +11,7 @@ public class ArrowScript : MonoBehaviour {
 	private InGameScript igs;
 	public bool missed;
 	public bool valid;
+	public bool alreadyScored;
 	// Use this for initialization
 	void Start () {
 		igs = Engine.GetComponent<InGameScript>();
@@ -31,6 +32,7 @@ public class ArrowScript : MonoBehaviour {
 		}
 		missed = false;
 		valid = false;
+		alreadyScored = false;
 	}
 	
 	// Update is called once per frame
@@ -38,8 +40,18 @@ public class ArrowScript : MonoBehaviour {
 		if(!missed && !valid && associatedArrow.time <= (igs.getTotalTimeChart() - (double)0.18)){
 			missed = true;
 			igs.removeArrowFromList(associatedArrow, state);
-			igs.displayPrec(1);
-			igs.GainScoreAndLife("MISS");
+			if(!alreadyScored){
+				igs.displayPrec(1);
+				igs.GainScoreAndLife("MISS");
+			}
+			
+			if(associatedArrow.imJump){
+				foreach(var el in associatedArrow.neighboors){
+					if(el.goArrow != null) el.goArrow.GetComponent<ArrowScript>().alreadyScored = true;
+				}
+			}
+			
+			
 		}
 	}
 	
