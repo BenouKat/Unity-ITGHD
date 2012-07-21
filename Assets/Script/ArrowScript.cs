@@ -39,7 +39,7 @@ public class ArrowScript : MonoBehaviour {
 	void LateUpdate () {
 		if(!missed && !valid && associatedArrow.time <= (igs.getTotalTimeChart() - (double)0.18)){
 			missed = true;
-			igs.removeArrowFromList(associatedArrow, state);
+			
 			if(!alreadyScored){
 				igs.displayPrec(1);
 				igs.GainScoreAndLife("MISS");
@@ -47,8 +47,13 @@ public class ArrowScript : MonoBehaviour {
 			
 			if(associatedArrow.imJump){
 				foreach(var el in associatedArrow.neighboors){
-					if(el.goArrow != null) el.goArrow.GetComponent<ArrowScript>().alreadyScored = true;
+					if(el.goArrow != null){
+						el.goArrow.GetComponent<ArrowScript>().alreadyScored = true;
+						igs.removeArrowFromList(el, el.goArrow.GetComponent<ArrowScript>().state);	
+					}
 				}
+			}else{
+				igs.removeArrowFromList(associatedArrow, state);	
 			}
 			
 			

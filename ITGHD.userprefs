@@ -2,10 +2,10 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\ArrowScript.cs">
     <Files>
-      <File FileName="Assets\Script\InGameScript.cs" Line="696" Column="4" />
+      <File FileName="Assets\Script\InGameScript.cs" Line="982" Column="3" />
       <File FileName="Assets\Script\DataManager.cs" Line="34" Column="21" />
       <File FileName="Assets\Script\Arrow.cs" Line="25" Column="18" />
-      <File FileName="Assets\Script\ArrowScript.cs" Line="38" Column="27" />
+      <File FileName="Assets\Script\ArrowScript.cs" Line="51" Column="7" />
       <File FileName="Assets\Script\Song.cs" Line="25" Column="38" />
       <File FileName="Assets\Script\OpenChart.cs" Line="304" Column="59" />
     </Files>

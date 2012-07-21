@@ -205,7 +205,6 @@ public class InGameScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		
-		
 		//FPS
 		_count++;
 		_timer += Time.deltaTime;
@@ -475,7 +474,7 @@ public class InGameScript : MonoBehaviour {
 								StartParticleFreezeRight(true);
 								
 							}
-							arrowRightList.Remove(up);
+							arrowRightList.Remove(right);
 							StartParticleRight(timeToPrec(prec));
 						}
 						GainScoreAndLife(timeToPrec(prec).ToString());
@@ -527,7 +526,7 @@ public class InGameScript : MonoBehaviour {
 							}
 							if(right != null){
 								
-								arrowRightList.Remove(up);
+								arrowRightList.Remove(right);
 								StartParticleRight(timeToPrec(prec));
 							}
 							GainScoreAndLife(timeToPrec(prec).ToString());
@@ -620,7 +619,7 @@ public class InGameScript : MonoBehaviour {
 								StartParticleFreezeRight(true);
 								
 							}
-							arrowRightList.Remove(up);
+							arrowRightList.Remove(right);
 							StartParticleRight(timeToPrec(prec));
 						}
 						GainScoreAndLife(timeToPrec(prec).ToString());
@@ -672,7 +671,7 @@ public class InGameScript : MonoBehaviour {
 							}
 							if(right != null){
 								
-								arrowRightList.Remove(up);
+								arrowRightList.Remove(right);
 								StartParticleRight(timeToPrec(prec));
 							}
 							GainScoreAndLife(timeToPrec(prec).ToString());
@@ -763,7 +762,7 @@ public class InGameScript : MonoBehaviour {
 								StartParticleFreezeRight(true);
 								
 							}
-							arrowRightList.Remove(up);
+							arrowRightList.Remove(right);
 							StartParticleRight(timeToPrec(prec));
 						}
 						GainScoreAndLife(timeToPrec(prec).ToString());
@@ -815,7 +814,7 @@ public class InGameScript : MonoBehaviour {
 							}
 							if(right != null){
 								
-								arrowRightList.Remove(up);
+								arrowRightList.Remove(right);
 								StartParticleRight(timeToPrec(prec));
 							}
 							GainScoreAndLife(timeToPrec(prec).ToString());
@@ -907,7 +906,7 @@ public class InGameScript : MonoBehaviour {
 								StartParticleFreezeRight(true);
 								
 							}
-							arrowRightList.Remove(up);
+							arrowRightList.Remove(right);
 							StartParticleRight(timeToPrec(prec));
 						}
 						GainScoreAndLife(timeToPrec(prec).ToString());
@@ -959,7 +958,7 @@ public class InGameScript : MonoBehaviour {
 							}
 							if(right != null){
 								
-								arrowRightList.Remove(up);
+								arrowRightList.Remove(right);
 								StartParticleRight(timeToPrec(prec));
 							}
 							GainScoreAndLife(timeToPrec(prec).ToString());
