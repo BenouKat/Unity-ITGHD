@@ -23,6 +23,9 @@ public class InGameScript : MonoBehaviour {
 	
 	private Song thesong;
 	
+	
+	private AudioSource source;
+	
 	//USED FOR UPDATE FUNCTION
 	private double timebpm; //Temps joué sur la totalité, non live, non remise à 0
 	private float timechart; //Temps joué sur le bpm actuel en live avec remise à 0
@@ -94,12 +97,17 @@ public class InGameScript : MonoBehaviour {
 	private Dictionary<string, Texture2D> TextureBase;
 	
 	
+	private bool firstUpdate;
+	
+	
+	private float oneSecond;
+	
 	#endregion
 	
 	
 	//Start
 	void Start () {
-		thesong = OpenChart.Instance.readChart("BrokenTheMoon")[0];
+		thesong = OpenChart.Instance.readChart("BulletProof")[0];
 		createTheChart(thesong);
 		Application.targetFrameRate = -1;
 		nextSwitchBPM = 1;
@@ -111,7 +119,7 @@ public class InGameScript : MonoBehaviour {
 		_count = 0L;
 		
 		timebpm = (double)0;
-		timechart = 0f;
+		timechart = -(float)thesong.offset;
 		timetotalchart = (double)0;
 		
 		
@@ -162,6 +170,12 @@ public class InGameScript : MonoBehaviour {
 		
 		theLifeBar = lifeBar.GetComponent<LifeBar>();
 		
+		
+		source = gameObject.GetComponent<AudioSource>();
+		//var bps = thesong.getBPS(actualBPM);
+		//changeBPM -= (float)(bps*thesong.offset)*speedmod;
+		firstUpdate = true;
+		oneSecond = 0f;
 	}
 	
 	
@@ -204,11 +218,15 @@ public class InGameScript : MonoBehaviour {
 	
 	
 	
-	
+	IEnumerator StartSong(){
+		source.PlayOneShot(thesong.song);
+		yield return 0;
+	}
 	
 	
 	// Update is called once per frame
 	void Update () {
+		
 		
 		//FPS
 		_count++;
@@ -219,45 +237,55 @@ public class InGameScript : MonoBehaviour {
 			_timer = 0;
 		}
 		
-		
-		//timetotal for this frame
-		timetotalchart = timebpm + timechart + totaltimestop;
-		
-		//Move Arrows
-		MoveArrows();
+		if(oneSecond >= 1f){
+			//timetotal for this frame
+			timetotalchart = timebpm + timechart + totaltimestop;
 			
-		//Verify inputs
-		VerifyValidFrozenArrow();
-		VerifyKeysInput();
-		VerifyKeysOutput();
-		
-		//Changement bpm et stops
-		VerifyBPMnSTOP();
-		
-		
-		//Progress time chart
-		if(actualstop != 0){
-			if(timestop >= actualstop){
-				timechart += timestop - (float)actualstop;
-				totaltimestop += (float)actualstop;
-				timetotalchart = timebpm + timechart + totaltimestop;
-				actualstop = (double)0;
-				timestop = 0f;
-			}else if(!dontstopmenow){
-				
-				timestop += Time.deltaTime;
-			}else{
-				dontstopmenow = false;
+			
+			if(firstUpdate){
+				StartCoroutine(StartSong());
+				firstUpdate = false;
 			}
+			
+			//Move Arrows
+			MoveArrows();
+				
+			//Verify inputs
+			VerifyValidFrozenArrow();
+			VerifyKeysInput();
+			VerifyKeysOutput();
+			
+			//Changement bpm et stops
+			VerifyBPMnSTOP();
+			
+			
+			//Progress time chart
+			if(actualstop != 0){
+				if(timestop >= actualstop){
+					timechart += timestop - (float)actualstop;
+					totaltimestop += (float)actualstop;
+					timetotalchart = timebpm + timechart + totaltimestop;
+					actualstop = (double)0;
+					timestop = 0f;
+				}else if(!dontstopmenow){
+					
+					timestop += Time.deltaTime;
+				}else{
+					dontstopmenow = false;
+				}
+			}else{
+				timechart += Time.deltaTime;
+				//Debug.Log(timechart);
+			}
+			
+			
+			
+			//GUI part, because GUI is so slow :(
+			//Utile ?
+			RefreshGUIPart();
 		}else{
-			timechart += Time.deltaTime;
+			oneSecond += Time.deltaTime;
 		}
-		
-		
-		
-		//GUI part, because GUI is so slow :(
-		//Utile ?
-		RefreshGUIPart();
 	}
 	
 	
@@ -268,7 +296,7 @@ public class InGameScript : MonoBehaviour {
 	void MoveArrows(){
 		
 		var bps = thesong.getBPS(actualBPM);
-		MainCamera.transform.position = new Vector3(3f, -((float)(bps*timechart))*speedmod +  changeBPM - 6, -10f);
+		MainCamera.transform.position = new Vector3(3f, -((float)(bps*timechart))*speedmod +  changeBPM - 5, -10f);
 		arrowLeft.transform.position = new Vector3(0f, -((float)(bps*timechart))*speedmod  + changeBPM, 2f);
 		arrowRight.transform.position = new Vector3(6f, -((float)(bps*timechart))*speedmod + changeBPM, 2f);
 		arrowDown.transform.position = new Vector3(2f, -((float)(bps*timechart))*speedmod + changeBPM, 2f);
@@ -304,6 +332,7 @@ public class InGameScript : MonoBehaviour {
 		
 		//Stop verif
 		if(nextSwitchStop < thesong.stops.Count && (thesong.stops.ElementAt(nextSwitchStop).Key <= timetotalchart)){
+			
 			timetotalchart = timebpm + timechart + totaltimestop;
 			timechart -= (float)timetotalchart - (float)thesong.stops.ElementAt(nextSwitchStop).Key;
 			timetotalchart = timebpm + timechart + totaltimestop;
@@ -1297,14 +1326,15 @@ public class InGameScript : MonoBehaviour {
 				char[] note = mesure.ElementAt(beat).Trim().ToCharArray();
 				
 				var listNeighboors = new List<Arrow>();
+				var barr = false;
 				for(int i =0;i<4; i++){
 					if(note[i] == '1'){
 						//var theArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos  + (float)s.offset, 0f), arrow.transform.rotation);
 						
-						
+						barr = true;
 						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
 						goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
-						var theArrow = new Arrow(goArrow, ArrowType.NORMAL, timetotal);
+						var theArrow = new Arrow(goArrow, ArrowType.NORMAL, timetotal - thesong.offset);
 						switch(i){
 						case 0:
 							arrowLeftList.Add(theArrow);
@@ -1322,9 +1352,10 @@ public class InGameScript : MonoBehaviour {
 						listNeighboors.Add(theArrow);
 						//barrow = true;
 					}else if(note[i] == '2'){
+						barr = true;
 						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
 						goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
-						var theArrow = new Arrow(goArrow, ArrowType.FREEZE, timetotal);
+						var theArrow = new Arrow(goArrow, ArrowType.FREEZE, timetotal - thesong.offset);
 						ArrowFreezed[i] = theArrow;
 						switch(i){
 						case 0:
@@ -1349,9 +1380,10 @@ public class InGameScript : MonoBehaviour {
 						theArrow.setArrowFreeze(timetotal, new Vector3(i*2,-ypos, 0f), goFreeze, null);
 					
 					}else if(note[i] == '4'){
+						barr = true;
 						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
 						goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
-						var theArrow = new Arrow(goArrow, ArrowType.ROLL, timetotal);
+						var theArrow = new Arrow(goArrow, ArrowType.ROLL, timetotal - thesong.offset);
 						ArrowFreezed[i] = theArrow;
 						switch(i){
 						case 0:
@@ -1391,6 +1423,8 @@ public class InGameScript : MonoBehaviour {
 					}
 					
 				}
+				
+				//if(barr) Debug.Log(timetotal - thesong.offset);
 				
 				if(listNeighboors.Count > 1){
 					foreach(var el in listNeighboors){

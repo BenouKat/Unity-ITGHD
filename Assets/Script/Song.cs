@@ -28,6 +28,9 @@ public class Song {
 	public int numberOfMines;
 	public int numberOfJumps;
 	
+	
+	public AudioClip song;
+	
 	//stepchart
 	public List<List<string>> stepchart;
 	

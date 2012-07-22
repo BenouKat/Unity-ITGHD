@@ -37,7 +37,7 @@ public class LifeBar : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void LateUpdate () {
+	void FixedUpdate () {
 		
 		goLifeBar.transform.localScale = new Vector3(2f, realLife/10f, 2f);
 		goLifeBar.transform.position = new Vector3(0f, -(10f - realLife/10f), 20f);

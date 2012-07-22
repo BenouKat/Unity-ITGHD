@@ -40,7 +40,8 @@ public class OpenChart{
 		
 		
 		//read file
-		StreamReader sr = new StreamReader(Application.dataPath + "/Songs/" + chartname + ".sm");
+		var files = (string[]) Directory.GetFiles(Application.dataPath + "/Songs/" + chartname);
+		StreamReader sr = new StreamReader(files.FirstOrDefault(c => c.Contains(".sm")));
 		songContent = sr.ReadToEnd();
     	sr.Close();
 		
@@ -252,7 +253,13 @@ public class OpenChart{
 			theNewsong.stops = theStopList;
 			theNewsong.mesureBPMS = theBpmMesureList;
 			theNewsong.mesureSTOPS = theStopMesureList;
+			var thewww = new WWW("file://" + files.FirstOrDefault(c => c.Contains(".ogg")).Replace('\\', '/'));
 			
+			while(!thewww.isDone){ }
+			theNewsong.song = thewww.GetAudioClip(false);
+			/*Debug.Log(files.FirstOrDefault(c => c.Contains(".ogg")).Replace(".ogg", ""));
+			theNewsong.song = (AudioClip) Resources.Load("Broken the Moon");
+			Debug.Log(theNewsong.song.length);*/
 			//getting song information
 			int beginInformation = index;
 			theNewsong.stepartist = listLine.ElementAt(beginInformation + 2).Replace(":","").Trim();
@@ -309,8 +316,6 @@ public class OpenChart{
 		
 		return outputSongs;
 	}
-	
-
 	
 	
 }

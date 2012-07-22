@@ -58,7 +58,12 @@ public class Arrow {
 	
 	public void changeColorFreeze(float valueFreeze, float maxValue){	
 		var val = (Mathf.Pow(valueFreeze, 0.5f)/Mathf.Pow(maxValue, 0.5f));
-		goFreeze.renderer.material.color = new Color(1f - val*1.5f, 1f - val*1.5f, 1f - val*1.5f, 1f);
+		if(arrowType == ArrowType.FREEZE) {
+			goFreeze.renderer.material.color = new Color(1f - val*1.5f, 1f - val*1.5f, 1f - val*1.5f, 1f);
+		}else{
+			goFreeze.renderer.material.color = new Color(1f - val*1.5f, 1f - val*1.5f, 0f, 1f);
+		}
+		
 	}
 	
 	
