@@ -16,7 +16,10 @@ public class InGameScript : MonoBehaviour {
 	public GameObject arrowDown;
 	public GameObject arrowUp;
 	public GameObject particlePrec;
+	public GameObject lifeBar;
 	
+	
+	private LifeBar theLifeBar;
 	
 	private Song thesong;
 	
@@ -156,6 +159,8 @@ public class InGameScript : MonoBehaviour {
 		life = 50f;
 		score = 0f;
 		
+		
+		theLifeBar = lifeBar.GetComponent<LifeBar>();
 		
 	}
 	
@@ -1080,6 +1085,7 @@ public class InGameScript : MonoBehaviour {
 		}else if(life < 0f){
 			life = 0f;	
 		}
+		theLifeBar.ChangeBar(life);
 		score += scoreBase[s];
 		if(score > 100f){
 			score = 100f;	
