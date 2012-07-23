@@ -15,6 +15,7 @@ public class InGameScript : MonoBehaviour {
 	public GameObject arrowRight;
 	public GameObject arrowDown;
 	public GameObject arrowUp;
+	public Material matArrowModel;
 	public GameObject particlePrec;
 	public GameObject lifeBar;
 	
@@ -40,9 +41,6 @@ public class InGameScript : MonoBehaviour {
 	private double actualBPM; //Bpm actuel
 	
 	private double actualstop;
-	
-	private bool dontstopmenow;
-	
 	public float speedmod = 4f; //speedmod (trop lent ?)
 	
 	//Temps pour le lachement de freeze
@@ -107,6 +105,10 @@ public class InGameScript : MonoBehaviour {
 	private float oneSecond;
 	private float startTheSong; //Time pour démarrer la chanson
 	
+	//BUMP
+	private int nextBump;
+	private List<double> Bumps;
+	public float speedBumps;
 	
 	//DEBUG
 	//private int iwashere;
@@ -116,7 +118,7 @@ public class InGameScript : MonoBehaviour {
 	
 	//Start
 	void Start () {
-		thesong = OpenChart.Instance.readChart("Still Blastin'")[0];
+		thesong = OpenChart.Instance.readChart("BulletProof")[0];
 		createTheChart(thesong);
 		Application.targetFrameRate = -1;
 		nextSwitchBPM = 1;
@@ -133,7 +135,6 @@ public class InGameScript : MonoBehaviour {
 		
 		
 		arrowFrozen = new Dictionary<Arrow, float>();
-		dontstopmenow = true;
 		
 		
 		//Prepare the scene
@@ -186,6 +187,10 @@ public class InGameScript : MonoBehaviour {
 		firstUpdate = true;
 		oneSecond = 0f;
 		startTheSong = (float)thesong.offset + DataManager.Instance.globalOffsetSeconds;
+		
+		
+		//bump
+		nextBump = 0;
 	}
 	
 	
@@ -310,12 +315,29 @@ public class InGameScript : MonoBehaviour {
 				}
 			}
 			
+			BumpsBPM();
 			
 			//timetotalchart = timebpm + timechart + totaltimestop;
 			//if((timetotalchart - totalchartbegin) < 0.001f)Debug.Log("Progression : " + (timetotalchart - totalchartbegin) + " / dt : " + Time.deltaTime + " / washere : " + iwashere + " / time : " + timetotalchart);
 			
 		}else{
 			oneSecond += Time.deltaTime;
+		}
+	}
+	
+	
+	void BumpsBPM(){
+		if(nextBump < Bumps.Count && Bumps[nextBump] <= timetotalchart){
+			matArrowModel.color = new Color(1f, 1f, 1f, 1f);
+			nextBump++;
+		}	
+		
+	}
+	
+	void FixedUpdate(){
+		if(matArrowModel.color.r > 0.5f){
+			var m = 0.5f*Time.deltaTime/speedBumps;
+			matArrowModel.color -= new Color(m,m,m, 0f);
 		}
 	}
 	
@@ -369,7 +391,6 @@ public class InGameScript : MonoBehaviour {
 			totaltimestop += (float)timetotalchart - (float)thesong.stops.ElementAt(nextSwitchStop).Key;
 			timetotalchart = timebpm + timechart + totaltimestop;
 			actualstop = thesong.stops.ElementAt(nextSwitchStop).Value;
-			dontstopmenow =  true;
 			nextSwitchStop++;
 		}
 		
@@ -1294,6 +1315,7 @@ public class InGameScript : MonoBehaviour {
 		float prec = 0.001f;
 		
 		var ArrowFreezed = new Arrow[4];
+		Bumps = new List<double>();
 		foreach(var mesure in s.stepchart){
 			
 			for(int beat=0;beat<mesure.Count;beat++){
@@ -1358,7 +1380,7 @@ public class InGameScript : MonoBehaviour {
 				
 				
 				timetotal = timecounter + timeBPM + timestop;
-				
+				if((beat)%(mesure.Count/4) == 0) Bumps.Add(timetotal);
 				char[] note = mesure.ElementAt(beat).Trim().ToCharArray();
 				
 				var listNeighboors = new List<Arrow>();
@@ -1503,25 +1525,25 @@ public class InGameScript : MonoBehaviour {
 		
 		switch(mesuretot){
 		case 4:	
-			return new Color(1f, 0f, 0f, 1f);
+			return new Color(1f, 0f, 0f, 1f); //
 		
 			
 		case 8:
 			if(posmesure%2 == 0){
 				return new Color(0f, 0f, 1f, 1f);
 			}
-			return new Color(1f, 0f, 0f, 1f);
+			return new Color(1f, 0f, 0f, 1f); //
 			
 			
 		case 12:
 			if((posmesure-1)%3 == 0){
-				return new Color(1f, 0f, 0f, 1f);
+				return new Color(1f, 0f, 0f, 1f); //
 			}
 			return new Color(1f, 0f, 1f, 1f);
 			
 		case 16:
 			if((posmesure-1)%4 == 0){
-				return new Color(1f, 0f, 0f, 1f);
+				return new Color(1f, 0f, 0f, 1f); //
 			}else if((posmesure+1)%4 == 0){
 				return new Color(0f, 0f, 1f, 1f);
 			}
@@ -1532,14 +1554,14 @@ public class InGameScript : MonoBehaviour {
 			if((posmesure+2)%6 == 0){
 				return new Color(0f, 0f, 1f, 1f);
 			}else if((posmesure-1)%6 == 0){
-				return new Color(1f, 0f, 0f, 1f);
+				return new Color(1f, 0f, 0f, 1f); //
 			}
 			return new Color(1f, 0f, 1f, 1f);
 			
 			
 		case 32:
 			if((posmesure-1)%8 == 0){
-				return new Color(1f, 0f, 0f, 1f);
+				return new Color(1f, 0f, 0f, 1f); //
 			}else if((posmesure+3)%8 == 0){
 				return new Color(0f, 0f, 1f, 1f);
 			}else if((posmesure+1)%4 == 0){
@@ -1551,7 +1573,7 @@ public class InGameScript : MonoBehaviour {
 			if((posmesure+2)%6 == 0){
 				return new Color(0f, 1f, 0f, 1f);
 			}else if((posmesure-1)%12 == 0){
-				return new Color(1f, 0f, 0f, 1f);
+				return new Color(1f, 0f, 0f, 1f); //
 			}else if((posmesure+5)%12 == 0){
 				return new Color(0f, 0f, 1f, 1f);
 			}
@@ -1560,7 +1582,7 @@ public class InGameScript : MonoBehaviour {
 			
 		case 64:
 			if((posmesure-1)%16 == 0){
-				return new Color(1f, 0f, 0f, 1f);
+				return new Color(1f, 0f, 0f, 1f); //
 			}else if((posmesure+7)%16 == 0){
 				return new Color(0f, 0f, 1f, 1f);
 			}else if((posmesure+3)%8 == 0){
@@ -1572,7 +1594,7 @@ public class InGameScript : MonoBehaviour {
 			
 		case 192:
 			if((posmesure-1)%48 == 0){
-				return new Color(1f, 0f, 0f, 1f);
+				return new Color(1f, 0f, 0f, 1f); //
 			}else if((posmesure+13)%48 == 0){
 				return new Color(0f, 0f, 1f, 1f);
 			}else if((posmesure+11)%24 == 0){
