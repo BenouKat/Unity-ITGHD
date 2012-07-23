@@ -22,7 +22,7 @@ public class DataManager{
 	
 	public Dictionary<string, float> LifeWeightValues;
 	
-	public float globalOffsetSeconds;
+	public float globalOffsetSeconds = -0.100f;
 	
 	private static DataManager instance;
 	

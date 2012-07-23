@@ -1,11 +1,11 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\DataManager.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\InGameScript.cs">
     <Files>
-      <File FileName="Assets\Script\InGameScript.cs" Line="24" Column="23" />
+      <File FileName="Assets\Script\InGameScript.cs" Line="112" Column="4" />
       <File FileName="Assets\Script\OpenChart.cs" Line="118" Column="29" />
-      <File FileName="Assets\Script\LifeBar.cs" Line="48" Column="11" />
-      <File FileName="Assets\Script\DataManager.cs" Line="15" Column="14" />
+      <File FileName="Assets\Script\LifeBar.cs" Line="44" Column="14" />
+      <File FileName="Assets\Script\DataManager.cs" Line="25" Column="38" />
       <File FileName="Assets\Script\Arrow.cs" Line="48" Column="2" />
       <File FileName="Assets\Script\ArrowScript.cs" Line="51" Column="7" />
       <File FileName="Assets\Script\Song.cs" Line="32" Column="24" />

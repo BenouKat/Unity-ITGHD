@@ -4,7 +4,7 @@ using System.Collections;
 public class LifeBar : MonoBehaviour {
 	
 	private GameObject goLifeBar;
-	private Material goLifeBarSoclecolor;
+	public Material goLifeBarSoclecolor;
 	private ParticleSystem psLowSocle;
 	private ParticleSystem psMaxLifeSocle;
 	private ParticleSystem psMaxLife;
@@ -24,7 +24,6 @@ public class LifeBar : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		goLifeBar = (GameObject) gameObject.transform.FindChild("LifeBar").gameObject;
-		goLifeBarSoclecolor = (Material) gameObject.transform.FindChild("LifeBocalSocle").renderer.material;
 		psLowSocle = (ParticleSystem) gameObject.transform.FindChild("Smoke").particleSystem;
 		psMaxLifeSocle = (ParticleSystem) gameObject.transform.FindChild("SmokeLight").particleSystem;
 		psLifeUp = (ParticleSystem) gameObject.transform.FindChild("LifeUp").particleSystem;
@@ -44,25 +43,25 @@ public class LifeBar : MonoBehaviour {
 		var r = 0f;
 		var g = 0f;
 		var b = 0f;
-		if(realLife < 33f){
+		if(realLife < 50f){
 			r = 1f;
-			g = realLife <= 20f ? 0f : (realLife - 20f)/13f;
+			g = realLife <= 25f ? 0f : (realLife - 25f)/25f;
 			b = 0f;
 		}
-		if(realLife >= 33f && realLife < 66f){
-			r = 1 - ((realLife - 33f)/33f);
+		if(realLife >= 50f && realLife < 75f){
+			r = 1 - ((realLife - 50f)/25f);
 			g = 1f;
 			b = 0f;
 		}
 		
-		if(realLife >= 66f){
+		if(realLife >= 75f){
 			r = 0f;
 			g = 1f;
-			b = (realLife - 66f)/34f;
+			b = (realLife - 75f)/26f;
 		}
 		
 		goLifeBar.renderer.material.color = new Color(r,g,b, 1f);
-		if(realLife < 20f){
+		if(realLife < 25f){
 			thecolor += signClignotement*(Time.deltaTime/speedclignotement);
 			if(thecolor < 0f || thecolor > 1f){
 				thecolor = thecolor < 0f ? 0f : 1f;
@@ -70,7 +69,7 @@ public class LifeBar : MonoBehaviour {
 			}
 			goLifeBarSoclecolor.color = new Color(1f, thecolor, thecolor, 1f);	
 		}else if(realLife >= 100f){
-			goLifeBarSoclecolor.color = new Color(0f, 0.5f, 1f, 1f);	
+			goLifeBarSoclecolor.color = new Color(0f, 0.5f, 1f, 1f);
 		}else{
 			goLifeBarSoclecolor.color = new Color(1f, 1f, 1f, 1f);
 		}
@@ -100,9 +99,9 @@ public class LifeBar : MonoBehaviour {
 			thelostlife = newlife;
 		}
 		
-		if(newlife <= 20f && !psLowSocle.isPlaying){
+		if(newlife <= 25f && !psLowSocle.isPlaying){
 			psLowSocle.Play();
-		}else if(newlife > 20f && psLowSocle.isPlaying){
+		}else if(newlife > 25f && psLowSocle.isPlaying){
 			psLowSocle.Stop();
 		}
 		
