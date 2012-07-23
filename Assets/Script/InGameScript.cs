@@ -269,7 +269,6 @@ public class InGameScript : MonoBehaviour {
 			//Progress time chart
 			if(actualstop != 0){
 				
-				//if(!dontstopmenow){
 					
 					
 					if(timestop >= actualstop){
@@ -285,10 +284,7 @@ public class InGameScript : MonoBehaviour {
 						timestop += Time.deltaTime;
 						//iwashere = 2;
 					}
-				/*}else{
-					dontstopmenow = false;
-					timechart += Time.deltaTime;
-				}*/
+
 			}else{
 				timechart += Time.deltaTime;
 				//iwashere = 3;

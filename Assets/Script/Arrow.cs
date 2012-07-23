@@ -48,7 +48,7 @@ public class Arrow {
 	
 	public void displayFrozenBar(){
 		var col = goFreeze.transform.GetChild(0).renderer.material.color;
-		goFreeze.transform.GetChild(0).renderer.material.color = new Color(col.r, col.g, col.b, 0.4f);	
+		goFreeze.transform.GetChild(0).renderer.material.color = new Color(col.r, col.g, col.b, 0.6f);	
 		if(arrowType == ArrowType.FREEZE) {
 			goFreeze.renderer.material.color = new Color(1f, 1f, 1f, 1f);
 		}else{

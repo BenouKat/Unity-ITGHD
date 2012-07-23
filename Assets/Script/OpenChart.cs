@@ -256,7 +256,8 @@ public class OpenChart{
 			var thewww = new WWW("file://" + files.FirstOrDefault(c => c.Contains(".ogg")).Replace('\\', '/'));
 			
 			while(!thewww.isDone){ }
-			theNewsong.song = thewww.GetAudioClip(false);
+			theNewsong.song = thewww.GetAudioClip(false, true);
+			
 			/*Debug.Log(files.FirstOrDefault(c => c.Contains(".ogg")).Replace(".ogg", ""));
 			theNewsong.song = (AudioClip) Resources.Load("Broken the Moon");
 			Debug.Log(theNewsong.song.length);*/
