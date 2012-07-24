@@ -18,6 +18,7 @@ public class InGameScript : MonoBehaviour {
 	public Material matArrowModel;
 	public GameObject particlePrec;
 	public GameObject lifeBar;
+	public GameObject progressBar;
 	
 	
 	private LifeBar theLifeBar;
@@ -110,6 +111,14 @@ public class InGameScript : MonoBehaviour {
 	private List<double> Bumps;
 	public float speedBumps;
 	
+	
+	//PROGRESSBAR
+	private double firstArrow;
+	private double lastArrow;
+	
+	//COMBO
+	private int combo;
+
 	//DEBUG
 	//private int iwashere;
 	
@@ -118,6 +127,8 @@ public class InGameScript : MonoBehaviour {
 	
 	//Start
 	void Start () {
+		firstArrow = -10f;
+		lastArrow = -10f;
 		thesong = OpenChart.Instance.readChart("BulletProof")[0];
 		createTheChart(thesong);
 		Application.targetFrameRate = -1;
@@ -191,6 +202,7 @@ public class InGameScript : MonoBehaviour {
 		
 		//bump
 		nextBump = 0;
+		
 	}
 	
 	
@@ -330,10 +342,15 @@ public class InGameScript : MonoBehaviour {
 		
 	}
 	
+	
 	void FixedUpdate(){
 		if(matArrowModel.color.r > 0.5f){
 			var m = 0.5f*Time.deltaTime/speedBumps;
 			matArrowModel.color -= new Color(m,m,m, 0f);
+		}
+		if(timetotalchart >= firstArrow && timetotalchart < lastArrow){
+			progressBar.transform.localPosition = new Vector3(-30f, - (10f - 10f*(float)((timetotalchart - firstArrow)/(lastArrow - firstArrow))), 8f);
+			progressBar.transform.localScale = new Vector3(0.7f, 10f*(float)((timetotalchart - firstArrow)/(lastArrow - firstArrow)), 1f);
 		}
 	}
 	
@@ -497,6 +514,7 @@ public class InGameScript : MonoBehaviour {
 			if(prec < precToTime(Precision.GREAT)){ //great
 				
 				
+				
 				if(ar.imJump){
 					ar.alreadyValid = true;
 					ar.goArrow.GetComponent<ArrowScript>().valid = true;
@@ -562,6 +580,7 @@ public class InGameScript : MonoBehaviour {
 						}
 						GainScoreAndLife(timeToPrec(prec).ToString());
 						displayPrec(prec);
+						combo += ar.neighboors.Count;
 					}
 				}else{
 					if(ar.arrowType == ArrowType.NORMAL || ar.arrowType == ArrowType.MINE){
@@ -574,7 +593,7 @@ public class InGameScript : MonoBehaviour {
 						StartParticleFreezeLeft(true);
 						
 					}
-					
+					combo++;
 					arrowLeftList.Remove(ar);
 					StartParticleLeft(timeToPrec(prec));
 					GainScoreAndLife(timeToPrec(prec).ToString());
@@ -622,7 +641,7 @@ public class InGameScript : MonoBehaviour {
 						displayPrec(prec);
 						GainScoreAndLife(timeToPrec(prec).ToString());
 					}
-				
+					ComboStop();
 			}
 			
 			
@@ -705,6 +724,7 @@ public class InGameScript : MonoBehaviour {
 							arrowRightList.Remove(right);
 							StartParticleRight(timeToPrec(prec));
 						}
+						combo += ar.neighboors.Count;
 						GainScoreAndLife(timeToPrec(prec).ToString());
 						displayPrec(prec);
 					}
@@ -719,7 +739,7 @@ public class InGameScript : MonoBehaviour {
 						StartParticleFreezeDown(true);
 						
 					}
-					
+					combo++;
 					arrowDownList.Remove(ar);
 					StartParticleDown(timeToPrec(prec));
 					GainScoreAndLife(timeToPrec(prec).ToString());
@@ -767,7 +787,7 @@ public class InGameScript : MonoBehaviour {
 						displayPrec(prec);
 						GainScoreAndLife(timeToPrec(prec).ToString());
 					}
-				
+					ComboStop();
 			}
 		
 			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 2f && c.Key.arrowType == ArrowType.ROLL))
@@ -848,6 +868,7 @@ public class InGameScript : MonoBehaviour {
 							arrowRightList.Remove(right);
 							StartParticleRight(timeToPrec(prec));
 						}
+						combo += ar.neighboors.Count;
 						GainScoreAndLife(timeToPrec(prec).ToString());
 						displayPrec(prec);
 					}
@@ -862,7 +883,7 @@ public class InGameScript : MonoBehaviour {
 						StartParticleFreezeUp(true);
 						
 					}
-					
+					combo++;
 					arrowUpList.Remove(ar);
 					StartParticleUp(timeToPrec(prec));
 					GainScoreAndLife(timeToPrec(prec).ToString());
@@ -910,7 +931,7 @@ public class InGameScript : MonoBehaviour {
 						displayPrec(prec);
 						GainScoreAndLife(timeToPrec(prec).ToString());
 					}
-				
+					ComboStop();
 			}
 			
 			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 4f && c.Key.arrowType == ArrowType.ROLL))
@@ -992,6 +1013,7 @@ public class InGameScript : MonoBehaviour {
 							arrowRightList.Remove(right);
 							StartParticleRight(timeToPrec(prec));
 						}
+						combo += ar.neighboors.Count;
 						GainScoreAndLife(timeToPrec(prec).ToString());
 						displayPrec(prec);
 					}
@@ -1006,7 +1028,7 @@ public class InGameScript : MonoBehaviour {
 						StartParticleFreezeRight(true);
 						
 					}
-					
+					combo++;
 					arrowRightList.Remove(ar);
 					StartParticleRight(timeToPrec(prec));
 					GainScoreAndLife(timeToPrec(prec).ToString());
@@ -1054,7 +1076,7 @@ public class InGameScript : MonoBehaviour {
 						displayPrec(prec);
 						GainScoreAndLife(timeToPrec(prec).ToString());
 					}
-				
+					ComboStop();
 			}
 			
 			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 6f && c.Key.arrowType == ArrowType.ROLL))
@@ -1110,19 +1132,27 @@ public class InGameScript : MonoBehaviour {
 	
 	#region Particules	
 	void StartParticleLeft(Precision prec){
-		((ParticleSystem) precLeft.transform.FindChild(prec.ToString()).particleSystem).Play();
+		var displayPrec = prec.ToString();
+		if(prec < Precision.DECENT && combo >= 100) displayPrec += "C";
+		((ParticleSystem) precLeft.transform.FindChild(displayPrec).particleSystem).Play();
 	}
 	
 	void StartParticleDown(Precision prec){
-		((ParticleSystem) precDown.transform.FindChild(prec.ToString()).particleSystem).Play();
+		var displayPrec = prec.ToString();
+		if(prec < Precision.DECENT && combo >= 100) displayPrec += "C";
+		((ParticleSystem) precDown.transform.FindChild(displayPrec).particleSystem).Play();
 	}
 	
 	void StartParticleUp(Precision prec){
-		((ParticleSystem) precUp.transform.FindChild(prec.ToString()).particleSystem).Play();
+		var displayPrec = prec.ToString();
+		if(prec < Precision.DECENT && combo >= 100) displayPrec += "C";
+		((ParticleSystem) precUp.transform.FindChild(displayPrec).particleSystem).Play();
 	}
 	
 	void StartParticleRight(Precision prec){
-		((ParticleSystem) precRight.transform.FindChild(prec.ToString()).particleSystem).Play();
+		var displayPrec = prec.ToString();
+		if(prec < Precision.DECENT && combo >= 100) displayPrec += "C";
+		((ParticleSystem) precRight.transform.FindChild(displayPrec).particleSystem).Play();
 	}
 	
 	void StartParticleFreezeLeft(bool state){
@@ -1190,6 +1220,10 @@ public class InGameScript : MonoBehaviour {
 		}else{
 			return ic+0.1f;		
 		}
+	}
+	
+	public void ComboStop(){
+		combo = 0;	
 	}
 	#endregion
 	
@@ -1377,14 +1411,15 @@ public class InGameScript : MonoBehaviour {
 				
 				timetotal = timecounter + timeBPM + timestop;
 				if((beat)%(mesure.Count/4) == 0) Bumps.Add(timetotal);
+				
 				char[] note = mesure.ElementAt(beat).Trim().ToCharArray();
 				
 				var listNeighboors = new List<Arrow>();
-				//var barr = false;
+				var barr = false;
 				for(int i =0;i<4; i++){
 					if(note[i] == '1'){
 						//var theArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos  + (float)s.offset, 0f), arrow.transform.rotation);
-						//barr = true;
+						barr = true;
 						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
 						goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
 						var theArrow = new Arrow(goArrow, ArrowType.NORMAL, timetotal);
@@ -1406,7 +1441,7 @@ public class InGameScript : MonoBehaviour {
 						listNeighboors.Add(theArrow);
 						//barrow = true;
 					}else if(note[i] == '2'){
-						//barr = true;
+						barr = true;
 						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
 						goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
 						var theArrow = new Arrow(goArrow, ArrowType.FREEZE, timetotal);
@@ -1427,6 +1462,7 @@ public class InGameScript : MonoBehaviour {
 						}
 						listNeighboors.Add(theArrow);
 					}else if(note[i] == '3'){
+						barr = true;
 						var theArrow = ArrowFreezed[i];
 						var goFreeze = (GameObject) Instantiate(freeze, new Vector3(i*2, (theArrow.goArrow.transform.position.y + ((-ypos - theArrow.goArrow.transform.position.y)/2f)) , 0.5f), freeze.transform.rotation);
 						goFreeze.transform.localScale = new Vector3(1f, -((-ypos - theArrow.goArrow.transform.position.y)/2f), 0.1f);
@@ -1434,7 +1470,7 @@ public class InGameScript : MonoBehaviour {
 						theArrow.setArrowFreeze(timetotal, new Vector3(i*2,-ypos, 0f), goFreeze, null);
 					
 					}else if(note[i] == '4'){
-						//barr = true;
+						barr = true;
 						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
 						goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
 						var theArrow = new Arrow(goArrow, ArrowType.ROLL, timetotal);
@@ -1478,7 +1514,10 @@ public class InGameScript : MonoBehaviour {
 					
 				}
 				
-				//if(barr) Debug.Log(timetotal);
+				if(barr){
+					if(firstArrow <= 0f) firstArrow = timetotal;
+					lastArrow = timetotal;	
+				}
 				
 				if(listNeighboors.Count > 1){
 					foreach(var el in listNeighboors){

@@ -41,6 +41,7 @@ public class ArrowScript : MonoBehaviour {
 			missed = true;
 			
 			if(!alreadyScored){
+				igs.ComboStop();
 				igs.displayPrec(1);
 				igs.GainScoreAndLife("MISS");
 			}

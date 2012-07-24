@@ -38,29 +38,38 @@ public class LifeBar : MonoBehaviour {
 	// Update is called once per frame
 	void FixedUpdate () {
 		
-		goLifeBar.transform.localScale = new Vector3(2f, realLife/10f, 2f);
-		goLifeBar.transform.position = new Vector3(0f, -(10f - realLife/10f), 20f);
-		var r = 0f;
-		var g = 0f;
-		var b = 0f;
-		if(realLife < 50f){
-			r = 1f;
-			g = realLife <= 25f ? 0f : (realLife - 25f)/25f;
-			b = 0f;
-		}
-		if(realLife >= 50f && realLife < 75f){
-			r = 1 - ((realLife - 50f)/25f);
-			g = 1f;
-			b = 0f;
+		if(realLife != objectivLife){
+			goLifeBar.transform.localScale = new Vector3(2f, realLife/10f, 2f);
+			goLifeBar.transform.position = new Vector3(0f, -(10f - realLife/10f), 20f);
+			var r = 0f;
+			var g = 0f;
+			var b = 0f;
+			if(realLife < 50f){
+				r = 1f;
+				g = realLife <= 25f ? 0f : (realLife - 25f)/25f;
+				b = 0f;
+			}
+			if(realLife >= 50f && realLife < 75f){
+				r = 1 - ((realLife - 50f)/25f);
+				g = 1f;
+				b = 0f;
+			}
+			
+			if(realLife >= 75f){
+				r = 0f;
+				g = 1f;
+				b = (realLife - 75f)/26f;
+			}
+			
+			goLifeBar.renderer.material.color = new Color(r,g,b, 1f);
+			
+			var pos = -((5f - goLifeBar.transform.localScale.y))*2f; 
+			psLifeUp.transform.localPosition = new Vector3(0f, pos, 15f);
+			
+			realLife = Mathf.Lerp(realLife, objectivLife, thelerp);
+			if(Mathf.Abs(realLife - objectivLife) < limit) realLife = objectivLife;
 		}
 		
-		if(realLife >= 75f){
-			r = 0f;
-			g = 1f;
-			b = (realLife - 75f)/26f;
-		}
-		
-		goLifeBar.renderer.material.color = new Color(r,g,b, 1f);
 		if(realLife < 25f){
 			thecolor += signClignotement*(Time.deltaTime/speedclignotement);
 			if(thecolor < 0f || thecolor > 1f){
@@ -74,12 +83,6 @@ public class LifeBar : MonoBehaviour {
 			goLifeBarSoclecolor.color = new Color(1f, 1f, 1f, 1f);
 		}
 		
-		if(realLife != objectivLife){
-			realLife = Mathf.Lerp(realLife, objectivLife, thelerp);
-			if(Mathf.Abs(realLife - objectivLife) < limit) realLife = objectivLife;
-		}
-		
-		psLifeUp.transform.localPosition = new Vector3(0f, -((5f - goLifeBar.transform.localScale.y))*2f , 20f);
 		
 	}
 	
@@ -87,7 +90,7 @@ public class LifeBar : MonoBehaviour {
 	public void ChangeBar(float newlife){
 		objectivLife = newlife;
 		if(newlife >= 100f && !psMaxLife.isPlaying){
-			if(psLifeUp.isPlaying) psLifeUp.Stop();
+			if(psLifeUp.isPlaying) psLifeUp.Stop(); 
 			psMaxLife.Play();
 			psMaxLifeSocle.Play();
 		}else if(newlife > realLife && newlife > (thelostlife + 10f) && !psLifeUp.isPlaying){
@@ -97,6 +100,7 @@ public class LifeBar : MonoBehaviour {
 			if(psMaxLife.isPlaying) psMaxLife.Stop();
 			if(psMaxLifeSocle.isPlaying) psMaxLifeSocle.Stop();
 			thelostlife = newlife;
+			
 		}
 		
 		if(newlife <= 25f && !psLowSocle.isPlaying){
