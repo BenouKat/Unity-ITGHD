@@ -129,7 +129,7 @@ public class InGameScript : MonoBehaviour {
 	void Start () {
 		firstArrow = -10f;
 		lastArrow = -10f;
-		thesong = OpenChart.Instance.readChart("BulletProof")[0];
+		thesong = OpenChart.Instance.readChart("Still Blastin'")[0];
 		createTheChart(thesong);
 		Application.targetFrameRate = -1;
 		nextSwitchBPM = 1;

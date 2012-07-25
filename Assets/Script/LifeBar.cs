@@ -28,7 +28,7 @@ public class LifeBar : MonoBehaviour {
 		psMaxLifeSocle = (ParticleSystem) gameObject.transform.FindChild("SmokeLight").particleSystem;
 		psLifeUp = (ParticleSystem) gameObject.transform.FindChild("LifeUp").particleSystem;
 		psMaxLife = (ParticleSystem) gameObject.transform.FindChild("LifeMax").particleSystem;
-		realLife = 50f;
+		realLife = 40f;
 		objectivLife = 50f;
 		signClignotement = 1f;
 		thecolor = 1f;
