@@ -28,3 +28,10 @@ public enum ArrowType{
 		ROLL,
 		MINE
 }
+
+public enum ComboType{
+		FULLFANTASTIC,
+		FULLEXCELLENT,
+		FULLCOMBO,
+		NONE
+}

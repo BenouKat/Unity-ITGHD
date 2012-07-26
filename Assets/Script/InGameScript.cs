@@ -60,7 +60,7 @@ public class InGameScript : MonoBehaviour {
 	private float zoom;
 	private Precision scoreToDisplay;
 	public Rect posScore = new Rect(0.38f,0.3f,0.25f,0.25f);
-	
+	private Dictionary<Precision, int> countScore;
 	
 	//LIFE
 	private float life;
@@ -119,7 +119,8 @@ public class InGameScript : MonoBehaviour {
 	//COMBO
 	private int combo;
 	public Rect posCombo = new Rect(0.40f, 0.5f, 0.45f, 0.05f);
-
+	public Rect posdispCombo = new Rect(0.40f, 0.5f, 0.45f, 0.05f);
+	private ComboType ct;
 	//DEBUG
 	//private int iwashere;
 	
@@ -205,7 +206,7 @@ public class InGameScript : MonoBehaviour {
 		
 		//bump
 		nextBump = 0;
-		
+		ct = ComboType.FULLFANTASTIC;
 	}
 	
 	
@@ -244,20 +245,34 @@ public class InGameScript : MonoBehaviour {
 			
 			if(combo >= 5){
 				var thetab = comboDecoupe();
-				Graphics.DrawTexture(new Rect(posCombo.x*Screen.width, posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, thetab[0], 1f, 0.1f), 0,0,0,0);
+				Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*ecart*(thetab.Length-1), posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, - thetab[0], 1f, 0.1f), 0,0,0,0);
 				if(combo > 9){
-					Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*ecart, posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, thetab[1], 1f, 0.1f), 0,0,0,0);
+					Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*ecart*(thetab.Length-2), posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, - thetab[1], 1f, 0.1f), 0,0,0,0);
 					if(combo >99){
-						Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*ecart*2, posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, thetab[2], 1f, 0.1f), 0,0,0,0);
+						Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*ecart*(thetab.Length-3), posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, - thetab[2], 1f, 0.1f), 0,0,0,0);
 						if(combo >999){
-							Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*ecart*3, posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, thetab[3], 1f, 0.1f), 0,0,0,0);
+							Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*ecart*(thetab.Length-4), posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, - thetab[3], 1f, 0.1f), 0,0,0,0);
 							if(combo >9999){
-								Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*ecart*4, posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, thetab[4], 1f, 0.1f), 0,0,0,0);
+								Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*ecart*(thetab.Length-5), posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, - thetab[4], 1f, 0.1f), 0,0,0,0);
 							}
 						}
 					}
 				}
-				Graphics.DrawTexture(new Rect(posCombo.x*Screen.width, posCombo.y*Screen.height + 100, 512, 256), TextureBase["COMBODISPLAY"]);
+				GUI.color = new Color(1f, 1f, 1f, 1f);
+				if(ct != ComboType.NONE){
+					switch (ct){
+					case ComboType.FULLCOMBO:
+						GUI.color = new Color(0.5f, 1f, 0.5f, 1f);
+						break;
+					case ComboType.FULLEXCELLENT:
+						GUI.color = new Color(1f, 1f, 0.5f, 1f);
+						break;
+					case ComboType.FULLFANTASTIC:
+						GUI.color = new Color(0.5f, 1f, 1f, 1f);
+						break;
+					}
+				}
+				GUI.DrawTexture(new Rect(posdispCombo.x*Screen.width - zoom, posdispCombo.y*Screen.height, posdispCombo.width*Screen.width + zoom*2, posdispCombo.height*Screen.height), TextureBase["COMBODISPLAY"]);
 			}
 		}
 		
@@ -601,7 +616,7 @@ public class InGameScript : MonoBehaviour {
 						}
 						GainScoreAndLife(timeToPrec(prec).ToString());
 						displayPrec(prec);
-						combo += ar.neighboors.Count;
+						GainCombo(ar.neighboors.Count, timeToPrec(prec));
 					}
 				}else{
 					if(ar.arrowType == ArrowType.NORMAL || ar.arrowType == ArrowType.MINE){
@@ -614,7 +629,7 @@ public class InGameScript : MonoBehaviour {
 						StartParticleFreezeLeft(true);
 						
 					}
-					combo++;
+					GainCombo(1, timeToPrec(prec));
 					arrowLeftList.Remove(ar);
 					StartParticleLeft(timeToPrec(prec));
 					GainScoreAndLife(timeToPrec(prec).ToString());
@@ -745,7 +760,7 @@ public class InGameScript : MonoBehaviour {
 							arrowRightList.Remove(right);
 							StartParticleRight(timeToPrec(prec));
 						}
-						combo += ar.neighboors.Count;
+						GainCombo(ar.neighboors.Count, timeToPrec(prec));
 						GainScoreAndLife(timeToPrec(prec).ToString());
 						displayPrec(prec);
 					}
@@ -760,7 +775,7 @@ public class InGameScript : MonoBehaviour {
 						StartParticleFreezeDown(true);
 						
 					}
-					combo++;
+					GainCombo(1, timeToPrec(prec));
 					arrowDownList.Remove(ar);
 					StartParticleDown(timeToPrec(prec));
 					GainScoreAndLife(timeToPrec(prec).ToString());
@@ -889,7 +904,7 @@ public class InGameScript : MonoBehaviour {
 							arrowRightList.Remove(right);
 							StartParticleRight(timeToPrec(prec));
 						}
-						combo += ar.neighboors.Count;
+						GainCombo(ar.neighboors.Count, timeToPrec(prec));
 						GainScoreAndLife(timeToPrec(prec).ToString());
 						displayPrec(prec);
 					}
@@ -904,7 +919,7 @@ public class InGameScript : MonoBehaviour {
 						StartParticleFreezeUp(true);
 						
 					}
-					combo++;
+					GainCombo(1, timeToPrec(prec));
 					arrowUpList.Remove(ar);
 					StartParticleUp(timeToPrec(prec));
 					GainScoreAndLife(timeToPrec(prec).ToString());
@@ -1034,7 +1049,7 @@ public class InGameScript : MonoBehaviour {
 							arrowRightList.Remove(right);
 							StartParticleRight(timeToPrec(prec));
 						}
-						combo += ar.neighboors.Count;
+						GainCombo(ar.neighboors.Count, timeToPrec(prec));
 						GainScoreAndLife(timeToPrec(prec).ToString());
 						displayPrec(prec);
 					}
@@ -1049,7 +1064,7 @@ public class InGameScript : MonoBehaviour {
 						StartParticleFreezeRight(true);
 						
 					}
-					combo++;
+					GainCombo(1, timeToPrec(prec));
 					arrowRightList.Remove(ar);
 					StartParticleRight(timeToPrec(prec));
 					GainScoreAndLife(timeToPrec(prec).ToString());
@@ -1227,6 +1242,23 @@ public class InGameScript : MonoBehaviour {
 		}
 	}
 	
+	public void GainCombo(int c, Precision prec){
+		combo+= c;
+		if(ct != ComboType.NONE){
+			if(ct == ComboType.FULLFANTASTIC && prec != Precision.FANTASTIC){
+				if(	prec == Precision.EXCELLENT){ ct = ComboType.FULLEXCELLENT; }
+				else if(	prec == Precision.GREAT){ ct = ComboType.FULLCOMBO; }
+				else { ct = ComboType.NONE; }
+			}else if(ct == ComboType.FULLEXCELLENT && prec > Precision.EXCELLENT){
+				if(	prec == Precision.GREAT){ ct = ComboType.FULLCOMBO; }
+				else { ct = ComboType.NONE; }
+			}else if(ct == ComboType.FULLCOMBO && prec > Precision.GREAT){
+				ct = ComboType.NONE;
+			}
+		}
+		
+	}
+	
 	Rect scoreDecoupe(float dascore){
 		var thescorestring = dascore.ToString("00.00");
 		var thescorestringentier = thescorestring.Split('.')[0];
@@ -1255,6 +1287,7 @@ public class InGameScript : MonoBehaviour {
 	
 	public void ComboStop(){
 		combo = 0;	
+		ct = ComboType.NONE;
 	}
 	#endregion
 	
