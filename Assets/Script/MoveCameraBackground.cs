@@ -13,7 +13,7 @@ public class MoveCameraBackground : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
 		
 		if(timeBeforeChange <= timeT){
 			timeT = 0f;

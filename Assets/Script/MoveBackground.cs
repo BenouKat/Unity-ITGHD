@@ -25,7 +25,7 @@ public class MoveBackground : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
 		for(int i=0; i < cubeBG.Count;i++){
 			cubeBG[i].transform.Rotate(rotate[i]*Time.deltaTime/speed);
 		}

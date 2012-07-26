@@ -118,6 +118,7 @@ public class InGameScript : MonoBehaviour {
 	
 	//COMBO
 	private int combo;
+	public Rect posCombo = new Rect(0.40f, 0.5f, 0.45f, 0.05f);
 
 	//DEBUG
 	//private int iwashere;
@@ -164,6 +165,8 @@ public class InGameScript : MonoBehaviour {
 		TextureBase.Add("MISS", (Texture2D) Resources.Load("Miss"));
 		TextureBase.Add("SCORENUMBER", (Texture2D) Resources.Load("NumberScore"));
 		TextureBase.Add("SCORESYMBOL", (Texture2D) Resources.Load("SymbolScore"));
+		TextureBase.Add("COMBONUMBER", (Texture2D) Resources.Load("NumberCombo"));
+		TextureBase.Add("COMBODISPLAY", (Texture2D) Resources.Load("DisplayCombo"));
 		
 		//stuff
 		scoreToDisplay = Precision.NONE;
@@ -238,7 +241,24 @@ public class InGameScript : MonoBehaviour {
 			Graphics.DrawTexture(new Rect(posPercent.x*Screen.width + posPercent.width*ecart*2, posPercent.y*Screen.height, wd, hg), TextureBase["SCORENUMBER"], new Rect(0f, - displaying.width, 1f, 0.1f), 0,0,0,0);
 			Graphics.DrawTexture(new Rect(posPercent.x*Screen.width + posPercent.width*ecart*3, posPercent.y*Screen.height, wd, hg), TextureBase["SCORENUMBER"], new Rect(0f, - displaying.height, 1f, 0.1f), 0,0,0,0);
 			Graphics.DrawTexture(new Rect(posPercent.x*Screen.width + posPercent.width*ecart*4, posPercent.y*Screen.height, wd, hgt*4), TextureBase["SCORESYMBOL"], new Rect(0f, 0.5f, 1f, 0.5f), 0,0,0,0);
-		
+			
+			if(combo >= 5){
+				var thetab = comboDecoupe();
+				Graphics.DrawTexture(new Rect(posCombo.x*Screen.width, posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, thetab[0], 1f, 0.1f), 0,0,0,0);
+				if(combo > 9){
+					Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*ecart, posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, thetab[1], 1f, 0.1f), 0,0,0,0);
+					if(combo >99){
+						Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*ecart*2, posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, thetab[2], 1f, 0.1f), 0,0,0,0);
+						if(combo >999){
+							Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*ecart*3, posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, thetab[3], 1f, 0.1f), 0,0,0,0);
+							if(combo >9999){
+								Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*ecart*4, posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, thetab[4], 1f, 0.1f), 0,0,0,0);
+							}
+						}
+					}
+				}
+				Graphics.DrawTexture(new Rect(posCombo.x*Screen.width, posCombo.y*Screen.height + 100, 512, 256), TextureBase["COMBODISPLAY"]);
+			}
 		}
 		
 	}
@@ -331,6 +351,7 @@ public class InGameScript : MonoBehaviour {
 		}else{
 			oneSecond += Time.deltaTime;
 		}
+		
 	}
 	
 	
@@ -1211,6 +1232,16 @@ public class InGameScript : MonoBehaviour {
 		var thescorestringentier = thescorestring.Split('.')[0];
 		var thescorestringdecim = thescorestring.Split('.')[1];
 		return new Rect(roolInt("0." + thescorestringentier[0]), roolInt("0." + thescorestringentier[1]), roolInt("0." + thescorestringdecim[0]), roolInt("0." + thescorestringdecim[1]));
+	}
+	
+	
+	float[] comboDecoupe(){
+		var thecombo = combo.ToString();
+		var outtab = new float[thecombo.Length];
+		for(int i=0;i<thecombo.Length;i++){
+			outtab[i] = roolInt("0." + thecombo[thecombo.Length - i - 1]);
+		}
+		return outtab;
 	}
 	
 	float roolInt(string i){
