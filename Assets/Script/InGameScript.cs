@@ -10,6 +10,7 @@ public class InGameScript : MonoBehaviour {
 	//Game object song scene
 	public GameObject arrow;
 	public GameObject freeze;
+	public GameObject mines;
 	public Camera MainCamera;
 	public GameObject arrowLeft;
 	public GameObject arrowRight;
@@ -131,7 +132,7 @@ public class InGameScript : MonoBehaviour {
 	void Start () {
 		firstArrow = -10f;
 		lastArrow = -10f;
-		thesong = OpenChart.Instance.readChart("Still Blastin'")[0];
+		thesong = OpenChart.Instance.readChart("BrokenTheMoon")[0];
 		createTheChart(thesong);
 		Application.targetFrameRate = -1;
 		nextSwitchBPM = 1;
@@ -1130,11 +1131,10 @@ public class InGameScript : MonoBehaviour {
 	void VerifyKeysOutput(){
 		if(arrowFrozen.Count > 0){
 			if(Input.GetKey(KeyCode.LeftArrow)){
-				if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 0f && c.Key.arrowType == ArrowType.FREEZE)){
-					var ar = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 0f);
-					arrowFrozen[ar.Key] = 0f;
-				}
-			
+					if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 0f && c.Key.arrowType == ArrowType.FREEZE)){
+						var ar = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 0f);
+						arrowFrozen[ar.Key] = 0f;
+					}
 			}
 			
 			
@@ -1143,7 +1143,6 @@ public class InGameScript : MonoBehaviour {
 					var ar = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 2f);
 					arrowFrozen[ar.Key] = 0f;
 				}
-			
 			}
 			
 			
@@ -1162,6 +1161,7 @@ public class InGameScript : MonoBehaviour {
 				}
 			}
 		}
+		
 	}
 	
 	#endregion
@@ -1220,6 +1220,26 @@ public class InGameScript : MonoBehaviour {
 		ps.Play();
 		ps.time = 1f;
 		ps.loop = state;
+		
+	}
+	
+	public void StartParticleMineLeft(){
+		((ParticleSystem) precLeft.transform.FindChild("MINE").particleSystem).Play();
+		
+	}
+	
+	public void StartParticleMineRight(){
+		((ParticleSystem) precRight.transform.FindChild("MINE").particleSystem).Play();;
+		
+	}
+	
+	public void StartParticleMineDown(){
+		((ParticleSystem) precDown.transform.FindChild("MINE").particleSystem).Play();;
+		
+	}
+	
+	public void StartParticleMineUp(){
+		((ParticleSystem) precUp.transform.FindChild("MINE").particleSystem).Play();;
 		
 	}
 	
@@ -1338,25 +1358,49 @@ public class InGameScript : MonoBehaviour {
 	#region Arrow and time
 	public Arrow findNextUpArrow(){
 
-		return arrowUpList.FirstOrDefault(s => s.time == arrowUpList.Min(c => c.time));
+		return arrowUpList.FirstOrDefault(s => s.time == arrowUpList.Where(c => c.arrowType != ArrowType.MINE).Min(c => c.time));
 			
 	}
 	
 	public Arrow findNextDownArrow(){
 
-		return arrowDownList.FirstOrDefault(s => s.time == arrowDownList.Min(c => c.time));
+		return arrowDownList.FirstOrDefault(s => s.time == arrowDownList.Where(c => c.arrowType != ArrowType.MINE).Min(c => c.time));
 			
 	}
 	
 	public Arrow findNextLeftArrow(){
 
-		return arrowLeftList.FirstOrDefault(s => s.time == arrowLeftList.Min(c => c.time));
+		return arrowLeftList.FirstOrDefault(s => s.time == arrowLeftList.Where(c => c.arrowType != ArrowType.MINE).Min(c => c.time));
 			
 	}
 	
 	public Arrow findNextRightArrow(){
 
-		return arrowRightList.FirstOrDefault(s => s.time == arrowRightList.Min(c => c.time));
+		return arrowRightList.FirstOrDefault(s => s.time == arrowRightList.Where(c => c.arrowType != ArrowType.MINE).Min(c => c.time));
+			
+	}
+	
+	public Arrow findNextUpMine(){
+
+		return arrowUpList.FirstOrDefault(s => s.time == arrowUpList.Where(c => c.arrowType == ArrowType.MINE).Min(c => c.time));
+			
+	}
+	
+	public Arrow findNextDownMine(){
+
+		return arrowDownList.FirstOrDefault(s => s.time == arrowDownList.Where(c => c.arrowType == ArrowType.MINE).Min(c => c.time));
+			
+	}
+	
+	public Arrow findNextLeftMine(){
+
+		return arrowLeftList.FirstOrDefault(s => s.time == arrowLeftList.Where(c => c.arrowType == ArrowType.MINE).Min(c => c.time));
+			
+	}
+	
+	public Arrow findNextRightMine(){
+
+		return arrowRightList.FirstOrDefault(s => s.time == arrowRightList.Where(c => c.arrowType == ArrowType.MINE).Min(c => c.time));
 			
 	}
 	
@@ -1555,8 +1599,7 @@ public class InGameScript : MonoBehaviour {
 						}
 						listNeighboors.Add(theArrow);
 					}else if(note[i] == 'M'){
-						/*var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
-						goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
+						var goArrow = (GameObject) Instantiate(mines, new Vector3(i*2, -ypos, 0f), mines.transform.rotation);
 						var theArrow = new Arrow(goArrow, ArrowType.MINE, timetotal);
 						switch(i){
 						case 0:
@@ -1571,7 +1614,7 @@ public class InGameScript : MonoBehaviour {
 						case 3:
 							arrowRightList.Add(theArrow);
 							break;
-						}*/
+						}
 						
 					
 					}

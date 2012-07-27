@@ -18,7 +18,7 @@ public enum Precision{
 		MISS,
 		FREEZE,
 		UNFREEZE,
-		MINES,
+		MINE,
 		NONE
 }
 

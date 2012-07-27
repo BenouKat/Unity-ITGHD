@@ -23,7 +23,8 @@ public class Arrow {
 	public Arrow(GameObject go, ArrowType at, double passedTime){
 		alreadyValid = false;
 		imJump = false;
-		go.GetComponent<ArrowScript>().setArrowAssociated(this);
+		if(at != ArrowType.MINE){go.GetComponent<ArrowScript>().setArrowAssociated(this);}
+		else{ go.GetComponent<MineScript>().setArrowAssociated(this); }
 		goArrow = go;
 		arrowType = at;
 		time = passedTime;

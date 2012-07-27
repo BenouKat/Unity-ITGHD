@@ -4,14 +4,17 @@ using System.Collections.Generic;
 using System.Linq;
 public class MoveBackground : MonoBehaviour {
 	
-	private List<GameObject> cubeBG;
+	private List<Transform> cubeBG;
 	private List<Vector3> rotate;
 	public float speed;
 	// Use this for initialization
 	void Start () {
-		cubeBG = new List<GameObject>();
-		cubeBG.AddRange(GameObject.FindGameObjectsWithTag("Background"));
-		
+		var firstcubeBG = new List<GameObject>();
+		firstcubeBG.AddRange(GameObject.FindGameObjectsWithTag("Background"));
+		cubeBG = new List<Transform>();
+		foreach(var el in firstcubeBG){
+			cubeBG.Add(el.transform);	
+		}
 		rotate = new List<Vector3>();
 		for(int i = 0; i < cubeBG.Count; i++){
 			var x = 1 - Random.value*2;
@@ -27,7 +30,7 @@ public class MoveBackground : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		for(int i=0; i < cubeBG.Count;i++){
-			cubeBG[i].transform.Rotate(rotate[i]*Time.deltaTime/speed);
+			cubeBG[i].Rotate(rotate[i]*Time.deltaTime/speed);
 		}
 	}
 }

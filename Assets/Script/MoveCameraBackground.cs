@@ -7,10 +7,12 @@ public class MoveCameraBackground : MonoBehaviour {
 	public float timeBeforeChange;
 	private float timeT;
 	private Vector3 rotationPoint;
+	private Transform me;
 	// Use this for initialization
 	void Start () {
 		timeT = timeBeforeChange;
 		rotationPoint = new Vector3( 0f, 0f, 1f);
+		me = gameObject.transform;
 	}
 	
 	// Update is called once per frame
@@ -31,6 +33,6 @@ public class MoveCameraBackground : MonoBehaviour {
 			
 		}
 		timeT += Time.deltaTime;
-		gameObject.transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(rotationPoint), Time.deltaTime/(speed));
+		me.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(rotationPoint), Time.deltaTime/(speed));
 	}
 }

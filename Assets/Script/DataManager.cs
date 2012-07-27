@@ -49,7 +49,7 @@ public class DataManager{
 		ScoreWeightValues.Add("MISS",-2.4f);
 		ScoreWeightValues.Add("FREEZE",1f);
 		ScoreWeightValues.Add("UNFREEZE",0f);
-		ScoreWeightValues.Add("MINES",-1.2f);
+		ScoreWeightValues.Add("MINE",-1.2f);
 		
 		
 		LifeWeightValues = new Dictionary<string, float>();
@@ -61,7 +61,7 @@ public class DataManager{
 		LifeWeightValues.Add("MISS",-10f);
 		LifeWeightValues.Add("FREEZE",0.8f);
 		LifeWeightValues.Add("UNFREEZE",-8f);
-		LifeWeightValues.Add("MINES",-5f);
+		LifeWeightValues.Add("MINE",-5f);
 		
 	}
 }
