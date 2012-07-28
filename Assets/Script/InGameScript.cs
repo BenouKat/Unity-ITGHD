@@ -12,6 +12,7 @@ public class InGameScript : MonoBehaviour {
 	public GameObject freeze;
 	public GameObject mines;
 	public Camera MainCamera;
+	private Transform TMainCamera;
 	public GameObject arrowLeft;
 	public GameObject arrowRight;
 	public GameObject arrowDown;
@@ -92,19 +93,30 @@ public class InGameScript : MonoBehaviour {
 	private List<Arrow> arrowRightList;
 	private List<Arrow> arrowDownList;
 	private List<Arrow> arrowUpList;
+	private List<Arrow> mineLeftList;
+	private List<Arrow> mineRightList;
+	private List<Arrow> mineDownList;
+	private List<Arrow> mineUpList;
 	//Dico des arrow prises en freeze
 	private Dictionary<Arrow, float> arrowFrozen;
 	
 	//PARTICLE SYSTEM
-	private GameObject precLeft;
-	private GameObject precRight;
-	private GameObject precUp;
-	private GameObject precDown;
+	
+	private Dictionary<string, ParticleSystem> precLeft;
+	private Dictionary<string, ParticleSystem> precRight;
+	private Dictionary<string, ParticleSystem> precUp;
+	private Dictionary<string, ParticleSystem> precDown;
 	
 	
 	
 	//GUI
 	private Dictionary<string, Texture2D> TextureBase;
+	private float wd;
+	private float hg;
+	private float hgt;
+	private float ecart;
+	private Rect displaying; //score decoup
+	private float[] thetab; //combo decoup
 	
 	//DISPLAY
 	private Color bumpColor;
@@ -145,7 +157,7 @@ public class InGameScript : MonoBehaviour {
 	void Start () {
 		firstArrow = -10f;
 		lastArrow = -10f;
-		thesong = OpenChart.Instance.readChart("BrokenTheMoon")[0];
+		thesong = OpenChart.Instance.readChart("Still Blastin'")[0];
 		createTheChart(thesong);
 		Application.targetFrameRate = -1;
 		nextSwitchBPM = 1;
@@ -163,12 +175,19 @@ public class InGameScript : MonoBehaviour {
 		
 		arrowFrozen = new Dictionary<Arrow, float>();
 		
+		precRight = new Dictionary<string, ParticleSystem>();
+		precLeft = new Dictionary<string, ParticleSystem>();
+		precUp = new Dictionary<string, ParticleSystem>();
+		precDown = new Dictionary<string, ParticleSystem>();
 		
 		//Prepare the scene
-		precLeft = (GameObject) arrowLeft.transform.GetChild(0).gameObject;
-		precDown = (GameObject) arrowDown.transform.GetChild(0).gameObject;
-		precRight = (GameObject) arrowRight.transform.GetChild(0).gameObject;
-		precUp = (GameObject) arrowUp.transform.GetChild(0).gameObject;
+		foreach(var el in Enum.GetValues(typeof(PrecParticle))){
+			precLeft.Add( el.ToString(), (ParticleSystem) arrowLeft.transform.GetChild(0).gameObject.transform.FindChild(el.ToString()).particleSystem );
+			precDown.Add( el.ToString(), (ParticleSystem) arrowDown.transform.GetChild(0).gameObject.transform.FindChild(el.ToString()).particleSystem );
+			precRight.Add( el.ToString(), (ParticleSystem) arrowRight.transform.GetChild(0).gameObject.transform.FindChild(el.ToString()).particleSystem );
+			precUp.Add( el.ToString(), (ParticleSystem) arrowUp.transform.GetChild(0).gameObject.transform.FindChild(el.ToString()).particleSystem );
+		}
+		TMainCamera = MainCamera.transform;
 		
 		//Textures
 		TextureBase = new Dictionary<string, Texture2D>();
@@ -225,6 +244,16 @@ public class InGameScript : MonoBehaviour {
 		ct = ComboType.FULLFANTASTIC;
 		matProgressBar = progressBarEmpty.renderer.material;
 		colorCombo = 1f;
+		
+		
+		//GUI
+		wd = posPercent.width*128;
+		hg = posPercent.height*1024;
+		hgt = posPercent.height*254;
+		ecart = 92f;
+		
+		displaying = scoreDecoupe();
+		thetab = comboDecoupe();
 	}
 	
 	
@@ -235,9 +264,6 @@ public class InGameScript : MonoBehaviour {
 		
 		//fake stuff
 		GUI.Label(new Rect(0.9f*Screen.width, 0.05f*Screen.height, 200f, 200f), fps.ToString());	
-		GUI.Label(new Rect(0.9f*Screen.width, 0.1f*Screen.height, 200f, 200f), ((float)Screen.width/(float)Screen.height).ToString());
-		GUI.Label(new Rect(0.9f*Screen.width, 0.15f*Screen.height, 200f, 200f), life.ToString() + " hp");
-		GUI.Label(new Rect(0.9f*Screen.width, 0.20f*Screen.height, 200f, 200f), score.ToString("0.00") + "%");
 		//end fake stuff
 		
 		
@@ -249,11 +275,7 @@ public class InGameScript : MonoBehaviour {
 		
 		
 		if(Event.current.type.Equals(EventType.Repaint)){
-			var wd = posPercent.width*128;
-			var hg = posPercent.height*1024;
-			var hgt = posPercent.height*254;
-			var ecart = 92f;
-			var displaying = scoreDecoupe(score);
+			
 			if(score >= 10f) Graphics.DrawTexture(new Rect(posPercent.x*Screen.width, posPercent.y*Screen.height, wd, hg), TextureBase["SCORENUMBER"], new Rect(0f, - displaying.x, 1f, 0.1f), 0,0,0,0);
 			Graphics.DrawTexture(new Rect(posPercent.x*Screen.width + posPercent.width*ecart, posPercent.y*Screen.height, wd, hg), TextureBase["SCORENUMBER"], new Rect(0f, - displaying.y, 1f, 0.1f), 0,0,0,0);
 			Graphics.DrawTexture(new Rect(posPercent.x*Screen.width + posPercent.width*(ecart+(ecart/2f)), posPercent.y*Screen.height, wd, hgt*4), TextureBase["SCORESYMBOL"], new Rect(0f, 0f, 1f, 0.5f), 0,0,0,0);
@@ -263,7 +285,6 @@ public class InGameScript : MonoBehaviour {
 			
 			
 			if(combo >= 5){
-				var thetab = comboDecoupe();
 				Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*(ecart*(thetab.Length-1)/2f), posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, - thetab[0], 1f, 0.1f), 0,0,0,0);
 				if(combo > 9){
 					Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*((ecart*(thetab.Length-2)/2f) - ecart*0.5f), posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, - thetab[1], 1f, 0.1f), 0,0,0,0);
@@ -395,11 +416,11 @@ public class InGameScript : MonoBehaviour {
 		
 		
 		if(stateSpeed > 0){
-			slow.renderer.material.color = new Color(1f, 0.25f, 0.25f, 1f);
+			slow.renderer.material.color = new Color(1f, 0f, 0f, 1f);
 			stateSpeed = 0f;
 			changeColorSlow = true;
 		}else if(stateSpeed < 0){
-			fast.renderer.material.color = new Color(1f, 0.25f, 0.25f, 1f);
+			fast.renderer.material.color = new Color(1f, 0f, 0f, 1f);
 			stateSpeed = 0f;
 			changeColorFast = true;
 		}
@@ -407,13 +428,13 @@ public class InGameScript : MonoBehaviour {
 		if(changeColorFast){
 			var div = Time.deltaTime/ClignSpeed;
 			var col = fast.renderer.material.color.r - div;
-			var colp = fast.renderer.material.color.g + div/2f;
+			var colp = fast.renderer.material.color.g + div;
 			fast.renderer.material.color = new Color(col, colp, colp, 1f);
 			if(col <= 0.5f) changeColorFast = false;
 		}else if(changeColorSlow){
 			var div = Time.deltaTime/ClignSpeed;
 			var col = slow.renderer.material.color.r - div;
-			var colp = slow.renderer.material.color.g + div/2f;
+			var colp = slow.renderer.material.color.g + div;
 			slow.renderer.material.color = new Color(col, colp, colp, 1f);
 			if(col <= 0.5f) changeColorSlow = false;
 		}
@@ -450,19 +471,20 @@ public class InGameScript : MonoBehaviour {
 	void MoveArrows(){
 		
 		var bps = thesong.getBPS(actualBPM);
-		MainCamera.transform.position = new Vector3(3f, -((float)(bps*timechart))*speedmod +  changeBPM - 5, -10f);
-		arrowLeft.transform.position = new Vector3(0f, -((float)(bps*timechart))*speedmod  + changeBPM, 2f);
+		var move = -((float)(bps*timechart))*speedmod +  changeBPM;
+		TMainCamera.position = new Vector3(3f, move - 5, -10f);
+		/*arrowLeft.transform.position = new Vector3(0f, -((float)(bps*timechart))*speedmod  + changeBPM, 2f);
 		arrowRight.transform.position = new Vector3(6f, -((float)(bps*timechart))*speedmod + changeBPM, 2f);
 		arrowDown.transform.position = new Vector3(2f, -((float)(bps*timechart))*speedmod + changeBPM, 2f);
-		arrowUp.transform.position = new Vector3(4f, -((float)(bps*timechart))*speedmod + changeBPM, 2f);
+		arrowUp.transform.position = new Vector3(4f, -((float)(bps*timechart))*speedmod + changeBPM, 2f);*/
 		
 		foreach(var el in arrowFrozen.Keys){
 			var pos = el.goArrow.transform.position;
-			el.goArrow.transform.position = new Vector3(pos.x, -((float)(bps*timechart))*speedmod  + changeBPM, pos.z);
+			el.goArrow.transform.position = new Vector3(pos.x, move, pos.z);
 			pos = el.goArrow.transform.position;
-			
-			el.goFreeze.transform.position = new Vector3(el.goFreeze.transform.position.x, (pos.y + ((el.posEnding.y - pos.y)/2f)) , el.goFreeze.transform.position.z);
-			el.goFreeze.transform.localScale = new Vector3(1f, -((el.posEnding.y - pos.y)/2f), 0.1f);
+			var div = ((el.posEnding.y - pos.y)/2f);
+			el.goFreeze.transform.position = new Vector3(el.goFreeze.transform.position.x, (pos.y + div) , el.goFreeze.transform.position.z);
+			el.goFreeze.transform.localScale = new Vector3(1f, -div, 0.1f);
 			el.goFreeze.transform.GetChild(0).transform.localScale = new Vector3((el.posEnding.y - pos.y)/(el.posEnding.y - el.posBegining.y), 1f, 0.1f);
 			el.changeColorFreeze(arrowFrozen[el], unfrozed);
 		}
@@ -1245,29 +1267,29 @@ public class InGameScript : MonoBehaviour {
 	void StartParticleLeft(Precision prec){
 		var displayPrec = prec.ToString();
 		if(prec < Precision.DECENT && combo >= 100) displayPrec += "C";
-		((ParticleSystem) precLeft.transform.FindChild(displayPrec).particleSystem).Play();
+		precLeft[displayPrec].Play();
 	}
 	
 	void StartParticleDown(Precision prec){
 		var displayPrec = prec.ToString();
 		if(prec < Precision.DECENT && combo >= 100) displayPrec += "C";
-		((ParticleSystem) precDown.transform.FindChild(displayPrec).particleSystem).Play();
+		precDown[displayPrec].Play();
 	}
 	
 	void StartParticleUp(Precision prec){
 		var displayPrec = prec.ToString();
 		if(prec < Precision.DECENT && combo >= 100) displayPrec += "C";
-		((ParticleSystem) precUp.transform.FindChild(displayPrec).particleSystem).Play();
+		precUp[displayPrec].Play();
 	}
 	
 	void StartParticleRight(Precision prec){
 		var displayPrec = prec.ToString();
 		if(prec < Precision.DECENT && combo >= 100) displayPrec += "C";
-		((ParticleSystem) precRight.transform.FindChild(displayPrec).particleSystem).Play();
+		precRight[displayPrec].Play();
 	}
 	
 	void StartParticleFreezeLeft(bool state){
-		var ps = ((ParticleSystem) precLeft.transform.FindChild("FREEZE").particleSystem);
+		var ps = precLeft["FREEZE"];
 		ps.Play();
 		ps.time = 1f;
 		ps.loop = state;
@@ -1275,7 +1297,7 @@ public class InGameScript : MonoBehaviour {
 	}
 	
 	void StartParticleFreezeRight(bool state){
-		var ps = ((ParticleSystem) precRight.transform.FindChild("FREEZE").particleSystem);
+		var ps = precRight["FREEZE"];
 		ps.Play();
 		ps.time = 1f;
 		ps.loop = state;
@@ -1283,7 +1305,7 @@ public class InGameScript : MonoBehaviour {
 	}
 	
 	void StartParticleFreezeDown(bool state){
-		var ps = ((ParticleSystem) precDown.transform.FindChild("FREEZE").particleSystem);
+		var ps = precDown["FREEZE"];
 		ps.Play();
 		ps.time = 1f;
 		ps.loop = state;
@@ -1291,7 +1313,7 @@ public class InGameScript : MonoBehaviour {
 	}
 	
 	void StartParticleFreezeUp(bool state){
-		var ps = ((ParticleSystem) precUp.transform.FindChild("FREEZE").particleSystem);
+		var ps = precUp["FREEZE"];
 		ps.Play();
 		ps.time = 1f;
 		ps.loop = state;
@@ -1299,22 +1321,22 @@ public class InGameScript : MonoBehaviour {
 	}
 	
 	public void StartParticleMineLeft(){
-		((ParticleSystem) precLeft.transform.FindChild("MINE").particleSystem).Play();
+		precLeft["MINE"].Play();
 		
 	}
 	
 	public void StartParticleMineRight(){
-		((ParticleSystem) precRight.transform.FindChild("MINE").particleSystem).Play();;
+		precRight["MINE"].Play();
 		
 	}
 	
 	public void StartParticleMineDown(){
-		((ParticleSystem) precDown.transform.FindChild("MINE").particleSystem).Play();;
+		precDown["MINE"].Play();
 		
 	}
 	
 	public void StartParticleMineUp(){
-		((ParticleSystem) precUp.transform.FindChild("MINE").particleSystem).Play();;
+		precUp["MINE"].Play();
 		
 	}
 	
@@ -1335,6 +1357,7 @@ public class InGameScript : MonoBehaviour {
 		}else if(score < 0f){
 			score = 0f;	
 		}
+		displaying = scoreDecoupe();
 	}
 	
 	public void GainCombo(int c, Precision prec){
@@ -1351,11 +1374,12 @@ public class InGameScript : MonoBehaviour {
 				ct = ComboType.NONE;
 			}
 		}
+		thetab = comboDecoupe();
 		
 	}
 	
-	Rect scoreDecoupe(float dascore){
-		var thescorestring = dascore.ToString("00.00");
+	Rect scoreDecoupe(){
+		var thescorestring = score.ToString("00.00");
 		var thescorestringentier = thescorestring.Split('.')[0];
 		var thescorestringdecim = thescorestring.Split('.')[1];
 		return new Rect(roolInt("0." + thescorestringentier[0]), roolInt("0." + thescorestringentier[1]), roolInt("0." + thescorestringdecim[0]), roolInt("0." + thescorestringdecim[1]));
@@ -1383,6 +1407,7 @@ public class InGameScript : MonoBehaviour {
 	public void ComboStop(){
 		combo = 0;	
 		ct = ComboType.NONE;
+		thetab = comboDecoupe();
 	}
 	#endregion
 	
@@ -1433,49 +1458,49 @@ public class InGameScript : MonoBehaviour {
 	#region Arrow and time
 	public Arrow findNextUpArrow(){
 
-		return arrowUpList.FirstOrDefault(s => s.time == arrowUpList.Where(c => c.arrowType != ArrowType.MINE).Min(c => c.time));
+		return arrowUpList.FirstOrDefault(s => s.time == arrowUpList.Min(c => c.time));
 			
 	}
 	
 	public Arrow findNextDownArrow(){
 
-		return arrowDownList.FirstOrDefault(s => s.time == arrowDownList.Where(c => c.arrowType != ArrowType.MINE).Min(c => c.time));
+		return arrowDownList.FirstOrDefault(s => s.time == arrowDownList.Min(c => c.time));
 			
 	}
 	
 	public Arrow findNextLeftArrow(){
 
-		return arrowLeftList.FirstOrDefault(s => s.time == arrowLeftList.Where(c => c.arrowType != ArrowType.MINE).Min(c => c.time));
+		return arrowLeftList.FirstOrDefault(s => s.time == arrowLeftList.Min(c => c.time));
 			
 	}
 	
 	public Arrow findNextRightArrow(){
 
-		return arrowRightList.FirstOrDefault(s => s.time == arrowRightList.Where(c => c.arrowType != ArrowType.MINE).Min(c => c.time));
+		return arrowRightList.FirstOrDefault(s => s.time == arrowRightList.Min(c => c.time));
 			
 	}
 	
 	public Arrow findNextUpMine(){
 
-		return arrowUpList.FirstOrDefault(s => s.time == arrowUpList.Where(c => c.arrowType == ArrowType.MINE).Min(c => c.time));
+		return mineUpList.FirstOrDefault(s => s.time == mineUpList.Min(c => c.time));
 			
 	}
 	
 	public Arrow findNextDownMine(){
 
-		return arrowDownList.FirstOrDefault(s => s.time == arrowDownList.Where(c => c.arrowType == ArrowType.MINE).Min(c => c.time));
+		return mineDownList.FirstOrDefault(s => s.time == mineDownList.Min(c => c.time));
 			
 	}
 	
 	public Arrow findNextLeftMine(){
 
-		return arrowLeftList.FirstOrDefault(s => s.time == arrowLeftList.Where(c => c.arrowType == ArrowType.MINE).Min(c => c.time));
+		return mineLeftList.FirstOrDefault(s => s.time == mineLeftList.Min(c => c.time));
 			
 	}
 	
 	public Arrow findNextRightMine(){
 
-		return arrowRightList.FirstOrDefault(s => s.time == arrowRightList.Where(c => c.arrowType == ArrowType.MINE).Min(c => c.time));
+		return mineRightList.FirstOrDefault(s => s.time == mineRightList.Min(c => c.time));
 			
 	}
 	
@@ -1499,6 +1524,25 @@ public class InGameScript : MonoBehaviour {
 		}
 	}
 	
+	public void removeMineFromList(Arrow ar, string state){
+		
+		switch(state){
+			case "left":
+				mineLeftList.Remove(ar);
+				break;
+			case "down":
+				mineDownList.Remove(ar);
+				break;
+			case "up":
+				mineUpList.Remove(ar);
+				break;
+			case "right":
+				mineRightList.Remove(ar);
+				break;
+				
+		}
+	}
+	
 	
 	public double getTotalTimeChart(){
 		return timetotalchart;	
@@ -1515,7 +1559,10 @@ public class InGameScript : MonoBehaviour {
 		arrowUpList = new List<Arrow>();
 		arrowDownList = new List<Arrow>();
 		arrowRightList = new List<Arrow>();
-		
+		mineLeftList = new List<Arrow>();
+		mineUpList = new List<Arrow>();
+		mineDownList = new List<Arrow>();
+		mineRightList = new List<Arrow>();
 		
 		var theBPMCounter = 1;
 		var theSTOPCounter = 0;
@@ -1678,16 +1725,16 @@ public class InGameScript : MonoBehaviour {
 						var theArrow = new Arrow(goArrow, ArrowType.MINE, timetotal);
 						switch(i){
 						case 0:
-							arrowLeftList.Add(theArrow);
+							mineLeftList.Add(theArrow);
 							break;
 						case 1:
-							arrowDownList.Add(theArrow);
+							mineDownList.Add(theArrow);
 							break;
 						case 2:
-							arrowUpList.Add(theArrow);
+							mineUpList.Add(theArrow);
 							break;
 						case 3:
-							arrowRightList.Add(theArrow);
+							mineRightList.Add(theArrow);
 							break;
 						}
 						

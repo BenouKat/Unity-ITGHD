@@ -2,7 +2,6 @@ using UnityEngine;
 using System.Collections;
 
 public class ArrowScript : MonoBehaviour {
-	public GameObject arrowLeft;
 	public GameObject Engine;
 	private Arrow associatedArrow;
 	

@@ -35,3 +35,17 @@ public enum ComboType{
 		FULLCOMBO,
 		NONE
 }
+
+enum PrecParticle{
+		FANTASTIC,
+		FANTASTICC,
+		EXCELLENT,
+		EXCELLENTC,
+		GREAT,
+		GREATC,
+		DECENT,
+		WAYOFF,
+		FREEZE,
+		MINE
+		
+	}
