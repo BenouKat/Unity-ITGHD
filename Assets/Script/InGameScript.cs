@@ -20,6 +20,10 @@ public class InGameScript : MonoBehaviour {
 	public GameObject particlePrec;
 	public GameObject lifeBar;
 	public GameObject progressBar;
+	public GameObject progressBarEmpty;
+	public GameObject slow;
+	public GameObject fast;
+	private Material matProgressBar;
 	
 	
 	private LifeBar theLifeBar;
@@ -63,6 +67,12 @@ public class InGameScript : MonoBehaviour {
 	public Rect posScore = new Rect(0.38f,0.3f,0.25f,0.25f);
 	private Dictionary<Precision, int> countScore;
 	
+	//SLOWFAST
+	public float ClignSpeed;
+	public float stateSpeed; //-1 : fast, 0 : rien, 1 : slow
+	private bool changeColorSlow = false;
+	private bool changeColorFast = false;
+	
 	//LIFE
 	private float life;
 	private Dictionary<string, float> lifeBase;
@@ -96,7 +106,6 @@ public class InGameScript : MonoBehaviour {
 	//GUI
 	private Dictionary<string, Texture2D> TextureBase;
 	
-	
 	//DISPLAY
 	private Color bumpColor;
 	public float bumpfadeSpeed = 0.5f;
@@ -122,6 +131,10 @@ public class InGameScript : MonoBehaviour {
 	public Rect posCombo = new Rect(0.40f, 0.5f, 0.45f, 0.05f);
 	public Rect posdispCombo = new Rect(0.40f, 0.5f, 0.45f, 0.05f);
 	private ComboType ct;
+	public float speedCombofade;
+	private float colorCombo;
+	private int signCombo = -1;
+	private bool alreadytaged = true;
 	//DEBUG
 	//private int iwashere;
 	
@@ -207,7 +220,11 @@ public class InGameScript : MonoBehaviour {
 		
 		//bump
 		nextBump = 0;
+		
+		//combo
 		ct = ComboType.FULLFANTASTIC;
+		matProgressBar = progressBarEmpty.renderer.material;
+		colorCombo = 1f;
 	}
 	
 	
@@ -228,8 +245,8 @@ public class InGameScript : MonoBehaviour {
 
 			GUI.color = new Color(1f, 1f, 1f, alpha);
 			GUI.DrawTexture(new Rect(posScore.x*Screen.width - zoom, posScore.y*Screen.height, posScore.width*Screen.width + zoom*2, posScore.height*Screen.height), TextureBase[scoreToDisplay.ToString()]); 
-			
 		}
+		
 		
 		if(Event.current.type.Equals(EventType.Repaint)){
 			var wd = posPercent.width*128;
@@ -244,41 +261,27 @@ public class InGameScript : MonoBehaviour {
 			Graphics.DrawTexture(new Rect(posPercent.x*Screen.width + posPercent.width*ecart*3, posPercent.y*Screen.height, wd, hg), TextureBase["SCORENUMBER"], new Rect(0f, - displaying.height, 1f, 0.1f), 0,0,0,0);
 			Graphics.DrawTexture(new Rect(posPercent.x*Screen.width + posPercent.width*ecart*4, posPercent.y*Screen.height, wd, hgt*4), TextureBase["SCORESYMBOL"], new Rect(0f, 0.5f, 1f, 0.5f), 0,0,0,0);
 			
+			
 			if(combo >= 5){
 				var thetab = comboDecoupe();
-				Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*ecart*(thetab.Length-1), posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, - thetab[0], 1f, 0.1f), 0,0,0,0);
+				Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*(ecart*(thetab.Length-1)/2f), posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, - thetab[0], 1f, 0.1f), 0,0,0,0);
 				if(combo > 9){
-					Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*ecart*(thetab.Length-2), posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, - thetab[1], 1f, 0.1f), 0,0,0,0);
+					Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*((ecart*(thetab.Length-2)/2f) - ecart*0.5f), posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, - thetab[1], 1f, 0.1f), 0,0,0,0);
 					if(combo >99){
-						Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*ecart*(thetab.Length-3), posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, - thetab[2], 1f, 0.1f), 0,0,0,0);
+						Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*((ecart*(thetab.Length-3)/2f) -ecart), posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, - thetab[2], 1f, 0.1f), 0,0,0,0);
 						if(combo >999){
-							Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*ecart*(thetab.Length-4), posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, - thetab[3], 1f, 0.1f), 0,0,0,0);
+							Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*((ecart*(thetab.Length-4)/2f) -ecart*1.5f), posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, - thetab[3], 1f, 0.1f), 0,0,0,0);
 							if(combo >9999){
-								Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*ecart*(thetab.Length-5), posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, - thetab[4], 1f, 0.1f), 0,0,0,0);
+								Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*(-ecart*2f), posCombo.y*Screen.height, wd, hg), TextureBase["COMBONUMBER"], new Rect(0f, - thetab[4], 1f, 0.1f), 0,0,0,0);
 							}
 						}
 					}
 				}
-				GUI.color = new Color(1f, 1f, 1f, 1f);
-				if(ct != ComboType.NONE){
-					switch (ct){
-					case ComboType.FULLCOMBO:
-						GUI.color = new Color(0.5f, 1f, 0.5f, 1f);
-						break;
-					case ComboType.FULLEXCELLENT:
-						GUI.color = new Color(1f, 1f, 0.5f, 1f);
-						break;
-					case ComboType.FULLFANTASTIC:
-						GUI.color = new Color(0.5f, 1f, 1f, 1f);
-						break;
-					}
-				}
-				GUI.DrawTexture(new Rect(posdispCombo.x*Screen.width - zoom, posdispCombo.y*Screen.height, posdispCombo.width*Screen.width + zoom*2, posdispCombo.height*Screen.height), TextureBase["COMBODISPLAY"]);
 			}
 		}
 		
 	}
-
+	
 	
 	// Update is called once per frame
 	void Update () {
@@ -388,6 +391,54 @@ public class InGameScript : MonoBehaviour {
 		if(timetotalchart >= firstArrow && timetotalchart < lastArrow){
 			progressBar.transform.localPosition = new Vector3(-30f, - (10f - 10f*(float)((timetotalchart - firstArrow)/(lastArrow - firstArrow))), 8f);
 			progressBar.transform.localScale = new Vector3(0.7f, 10f*(float)((timetotalchart - firstArrow)/(lastArrow - firstArrow)), 1f);
+		}
+		
+		
+		if(stateSpeed > 0){
+			slow.renderer.material.color = new Color(1f, 0.25f, 0.25f, 1f);
+			stateSpeed = 0f;
+			changeColorSlow = true;
+		}else if(stateSpeed < 0){
+			fast.renderer.material.color = new Color(1f, 0.25f, 0.25f, 1f);
+			stateSpeed = 0f;
+			changeColorFast = true;
+		}
+		
+		if(changeColorFast){
+			var div = Time.deltaTime/ClignSpeed;
+			var col = fast.renderer.material.color.r - div;
+			var colp = fast.renderer.material.color.g + div/2f;
+			fast.renderer.material.color = new Color(col, colp, colp, 1f);
+			if(col <= 0.5f) changeColorFast = false;
+		}else if(changeColorSlow){
+			var div = Time.deltaTime/ClignSpeed;
+			var col = slow.renderer.material.color.r - div;
+			var colp = slow.renderer.material.color.g + div/2f;
+			slow.renderer.material.color = new Color(col, colp, colp, 1f);
+			if(col <= 0.5f) changeColorSlow = false;
+		}
+		
+		
+		if(ct < ComboType.FULLCOMBO && combo > 100){
+			switch (ct){
+			case ComboType.FULLEXCELLENT:
+				
+				if((colorCombo <= 0.3f && signCombo == -1) || (colorCombo >= 1f && signCombo == 1) ){ signCombo *= -1; }
+				colorCombo += signCombo*Time.deltaTime/speedCombofade;
+				
+				matProgressBar.color = new Color(1f, 1f, colorCombo, 1f);
+				alreadytaged = false;
+				break;
+			case ComboType.FULLFANTASTIC:
+				if((colorCombo <= 0.3f && signCombo == -1) || (colorCombo >= 1f && signCombo == 1) ){ signCombo *= -1; }
+				colorCombo += signCombo*Time.deltaTime/speedCombofade;
+				matProgressBar.color = new Color(colorCombo, 1f, 1f, 1f);
+				alreadytaged = false;
+				break;
+			}
+		}else if(!alreadytaged){
+			matProgressBar.color = new Color(1f, 1f, 1f, 1f);
+			alreadytaged = true;
 		}
 	}
 	
@@ -681,6 +732,12 @@ public class InGameScript : MonoBehaviour {
 					ComboStop();
 			}
 			
+			if(prec > precToTime(Precision.FANTASTIC) && prec < precToTime(Precision.WAYOFF)){
+				stateSpeed = -1f*Mathf.Sign((float)(ar.time - timetotalchart));
+			}else{
+				stateSpeed = 0f;	
+			}
+			
 			
 			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 0f && c.Key.arrowType == ArrowType.ROLL))
 			{
@@ -825,6 +882,12 @@ public class InGameScript : MonoBehaviour {
 						GainScoreAndLife(timeToPrec(prec).ToString());
 					}
 					ComboStop();
+			}
+			
+			if(prec > precToTime(Precision.FANTASTIC) && prec < precToTime(Precision.WAYOFF)){
+				stateSpeed = -1f*Mathf.Sign((float)(ar.time - timetotalchart));
+			}else{
+				stateSpeed = 0f;	
 			}
 		
 			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 2f && c.Key.arrowType == ArrowType.ROLL))
@@ -971,6 +1034,12 @@ public class InGameScript : MonoBehaviour {
 					ComboStop();
 			}
 			
+			if(prec > precToTime(Precision.FANTASTIC) && prec < precToTime(Precision.WAYOFF)){
+				stateSpeed = -1f*Mathf.Sign((float)(ar.time - timetotalchart));
+			}else{
+				stateSpeed = 0f;	
+			}
+			
 			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 4f && c.Key.arrowType == ArrowType.ROLL))
 			{
 				var froz = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 4f);
@@ -1114,6 +1183,12 @@ public class InGameScript : MonoBehaviour {
 						GainScoreAndLife(timeToPrec(prec).ToString());
 					}
 					ComboStop();
+			}
+			
+			if(prec > precToTime(Precision.FANTASTIC) && prec < precToTime(Precision.WAYOFF)){
+				stateSpeed = -1f*Mathf.Sign((float)(ar.time - timetotalchart));
+			}else{
+				stateSpeed = 0f;	
 			}
 			
 			if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 6f && c.Key.arrowType == ArrowType.ROLL))
