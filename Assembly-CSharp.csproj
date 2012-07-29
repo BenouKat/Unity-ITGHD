@@ -44,18 +44,20 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Script\Arrow.cs" />
-     <Compile Include="Assets\Script\ArrowScript.cs" />
-     <Compile Include="Assets\Script\CreateChart.cs" />
-     <Compile Include="Assets\Script\DataManager.cs" />
-     <Compile Include="Assets\Script\EnumManager.cs" />
-     <Compile Include="Assets\Script\InGameScript.cs" />
-     <Compile Include="Assets\Script\LifeBar.cs" />
-     <Compile Include="Assets\Script\MineScript.cs" />
-     <Compile Include="Assets\Script\MoveBackground.cs" />
-     <Compile Include="Assets\Script\MoveCameraBackground.cs" />
-     <Compile Include="Assets\Script\OpenChart.cs" />
-     <Compile Include="Assets\Script\Song.cs" />
+     <Compile Include="Assets\Script\Chart\Arrow.cs" />
+     <Compile Include="Assets\Script\Chart\ArrowScript.cs" />
+     <Compile Include="Assets\Script\Chart\InGameScript.cs" />
+     <Compile Include="Assets\Script\Chart\LifeBar.cs" />
+     <Compile Include="Assets\Script\Chart\MineScript.cs" />
+     <Compile Include="Assets\Script\Chart\MoveBackground.cs" />
+     <Compile Include="Assets\Script\Chart\MoveCameraBackground.cs" />
+     <Compile Include="Assets\Script\FrameWork\OpenChart.cs" />
+     <Compile Include="Assets\Script\FrameWork\Song.cs" />
+     <Compile Include="Assets\Script\MainMenu\MainMenu.cs" />
+     <Compile Include="Assets\Script\MainMenu\MoveCubeBackground.cs" />
+     <Compile Include="Assets\Script\Managers\DataManager.cs" />
+     <Compile Include="Assets\Script\Managers\EnumManager.cs" />
+     <Compile Include="Assets\Script\Managers\LoadManager.cs" />
      <None Include="Assets\Standard Assets\Projectors\Guidelines.txt" />
      <None Include="Assets\Standard Assets\Glass Refraction (Pro Only)\Sources\Shaders\Glass-Stained-BumpDistort.shader" />
      <None Include="Assets\Standard Assets\Image Effects (Pro Only)\_Sources\Shaders\_BloomAndFlares\BlendOneOne.shader" />
