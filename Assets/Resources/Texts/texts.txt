@@ -1,0 +1,15 @@
+﻿[MainMenu];
+<Story>;
+Accès au forum "The Cube";
+<Free>;
+Jeu libre sur toutes les chansons installées;
+<Mods>;
+Jeu sur des défis différents;
+<Learn>;
+Apprendre à jouer;
+<Trophy>;
+Galerie de la gloire;
+<Option>;
+Règle les paramètres du jeu;
+<Quit>;
+Deconnection de Cublast;

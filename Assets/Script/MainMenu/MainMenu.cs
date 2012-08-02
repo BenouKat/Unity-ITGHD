@@ -1,21 +1,20 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-
+using System;
 public class MainMenu : MonoBehaviour {
 	
 	private delegate void updateMethod();
 	private updateMethod updat;
+	
+	//Montée de caméra
 	public float speedUp;
 	private float trueSpeedUp;
-	
-	
 	public float limiteslowUp;
 	public float limitesUp;
-	
 	public float addUp;
 	
-	
+	//Tangue de la caméra
 	public float speedTang;
 	private float trueSpeedTang;
 	public float limiteslowTangRight;
@@ -24,31 +23,57 @@ public class MainMenu : MonoBehaviour {
 	public float addStart;
 	private float sign;
 	
+	//Première fois
 	private bool firststart = true;
 	
+	//Temps surlequel on peut appuyer sur start
 	private float time;
 	private bool enterPushed;
 	
+	//Fondu de caméra vers le menu
 	public float speedFadeMenu;
+	private bool inPlace;
 	
-	
+	//Glissement d'object select
 	private Dictionary<string, GameObject> goToBack;
 	private string forbiddenTouch;
 	public float speedSlide;
 	
-	private bool inPlace;
+	//audio
 	public AudioSource audioSMainTitle;
 	public AudioSource audioSMainMenu;
 	
-	
+	//Clignotement pressstart
 	public float speedPressStart;
 	private float signPressStart;
 	private float alphaPressStart;
 	private Texture2D pressStart;
 	public Rect posPressStart;
+	
+	//Fondu de choix
+	public float speedChoice;
+	private float timeSelect;
+	
+	//GUI text d'aide
+	private Texture2D GUITextTexture;
+	public Rect posGUIimage;
+	public Rect posGUItext;
+	public float speedGUIImage;
+	private float alphaGUIImage;
+	
+	public GUISkin skin;
+	
+	
+	
 	// Use this for initialization
 	void Start () {
-		//LoadManager.Instance.Loading();
+		
+		//Load
+		LoadManager.Instance.Loading();
+		TextManager.Instance.LoadTextFile();
+		
+		
+		
 		this.updat = UpdateWait;
 		sign = -1f;
 		Camera.main.transform.eulerAngles = new Vector3(66f, 32.5f, 0f);
@@ -61,6 +86,9 @@ public class MainMenu : MonoBehaviour {
 		signPressStart = 1f;
 		alphaPressStart = 0f;
 		pressStart = (Texture2D) Resources.Load("PressStart");
+		GUITextTexture = (Texture2D) Resources.Load("GUIBar");
+		alphaGUIImage = 0f;
+		timeSelect = 0f;
 	}
 	
 	void OnGUI(){
@@ -72,7 +100,29 @@ public class MainMenu : MonoBehaviour {
 			GUI.color = new Color(1f, 1f, 1f, alphaPressStart);
 			GUI.DrawTexture(new Rect(posPressStart.x*Screen.width, posPressStart.y*Screen.height, posPressStart.width*Screen.width, posPressStart.height*Screen.height), pressStart);
 		}
+		if(!String.IsNullOrEmpty(forbiddenTouch) && this.updat != UpdateSwitchMode){
+			GUI.skin = skin;
+			if(alphaGUIImage <= 1f){
+				alphaGUIImage += Time.deltaTime/speedGUIImage;	
+			}
+			GUI.color = new Color(1f, 1f, 1f, alphaGUIImage);
+			GUI.DrawTexture(new Rect(posGUIimage.x*Screen.width, posGUIimage.y*Screen.height, posGUIimage.width*Screen.width, posGUIimage.height*Screen.height), GUITextTexture);
+			
+			GUI.color = new Color(0f, 0f, 0f, alphaGUIImage);
+			GUI.Label(new Rect(posGUItext.x*Screen.width +1f, posGUItext.y*Screen.height+1f, posGUItext.width*Screen.width, posGUItext.height*Screen.height), TextManager.Instance.texts["MainMenu"][forbiddenTouch]);
+			
+			GUI.color = new Color(1f, 1f, 1f, alphaGUIImage);
+			GUI.Label(new Rect(posGUItext.x*Screen.width, posGUItext.y*Screen.height, posGUItext.width*Screen.width, posGUItext.height*Screen.height), TextManager.Instance.texts["MainMenu"][forbiddenTouch]);
+		}else if(alphaGUIImage >= 0f){
+			alphaGUIImage -= Time.deltaTime/speedGUIImage;	
+		}
+		
+		if(timeSelect >= 2f){
+				
+		}
 	}
+	
+	//Wait avant de lancer le mainmenu
 	void UpdateWait(){
 		if(time >= 1f && !enterPushed){
 			audioSMainTitle.Play();
@@ -96,6 +146,7 @@ public class MainMenu : MonoBehaviour {
 		}
 	}
 	
+	//Montée de caméra
 	void UpdateUp () {
 		
 		
@@ -113,6 +164,8 @@ public class MainMenu : MonoBehaviour {
 		}
 	}
 	
+	
+	//tangue de caméra
 	void UpdateTang () {
 		if(firststart){
 			trueSpeedTang -= Time.deltaTime*addStart;
@@ -137,7 +190,7 @@ public class MainMenu : MonoBehaviour {
 		}
 	}
 	
-	
+	//Update du main menu
 	void UpdateMainMenu(){
 		
 		if(audioSMainTitle.isPlaying){
@@ -181,6 +234,9 @@ public class MainMenu : MonoBehaviour {
 						Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(Vector3.Lerp(new Vector3(0f, 0f, 1f), (theGo.transform.position - Camera.main.transform.position), 0.002f)), 0.1f);
 					}
 					
+					if(Input.GetMouseButtonDown(0)){
+						this.updat = UpdateSwitchMode;
+					}
 				}else{
 					forbiddenTouch = "";
 					Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(new Vector3(0f, 0f, 1f)), 0.1f);
@@ -203,5 +259,14 @@ public class MainMenu : MonoBehaviour {
 				goToBack.Remove(del);	
 			}
 		}
+	}
+	
+	
+	//Update de la selection
+	void UpdateSwitchMode(){
+		goToBack[forbiddenTouch].transform.position = Vector3.Lerp(goToBack[forbiddenTouch].transform.position, new Vector3(goToBack[forbiddenTouch].transform.position.x, 50f, goToBack[forbiddenTouch].transform.position.z), Time.deltaTime/speedChoice);
+		Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, new Vector3(Camera.main.transform.position.x, 60f, Camera.main.transform.position.z), Time.deltaTime/speedChoice);
+		
+		timeSelect += Time.deltaTime;
 	}
 }
