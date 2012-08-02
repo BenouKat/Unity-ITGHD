@@ -32,14 +32,24 @@ public class MainMenu : MonoBehaviour {
 	public float speedFadeMenu;
 	
 	
-	
 	private Dictionary<string, GameObject> goToBack;
 	private string forbiddenTouch;
 	public float speedSlide;
+	
+	private bool inPlace;
+	public AudioSource audioSMainTitle;
+	public AudioSource audioSMainMenu;
+	
+	
+	public float speedPressStart;
+	private float signPressStart;
+	private float alphaPressStart;
+	private Texture2D pressStart;
+	public Rect posPressStart;
 	// Use this for initialization
 	void Start () {
 		//LoadManager.Instance.Loading();
-		this.updat = UpdateUp;
+		this.updat = UpdateWait;
 		sign = -1f;
 		Camera.main.transform.eulerAngles = new Vector3(66f, 32.5f, 0f);
 		trueSpeedUp = speedUp;
@@ -47,13 +57,37 @@ public class MainMenu : MonoBehaviour {
 		time = 0f;
 		enterPushed = false;
 		goToBack = new Dictionary<string, GameObject>();
+		inPlace = false;
+		signPressStart = 1f;
+		alphaPressStart = 0f;
+		pressStart = (Texture2D) Resources.Load("PressStart");
+	}
+	
+	void OnGUI(){
+		if(time >= 6 && (this.updat == UpdateUp || this.updat == UpdateTang)){
+			alphaPressStart += signPressStart*(Time.deltaTime/speedPressStart);
+			if((alphaPressStart >= 1f && signPressStart == 1f) || (alphaPressStart <= 0f && signPressStart == -1f)){
+				signPressStart *= -1f;	
+			}
+			GUI.color = new Color(1f, 1f, 1f, alphaPressStart);
+			GUI.DrawTexture(new Rect(posPressStart.x*Screen.width, posPressStart.y*Screen.height, posPressStart.width*Screen.width, posPressStart.height*Screen.height), pressStart);
+		}
+	}
+	void UpdateWait(){
+		if(time >= 1f && !enterPushed){
+			audioSMainTitle.Play();
+			this.updat = UpdateUp;
+		}else{
+			time += Time.deltaTime;	
+		}
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		this.updat();
-		if(time >= 5f && !enterPushed){
+		if(time >= 6f && !enterPushed){
 			if(Input.GetKeyDown(KeyCode.Return)){
+				audioSMainMenu.Play();
 				this.updat = UpdateMainMenu;
 				enterPushed = true;
 			}
@@ -63,6 +97,10 @@ public class MainMenu : MonoBehaviour {
 	}
 	
 	void UpdateUp () {
+		
+		
+		
+		
 		Camera.main.transform.Rotate(new Vector3(-51f*(Time.deltaTime/trueSpeedUp), 0f, 0f));
 		
 		if(Camera.main.transform.eulerAngles.x <= limitesUp){
@@ -102,37 +140,54 @@ public class MainMenu : MonoBehaviour {
 	
 	void UpdateMainMenu(){
 		
-		
-		if(Camera.main.transform.position.x <= 0.001f){
-			Camera.main.transform.eulerAngles = new Vector3(0f, 0f, 0f);
-			Camera.main.transform.position = new Vector3(0f, -35f, -30f);
-		}else{
-			Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(new Vector3(0f, 0f, 1f)), Time.deltaTime/speedFadeMenu);
-			Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, new Vector3(0f, -35f, -30f), Time.deltaTime/speedFadeMenu);
+		if(audioSMainTitle.isPlaying){
+			if( audioSMainTitle.volume <= 0){
+				audioSMainTitle.Stop();
+				audioSMainTitle.volume = 100f;
+			}else{
+				audioSMainTitle.volume -= Time.deltaTime;
+			}
 		}
 		
+		if(!inPlace){
+			if(Camera.main.transform.position.x <= 0.001f){
+				//Camera.main.transform.eulerAngles = new Vector3(0f, 0f, 0f);
+				Camera.main.transform.position = new Vector3(0f, -35f, -30f);
+				inPlace = true;
+			}else{
+				Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(new Vector3(0f, 0f, 1f)), Time.deltaTime/speedFadeMenu);
+				Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, new Vector3(0f, -35f, -30f), Time.deltaTime/speedFadeMenu);
+			}
+		}
 		if(Camera.main.transform.position.x <= 1f){
 			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);	
 			RaycastHit hit;
-					
+			//Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(ray.direction), 0.1f);
+			
 			if(Physics.Raycast(ray, out hit))
 			{
+				
 				var theGo = hit.transform.gameObject;
 				if(theGo != null && theGo.tag == "MenuItem"){
 					if(theGo.name.Contains("Cube")){
 						theGo.transform.localPosition = Vector3.Lerp(theGo.transform.localPosition, new Vector3(-28f, theGo.transform.localPosition.y, theGo.transform.localPosition.z), Time.deltaTime/speedSlide);
 						if(!goToBack.ContainsKey(theGo.transform.GetChild(0).name)) goToBack.Add(theGo.transform.GetChild(0).name, theGo);
 						forbiddenTouch = theGo.transform.GetChild(0).name;
+						Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(Vector3.Lerp(new Vector3(0f, 0f, 1f), (theGo.transform.position - Camera.main.transform.position), 0.002f)), 0.1f);
 					}else{
 						theGo.transform.parent.localPosition = Vector3.Lerp(theGo.transform.parent.localPosition, new Vector3(-28f, theGo.transform.parent.localPosition.y, theGo.transform.parent.localPosition.z), Time.deltaTime/speedSlide);
 						if(!goToBack.ContainsKey(theGo.name)) goToBack.Add(theGo.name, theGo.transform.parent.gameObject);
 						forbiddenTouch = theGo.name;
+						Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(Vector3.Lerp(new Vector3(0f, 0f, 1f), (theGo.transform.position - Camera.main.transform.position), 0.002f)), 0.1f);
 					}
+					
 				}else{
 					forbiddenTouch = "";
+					Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(new Vector3(0f, 0f, 1f)), 0.1f);
 				}
 			}else{
 				forbiddenTouch = "";
+				Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(new Vector3(0f, 0f, 1f)), 0.1f);
 			}	
 			var toDelete = new List<string>();
 			foreach(var el in goToBack){
