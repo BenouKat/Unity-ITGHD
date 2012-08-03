@@ -41,6 +41,13 @@ public enum ComboType{
 		NONE
 }
 
+public enum FadeState{
+		FADEIN,
+		FADEOUT,
+		DISPLAY,
+		NONE
+}
+
 enum PrecParticle{
 		FANTASTIC,
 		FANTASTICC,

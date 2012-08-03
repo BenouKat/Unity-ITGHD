@@ -118,7 +118,7 @@ public class MainMenu : MonoBehaviour {
 		}
 		
 		if(timeSelect >= 2f){
-				
+			//Fade
 		}
 	}
 	
