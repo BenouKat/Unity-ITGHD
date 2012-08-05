@@ -17,7 +17,10 @@ public class FadeManager : MonoBehaviour {
 	void Start () {
 		fade = (Texture2D) Resources.Load("Fade");
 		fs = FadeState.NONE;
-		if(startFeded) fs = FadeState.DISPLAY;
+		if(startFeded){
+			fs = FadeState.DISPLAY;
+			posFadex = posxfinal;
+		}
 	}
 	
 	
@@ -25,21 +28,21 @@ public class FadeManager : MonoBehaviour {
 		if(fs != FadeState.NONE){
 			switch(fs){
 			case FadeState.FADEIN:
-				GUI.DrawTexture(new Rect(posFadex*Screen.width, 0f, Screen.width, Screen.height), fade);
+				GUI.DrawTexture(new Rect(posFadex*Screen.width, 0f, Screen.width*2f, Screen.height), fade);
 				posFadex -= Time.deltaTime/speedFade;
 				if(posFadex <= posxfinal){
 					fs = FadeState.DISPLAY;	
 				}
 				break;
 			case FadeState.FADEOUT:
-				GUI.DrawTexture(new Rect(posFadex*Screen.width, 0f, Screen.width, Screen.height), fade);
+				GUI.DrawTexture(new Rect(posFadex*Screen.width, 0f, Screen.width*2f, Screen.height), fade);
 				posFadex += Time.deltaTime/speedFade;
 				if(posFadex >= 1f){
 					fs = FadeState.NONE;	
 				}
 				break;
 			case FadeState.DISPLAY:
-				GUI.DrawTexture(new Rect(posFadex*Screen.width, 0f, Screen.width, Screen.height), fade);
+				GUI.DrawTexture(new Rect(posFadex*Screen.width, 0f, Screen.width*2f, Screen.height), fade);
 				break;
 			}
 		}

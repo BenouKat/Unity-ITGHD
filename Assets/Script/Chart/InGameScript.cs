@@ -157,7 +157,7 @@ public class InGameScript : MonoBehaviour {
 	void Start () {
 		firstArrow = -10f;
 		lastArrow = -10f;
-		thesong = LoadManager.Instance.FindSong("TestPack", "Still Blastin'")[Difficulty.EXPERT];
+		thesong = LoadManager.Instance.FindSong("Face The Noise", "Related By Blood")[Difficulty.EXPERT];
 		createTheChart(thesong);
 		Application.targetFrameRate = -1;
 		QualitySettings.vSyncCount = 0;

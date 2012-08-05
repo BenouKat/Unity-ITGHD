@@ -63,15 +63,17 @@ public class MainMenu : MonoBehaviour {
 	
 	public GUISkin skin;
 	
+	private FadeManager fm;
+	private bool iFade;
 	
-	
+	public float timeFade;
 	// Use this for initialization
 	void Start () {
 		
 		//Load
 		LoadManager.Instance.Loading();
 		TextManager.Instance.LoadTextFile();
-		
+		fm = gameObject.GetComponent<FadeManager>();
 		
 		
 		this.updat = UpdateWait;
@@ -89,6 +91,7 @@ public class MainMenu : MonoBehaviour {
 		GUITextTexture = (Texture2D) Resources.Load("GUIBar");
 		alphaGUIImage = 0f;
 		timeSelect = 0f;
+		iFade = false;
 	}
 	
 	void OnGUI(){
@@ -117,8 +120,9 @@ public class MainMenu : MonoBehaviour {
 			alphaGUIImage -= Time.deltaTime/speedGUIImage;	
 		}
 		
-		if(timeSelect >= 2f){
-			//Fade
+		if(timeSelect >= timeFade && !iFade){
+			fm.FadeIn();
+			iFade = true;
 		}
 	}
 	

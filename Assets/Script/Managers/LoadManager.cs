@@ -60,4 +60,9 @@ public class LoadManager{
 		return songs[pack][song];
 		
 	}
+	
+	public Dictionary<string, Dictionary<string, Dictionary<Difficulty, Song>>> ListSong(){
+		return songs;
+		
+	}
 }
