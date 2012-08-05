@@ -19,6 +19,7 @@ public class LoadManager{
 	}
 	
 	private Dictionary<string, Dictionary<string, Dictionary<Difficulty, Song>>> songs;
+	private Dictionary<string, Texture2D> bannerPack;
 	
 	private LoadManager(){
 
@@ -26,11 +27,21 @@ public class LoadManager{
 	}
 	
 	public void Loading(){
+		bannerPack = new Dictionary<string, Texture2D>();
 		string[] packpath = (string[]) Directory.GetDirectories(Application.dataPath + "/Songs/");
 		var length = lastDir((string) packpath[0]).Count();
 		songs = new Dictionary<string, Dictionary<string, Dictionary<Difficulty, Song>>>();
 		foreach(string el in packpath){
 			songs.Add(lastDir(el)[length - 1], new Dictionary<string, Dictionary<Difficulty, Song>>());
+			var path = Directory.GetFiles(el).FirstOrDefault(c => c.Contains(".png") || c.Contains(".jpg") || c.Contains(".jpeg"));
+			if(!String.IsNullOrEmpty(path)){
+				WWW www = new WWW("file://" + path);
+       			Texture2D texTmp = new Texture2D(256, 256);
+				while(!www.isDone){}
+        		www.LoadImageIntoTexture(texTmp);
+				bannerPack.Add(lastDir(el)[length - 1], texTmp);
+			}
+			
 			//Debug.Log("new pack : " + lastDir(el)[length - 1]);
 		}
 		
@@ -63,6 +74,11 @@ public class LoadManager{
 	
 	public Dictionary<string, Dictionary<string, Dictionary<Difficulty, Song>>> ListSong(){
 		return songs;
+		
+	}
+	
+	public Dictionary<string, Texture2D> ListTexture(){
+		return bannerPack;
 		
 	}
 }
