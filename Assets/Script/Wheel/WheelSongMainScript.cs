@@ -6,6 +6,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	
 	
 	public GameObject miniCubePack;
+	public Camera camerapack;
 	public GUISkin skin;
 	public GameObject cubeSong;
 	
@@ -28,6 +29,10 @@ public class WheelSongMainScript : MonoBehaviour {
 	public Rect posSonglist;
 	public float ecartSong;
 	private GameObject particleOnPlay;
+	public int numberToDisplay;
+	public int startnumber;
+	public float speedCameraDefil;
+	private float posLabel;
 	
 	private bool movinForward;
 	private bool movinBackward;
@@ -43,6 +48,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	void Start () {
 		numberPack = 0;
 		nextnumberPack = 0;
+		startnumber = 0;
 		packs = new Dictionary<string, GameObject>();
 		cubesPos = new Dictionary<GameObject, float>();
 		songCubePack = new Dictionary<GameObject, string>();
@@ -61,6 +67,8 @@ public class WheelSongMainScript : MonoBehaviour {
 		decalFade = 0f;
 		decalFadeM = 0f;
 		fadeAlpha = 0f;
+		goalDefil = 2f;
+		posLabel = 0f;
 	}
 	
 	// Update is called once per frame
@@ -103,12 +111,22 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 		//SONGS
 		 
-		var thepos = 0f;
-		foreach(var el in LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key]){
-			GUI.color = new Color(0f, 0f, 0f, 1f);
-			GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.title, "songlabel");
-			GUI.color = new Color(1f, 1f, 1f, 1f);
-			GUI.Label(new Rect(posSonglist.x*Screen.width, (posSonglist.y + ecartSong*thepos)*Screen.height, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.title, "songlabel");
+		var thepos = -posLabel;
+		for(int i=0; i<packs.ElementAt(i).Count; i++){
+			if(thepos >= 0f && thepos <= numberToDisplay){
+				
+				var el = LoadManager.Instance.ListSong()[packs.ElementAt(i).Key];
+				GUI.color = new Color(0f, 0f, 0f, 1f);
+				GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.title, "songlabel");
+				GUI.color = new Color(1f, 1f, 1f, 1f);
+				GUI.Label(new Rect(posSonglist.x*Screen.width, (posSonglist.y + ecartSong*thepos)*Screen.height, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.title, "songlabel");
+			}else if(thepos > -1f && thepos < 0f){
+				var el = LoadManager.Instance.ListSong()[packs.ElementAt(i).Key];
+				GUI.color = new Color(0f, 0f, 0f, 1f + thepos);
+				GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.title, "songlabel");
+				GUI.color = new Color(1f, 1f, 1f, 1f + thepos);
+				GUI.Label(new Rect(posSonglist.x*Screen.width, (posSonglist.y + ecartSong*thepos)*Screen.height, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.title, "songlabel");
+			}
 			thepos++;
 		}
 		
@@ -240,6 +258,35 @@ public class WheelSongMainScript : MonoBehaviour {
 		}else if(particleOnPlay != null && particleOnPlay.active){
 			particleOnPlay.active = false;
 		}
+		
+		
+		
+		
+		if(Input.GetAxis("Mouse ScrollWheel") < 0 && startnumber > 0){
+			startnumber++;
+			
+			
+		}else if(Input.GetAxis("Mouse ScrollWheel") > 0 && startnumber < songCubePack.Count - numberToDisplay){
+			startnumber--;
+			
+			
+		}
+		
+		
+		if(Mathf.Abs(camerapack.transform.position.x - 2f - 3f*startnumber) <= 0.01f){
+			camerapack.transform.position = new Vector3(2f - 3f*startnumber, camerapack.transform.position.y, camerapack.transform.position.z);
+			posLabel = startnumber;
+		}else{
+			Vector3.Lerp(camerapack.transform.position,Vector3(2f - 3f*startnumber, camerapack.transform.position.y, camerapack.transform.position.z), Time.deltaTime/speedCameraDefil);
+			Mathf.Lerp(posLabel, startnumber, Time.deltaTime/speedCameraDefil);
+			foreach(var cubeel in songCubePack.Where(c => c.Key.active && c.Key.transform.position.x < camerapack.transform.position.x + 2f){
+				cubeel.setActiveRecursivly(false);
+			}
+			foreach(var cubeel in songCubePack.Where(c => !c.Key.active && c.Key.transform.position.x < camerapack.transform.position.x + 2f){
+				cubeel.setActiveRecursivly(true);
+			}
+		}
+		
 	}
 	
 	
