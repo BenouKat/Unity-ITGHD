@@ -341,7 +341,7 @@ public class OpenChart{
 		
 		//stepBySecondsAverage
 		double timestart = -10f;
-		double timestop;
+		double stoptime = 0;
 		int countStep = 0;
 		double stepbysecAv = 0f;
 		
@@ -349,10 +349,9 @@ public class OpenChart{
 		//stepmax
 		double previoustimetotal = 0f;
 		double maxStepPerSeconds = 0f;
-		int numberStepBetweenTwoBeat;
-		double numberStepBetweenTwoBeat;
+		int numberStepBetweenTwoBeat = 0;
 		double timestartMax = -10f;
-		double maxLenght;
+		double maxLenght = 0f;
 		
 		//numberofcross
 		bool imLeft = false;
@@ -428,7 +427,7 @@ public class OpenChart{
 				
 				if((beat*4f)%(mesure.Count) == 0){
 					var newMax = numberStepBetweenTwoBeat/(timetotal - timestartMax);
-					if(Mathf.Abs(newMax - maxStepPerSeconds) < 0.001f){
+					if(Mathf.Abs((float)(newMax - maxStepPerSeconds)) < 0.001f){
 						maxLenght += (timetotal - timestartMax);
 					}else if(maxStepPerSeconds < newMax){
 						maxStepPerSeconds = newMax;
@@ -463,7 +462,7 @@ public class OpenChart{
 				if(barr == true){
 				
 					if(timestart == -10f) timestart = timetotal;
-					timestop = timetotal;
+					stoptime = timetotal;
 					countStep++;
 					numberStepBetweenTwoBeat++;
 				}
@@ -494,7 +493,7 @@ public class OpenChart{
 			}
 		}
 		
-		stepbysecAv = (double)countStep/(timestop - timestart);
+		stepbysecAv = (double)countStep/(stoptime - timestart);
 		
 	}
 	

@@ -31,7 +31,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	public float ecartSong;
 	private GameObject particleOnPlay;
 	public int numberToDisplay;
-	public int startnumber;
+	private int startnumber;
 	public float speedCameraDefil;
 	private float posLabel;
 	
@@ -56,6 +56,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		cubesPos = new Dictionary<GameObject, float>();
 		songCubePack = new Dictionary<GameObject, string>();
 		LoadManager.Instance.Loading();
+		//To do : correct "KeyAlreadyAssign"
 		while(packs.Count() < 5){
 			foreach(var el in LoadManager.Instance.ListSong().Keys){
 				var thego = (GameObject) Instantiate(miniCubePack, new Vector3(0f, 13f, 20f), miniCubePack.transform.rotation);
@@ -70,7 +71,6 @@ public class WheelSongMainScript : MonoBehaviour {
 		decalFade = 0f;
 		decalFadeM = 0f;
 		fadeAlpha = 0f;
-		goalDefil = 2f;
 		posLabel = 0f;
 		locked = false;
 	}
@@ -255,21 +255,21 @@ public class WheelSongMainScript : MonoBehaviour {
 					var thepart = papa.Find("Selection").gameObject;
 					if(particleOnPlay != null && particleOnPlay != thepart && particleOnPlay.active) 
 					{
-						songSelected = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].FirstOrDefault(c => c.Value.First().Value.title == songCubePack[papa.gameObject]);
+						songSelected = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].FirstOrDefault(c => c.Value.First().Value.title == songCubePack[papa.gameObject]).Value;
 						particleOnPlay.active = false;
 					}
 					particleOnPlay = thepart;
 					particleOnPlay.active = true;
 				}
 				
-				if(Input.GetMouseDown(0)){
+				if(Input.GetMouseButtonDown(0)){
 					
 					if(locked){
 						var papa = theGo.transform.parent;
 						var thepart = papa.Find("Selection").gameObject;
 						if(particleOnPlay != null && particleOnPlay != thepart && particleOnPlay.active) 
 						{
-							songSelected = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].FirstOrDefault(c => c.Value.First().Value.title == songCubePack[papa.gameObject]);
+							songSelected = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].FirstOrDefault(c => c.Value.First().Value.title == songCubePack[papa.gameObject]).Value;
 							particleOnPlay.active = false;
 						}
 						particleOnPlay = thepart;
@@ -279,7 +279,7 @@ public class WheelSongMainScript : MonoBehaviour {
 					}
 				}
 				
-				if(Input.GetMouseDown(1)){
+				if(Input.GetMouseButtonDown(1)){
 					locked = false;
 				}
 				
@@ -307,13 +307,13 @@ public class WheelSongMainScript : MonoBehaviour {
 			camerapack.transform.position = new Vector3(2f - 3f*startnumber, camerapack.transform.position.y, camerapack.transform.position.z);
 			posLabel = startnumber;
 		}else{
-			Vector3.Lerp(camerapack.transform.position,Vector3(2f - 3f*startnumber, camerapack.transform.position.y, camerapack.transform.position.z), Time.deltaTime/speedCameraDefil);
+			Vector3.Lerp(camerapack.transform.position, new Vector3(2f - 3f*startnumber, camerapack.transform.position.y, camerapack.transform.position.z), Time.deltaTime/speedCameraDefil);
 			Mathf.Lerp(posLabel, startnumber, Time.deltaTime/speedCameraDefil);
-			foreach(var cubeel in songCubePack.Where(c => c.Key.active && c.Key.transform.position.x < camerapack.transform.position.x + 2f){
-				cubeel.Key.setActiveRecursivly(false);
+			foreach(var cubeel in songCubePack.Where(c => c.Key.active && c.Key.transform.position.x < camerapack.transform.position.x + 2f)){
+				cubeel.Key.SetActiveRecursively(false);
 			}
-			foreach(var cubeel in songCubePack.Where(c => !c.Key.active && c.Key.transform.position.x < camerapack.transform.position.x + 2f){
-				cubeel.Key.setActiveRecursivly(true);
+			foreach(var cubeel in songCubePack.Where(c => !c.Key.active && c.Key.transform.position.x < camerapack.transform.position.x + 2f)){
+				cubeel.Key.SetActiveRecursively(true);
 				cubeel.Key.transform.FindChild("Selection").gameObject.active = false;
 			}
 		}
