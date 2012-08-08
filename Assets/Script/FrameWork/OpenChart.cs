@@ -327,4 +327,176 @@ public class OpenChart{
 	}
 	
 	
+	void fakeCreation(Song s){
+				
+		var theBPMCounter = 1;
+		var theSTOPCounter = 0;
+		double mesurecount = 0;
+		double prevmesure = 0;
+		double timecounter = 0;
+		double timeBPM = 0;
+		double timestop = 0;
+		double timetotal = 0;
+		float prec = 0.001f;
+		
+		//stepBySecondsAverage
+		double timestart = -10f;
+		double timestop;
+		int countStep = 0;
+		double stepbysecAv = 0f;
+		
+		
+		//stepmax
+		double previoustimetotal = 0f;
+		double maxStepPerSeconds = 0f;
+		int numberStepBetweenTwoBeat;
+		double numberStepBetweenTwoBeat;
+		double timestartMax = -10f;
+		double maxLenght;
+		
+		//numberofcross
+		bool imLeft = false;
+		bool itsMyFirstStep = true;
+		int counterCross = 0;
+		int frozenFoot = 0; //-1 left 0 none 1 right 2 both
+		foreach(var mesure in s.stepchart){
+			
+			for(int beat=0;beat<mesure.Count;beat++){
+			
+			#region BPMChange
+				var bps = s.getBPS(s.bpms.ElementAt(theBPMCounter-1).Value);
+				if(theBPMCounter < s.bpms.Count && theSTOPCounter < s.stops.Count){
+					while((theBPMCounter < s.bpms.Count && theSTOPCounter < s.stops.Count) 
+						&& (s.mesureBPMS.ElementAt(theBPMCounter) < mesurecount - prec || s.mesureSTOPS.ElementAt(theSTOPCounter) < mesurecount - prec)){
+					
+						if(s.mesureBPMS.ElementAt(theBPMCounter) < s.mesureSTOPS.ElementAt(theSTOPCounter)){
+							timecounter += (s.mesureBPMS.ElementAt(theBPMCounter) - prevmesure)/bps;
+							
+							timeBPM += timecounter;
+							timecounter = 0;
+							prevmesure = s.mesureBPMS.ElementAt(theBPMCounter);
+							theBPMCounter++;
+							bps = s.getBPS(s.bpms.ElementAt(theBPMCounter-1).Value);
+							//Debug.Log("And bpm change before / bpm");
+						}else if(s.mesureBPMS.ElementAt(theBPMCounter) > s.mesureSTOPS.ElementAt(theSTOPCounter)){
+							timestop += s.stops.ElementAt(theSTOPCounter).Value;
+							theSTOPCounter++;
+							//Debug.Log("And stop change before");
+						}else{
+							timecounter += (s.mesureBPMS.ElementAt(theBPMCounter) - prevmesure)/bps;
+							timeBPM += timecounter;
+							timecounter = 0;
+							prevmesure = s.mesureBPMS.ElementAt(theBPMCounter);
+							theBPMCounter++;
+							bps = s.getBPS(s.bpms.ElementAt(theBPMCounter-1).Value);
+							
+							timestop += s.stops.ElementAt(theSTOPCounter).Value;
+							theSTOPCounter++;
+							//Debug.Log("And bpm change before");
+							//Debug.Log("And stop change before");
+						}
+						
+					}
+				}else if(theBPMCounter < s.bpms.Count){
+					while((theBPMCounter < s.bpms.Count) && s.mesureBPMS.ElementAt(theBPMCounter) < mesurecount - prec){
+						
+						timecounter += (s.mesureBPMS.ElementAt(theBPMCounter) - prevmesure)/bps;
+							
+						timeBPM += timecounter;
+						timecounter = 0;
+						prevmesure = s.mesureBPMS.ElementAt(theBPMCounter);
+						theBPMCounter++;
+						bps = s.getBPS(s.bpms.ElementAt(theBPMCounter-1).Value);
+					
+					}
+				}else if((theSTOPCounter < s.stops.Count) && theSTOPCounter < s.stops.Count){
+					while(s.mesureSTOPS.ElementAt(theSTOPCounter) < mesurecount - prec){
+						
+						timestop += s.stops.ElementAt(theSTOPCounter).Value;
+						theSTOPCounter++;
+					
+					}
+				}
+				
+				#endregion
+				timecounter += (mesurecount - prevmesure)/bps;
+				
+				
+				timetotal = timecounter + timeBPM + timestop;
+				
+				char[] note = mesure.ElementAt(beat).Trim().ToCharArray();
+				
+				if((beat*4f)%(mesure.Count) == 0){
+					var newMax = numberStepBetweenTwoBeat/(timetotal - timestartMax);
+					if(Mathf.Abs(newMax - maxStepPerSeconds) < 0.001f){
+						maxLenght += (timetotal - timestartMax);
+					}else if(maxStepPerSeconds < newMax){
+						maxStepPerSeconds = newMax;
+						maxLenght = (timetotal - timestartMax);
+					}
+					
+				
+					numberStepBetweenTwoBeat = 0;
+					timestartMax = timetotal;
+				}
+				var barr = false;
+				
+				
+				for(int i =0;i<4; i++){
+					
+					if(note[i] == '1'){
+						barr = true;
+					}else if(note[i] == '2'){
+						barr = true;
+					}else if(note[i] == '3'){
+						
+					}else if(note[i] == '4'){
+						barr = true;
+					}else if(note[i] == 'M'){
+						
+						
+					
+					}
+					
+				}
+				
+				if(barr == true){
+				
+					if(timestart == -10f) timestart = timetotal;
+					timestop = timetotal;
+					countStep++;
+					numberStepBetweenTwoBeat++;
+				}
+				
+					
+				#region ChangeBPM
+				if(theBPMCounter < s.bpms.Count){
+					if(Mathf.Abs((float)(s.mesureBPMS.ElementAt(theBPMCounter) - mesurecount)) < prec){
+							timeBPM += timecounter;
+							timecounter = 0;
+							theBPMCounter++;
+							//Debug.Log("And bpm change");
+					}
+				}
+				
+				if(theSTOPCounter < s.stops.Count){
+					if(Mathf.Abs((float)(s.mesureSTOPS.ElementAt(theSTOPCounter) - mesurecount)) < prec){
+							timestop += s.stops.ElementAt(theSTOPCounter).Value;
+							theSTOPCounter++;
+							//Debug.Log("And stop");
+					}
+				}
+				
+				#endregion
+				prevmesure = mesurecount;
+				mesurecount += (4f/(float)mesure.Count);
+				
+			}
+		}
+		
+		stepbysecAv = (double)countStep/(timestop - timestart);
+		
+	}
+	
+	
 }

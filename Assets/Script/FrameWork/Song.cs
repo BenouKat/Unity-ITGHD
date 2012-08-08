@@ -27,6 +27,12 @@ public class Song {
 	public int numberOfRolls;
 	public int numberOfMines;
 	public int numberOfJumps;
+	public double stepPerSecondAverage;
+	public double stepPerSecondMaximum;
+	public double timeMaxStep;
+	public int numberOfCross;
+	public int numberOfFootswitch;
+	
 	
 	
 	public AudioClip song;

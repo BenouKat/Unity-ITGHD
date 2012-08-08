@@ -15,6 +15,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	private Dictionary<string, GameObject> packs;
 	private Dictionary<GameObject, float> cubesPos;
 	private Dictionary<GameObject, string> songCubePack;
+	private Dictionary<Difficulty, Song> songSelected;
 	public float x10;
 	public float xm10;
 	public float y;
@@ -33,6 +34,8 @@ public class WheelSongMainScript : MonoBehaviour {
 	public int startnumber;
 	public float speedCameraDefil;
 	private float posLabel;
+	
+	private bool locked;
 	
 	private bool movinForward;
 	private bool movinBackward;
@@ -69,6 +72,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		fadeAlpha = 0f;
 		goalDefil = 2f;
 		posLabel = 0f;
+		locked = false;
 	}
 	
 	// Update is called once per frame
@@ -112,16 +116,16 @@ public class WheelSongMainScript : MonoBehaviour {
 		//SONGS
 		 
 		var thepos = -posLabel;
-		for(int i=0; i<packs.ElementAt(i).Count; i++){
+		for(int i=0; i<LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].Count; i++){
 			if(thepos >= 0f && thepos <= numberToDisplay){
 				
-				var el = LoadManager.Instance.ListSong()[packs.ElementAt(i).Key];
+				var el = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].ElementAt(i);
 				GUI.color = new Color(0f, 0f, 0f, 1f);
 				GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.title, "songlabel");
 				GUI.color = new Color(1f, 1f, 1f, 1f);
 				GUI.Label(new Rect(posSonglist.x*Screen.width, (posSonglist.y + ecartSong*thepos)*Screen.height, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.title, "songlabel");
 			}else if(thepos > -1f && thepos < 0f){
-				var el = LoadManager.Instance.ListSong()[packs.ElementAt(i).Key];
+				var el = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].ElementAt(i);
 				GUI.color = new Color(0f, 0f, 0f, 1f + thepos);
 				GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.title, "songlabel");
 				GUI.color = new Color(1f, 1f, 1f, 1f + thepos);
@@ -246,13 +250,41 @@ public class WheelSongMainScript : MonoBehaviour {
 			var theGo = hit.transform.gameObject;
 			if(theGo != null && theGo.tag == "ZoneText"){
 				
-				var papa = theGo.transform.parent;
-				var thepart = papa.Find("Selection").gameObject;
-				if(particleOnPlay != null && particleOnPlay != thepart && particleOnPlay.active) particleOnPlay.active = false;
-				particleOnPlay = thepart;
-				particleOnPlay.active = true;
+				if(!locked){
+					var papa = theGo.transform.parent;
+					var thepart = papa.Find("Selection").gameObject;
+					if(particleOnPlay != null && particleOnPlay != thepart && particleOnPlay.active) 
+					{
+						songSelected = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].FirstOrDefault(c => c.Value.First().Value.title == songCubePack[papa.gameObject]);
+						particleOnPlay.active = false;
+					}
+					particleOnPlay = thepart;
+					particleOnPlay.active = true;
+				}
+				
+				if(Input.GetMouseDown(0)){
+					
+					if(locked){
+						var papa = theGo.transform.parent;
+						var thepart = papa.Find("Selection").gameObject;
+						if(particleOnPlay != null && particleOnPlay != thepart && particleOnPlay.active) 
+						{
+							songSelected = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].FirstOrDefault(c => c.Value.First().Value.title == songCubePack[papa.gameObject]);
+							particleOnPlay.active = false;
+						}
+						particleOnPlay = thepart;
+						particleOnPlay.active = true;
+					}else{
+						locked = true;
+					}
+				}
+				
+				if(Input.GetMouseDown(1)){
+					locked = false;
+				}
 				
 			}else if(particleOnPlay != null && particleOnPlay.active){
+				
 				particleOnPlay.active = false;
 			}
 		}else if(particleOnPlay != null && particleOnPlay.active){
@@ -268,8 +300,6 @@ public class WheelSongMainScript : MonoBehaviour {
 			
 		}else if(Input.GetAxis("Mouse ScrollWheel") > 0 && startnumber < songCubePack.Count - numberToDisplay){
 			startnumber--;
-			
-			
 		}
 		
 		
@@ -280,10 +310,11 @@ public class WheelSongMainScript : MonoBehaviour {
 			Vector3.Lerp(camerapack.transform.position,Vector3(2f - 3f*startnumber, camerapack.transform.position.y, camerapack.transform.position.z), Time.deltaTime/speedCameraDefil);
 			Mathf.Lerp(posLabel, startnumber, Time.deltaTime/speedCameraDefil);
 			foreach(var cubeel in songCubePack.Where(c => c.Key.active && c.Key.transform.position.x < camerapack.transform.position.x + 2f){
-				cubeel.setActiveRecursivly(false);
+				cubeel.Key.setActiveRecursivly(false);
 			}
 			foreach(var cubeel in songCubePack.Where(c => !c.Key.active && c.Key.transform.position.x < camerapack.transform.position.x + 2f){
-				cubeel.setActiveRecursivly(true);
+				cubeel.Key.setActiveRecursivly(true);
+				cubeel.Key.transform.FindChild("Selection").gameObject.active = false;
 			}
 		}
 		
