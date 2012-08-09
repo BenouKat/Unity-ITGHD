@@ -55,7 +55,7 @@ public class LoadManager{
 			foreach(string sp in songpath){
 				//Debug.Log("new song : " + lastDir(sp)[lengthsp - 1]);
 				var dic = OpenChart.Instance.readChart(sp.Replace('\\', '/'));
-				if(dic != null) songs[el.Key].Add(lastDir(sp)[lengthsp - 1] , dic);
+				if(dic != null && dic.Count != 0) songs[el.Key].Add(lastDir(sp)[lengthsp - 1] , dic);
 				/*Debug.Log("Song : " + lastDir(sp)[lengthsp - 1] + 
 					" added / pack : " + el.Key + 
 					" / number diff : " + songs[el.Key][lastDir(sp)[lengthsp - 1]].Count() +

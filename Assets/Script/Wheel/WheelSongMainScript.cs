@@ -9,6 +9,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	public Camera camerapack;
 	public GUISkin skin;
 	public GameObject cubeSong;
+	public GameObject cubeBase;
 	
 	private int numberPack;
 	private int nextnumberPack;
@@ -60,7 +61,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		while(packs.Count() < 5){
 			foreach(var el in LoadManager.Instance.ListSong().Keys){
 				var thego = (GameObject) Instantiate(miniCubePack, new Vector3(0f, 13f, 20f), miniCubePack.transform.rotation);
-				thego.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[el];
+				if(LoadManager.Instance.ListTexture().ContainsKey(el)) thego.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[el];
 				if(packs.ContainsKey(el)){ 
 					packs.Add(el + "(" + packs.Count + ")", thego);	
 				}
@@ -99,11 +100,17 @@ public class WheelSongMainScript : MonoBehaviour {
 			nextnumberPack = PrevInt(numberPack, 1);
 			activePack(packs.ElementAt(nextnumberPack).Key);
 			movinBackward = true;
+			startnumber = 0;
+			camerapack.transform.position = new Vector3(0f, 0f, 0f);
+			cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
 		}
 		if(GUI.Button(new Rect(posBackward.x*Screen.width, posBackward.y*Screen.height + ecart*Screen.height, posBackward.width*Screen.width, posBackward.height*Screen.height),"","Backward")){
 			nextnumberPack = PrevInt(numberPack, 3);
 			activePack(packs.ElementAt(nextnumberPack).Key);
 			movinBackwardFast = true;
+			startnumber = 0;
+			camerapack.transform.position = new Vector3(0f, 0f, 0f);
+			cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
 		}
 		
 		if(GUI.Button(new Rect(posForward.x*Screen.width, posForward.y*Screen.height, posForward.width*Screen.width, posForward.height*Screen.height),"","LForward") && !movinForward)
@@ -111,11 +118,17 @@ public class WheelSongMainScript : MonoBehaviour {
 			nextnumberPack = NextInt(numberPack, 1);
 			activePack(packs.ElementAt(nextnumberPack).Key);
 			movinForward = true;
+			startnumber = 0;
+			camerapack.transform.position = new Vector3(0f, 0f, 0f);
+			cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
 		}
 		if(GUI.Button(new Rect(posForward.x*Screen.width, posForward.y*Screen.height + ecart*Screen.height, posForward.width*Screen.width, posForward.height*Screen.height),"","Forward")){
 			nextnumberPack = NextInt(numberPack, 3);
 			activePack(packs.ElementAt(nextnumberPack).Key);
 			movinForwardFast = true;
+			startnumber = 0;
+			camerapack.transform.position = new Vector3(0f, 0f, 0f);
+			cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
 		}
 		
 		
@@ -302,23 +315,47 @@ public class WheelSongMainScript : MonoBehaviour {
 			startnumber--;
 			
 			
-		}else if(Input.GetAxis("Mouse ScrollWheel") < 0 && startnumber < (songCubePack.Count - numberToDisplay)){
+		}else if(Input.GetAxis("Mouse ScrollWheel") < 0 && startnumber < (songCubePack.Where(c => packs.ElementAt(nextnumberPack).Key == c.Value).Count() - numberToDisplay + 1)){
 			startnumber++;
 		}
 		
-		
-		if(Mathf.Abs(camerapack.transform.position.x - 3f*startnumber) <= 0.01f){
-			camerapack.transform.position = new Vector3(- 3f*startnumber, camerapack.transform.position.y, camerapack.transform.position.z);
+		var oldpos = camerapack.transform.position.y;
+		if(Mathf.Abs(camerapack.transform.position.y - 3f*startnumber) <= 0.1f){
+			camerapack.transform.position = new Vector3(camerapack.transform.position.x, - 3f*startnumber, camerapack.transform.position.z);
 			posLabel = startnumber;
 		}else{
-			camerapack.transform.position = Vector3.Lerp(camerapack.transform.position, new Vector3(-3f*startnumber, camerapack.transform.position.y, camerapack.transform.position.z), Time.deltaTime/speedCameraDefil);
+			 
+			camerapack.transform.position = Vector3.Lerp(camerapack.transform.position, new Vector3(camerapack.transform.position.x, -3f*startnumber, camerapack.transform.position.z), Time.deltaTime/speedCameraDefil);
+			
 			posLabel = Mathf.Lerp(posLabel, startnumber, Time.deltaTime/speedCameraDefil);
-			foreach(var cubeel in songCubePack.Where(c => c.Key.active && (c.Key.transform.position.x < camerapack.transform.position.x + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value)){
+			
+		}
+		var newpos = camerapack.transform.position.y;
+		
+		if(oldpos > newpos){
+			/*foreach(var cubeel in songCubePack.Where(c => c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value)){
 				cubeel.Key.SetActiveRecursively(false);
+				cubeBase.transform.Translate(new Vector3(0f, -3f, 0f));
+			}*/
+			
+			var cubeel = songCubePack.FirstOrDefault(c => c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
+			if(cubeel != null) {
+				cubeel.SetActiveRecursively(false);
+				cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, cubeBase.transform.position.y -3f, cubeBase.transform.position.z);
 			}
-			foreach(var cubeel in songCubePack.Where(c => !c.Key.active && (c.Key.transform.position.x < camerapack.transform.position.x + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value)){
+			//}
+		}else if(oldpos < newpos){
+			/*foreach(var cubeel in songCubePack.Where(c => !c.Key.active && (c.Key.transform.position.y <= camerapack.transform.position.y + 5f) && packs.ElementAt(nextnumberPack).Key == c.Value)){
 				cubeel.Key.SetActiveRecursively(true);
 				cubeel.Key.transform.FindChild("Selection").gameObject.active = false;
+				cubeBase.transform.Translate(new Vector3(0f, 3f, 0f));
+			}*/
+			
+			var cubeel = songCubePack.FirstOrDefault(c => !c.Key.active && (c.Key.transform.position.y < camerapack.transform.position.y + 5f) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
+			if(cubeel != null) {
+				cubeel.SetActiveRecursively(true);
+				cubeel.transform.FindChild("Selection").gameObject.active = false;
+				cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, cubeBase.transform.position.y +3f, cubeBase.transform.position.z);
 			}
 		}
 		
@@ -338,6 +375,7 @@ public class WheelSongMainScript : MonoBehaviour {
 				songCubePack.Add(thego,el.Key);
 				count++;
 			}
+			Debug.Log(count);
 		}
 	}
 	
