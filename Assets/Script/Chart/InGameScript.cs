@@ -147,6 +147,9 @@ public class InGameScript : MonoBehaviour {
 	private float colorCombo;
 	private int signCombo = -1;
 	private bool alreadytaged = true;
+	
+	//SONG
+	private AudioClip songLoaded;
 	//DEBUG
 	//private int iwashere;
 	
@@ -155,9 +158,13 @@ public class InGameScript : MonoBehaviour {
 	
 	//Start
 	void Start () {
+		
+		
+	
 		firstArrow = -10f;
 		lastArrow = -10f;
 		thesong = LoadManager.Instance.FindSong("Face The Noise", "Related By Blood")[Difficulty.EXPERT];
+		songLoaded = thesong.GetAudioClip();
 		createTheChart(thesong);
 		Application.targetFrameRate = -1;
 		QualitySettings.vSyncCount = 0;
@@ -374,7 +381,7 @@ public class InGameScript : MonoBehaviour {
 			timetotalchart = timebpm + timechart + totaltimestop;
 			if(firstUpdate){
 				if(startTheSong <= 0f){
-					source.PlayOneShot(thesong.song);
+					source.PlayOneShot(songLoaded);
 					timechart += startTheSong;
 					//Debug.Log(startTheSong);
 					timetotalchart = timebpm + timechart + totaltimestop;

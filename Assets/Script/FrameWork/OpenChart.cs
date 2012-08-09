@@ -42,9 +42,13 @@ public class OpenChart{
 		//read file
 		
 		var files = (string[]) Directory.GetFiles(directory);
-		StreamReader sr = new StreamReader(files.FirstOrDefault(c => c.Contains(".sm")));
+		var stream = files.FirstOrDefault(c => (c.Contains(".sm") || c.Contains(".SM")) && !c.Contains(".old") && !c.Contains("._"));
+		if(stream == null) stream = files.FirstOrDefault(c => (c.Contains(".dwi") || c.Contains(".DWI"))   && !c.Contains(".old") && !c.Contains("._"));
+		if(stream == null) return null;
+		StreamReader sr = new StreamReader(stream);
 		songContent = sr.ReadToEnd();
     	sr.Close();
+		
 		
 		//split all line and put on a list
 		var thesong = songContent.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
@@ -60,7 +64,7 @@ public class OpenChart{
 		
 		Dictionary<Difficulty, Song>  outputSongs = new Dictionary<Difficulty, Song> ();
 		
-		
+		try{
 		//get generic information
 		var thetitle = listLine.FirstOrDefault(c => c.Contains("TITLE")).Split(':');
 		var title = thetitle[1].Replace(";","");
@@ -110,11 +114,12 @@ public class OpenChart{
 		
 		int stopbegin = listLine.IndexOf(listLine.FirstOrDefault(c => c.Contains("STOPS")));
 		string thestop = "";
+		bool stopTheRool = false;
 		if(!listLine.ElementAt(stopbegin).Contains("STOPS:;")){
-			for(int i=stopbegin; listLine.ElementAt(i).Trim() != ";"; i++){
+			for(int i=stopbegin; !stopTheRool; i++){
 				thestop += listLine.ElementAt(i);
+				if(listLine.ElementAt(i).Contains(";")) stopTheRool = true;
 			}
-			
 			thestop.Replace("/n", "");
 			thestop.Replace(";", "");
 		}
@@ -254,21 +259,17 @@ public class OpenChart{
 			theNewsong.stops = theStopList;
 			theNewsong.mesureBPMS = theBpmMesureList;
 			theNewsong.mesureSTOPS = theStopMesureList;
-			var thewww = new WWW("file://" + files.FirstOrDefault(c => c.Contains(".ogg")).Replace('\\', '/'));
+			theNewsong.song = "file://" + files.FirstOrDefault(c => c.Contains(".ogg")).Replace('\\', '/');
 			
-			while(!thewww.isDone){ }
-			theNewsong.song = thewww.GetAudioClip(false, true);
 			
-			/*Debug.Log(files.FirstOrDefault(c => c.Contains(".ogg")).Replace(".ogg", ""));
-			theNewsong.song = (AudioClip) Resources.Load("Broken the Moon");
-			Debug.Log(theNewsong.song.length);*/
 			//getting song information
 			int beginInformation = index;
 			string dl = "";
-			if(listLine.ElementAt(beginInformation + 1).Replace(":","").Trim().Contains("double")){
+			var theinfo = listLine.ElementAt(beginInformation + 1).Replace(":","").Trim();
+			if(theinfo.Contains("double")){
 				dl = "D";
 			}else
-			if(!listLine.ElementAt(beginInformation + 1).Replace(":","").Trim().Contains("single")){
+			if(!theinfo.Contains("single") || theinfoContains("pump") || theinfo.Contains("ez2") || theinfo.Contains("para") || theinfo.Contains("ds3ddx") || theinfo.Contains("pnm") || theinfo.Contains("bm") || theinfo.Contains("maniax") || theinfo.Contains("techno")){
 				dl = "STOP";
 			}
 			theNewsong.stepartist = listLine.ElementAt(beginInformation + 2).Replace(":","").Trim();
@@ -318,11 +319,13 @@ public class OpenChart{
 			theNewsong.numberOfMines = numberOfMines;
 			theNewsong.numberOfJumps = numberOfJump;
 			theNewsong.numberOfStepsWithoutJumps = numberOfStepsWJ;
-			if(dl != "STOP") outputSongs.Add(theNewsong.difficulty, theNewsong);
+			if(dl != "STOP" && !String.IsNullOrEmpty(theNewsong.stepchart)) outputSongs.Add(theNewsong.difficulty, theNewsong);
 			
 		
 		}
-		
+		}catch(Exception e){
+			Debug.Log(directory + " // " + e.Message + " //st : " + e.StackTrace);	
+		}
 		return outputSongs;
 	}
 	
@@ -347,17 +350,31 @@ public class OpenChart{
 		
 		
 		//stepmax
-		double previoustimetotal = 0f;
 		double maxStepPerSeconds = 0f;
 		int numberStepBetweenTwoBeat = 0;
 		double timestartMax = -10f;
 		double maxLenght = 0f;
 		
-		//numberofcross
-		bool imLeft = false;
-		bool itsMyFirstStep = true;
-		int counterCross = 0;
-		int frozenFoot = 0; //-1 left 0 none 1 right 2 both
+		
+		//longestStream
+		double StepPerSecondsStream = 0f;
+		double lenghtStream = 0f;
+		double maxLenghtStream = 0f;
+		double speedOfMaxStream;
+		
+		//longestStream
+		double StepPerSecondsStream = 0f;
+		double lenghtStream = 0f;
+		double maxLenghtStream = 0f;
+		double speedOfMaxStream;
+		
+		//Footswitch
+		int numberOfFootswitch = 0;
+		int[] casevalidate = new int[4]; //left down up right
+		casevalidate[0] = 0;
+		casevalidate[1] = 0;
+		casevalidate[2] = 0;
+		casevalidate[3] = 0;
 		foreach(var mesure in s.stepchart){
 			
 			for(int beat=0;beat<mesure.Count;beat++){
@@ -429,9 +446,17 @@ public class OpenChart{
 					var newMax = numberStepBetweenTwoBeat/(timetotal - timestartMax);
 					if(Mathf.Abs((float)(newMax - maxStepPerSeconds)) < 0.001f){
 						maxLenght += (timetotal - timestartMax);
+						lenghtStream += (timetotal - timestartMax);
+						if(lenghtStream > maxLenghtStream){
+							speedOfMaxStream = newMax;
+							maxLenghtStream = lenghtStream;
+						}
 					}else if(maxStepPerSeconds < newMax){
 						maxStepPerSeconds = newMax;
 						maxLenght = (timetotal - timestartMax);
+						maxLenghtStream = (timetotal - timestartMax);
+					}else if(maxStepPerSeconds > newMax){
+						maxLenghtStream = (timetotal - timestartMax);
 					}
 					
 				
@@ -440,17 +465,35 @@ public class OpenChart{
 				}
 				var barr = false;
 				
-				
+				var iselected = -1;
+				var doubleselection = false;
 				for(int i =0;i<4; i++){
 					
 					if(note[i] == '1'){
+						if(iselected == -1){
+							iselected = i;
+						}else{
+							doubleselection = true;
+						}
 						barr = true;
+						
 					}else if(note[i] == '2'){
 						barr = true;
+						if(iselected == -1){
+							iselected = i;
+						}else{
+							doubleselection = true;
+						}
+						
 					}else if(note[i] == '3'){
 						
 					}else if(note[i] == '4'){
 						barr = true;
+						if(iselected == -1){
+							iselected = i;
+						}else{
+							doubleselection = true;
+						}
 					}else if(note[i] == 'M'){
 						
 						
@@ -458,13 +501,65 @@ public class OpenChart{
 					}
 					
 				}
-				
 				if(barr == true){
 				
 					if(timestart == -10f) timestart = timetotal;
 					stoptime = timetotal;
 					countStep++;
 					numberStepBetweenTwoBeat++;
+					
+					if(!doubleselection){
+						switch(iselected){
+							case 0:
+								if(((casevalidate[1] == 2 && casevalidate[2] == 0) || (casevalidate[2] == 2 && casevalidate[1] == 0)) && casevalidate[0] == 0 && casevalidate[3] == 1){
+									numberOfFootswitch++;
+									casevalidate[0] = 0;
+									casevalidate[1] = 0;
+									casevalidate[2] = 0;
+									casevalidate[3] = 0;
+								}else{
+									casevalidate[0] = 1;
+									casevalidate[1] = 0;
+									casevalidate[2] = 0;
+									casevalidate[3] = 0;
+								}
+								break;
+							case 1:
+								if(((casevalidate[0] == 0 && casevalidate[3] == 1) || (casevalidate[0] == 1 && casevalidate[3] == 0)) && casevalidate[2] == 0 &&  casevalidate[1] < 2){
+									casevalidate[1]++;
+								}else{
+									casevalidate[0] = 0;
+									casevalidate[1] = 0;
+									casevalidate[2] = 0;
+									casevalidate[3] = 0;
+								}
+								break;
+							case 2:
+								if(((casevalidate[0] == 0 && casevalidate[3] == 1) || (casevalidate[0] == 1 && casevalidate[3] == 0)) && casevalidate[1] == 0 &&  casevalidate[2] < 2){
+									casevalidate[2]++;
+								}else{
+									casevalidate[0] = 0;
+									casevalidate[1] = 0;
+									casevalidate[2] = 0;
+									casevalidate[3] = 0;
+								}
+								break;
+							case 3:
+								if(((casevalidate[1] == 2 && casevalidate[2] == 0) || (casevalidate[2] == 2 && casevalidate[1] == 0)) && casevalidate[3] == 0 && casevalidate[0] == 1){
+									numberOfFootswitch++;
+									casevalidate[0] = 0;
+									casevalidate[1] = 0;
+									casevalidate[2] = 0;
+									casevalidate[3] = 0;
+								}else{
+									casevalidate[0] = 0;
+									casevalidate[1] = 0;
+									casevalidate[2] = 0;
+									casevalidate[3] = 1;
+								}
+								break;
+						}
+					}
 				}
 				
 					

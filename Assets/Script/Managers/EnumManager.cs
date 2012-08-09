@@ -7,11 +7,13 @@ public enum Difficulty{
 	MEDIUM, 
 	HARD, 
 	EXPERT,
+	EDIT,
 	DBEGINNER, 
 	DEASY, 
 	DMEDIUM, 
 	DHARD, 
-	DEXPERT
+	DEXPERT,
+	DEDIT
 }
 
 public enum Precision{

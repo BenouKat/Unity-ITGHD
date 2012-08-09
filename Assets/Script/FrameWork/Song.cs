@@ -10,7 +10,6 @@ public class Song {
 	public string artist;
 	public Texture2D banner;
 	public Texture2D background;
-	public AudioClip music;
 	public double offset;
 	public double samplestart;
 	public double samplelenght;
@@ -30,12 +29,11 @@ public class Song {
 	public double stepPerSecondAverage;
 	public double stepPerSecondMaximum;
 	public double timeMaxStep;
+	public double stepPerSecondStream;
+	public double longestStream;
 	public int numberOfCross;
 	public int numberOfFootswitch;
-	
-	
-	
-	public AudioClip song;
+	public string song;
 	
 	//stepchart
 	public List<List<string>> stepchart;
@@ -48,6 +46,12 @@ public class Song {
 		stops = new Dictionary<double, double>();
 		stepchart = new List<List<string>>();
 		
+	}
+	
+	public AudioClip GetAudioClip(){
+		var thewww = new WWW(song);
+		while(!thewww.isDone){ }
+		return thewww.GetAudioClip(false, true);
 	}
 	
 	public double getBPS(double bpmValue){
@@ -72,6 +76,9 @@ public class Song {
 		case "Beginner":
 			difficulty = Difficulty.BEGINNER;
 			break;
+		case "Edit":
+			difficulty = Difficulty.EDIT;
+			break;
 		case "DChallenge":
 			difficulty = Difficulty.DEXPERT;
 			break;
@@ -86,6 +93,12 @@ public class Song {
 			break;
 		case "DBeginner":
 			difficulty = Difficulty.DBEGINNER;
+			break;
+		case "DEdit":
+			difficulty = Difficulty.DEDIT;
+			break;
+		default:
+			difficulty = Difficulty.EDIT;
 			break;
 		}
 	}

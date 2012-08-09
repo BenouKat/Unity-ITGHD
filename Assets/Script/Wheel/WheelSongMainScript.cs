@@ -61,7 +61,13 @@ public class WheelSongMainScript : MonoBehaviour {
 			foreach(var el in LoadManager.Instance.ListSong().Keys){
 				var thego = (GameObject) Instantiate(miniCubePack, new Vector3(0f, 13f, 20f), miniCubePack.transform.rotation);
 				thego.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[el];
-				packs.Add(el, thego);	
+				if(packs.ContainsKey(el)){ 
+					packs.Add(el + "(" + packs.Count + ")", thego);	
+				}
+				else
+				{ 
+					packs.Add(el, thego); 
+				}
 				cubesPos.Add(thego, 0f);
 			}
 		}
@@ -242,7 +248,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 		
 		
-		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);	
+		Ray ray = camerapack.ScreenPointToRay(Input.mousePosition);	
 		RaycastHit hit;
 			
 		if(Physics.Raycast(ray, out hit))
@@ -279,40 +285,38 @@ public class WheelSongMainScript : MonoBehaviour {
 					}
 				}
 				
-				if(Input.GetMouseButtonDown(1)){
-					locked = false;
-				}
-				
 			}else if(particleOnPlay != null && particleOnPlay.active){
 				
-				particleOnPlay.active = false;
+				if(!locked) particleOnPlay.active = false;
 			}
 		}else if(particleOnPlay != null && particleOnPlay.active){
-			particleOnPlay.active = false;
+			if(!locked) particleOnPlay.active = false;
 		}
 		
 		
+		if(Input.GetMouseButtonDown(1)){
+			locked = false;
+		}
 		
-		
-		if(Input.GetAxis("Mouse ScrollWheel") < 0 && startnumber > 0){
-			startnumber++;
-			
-			
-		}else if(Input.GetAxis("Mouse ScrollWheel") > 0 && startnumber < songCubePack.Count - numberToDisplay){
+		if(Input.GetAxis("Mouse ScrollWheel") > 0 && startnumber > 0){
 			startnumber--;
+			
+			
+		}else if(Input.GetAxis("Mouse ScrollWheel") < 0 && startnumber < (songCubePack.Count - numberToDisplay)){
+			startnumber++;
 		}
 		
 		
-		if(Mathf.Abs(camerapack.transform.position.x - 2f - 3f*startnumber) <= 0.01f){
-			camerapack.transform.position = new Vector3(2f - 3f*startnumber, camerapack.transform.position.y, camerapack.transform.position.z);
+		if(Mathf.Abs(camerapack.transform.position.x - 3f*startnumber) <= 0.01f){
+			camerapack.transform.position = new Vector3(- 3f*startnumber, camerapack.transform.position.y, camerapack.transform.position.z);
 			posLabel = startnumber;
 		}else{
-			Vector3.Lerp(camerapack.transform.position, new Vector3(2f - 3f*startnumber, camerapack.transform.position.y, camerapack.transform.position.z), Time.deltaTime/speedCameraDefil);
-			Mathf.Lerp(posLabel, startnumber, Time.deltaTime/speedCameraDefil);
-			foreach(var cubeel in songCubePack.Where(c => c.Key.active && c.Key.transform.position.x < camerapack.transform.position.x + 2f)){
+			camerapack.transform.position = Vector3.Lerp(camerapack.transform.position, new Vector3(-3f*startnumber, camerapack.transform.position.y, camerapack.transform.position.z), Time.deltaTime/speedCameraDefil);
+			posLabel = Mathf.Lerp(posLabel, startnumber, Time.deltaTime/speedCameraDefil);
+			foreach(var cubeel in songCubePack.Where(c => c.Key.active && (c.Key.transform.position.x < camerapack.transform.position.x + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value)){
 				cubeel.Key.SetActiveRecursively(false);
 			}
-			foreach(var cubeel in songCubePack.Where(c => !c.Key.active && c.Key.transform.position.x < camerapack.transform.position.x + 2f)){
+			foreach(var cubeel in songCubePack.Where(c => !c.Key.active && (c.Key.transform.position.x < camerapack.transform.position.x + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value)){
 				cubeel.Key.SetActiveRecursively(true);
 				cubeel.Key.transform.FindChild("Selection").gameObject.active = false;
 			}
@@ -326,11 +330,13 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 		foreach(var el in LoadManager.Instance.ListSong()){
 			var pos = 2f;
+			var count = 0;
 			foreach(var song in el.Value){
 				var thego = (GameObject) Instantiate(cubeSong, new Vector3(-25f, pos, 0f), cubeSong.transform.rotation);
 				pos -= 3f;
 				thego.SetActiveRecursively(false);
 				songCubePack.Add(thego,el.Key);
+				count++;
 			}
 		}
 	}
