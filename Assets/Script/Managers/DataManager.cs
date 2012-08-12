@@ -22,9 +22,15 @@ public class DataManager{
 	
 	public Dictionary<string, float> LifeWeightValues;
 	
+	public float[] posYDiff;
+	
+	public Color[] diffColor;
+	
 	public float globalOffsetSeconds = -0.100f;
 	
 	private static DataManager instance;
+	
+	
 	
 	
 	public static DataManager Instance{
@@ -62,6 +68,22 @@ public class DataManager{
 		LifeWeightValues.Add("FREEZE",0.8f);
 		LifeWeightValues.Add("UNFREEZE",-8f);
 		LifeWeightValues.Add("MINE",-5f);
+		
+		posYDiff = new float[6];
+		posYDiff[0] = 0.19f;
+		posYDiff[1] = -0.04f;
+		posYDiff[2] = -0.27f;
+		posYDiff[3] = -0.49f;
+		posYDiff[4] = -0.72f;
+		posYDiff[5] = -0.95f;
+		
+		diffColor = new Color[6];
+		diffColor[0] = new Color(0.68f, 0.40f, 1f, 1f);
+		diffColor[1] = new Color(0.396f, 1f, 0.415f, 1f);
+		diffColor[2] = new Color(0.965f, 1f, 0.47f, 1f);
+		diffColor[3] = new Color(1f, 0.208f, 0.208f, 1f);
+		diffColor[4] = new Color(0.208f, 0.57f, 1f, 1f);
+		diffColor[5] = new Color(1f, 1f, 1f, 1f);
 		
 	}
 }

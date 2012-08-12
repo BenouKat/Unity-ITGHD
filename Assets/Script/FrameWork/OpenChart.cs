@@ -42,13 +42,13 @@ public class OpenChart{
 		//read file
 		
 		var files = (string[]) Directory.GetFiles(directory);
+		
 		var stream = files.FirstOrDefault(c => (c.Contains(".sm") || c.Contains(".SM")) && !c.Contains(".old")  && !c.Contains(".dwi") && !c.Contains(".DWI") && !c.Contains("._"));
 		if(stream == null) stream = files.FirstOrDefault(c => (c.Contains(".dwi") || c.Contains(".DWI"))   && !c.Contains(".old") && !c.Contains("._"));
 		if(stream == null) return null;
 		StreamReader sr = new StreamReader(stream);
 		songContent = sr.ReadToEnd();
     	sr.Close();
-		
 		
 		//split all line and put on a list
 		var thesong = songContent.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
@@ -78,7 +78,13 @@ public class OpenChart{
 			var samplestart = System.Convert.ToDouble(thesamplestart[1].Replace(";",""));
 			var thesamplelenght = listLine.FirstOrDefault(c => c.Contains("SAMPLELENGTH")).Split(':');
 			var samplelenght = System.Convert.ToDouble(thesamplelenght[1].Replace(";",""));
-			
+			//"file://" + 
+			var theBanner = listLine.FirstOrDefault(c => c.Contains("BANNER")).Split(':');
+			var bannerTemp = files.FirstOrDefault(c => c.Contains(theBanner[1].Replace(";",""))).Replace('\\', '/');
+			var banner = "noBanner";
+			if(!String.IsNullOrEmpty(bannerTemp)){
+				banner = "file://" +  bannerTemp;
+			}
 			var theBpmListMesured = new Dictionary<double, double>();
 			var theStopListMesured = new Dictionary<double, double>();
 			
@@ -116,7 +122,12 @@ public class OpenChart{
 			bool stopTheRool = false;
 			if(!listLine.ElementAt(stopbegin).Contains("STOPS:;")){
 				for(int i=stopbegin; !stopTheRool; i++){
-					thestop += listLine.ElementAt(i);
+					if( listLine.ElementAt(i).Contains("//")){
+						thestop += listLine.ElementAt(i).Split('/')[0];
+					}else{
+						thestop += listLine.ElementAt(i);
+					}
+					
 					if(listLine.ElementAt(i).Contains(";")) stopTheRool = true;
 				}
 				thestop = thestop.Replace("/n", "");
@@ -251,6 +262,7 @@ public class OpenChart{
 				theNewsong.title = title;
 				theNewsong.subtitle = subtitle;
 				theNewsong.artist = artist;
+				theNewsong.banner = banner;
 				theNewsong.offset = offset;
 				theNewsong.samplestart = samplestart;
 				theNewsong.samplelenght = samplelenght;
@@ -336,6 +348,7 @@ public class OpenChart{
 		}
 		
 		return outputSongs;
+		
 	}
 	
 	
@@ -366,7 +379,6 @@ public class OpenChart{
 		
 		
 		//longestStream
-		double StepPerSecondsStream = 0f;
 		double lenghtStream = 0f;
 		double maxLenghtStream = 0f;
 		double speedOfMaxStream;
@@ -379,6 +391,24 @@ public class OpenChart{
 		casevalidate[1] = 0;
 		casevalidate[2] = 0;
 		casevalidate[3] = 0;
+		
+		//Cross
+		int numberOfCross = 0;
+		int[] caseCrossvalidate = new int[4]; //left down up right
+		caseCrossvalidate[0] = 0;
+		caseCrossvalidate[1] = 0;
+		caseCrossvalidate[2] = 0;
+		caseCrossvalidate[3] = 0;
+		
+		//Hands
+		int numberOfHands = 0;
+		
+		//freeze
+		var freezed = new int[4];
+		freezed[0] = 0;
+		freezed[1] = 0;
+		freezed[2] = 0;
+		freezed[3] = 0;
 		foreach(var mesure in s.stepchart){
 			
 			for(int beat=0;beat<mesure.Count;beat++){
@@ -471,6 +501,8 @@ public class OpenChart{
 				
 				var iselected = -1;
 				var doubleselection = false;
+				var tripleselect = 0;
+				
 				for(int i =0;i<4; i++){
 					
 					if(note[i] == '1'){
@@ -479,6 +511,7 @@ public class OpenChart{
 						}else{
 							doubleselection = true;
 						}
+						tripleselect++;
 						barr = true;
 						
 					}else if(note[i] == '2'){
@@ -488,9 +521,9 @@ public class OpenChart{
 						}else{
 							doubleselection = true;
 						}
-						
+						freezed[i] = 1;
 					}else if(note[i] == '3'){
-						
+						freezed[i] = 0;
 					}else if(note[i] == '4'){
 						barr = true;
 						if(iselected == -1){
@@ -498,6 +531,7 @@ public class OpenChart{
 						}else{
 							doubleselection = true;
 						}
+						freezed[i] = 1;
 					}else if(note[i] == 'M'){
 						
 						
@@ -505,6 +539,15 @@ public class OpenChart{
 					}
 					
 				}
+				
+				for(int i=0;i<4;i++){
+					if(freezed[i] == 1) tripleselect++;
+				}
+				
+				if(tripleselect >= 3f){
+					numberOfHands++;
+				}
+				
 				if(barr == true){
 				
 					if(timestart == -10f) timestart = timetotal;
@@ -527,6 +570,20 @@ public class OpenChart{
 									casevalidate[2] = 0;
 									casevalidate[3] = 0;
 								}
+							
+								if(caseCrossvalidate[0] == 0 && (((caseCrossvalidate[1] == 1 || caseCrossvalidate[1] == 2) && caseCrossvalidate[2] == 0) 
+								|| (caseCrossvalidate[1] == 0 && (caseCrossvalidate[2] == 1 || caseCrossvalidate[2] == 2)) && caseCrossvalidate[3] == 1)){
+									numberOfCross++;
+									caseCrossvalidate[0] = 1;
+									caseCrossvalidate[1] = 0;
+									caseCrossvalidate[2] = 0;
+									caseCrossvalidate[3] = 0;
+								}else{
+									caseCrossvalidate[0] = 1;
+									caseCrossvalidate[1] = 0;
+									caseCrossvalidate[2] = 0;
+									caseCrossvalidate[3] = 0;
+								}
 								break;
 							case 1:
 								if(((casevalidate[0] == 0 && casevalidate[3] == 1) || (casevalidate[0] == 1 && casevalidate[3] == 0)) && casevalidate[2] == 0 &&  casevalidate[1] < 2){
@@ -536,6 +593,24 @@ public class OpenChart{
 									casevalidate[1] = 0;
 									casevalidate[2] = 0;
 									casevalidate[3] = 0;
+								}
+							
+								if((caseCrossvalidate[0] == 1 || caseCrossvalidate[3] == 1)){
+									if(caseCrossvalidate[0] == 1 && caseCrossvalidate[1] == 1 && caseCrossvalidate[2] == 2 && caseCrossvalidate[3] == 0){
+										caseCrossvalidate[2] = 0;
+									}
+									if(caseCrossvalidate[0] == 0 && caseCrossvalidate[1] == 1 && caseCrossvalidate[2] == 2 && caseCrossvalidate[3] == 1){
+										caseCrossvalidate[2] = 0;
+									}
+								
+									caseCrossvalidate[1] = 2;
+									if(caseCrossvalidate[2] == 2) caseCrossvalidate[2] = 1;
+								
+								}else{
+									caseCrossvalidate[0] = 0;
+									caseCrossvalidate[1] = 0;
+									caseCrossvalidate[2] = 0;
+									caseCrossvalidate[3] = 0;
 								}
 								break;
 							case 2:
@@ -547,6 +622,25 @@ public class OpenChart{
 									casevalidate[2] = 0;
 									casevalidate[3] = 0;
 								}
+							
+								if((caseCrossvalidate[0] == 1 || caseCrossvalidate[3] == 1)){
+									if(caseCrossvalidate[0] == 1 && caseCrossvalidate[1] == 2 && caseCrossvalidate[2] == 1 && caseCrossvalidate[3] == 0){
+										caseCrossvalidate[1] = 0;
+									}
+									if(caseCrossvalidate[0] == 0 && caseCrossvalidate[1] == 2 && caseCrossvalidate[2] == 1 && caseCrossvalidate[3] == 1){
+										caseCrossvalidate[1] = 0;
+									}
+								
+									caseCrossvalidate[2] = 2;
+									if(caseCrossvalidate[1] == 2) caseCrossvalidate[1] = 1;
+									
+									
+								}else{
+									caseCrossvalidate[0] = 0;
+									caseCrossvalidate[1] = 0;
+									caseCrossvalidate[2] = 0;
+									caseCrossvalidate[3] = 0;
+								}
 								break;
 							case 3:
 								if(((casevalidate[1] == 2 && casevalidate[2] == 0) || (casevalidate[2] == 2 && casevalidate[1] == 0)) && casevalidate[3] == 0 && casevalidate[0] == 1){
@@ -554,12 +648,26 @@ public class OpenChart{
 									casevalidate[0] = 0;
 									casevalidate[1] = 0;
 									casevalidate[2] = 0;
-									casevalidate[3] = 0;
+									casevalidate[3] = 1;
 								}else{
 									casevalidate[0] = 0;
 									casevalidate[1] = 0;
 									casevalidate[2] = 0;
 									casevalidate[3] = 1;
+								}
+							
+								if(caseCrossvalidate[0] == 1 && (( caseCrossvalidate[1] == 2 && caseCrossvalidate[2] == 0) 
+									|| (caseCrossvalidate[1] == 0 &&  caseCrossvalidate[2] == 2) && caseCrossvalidate[3] == 0)){
+									numberOfCross++;
+									caseCrossvalidate[0] = 0;
+									caseCrossvalidate[1] = 0;
+									caseCrossvalidate[2] = 0;
+									caseCrossvalidate[3] = 0;
+								}else{
+									caseCrossvalidate[0] = 0;
+									caseCrossvalidate[1] = 0;
+									caseCrossvalidate[2] = 0;
+									caseCrossvalidate[3] = 1;
 								}
 								break;
 						}
@@ -593,7 +701,14 @@ public class OpenChart{
 		}
 		
 		stepbysecAv = (double)countStep/(stoptime - timestart);
-		
+		s.stepPerSecondAverage = stepbysecAv;
+		s.stepPerSecondMaximum = maxStepPerSeconds;
+		s.timeMaxStep = maxLenght;
+		s.stepPerSecondStream = speedOfMaxStream;
+		s.longestStream = maxLenghtStream;
+		s.numberOfFootswitch = numberOfFootswitch;
+		s.numberOfCross = numberOfCross;
+		s.numberOfHands = numberOfHands;
 	}
 	
 	

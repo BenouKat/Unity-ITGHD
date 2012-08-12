@@ -1,10 +1,13 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Wheel\WheelSongMainScript.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\FrameWork\OpenChart.cs">
     <Files>
-      <File FileName="Assets\Script\FrameWork\OpenChart.cs" Line="329" Column="7" />
-      <File FileName="Assets\Script\Wheel\WheelSongMainScript.cs" Line="341" Column="26" />
-      <File FileName="Assets\Script\Managers\LoadManager.cs" Line="58" Column="37" />
+      <File FileName="Assets\Script\Wheel\WheelSongMainScript.cs" Line="11" Column="22" />
+      <File FileName="Assets\Script\FrameWork\OpenChart.cs" Line="707" Column="43" />
+      <File FileName="Assets\Script\Managers\LoadManager.cs" Line="57" Column="67" />
+      <File FileName="Assets\Script\Managers\DataManager.cs" Line="86" Column="44" />
+      <File FileName="Assets\Script\FrameWork\Song.cs" Line="29" Column="26" />
+      <File FileName="Assets\Script\Managers\EnumManager.cs" Line="17" Column="2" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

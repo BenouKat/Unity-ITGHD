@@ -8,7 +8,7 @@ public class Song {
 	public string title;
 	public string subtitle;
 	public string artist;
-	public Texture2D banner;
+	public string banner;
 	public Texture2D background;
 	public double offset;
 	public double samplestart;
@@ -26,6 +26,8 @@ public class Song {
 	public int numberOfRolls;
 	public int numberOfMines;
 	public int numberOfJumps;
+	public int numberOfHands;
+	
 	public double stepPerSecondAverage;
 	public double stepPerSecondMaximum;
 	public double timeMaxStep;
@@ -52,6 +54,20 @@ public class Song {
 		var thewww = new WWW(song);
 		while(!thewww.isDone){ }
 		return thewww.GetAudioClip(false, true);
+	}
+	
+	public Texture2D GetBanner(Texture2D tex){
+		if(banner != "noBanner"){
+			WWW www = new WWW(banner);
+			while(!www.isDone){}
+			
+    		www.LoadImageIntoTexture(tex);
+			
+			www.Dispose();
+			return tex;
+			
+		}
+		return null;
 	}
 	
 	public double getBPS(double bpmValue){

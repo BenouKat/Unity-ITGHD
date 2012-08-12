@@ -4,19 +4,29 @@ using System.Collections.Generic;
 using System.Linq;
 public class WheelSongMainScript : MonoBehaviour {
 	
+	//BUG : prendre en compte les substitles
 	
 	public GameObject miniCubePack;
 	public Camera camerapack;
 	public GUISkin skin;
 	public GameObject cubeSong;
 	public GameObject cubeBase;
+	public GameObject plane;
+	public GameObject difficultyBloc;
 	
 	private int numberPack;
 	private int nextnumberPack;
 	private Dictionary<string, GameObject> packs;
 	private Dictionary<GameObject, float> cubesPos;
 	private Dictionary<GameObject, string> songCubePack;
+	private Dictionary<GameObject, string> LinkCubeSong;
 	private Dictionary<Difficulty, Song> songSelected;
+	private Dictionary<Difficulty, GameObject> diffSelected;
+	private Dictionary<Difficulty, Color> diffActiveColor;
+	private Dictionary<string, Texture2D> tex;
+	private Texture2D actualBanner;
+	
+	private GameObject cubeSelected;
 	public float x10;
 	public float xm10;
 	public float y;
@@ -36,6 +46,14 @@ public class WheelSongMainScript : MonoBehaviour {
 	public float speedCameraDefil;
 	private float posLabel;
 	
+	
+	public Rect posDifficulty;
+	public float ecartDiff;
+	public float[] offsetX;
+	public Rect posGraph;
+	private int[] diffNumber;
+	public Rect posNumberDiff;
+	
 	private bool locked;
 	
 	private bool movinForward;
@@ -48,6 +66,16 @@ public class WheelSongMainScript : MonoBehaviour {
 	private float decalFade;
 	private float decalFadeM;
 	private float fadeAlpha;
+	
+	
+	public float speedFadeAlpha;
+	private float alphaBanner;
+	private bool FadeOutBanner;
+	private bool FadeInBanner;
+	
+	public float timeBeforeDisplay;
+	private float time;
+	private bool alreadyRefresh;
 	// Use this for initialization
 	void Start () {
 		numberPack = 0;
@@ -56,7 +84,35 @@ public class WheelSongMainScript : MonoBehaviour {
 		packs = new Dictionary<string, GameObject>();
 		cubesPos = new Dictionary<GameObject, float>();
 		songCubePack = new Dictionary<GameObject, string>();
+		LinkCubeSong = new Dictionary<GameObject, string>();
+		diffSelected = new Dictionary<Difficulty, GameObject>();
+		diffActiveColor = new Dictionary<Difficulty, Color>();
 		LoadManager.Instance.Loading();
+		actualBanner = new Texture2D(256,512);
+		
+		tex = new Dictionary<string, Texture2D>();
+		tex.Add("BEGINNER", (Texture2D) Resources.Load("beginner"));
+		tex.Add("EASY", (Texture2D) Resources.Load("easy"));
+		tex.Add("MEDIUM", (Texture2D) Resources.Load("medium"));
+		tex.Add("HARD", (Texture2D) Resources.Load("hard"));
+		tex.Add("EXPERT", (Texture2D) Resources.Load("expert"));
+		tex.Add("EDIT", (Texture2D) Resources.Load("edit"));
+		tex.Add("graph", (Texture2D) Resources.Load("graph"));
+		
+		
+		diffSelected.Add(Difficulty.BEGINNER, GameObject.Find("DifficultyB"));
+		diffSelected.Add(Difficulty.EASY, GameObject.Find("DifficultyEs"));
+		diffSelected.Add(Difficulty.MEDIUM, GameObject.Find("DifficultyM"));
+		diffSelected.Add(Difficulty.HARD, GameObject.Find("DifficultyH"));
+		diffSelected.Add(Difficulty.EXPERT, GameObject.Find("DifficultyEx"));
+		diffSelected.Add(Difficulty.EDIT, GameObject.Find("DifficultyEd"));
+			
+		diffActiveColor.Add(Difficulty.BEGINNER, diffSelected[Difficulty.BEGINNER].transform.GetChild(0).renderer.material.GetColor("_TintColor"));
+		diffActiveColor.Add(Difficulty.EASY, diffSelected[Difficulty.EASY].transform.GetChild(0).renderer.material.GetColor("_TintColor"));
+		diffActiveColor.Add(Difficulty.MEDIUM, diffSelected[Difficulty.MEDIUM].transform.GetChild(0).renderer.material.GetColor("_TintColor"));
+		diffActiveColor.Add(Difficulty.HARD, diffSelected[Difficulty.HARD].transform.GetChild(0).renderer.material.GetColor("_TintColor"));
+		diffActiveColor.Add(Difficulty.EXPERT, diffSelected[Difficulty.EXPERT].transform.GetChild(0).renderer.material.GetColor("_TintColor"));
+		diffActiveColor.Add(Difficulty.EDIT, diffSelected[Difficulty.EDIT].transform.GetChild(0).renderer.material.GetColor("_TintColor"));
 		//To do : correct "KeyAlreadyAssign"
 		while(packs.Count() < 5){
 			foreach(var el in LoadManager.Instance.ListSong().Keys){
@@ -74,12 +130,21 @@ public class WheelSongMainScript : MonoBehaviour {
 		}
 		organiseCube();
 		createCubeSong();
+		desactiveDiff();
 		activePack(packs.ElementAt(0).Key);
+		//plane.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[packs.ElementAt(0).Key];
+		diffNumber = new int[6];
+		for(int i=0;i<6; i++){ diffNumber[i] = 0; }
 		decalFade = 0f;
 		decalFadeM = 0f;
 		fadeAlpha = 0f;
 		posLabel = 0f;
+		time = 0f;
+		alphaBanner = 1f;
 		locked = false;
+		alreadyRefresh = true;
+		FadeOutBanner = false;
+		FadeInBanner = false;
 	}
 	
 	// Update is called once per frame
@@ -154,7 +219,36 @@ public class WheelSongMainScript : MonoBehaviour {
 		}
 		
 		
+		//SongInfo
+		if(songSelected != null){
+			var realx = posDifficulty.x*Screen.width;
+			var realy = posDifficulty.y*Screen.height;
+			var realwidth = posDifficulty.width*Screen.width;
+			var realheight = posDifficulty.height*Screen.height;
+			var diffx = posNumberDiff.x*Screen.width;
+			var diffy = posNumberDiff.y*Screen.height;
+			var diffwidth = posNumberDiff.width*Screen.width;
+			var diffheight = posNumberDiff.height*Screen.height;
+			var theRealEcart = ecartDiff*Screen.height;
+			var ecartjump = 0f;
+			for(int i=0; i<=(int)Difficulty.EDIT; i++){
+				if(diffNumber[i] != 0){
+					GUI.color = new Color(1f, 1f, 1f, 1f);
+					GUI.DrawTexture(new Rect(realx + offsetX[i]*Screen.width, realy + theRealEcart*ecartjump, realwidth, realheight), tex[((Difficulty)i).ToString()]);
+					/*GUI.color = new Color(0f, 0f, 0f, 1f);
+					GUI.Label(new Rect(diffx + 1f, diffy + theRealEcart*ecartjump + 1f, diffwidth, diffheight), songSelected[(Difficulty)i].level.ToString(), "numberdiff");
+					*/
+					GUI.color = DataManager.Instance.diffColor[i];
+					GUI.Label(new Rect(diffx, diffy + theRealEcart*ecartjump, diffwidth, diffheight), songSelected[(Difficulty)i].level.ToString(), "numberdiff");
+					ecartjump++;
+				}
+			}
+			GUI.color = new Color(1f, 1f, 1f, 1f);
+			GUI.DrawTexture(new Rect(posGraph.x*Screen.width, posGraph.y*Screen.height, posGraph.width*Screen.width, posGraph.height*Screen.height), tex["graph"]);
+		}
 	}
+	
+	
 	
 	void Update(){
 		if(movinForward){
@@ -199,6 +293,7 @@ public class WheelSongMainScript : MonoBehaviour {
 				fadeAlpha = 0f;
 				numberPack = PrevInt(numberPack, 1);
 				nextnumberPack = numberPack;
+				
 				for(int i=0;i<cubesPos.Count();i++){
 					cubesPos.ElementAt(i).Key.transform.position = new Vector3(cubesPos.ElementAt(i).Value + 10f, cubesPos.ElementAt(i).Key.transform.position.y, cubesPos.ElementAt(i).Key.transform.position.z);
 					cubesPos[cubesPos.ElementAt(i).Key] = cubesPos.ElementAt(i).Key.transform.position.x;
@@ -274,8 +369,18 @@ public class WheelSongMainScript : MonoBehaviour {
 					var thepart = papa.Find("Selection").gameObject;
 					if(particleOnPlay != null && particleOnPlay != thepart && particleOnPlay.active) 
 					{
-						songSelected = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].FirstOrDefault(c => c.Value.First().Value.title == songCubePack[papa.gameObject]).Value;
+						
 						particleOnPlay.active = false;
+					}
+					if(songSelected == null || songSelected.First().Value.title != LinkCubeSong[papa.gameObject]){
+						songSelected = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].FirstOrDefault(c => c.Value.First().Value.title == LinkCubeSong[papa.gameObject]).Value;
+						activeNumberDiff(songSelected);
+						activeDiff(songSelected);
+						cubeSelected = papa.gameObject;
+						alreadyRefresh = false;
+						//if(time >= timeBeforeDisplay) plane.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[packs.ElementAt(nextnumberPack).Key];
+						time = 0f;
+						if(alphaBanner > 0) FadeOutBanner = true;
 					}
 					particleOnPlay = thepart;
 					particleOnPlay.active = true;
@@ -288,8 +393,17 @@ public class WheelSongMainScript : MonoBehaviour {
 						var thepart = papa.Find("Selection").gameObject;
 						if(particleOnPlay != null && particleOnPlay != thepart && particleOnPlay.active) 
 						{
-							songSelected = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].FirstOrDefault(c => c.Value.First().Value.title == songCubePack[papa.gameObject]).Value;
 							particleOnPlay.active = false;
+						}
+						if(songSelected == null || songSelected.First().Value.title != LinkCubeSong[papa.gameObject]){
+							songSelected = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].FirstOrDefault(c => c.Value.First().Value.title == LinkCubeSong[papa.gameObject]).Value;
+							activeNumberDiff(songSelected);
+							activeDiff(songSelected);
+							cubeSelected = papa.gameObject;
+							alreadyRefresh = false;
+							if(alphaBanner > 0) FadeOutBanner = true;
+							//if(time >= timeBeforeDisplay) plane.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[packs.ElementAt(nextnumberPack).Key];
+							time = 0f;
 						}
 						particleOnPlay = thepart;
 						particleOnPlay.active = true;
@@ -300,10 +414,22 @@ public class WheelSongMainScript : MonoBehaviour {
 				
 			}else if(particleOnPlay != null && particleOnPlay.active){
 				
-				if(!locked) particleOnPlay.active = false;
+				if(!locked){
+					cubeSelected = null;
+					songSelected = null;
+					FadeOutBanner = true;
+					desactiveDiff();
+					particleOnPlay.active = false;
+				}
 			}
 		}else if(particleOnPlay != null && particleOnPlay.active){
-			if(!locked) particleOnPlay.active = false;
+			if(!locked){
+				cubeSelected = null;
+				songSelected = null;
+				FadeOutBanner = true;
+				desactiveDiff();
+				particleOnPlay.active = false;
+			}
 		}
 		
 		
@@ -333,62 +459,142 @@ public class WheelSongMainScript : MonoBehaviour {
 		var newpos = camerapack.transform.position.y;
 		
 		if(oldpos > newpos){
-			/*foreach(var cubeel in songCubePack.Where(c => c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value)){
-				cubeel.Key.SetActiveRecursively(false);
-				cubeBase.transform.Translate(new Vector3(0f, -3f, 0f));
-			}*/
+		
+			var cubeel2 = songCubePack.FirstOrDefault(c => !c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y - 3f*numberToDisplay) && !(c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
+			if(cubeel2 != null) {
+				cubeel2.SetActiveRecursively(true);
+				if(cubeSelected == null || cubeSelected != cubeel2) cubeel2.transform.FindChild("Selection").gameObject.active = false;
+			}
+			
 			
 			var cubeel = songCubePack.FirstOrDefault(c => c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
 			if(cubeel != null) {
 				cubeel.SetActiveRecursively(false);
 				cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, cubeBase.transform.position.y -3f, cubeBase.transform.position.z);
 			}
-			//}
-		}else if(oldpos < newpos){
-			/*foreach(var cubeel in songCubePack.Where(c => !c.Key.active && (c.Key.transform.position.y <= camerapack.transform.position.y + 5f) && packs.ElementAt(nextnumberPack).Key == c.Value)){
-				cubeel.Key.SetActiveRecursively(true);
-				cubeel.Key.transform.FindChild("Selection").gameObject.active = false;
-				cubeBase.transform.Translate(new Vector3(0f, 3f, 0f));
-			}*/
 			
-			var cubeel = songCubePack.FirstOrDefault(c => !c.Key.active && (c.Key.transform.position.y < camerapack.transform.position.y + 5f) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
+			
+			
+		}else if(oldpos < newpos){
+			
+			var cubeel2 = songCubePack.FirstOrDefault(c => c.Key.active && (c.Key.transform.position.y < camerapack.transform.position.y - 3f*numberToDisplay) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
+			if(cubeel2 != null) {
+				cubeel2.SetActiveRecursively(false);
+			}
+			
+			var cubeel = songCubePack.FirstOrDefault(c => !c.Key.active && (c.Key.transform.position.y < camerapack.transform.position.y + 5f) && (c.Key.transform.position.y > camerapack.transform.position.y - 3f*(numberToDisplay - 2)) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
 			if(cubeel != null) {
 				cubeel.SetActiveRecursively(true);
-				cubeel.transform.FindChild("Selection").gameObject.active = false;
+				if(cubeSelected == null || cubeSelected != cubeel) cubeel.transform.FindChild("Selection").gameObject.active = false;
 				cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, cubeBase.transform.position.y +3f, cubeBase.transform.position.z);
 			}
 		}
 		
+		
+		
+		if(songSelected != null && !alreadyRefresh){
+			if(time >= timeBeforeDisplay){
+				plane.renderer.material.mainTexture = actualBanner;
+				actualBanner = songSelected.First().Value.GetBanner(actualBanner);
+				alreadyRefresh = true;
+				FadeInBanner = true;
+			}else{
+				time += Time.deltaTime;	
+			}
+			
+		}
+		
+		
+		if(FadeInBanner){
+			alphaBanner += Time.deltaTime/speedFadeAlpha;
+			plane.renderer.material.color = new Color(plane.renderer.material.color.r, plane.renderer.material.color.g, plane.renderer.material.color.b, alphaBanner);	
+			if(alphaBanner >= 1){
+				FadeInBanner = false;
+				FadeOutBanner = false;
+			}
+		}else if(FadeOutBanner){
+			alphaBanner -= Time.deltaTime/speedFadeAlpha;
+			plane.renderer.material.color = new Color(plane.renderer.material.color.r, plane.renderer.material.color.g, plane.renderer.material.color.b, alphaBanner);
+			if(alphaBanner <= 0){
+				FadeOutBanner = false;	
+			}
+		}
+		
+		
 	}
-	
-	
 	
 	void createCubeSong(){
 		
 		foreach(var el in LoadManager.Instance.ListSong()){
 			var pos = 2f;
-			var count = 0;
 			foreach(var song in el.Value){
 				var thego = (GameObject) Instantiate(cubeSong, new Vector3(-25f, pos, 0f), cubeSong.transform.rotation);
 				pos -= 3f;
 				thego.SetActiveRecursively(false);
 				songCubePack.Add(thego,el.Key);
-				count++;
+				LinkCubeSong.Add(thego, song.Value.First().Value.title);
+
 			}
-			Debug.Log(count);
+		}
+	}
+	
+	void activeDiff(Dictionary<Difficulty, Song> so){
+		var countpos = 0;
+		for(int i=(int)Difficulty.BEGINNER; i<=(int)Difficulty.EDIT; i++){
+			if(so.ContainsKey((Difficulty)i)){
+				
+				//diffSelected[(Difficulty)i].SetActiveRecursively(true);	
+				diffSelected[(Difficulty)i].transform.position = new Vector3(diffSelected[(Difficulty)i].transform.position.x, DataManager.Instance.posYDiff[countpos], diffSelected[(Difficulty)i].transform.position.z);
+				countpos++;
+				for(int j=0; j<diffSelected[(Difficulty)i].transform.GetChildCount(); j++){
+					if((int.Parse(diffSelected[(Difficulty)i].transform.GetChild(j).name)) <= so[(Difficulty)i].level){
+						if(diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.GetColor("_TintColor") != diffActiveColor[(Difficulty)i]) diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.SetColor("_TintColor",diffActiveColor[(Difficulty)i]);
+					}else{
+						if(diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.GetColor("_TintColor") == diffActiveColor[(Difficulty)i]) diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.SetColor("_TintColor",new Color(diffActiveColor[(Difficulty)i].r/4f, diffActiveColor[(Difficulty)i].g/4f, diffActiveColor[(Difficulty)i].b/4f, 1f));
+					}
+				}
+			}else{
+				diffSelected[(Difficulty)i].transform.Translate(0f, -100f, 0f);
+				for(int j=0; j<diffSelected[(Difficulty)i].transform.GetChildCount(); j++){
+					if(diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.GetColor("_TintColor") == diffActiveColor[(Difficulty)i]) diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.SetColor("_TintColor",new Color(diffActiveColor[(Difficulty)i].r/4f, diffActiveColor[(Difficulty)i].g/4f, diffActiveColor[(Difficulty)i].b/4f, 1f));
+				}
+			}
+		}
+	}
+	
+	void desactiveDiff(){
+		for(int i=(int)Difficulty.BEGINNER; i<=(int)Difficulty.EDIT; i++){
+
+				diffSelected[(Difficulty)i].transform.Translate(0f, -100f, 0f);
+		}
+	}
+	
+	void activeNumberDiff(Dictionary<Difficulty, Song> so){
+		for(int i=(int)Difficulty.BEGINNER; i<=(int)Difficulty.EDIT; i++){
+			if(so.ContainsKey((Difficulty)i)){
+				
+				diffNumber[i] = so[(Difficulty)i].level;
+				
+			}else{
+				diffNumber[i] = 0;
+			}
 		}
 	}
 	
 	
 	void activePack(string s){
 		foreach(var el in songCubePack){
-			if(el.Value == s){
+			if(el.Value == s && el.Key.transform.position.y > - 3f*numberToDisplay){
 				el.Key.SetActiveRecursively(true);
 				el.Key.transform.FindChild("Selection").gameObject.active = false;
 			}else if(el.Key.active){
 				el.Key.SetActiveRecursively(false);
 			}
 		}
+		plane.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[packs.ElementAt(nextnumberPack).Key];
+		plane.renderer.material.color = new Color(plane.renderer.material.color.r, plane.renderer.material.color.g, plane.renderer.material.color.b, 1f);
+		alphaBanner = 1f;
+		FadeOutBanner = false;
 	}
 	
 	
