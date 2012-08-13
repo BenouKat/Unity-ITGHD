@@ -30,7 +30,7 @@ public class Song {
 	
 	public double stepPerSecondAverage;
 	public double stepPerSecondMaximum;
-	public double timeMaxStep;
+	//public double timeMaxStep;
 	public double stepPerSecondStream;
 	public double longestStream;
 	public int numberOfCross;

@@ -1634,8 +1634,8 @@ public class InGameScript : MonoBehaviour {
 						bps = s.getBPS(s.bpms.ElementAt(theBPMCounter-1).Value);
 					
 					}
-				}else if((theSTOPCounter < s.stops.Count) && theSTOPCounter < s.stops.Count){
-					while(s.mesureSTOPS.ElementAt(theSTOPCounter) < mesurecount - prec){
+				}else if(theSTOPCounter < s.stops.Count){
+					while((theSTOPCounter < s.stops.Count) && s.mesureSTOPS.ElementAt(theSTOPCounter) < mesurecount - prec){
 						
 						timestop += s.stops.ElementAt(theSTOPCounter).Value;
 						theSTOPCounter++;

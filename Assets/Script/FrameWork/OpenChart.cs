@@ -80,10 +80,10 @@ public class OpenChart{
 			var samplelenght = System.Convert.ToDouble(thesamplelenght[1].Replace(";",""));
 			//"file://" + 
 			var theBanner = listLine.FirstOrDefault(c => c.Contains("BANNER")).Split(':');
-			var bannerTemp = files.FirstOrDefault(c => c.Contains(theBanner[1].Replace(";",""))).Replace('\\', '/');
+			var bannerTemp = files.FirstOrDefault(c => c.Contains(theBanner[1].Replace(";","")));
 			var banner = "noBanner";
 			if(!String.IsNullOrEmpty(bannerTemp)){
-				banner = "file://" +  bannerTemp;
+				banner = "file://" +  bannerTemp.Replace('\\', '/');
 			}
 			var theBpmListMesured = new Dictionary<double, double>();
 			var theStopListMesured = new Dictionary<double, double>();
@@ -297,50 +297,63 @@ public class OpenChart{
 				
 				//getting stepchart
 				int beginstepchart = beginInformation+6;
-				while(listLine.ElementAt(beginstepchart).Contains("//") || listLine.ElementAt(beginstepchart).Trim() == ""){
-					beginstepchart++;	
+				while(listLine.ElementAt(beginstepchart).Contains("//") || 
+					String.IsNullOrEmpty(listLine.ElementAt(beginstepchart).Trim()) || 
+					listLine.ElementAt(beginstepchart) == ""){
+					
+						if(listLine.ElementAt(beginstepchart).Contains("NOTES")) dl = "STOP";
+						beginstepchart++;	
 				}
 				
-				var numberOfSteps = 0;
-				var numberOfMines = 0;
-				var numberOfRoll = 0;
-				var numberOfFreezes = 0;
-				var numberOfJump = 0;
-				var numberOfStepsWJ = 0;
-				theNewsong.stepchart.Add(new List<string>());
-				for(int i = beginstepchart; !listLine.ElementAt(i).Contains(";"); i++){
-					if(listLine.ElementAt(i).Contains(",")){
-						theNewsong.stepchart.Add(new List<string>());
-					}else{
-						theNewsong.stepchart.Last().Add(listLine.ElementAt(i));	
-						numberOfSteps += listLine.ElementAt(i).Count(c => c == '1');
-						numberOfSteps += listLine.ElementAt(i).Count(c => c == '2');
-						numberOfSteps += listLine.ElementAt(i).Count(c => c == '4');
-						numberOfFreezes += listLine.ElementAt(i).Count(c => c == '2');
-						numberOfRoll += listLine.ElementAt(i).Count(c => c == '4');
-						numberOfMines += listLine.ElementAt(i).Count(c => c == 'M');
-						numberOfStepsWJ += listLine.ElementAt(i).Count(c => c == '1');
-						numberOfStepsWJ += listLine.ElementAt(i).Count(c => c == '2');
-						numberOfStepsWJ += listLine.ElementAt(i).Count(c => c == '4');
-						
-						var countmesure = listLine.ElementAt(i).Count(c => c == '1') + listLine.ElementAt(i).Count(c => c == '2') + listLine.ElementAt(i).Count(c => c == '4');
-						if(countmesure >= 2){
-							numberOfStepsWJ -= countmesure;
-							numberOfJump++;
+				if(listLine.ElementAt(beginstepchart).Contains("NOTES")) dl = "STOP";
+				//if(theNewsong.title == "The Last Kiss") Debug.Log(listLine.ElementAt(beginstepchart));
+				
+				if(dl != "STOP"){
+					var numberOfSteps = 0;
+					var numberOfMines = 0;
+					var numberOfRoll = 0;
+					var numberOfFreezes = 0;
+					var numberOfJump = 0;
+					var numberOfStepsWJ = 0;
+					theNewsong.stepchart.Add(new List<string>());
+					for(int i = beginstepchart; !listLine.ElementAt(i).Contains(";"); i++){
+						if(listLine.ElementAt(i).Contains(",")){
+							theNewsong.stepchart.Add(new List<string>());
+						}else if(!String.IsNullOrEmpty(listLine.ElementAt(i))){
+							theNewsong.stepchart.Last().Add(listLine.ElementAt(i));	
+							numberOfSteps += listLine.ElementAt(i).Count(c => c == '1');
+							numberOfSteps += listLine.ElementAt(i).Count(c => c == '2');
+							numberOfSteps += listLine.ElementAt(i).Count(c => c == '4');
+							numberOfFreezes += listLine.ElementAt(i).Count(c => c == '2');
+							numberOfRoll += listLine.ElementAt(i).Count(c => c == '4');
+							numberOfMines += listLine.ElementAt(i).Count(c => c == 'M');
+							numberOfStepsWJ += listLine.ElementAt(i).Count(c => c == '1');
+							numberOfStepsWJ += listLine.ElementAt(i).Count(c => c == '2');
+							numberOfStepsWJ += listLine.ElementAt(i).Count(c => c == '4');
+							
+							var countmesure = listLine.ElementAt(i).Count(c => c == '1') + listLine.ElementAt(i).Count(c => c == '2') + listLine.ElementAt(i).Count(c => c == '4');
+							if(countmesure == 2){
+								numberOfStepsWJ -= countmesure;
+								numberOfJump++;
+							}
+							if(countmesure >= 3){
+								numberOfStepsWJ -= countmesure;
+							}
 						}
 					}
+					
+					theNewsong.numberOfSteps = numberOfSteps;
+					theNewsong.numberOfFreezes = numberOfFreezes;
+					theNewsong.numberOfRolls = numberOfRoll;
+					theNewsong.numberOfMines = numberOfMines;
+					theNewsong.numberOfJumps = numberOfJump;
+					theNewsong.numberOfStepsWithoutJumps = numberOfStepsWJ;
+					//A faire le mode double !
+					if(dl == "") fakeCreation(theNewsong);
+						//A mettre
+					//if(outputSongs.ContainsKey(theNewsong.difficulty))
+					outputSongs.Add(theNewsong.difficulty, theNewsong);
 				}
-				
-				theNewsong.numberOfSteps = numberOfSteps;
-				theNewsong.numberOfFreezes = numberOfFreezes;
-				theNewsong.numberOfRolls = numberOfRoll;
-				theNewsong.numberOfMines = numberOfMines;
-				theNewsong.numberOfJumps = numberOfJump;
-				theNewsong.numberOfStepsWithoutJumps = numberOfStepsWJ;
-					//A mettre
-				//if(outputSongs.ContainsKey(theNewsong.difficulty))
-				if(dl != "STOP") outputSongs.Add(theNewsong.difficulty, theNewsong);
-				
 			
 			}
 		}catch(Exception e){
@@ -375,13 +388,14 @@ public class OpenChart{
 		double maxStepPerSeconds = 0f;
 		int numberStepBetweenTwoBeat = 0;
 		double timestartMax = -10f;
-		double maxLenght = 0f;
+		//double maxLenght = 0f;
 		
 		
 		//longestStream
 		double lenghtStream = 0f;
 		double maxLenghtStream = 0f;
-		double speedOfMaxStream;
+		double speedOfMaxStream = 0f;
+		double previousSpeed = 0f;
 		
 		
 		//Footswitch
@@ -459,8 +473,8 @@ public class OpenChart{
 						bps = s.getBPS(s.bpms.ElementAt(theBPMCounter-1).Value);
 					
 					}
-				}else if((theSTOPCounter < s.stops.Count) && theSTOPCounter < s.stops.Count){
-					while(s.mesureSTOPS.ElementAt(theSTOPCounter) < mesurecount - prec){
+				}else if(theSTOPCounter < s.stops.Count){
+					while((theSTOPCounter < s.stops.Count) && s.mesureSTOPS.ElementAt(theSTOPCounter) < mesurecount - prec){
 						
 						timestop += s.stops.ElementAt(theSTOPCounter).Value;
 						theSTOPCounter++;
@@ -474,26 +488,30 @@ public class OpenChart{
 				
 				timetotal = timecounter + timeBPM + timestop;
 				
-				char[] note = mesure.ElementAt(beat).Trim().ToCharArray();
+				char[] note = mesure.ElementAt(beat).TrimStart(' ').Trim().ToCharArray();
 				
-				if((beat*4f)%(mesure.Count) == 0){
+				if((beat*8f)%(mesure.Count) == 0){
 					var newMax = numberStepBetweenTwoBeat/(timetotal - timestartMax);
-					if(Mathf.Abs((float)(newMax - maxStepPerSeconds)) < 0.001f){
-						maxLenght += (timetotal - timestartMax);
+					
+					if(maxStepPerSeconds < newMax){
+						maxStepPerSeconds = newMax;
+					}
+					
+					
+					
+					if(Mathf.Abs((float)(newMax - previousSpeed)) < 0.001f && numberStepBetweenTwoBeat > 0 && newMax > 4f){
+						
 						lenghtStream += (timetotal - timestartMax);
 						if(lenghtStream > maxLenghtStream){
 							speedOfMaxStream = newMax;
 							maxLenghtStream = lenghtStream;
 						}
-					}else if(maxStepPerSeconds < newMax){
-						maxStepPerSeconds = newMax;
-						maxLenght = (timetotal - timestartMax);
-						maxLenghtStream = (timetotal - timestartMax);
-					}else if(maxStepPerSeconds > newMax){
-						maxLenghtStream = (timetotal - timestartMax);
+					}else{
+						lenghtStream = 0;
 					}
 					
-				
+					previousSpeed = newMax;
+					
 					numberStepBetweenTwoBeat = 0;
 					timestartMax = timetotal;
 				}
@@ -502,6 +520,7 @@ public class OpenChart{
 				var iselected = -1;
 				var doubleselection = false;
 				var tripleselect = 0;
+				
 				
 				for(int i =0;i<4; i++){
 					
@@ -671,6 +690,15 @@ public class OpenChart{
 								}
 								break;
 						}
+					}else{
+						casevalidate[0] = 0;
+						casevalidate[1] = 0;
+						casevalidate[2] = 0;
+						casevalidate[3] = 0;
+						caseCrossvalidate[0] = 0;
+						caseCrossvalidate[1] = 0;
+						caseCrossvalidate[2] = 0;
+						caseCrossvalidate[3] = 0;
 					}
 				}
 				
@@ -703,7 +731,7 @@ public class OpenChart{
 		stepbysecAv = (double)countStep/(stoptime - timestart);
 		s.stepPerSecondAverage = stepbysecAv;
 		s.stepPerSecondMaximum = maxStepPerSeconds;
-		s.timeMaxStep = maxLenght;
+		//s.timeMaxStep = maxLenght;
 		s.stepPerSecondStream = speedOfMaxStream;
 		s.longestStream = maxLenghtStream;
 		s.numberOfFootswitch = numberOfFootswitch;

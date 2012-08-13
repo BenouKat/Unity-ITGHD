@@ -5,6 +5,16 @@ using System.Linq;
 public class WheelSongMainScript : MonoBehaviour {
 	
 	//BUG : prendre en compte les substitles
+	//Bug : Quoi faire quand pas de banner pack ?
+	//Bug : Quoi faire quand pas de banner song ?
+	
+	
+	//Bug : LongestStream pas ok + LongestStreamSPS = MaxSPS ???
+	//Bug : cross + saut = que se passe t'il ?
+	//Bug : idem footswitch
+	
+	//To Do : Choisir la difficulté
+	
 	
 	public GameObject miniCubePack;
 	public Camera camerapack;
@@ -50,9 +60,13 @@ public class WheelSongMainScript : MonoBehaviour {
 	public Rect posDifficulty;
 	public float ecartDiff;
 	public float[] offsetX;
-	public Rect posGraph;
 	private int[] diffNumber;
 	public Rect posNumberDiff;
+	
+	
+	public Rect posGraph;
+	public Rect posInfo;
+	public float offsetInfo;
 	
 	private bool locked;
 	
@@ -219,7 +233,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		}
 		
 		
-		//SongInfo
+		//SongDifficulty
 		if(songSelected != null){
 			var realx = posDifficulty.x*Screen.width;
 			var realy = posDifficulty.y*Screen.height;
@@ -245,6 +259,37 @@ public class WheelSongMainScript : MonoBehaviour {
 			}
 			GUI.color = new Color(1f, 1f, 1f, 1f);
 			GUI.DrawTexture(new Rect(posGraph.x*Screen.width, posGraph.y*Screen.height, posGraph.width*Screen.width, posGraph.height*Screen.height), tex["graph"]);
+		}
+		
+		
+		//Song Info
+		if(songSelected != null){
+			//Number of step
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*0f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[Difficulty.EXPERT].numberOfSteps + " Steps", "infosong");
+			//Number of jumps						   
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*1f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height),  songSelected[Difficulty.EXPERT].numberOfJumps + " Jumps", "infosong");
+			//Number of hands						   
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*2f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[Difficulty.EXPERT].numberOfHands + " Hands", "infosong");
+			//Number of mines						  
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*3f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[Difficulty.EXPERT].numberOfMines + " Mines", "infosong");
+			//Number of freeze							
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*4f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[Difficulty.EXPERT].numberOfFreezes + " Freezes", "infosong");
+			//Number of rolls						   
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*5f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[Difficulty.EXPERT].numberOfRolls + " Rolls", "infosong");
+			//Number of cross						    
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*6f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[Difficulty.EXPERT].numberOfCross + " Cross", "infosong");
+			//Number of footswitch						
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*7f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[Difficulty.EXPERT].numberOfFootswitch + " Footswitch", "infosong");
+			//Average Intensity					   	
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*8f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), "Av. Intensity : " + songSelected[Difficulty.EXPERT].stepPerSecondAverage.ToString("0.00") + " SPS", "infosong");
+			//Max Intensity (Time)						
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*9f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), "Max Intensity : " + songSelected[Difficulty.EXPERT].stepPerSecondMaximum.ToString("0.00") + " SPS", "infosong");
+			//Longest Stream (TimePerSecond)		    
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*10f)*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), "Max stream : " + songSelected[Difficulty.EXPERT].longestStream.ToString("0.00") + " sec (" + songSelected[Difficulty.EXPERT].stepPerSecondStream.ToString("0.00") + " SPS)", "infosong");
+			//Number of BPM change						
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*11f)*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[Difficulty.EXPERT].bpms.Count - 1 + " BPM changes", "infosong");
+			//Number of stops						    
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*12f)*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[Difficulty.EXPERT].stops.Count + " Stops", "infosong");
 		}
 	}
 	
