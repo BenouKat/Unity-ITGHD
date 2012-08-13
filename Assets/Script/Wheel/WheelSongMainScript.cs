@@ -9,9 +9,6 @@ public class WheelSongMainScript : MonoBehaviour {
 	//Bug : Quoi faire quand pas de banner song ?
 	
 	
-	//Bug : LongestStream pas ok + LongestStreamSPS = MaxSPS ???
-	//Bug : cross + saut = que se passe t'il ?
-	//Bug : idem footswitch
 	
 	//To Do : Choisir la difficulté
 	
@@ -67,7 +64,8 @@ public class WheelSongMainScript : MonoBehaviour {
 	public Rect posGraph;
 	public Rect posInfo;
 	public float offsetInfo;
-	
+	public Rect BPMDisplay;
+	public Rect artistnstepDisplay;
 	private bool locked;
 	
 	private bool movinForward;
@@ -264,6 +262,12 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 		//Song Info
 		if(songSelected != null){
+			//BPM
+			GUI.Label(new Rect(BPMDisplay.x*Screen.width , BPMDisplay.y*Screen.height, BPMDisplay.width*Screen.width, BPMDisplay.height*Screen.height), "BPM\n" + songSelected[Difficulty.EXPERT].bpmToDisplay, "bpmdisplay");
+			
+			//Artist n stepartist
+			GUI.Label(new Rect(artistnstepDisplay.x*Screen.width , artistnstepDisplay.y*Screen.height, artistnstepDisplay.width*Screen.width, artistnstepDisplay.height*Screen.height), songSelected[Difficulty.EXPERT].artist + " - Step by : " + songSelected[Difficulty.EXPERT].stepartist);
+			
 			//Number of step
 			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*0f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[Difficulty.EXPERT].numberOfSteps + " Steps", "infosong");
 			//Number of jumps						   
@@ -595,13 +599,13 @@ public class WheelSongMainScript : MonoBehaviour {
 					if((int.Parse(diffSelected[(Difficulty)i].transform.GetChild(j).name)) <= so[(Difficulty)i].level){
 						if(diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.GetColor("_TintColor") != diffActiveColor[(Difficulty)i]) diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.SetColor("_TintColor",diffActiveColor[(Difficulty)i]);
 					}else{
-						if(diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.GetColor("_TintColor") == diffActiveColor[(Difficulty)i]) diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.SetColor("_TintColor",new Color(diffActiveColor[(Difficulty)i].r/4f, diffActiveColor[(Difficulty)i].g/4f, diffActiveColor[(Difficulty)i].b/4f, 1f));
+						if(diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.GetColor("_TintColor") == diffActiveColor[(Difficulty)i]) diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.SetColor("_TintColor",new Color(diffActiveColor[(Difficulty)i].r/10f, diffActiveColor[(Difficulty)i].g/10f, diffActiveColor[(Difficulty)i].b/10f, 1f));
 					}
 				}
 			}else{
 				diffSelected[(Difficulty)i].transform.Translate(0f, -100f, 0f);
 				for(int j=0; j<diffSelected[(Difficulty)i].transform.GetChildCount(); j++){
-					if(diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.GetColor("_TintColor") == diffActiveColor[(Difficulty)i]) diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.SetColor("_TintColor",new Color(diffActiveColor[(Difficulty)i].r/4f, diffActiveColor[(Difficulty)i].g/4f, diffActiveColor[(Difficulty)i].b/4f, 1f));
+					if(diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.GetColor("_TintColor") == diffActiveColor[(Difficulty)i]) diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.SetColor("_TintColor",new Color(diffActiveColor[(Difficulty)i].r/10f, diffActiveColor[(Difficulty)i].g/10f, diffActiveColor[(Difficulty)i].b/10f, 1f));
 				}
 			}
 		}

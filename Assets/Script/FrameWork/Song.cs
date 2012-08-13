@@ -9,6 +9,7 @@ public class Song {
 	public string subtitle;
 	public string artist;
 	public string banner;
+	public string bpmToDisplay;
 	public Texture2D background;
 	public double offset;
 	public double samplestart;

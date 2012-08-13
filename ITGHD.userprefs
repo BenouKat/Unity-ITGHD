@@ -1,12 +1,12 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\FrameWork\OpenChart.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Wheel\WheelSongMainScript.cs">
     <Files>
-      <File FileName="Assets\Script\Wheel\WheelSongMainScript.cs" Line="287" Column="42" />
-      <File FileName="Assets\Script\FrameWork\OpenChart.cs" Line="309" Column="7" />
+      <File FileName="Assets\Script\Wheel\WheelSongMainScript.cs" Line="608" Column="346" />
+      <File FileName="Assets\Script\FrameWork\OpenChart.cs" Line="256" Column="84" />
       <File FileName="Assets\Script\Managers\LoadManager.cs" Line="57" Column="67" />
       <File FileName="Assets\Script\Managers\DataManager.cs" Line="86" Column="44" />
-      <File FileName="Assets\Script\FrameWork\Song.cs" Line="46" Column="16" />
+      <File FileName="Assets\Script\FrameWork\Song.cs" Line="12" Column="29" />
       <File FileName="Assets\Script\Managers\EnumManager.cs" Line="17" Column="2" />
     </Files>
   </MonoDevelop.Ide.Workbench>

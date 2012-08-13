@@ -85,6 +85,7 @@ public class OpenChart{
 			if(!String.IsNullOrEmpty(bannerTemp)){
 				banner = "file://" +  bannerTemp.Replace('\\', '/');
 			}
+			
 			var theBpmListMesured = new Dictionary<double, double>();
 			var theStopListMesured = new Dictionary<double, double>();
 			
@@ -248,6 +249,21 @@ public class OpenChart{
 					
 			}
 			
+			
+			var thedisplayBPM = "";
+			if(listLine.FirstOrDefault(c => c.Contains("DISPLAYBPM")) != null){
+				var thes = listLine.FirstOrDefault(c => c.Contains("DISPLAYBPM")).Split(':');
+				thedisplayBPM = System.Convert.ToDouble(thes[1].Replace(";", "")).ToString("0");
+			}else{
+				var themin = theBpmList.Min(c => c.Value);
+				var themax = theBpmList.Max(c => c.Value);
+				if(themin == themax){
+					thedisplayBPM = themax.ToString("0");	
+				}else{
+					thedisplayBPM = themin.ToString("0") + " -> " + themax.ToString("0");
+				}
+			}
+			
 			//debug
 			/*foreach(var el in theStopList){
 				Debug.Log(el.Key);	
@@ -270,6 +286,7 @@ public class OpenChart{
 				theNewsong.stops = theStopList;
 				theNewsong.mesureBPMS = theBpmMesureList;
 				theNewsong.mesureSTOPS = theStopMesureList;
+				theNewsong.bpmToDisplay = thedisplayBPM;
 				/*if(files.FirstOrDefault(c => c.Contains(".ogg")) == null){
 					foreach(var fil in files){
 						Debug.Log(fil);	
@@ -735,7 +752,7 @@ public class OpenChart{
 		s.stepPerSecondStream = speedOfMaxStream;
 		s.longestStream = maxLenghtStream;
 		s.numberOfFootswitch = numberOfFootswitch;
-		s.numberOfCross = numberOfCross;
+		s.numberOfCross = numberOfCross - numberOfFootswitch;
 		s.numberOfHands = numberOfHands;
 	}
 	
