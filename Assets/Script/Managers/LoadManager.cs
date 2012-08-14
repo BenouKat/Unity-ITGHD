@@ -41,6 +41,8 @@ public class LoadManager{
 				while(!www.isDone){}
         		www.LoadImageIntoTexture(texTmp);
 				bannerPack.Add(lastDir(el)[length - 1], texTmp);
+			}else{
+				bannerPack.Add(lastDir(el)[length - 1], (Texture2D) Resources.Load("Cublast"));
 			}
 			
 			//Debug.Log("new pack : " + lastDir(el)[length - 1]);

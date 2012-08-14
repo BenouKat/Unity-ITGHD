@@ -8,6 +8,9 @@ using System;
 public class OpenChart{
 	
 	
+	//Detecter les cross style 1-2-3-1
+	//Detecter les turn
+	
 	private static OpenChart instance;
 	
 	public static OpenChart Instance{
@@ -25,14 +28,7 @@ public class OpenChart{
 	}
 	
 	
-	
-	
-	
-	
 	private static string songContent;
-	
-	
-	
 	
 	
 	public Dictionary<Difficulty, Song> readChart(string directory){
@@ -596,7 +592,7 @@ public class OpenChart{
 							case 0:
 								if(((casevalidate[1] == 2 && casevalidate[2] == 0) || (casevalidate[2] == 2 && casevalidate[1] == 0)) && casevalidate[0] == 0 && casevalidate[3] == 1){
 									numberOfFootswitch++;
-									casevalidate[0] = 0;
+									casevalidate[0] = 1;
 									casevalidate[1] = 0;
 									casevalidate[2] = 0;
 									casevalidate[3] = 0;
@@ -698,7 +694,7 @@ public class OpenChart{
 									caseCrossvalidate[0] = 0;
 									caseCrossvalidate[1] = 0;
 									caseCrossvalidate[2] = 0;
-									caseCrossvalidate[3] = 0;
+									caseCrossvalidate[3] = 1;
 								}else{
 									caseCrossvalidate[0] = 0;
 									caseCrossvalidate[1] = 0;

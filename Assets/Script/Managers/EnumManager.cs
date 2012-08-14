@@ -13,7 +13,8 @@ public enum Difficulty{
 	DMEDIUM, 
 	DHARD, 
 	DEXPERT,
-	DEDIT
+	DEDIT,
+	NONE
 }
 
 public enum Precision{

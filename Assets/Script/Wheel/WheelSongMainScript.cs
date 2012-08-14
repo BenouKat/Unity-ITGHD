@@ -4,10 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 public class WheelSongMainScript : MonoBehaviour {
 	
-	//BUG : prendre en compte les substitles
-	//Bug : Quoi faire quand pas de banner pack ?
-	//Bug : Quoi faire quand pas de banner song ?
-	
 	
 	
 	//To Do : Choisir la difficulté
@@ -20,6 +16,8 @@ public class WheelSongMainScript : MonoBehaviour {
 	public GameObject cubeBase;
 	public GameObject plane;
 	public GameObject difficultyBloc;
+	public GameObject PSCore;
+	public GameObject RayCore;
 	
 	private int numberPack;
 	private int nextnumberPack;
@@ -31,6 +29,8 @@ public class WheelSongMainScript : MonoBehaviour {
 	private Dictionary<Difficulty, GameObject> diffSelected;
 	private Dictionary<Difficulty, Color> diffActiveColor;
 	private Dictionary<string, Texture2D> tex;
+	private Dictionary<int, ParticleSystem> PSDiff;
+	private Dictionary<int, GameObject> RayDiff;
 	private Texture2D actualBanner;
 	
 	private GameObject cubeSelected;
@@ -52,7 +52,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	private int startnumber;
 	public float speedCameraDefil;
 	private float posLabel;
-	
+	public float offsetSubstitle;
 	
 	public Rect posDifficulty;
 	public float ecartDiff;
@@ -60,6 +60,11 @@ public class WheelSongMainScript : MonoBehaviour {
 	private int[] diffNumber;
 	public Rect posNumberDiff;
 	
+	private Difficulty actualySelected;
+	private Difficulty trulySelected;
+	private Difficulty onHoverDifficulty;
+	
+	public float diffZoom;
 	
 	public Rect posGraph;
 	public Rect posInfo;
@@ -99,6 +104,8 @@ public class WheelSongMainScript : MonoBehaviour {
 		LinkCubeSong = new Dictionary<GameObject, string>();
 		diffSelected = new Dictionary<Difficulty, GameObject>();
 		diffActiveColor = new Dictionary<Difficulty, Color>();
+		PSDiff = new Dictionary<int, ParticleSystem>();
+		RayDiff = new Dictionary<int, GameObject>();
 		LoadManager.Instance.Loading();
 		actualBanner = new Texture2D(256,512);
 		
@@ -125,6 +132,16 @@ public class WheelSongMainScript : MonoBehaviour {
 		diffActiveColor.Add(Difficulty.HARD, diffSelected[Difficulty.HARD].transform.GetChild(0).renderer.material.GetColor("_TintColor"));
 		diffActiveColor.Add(Difficulty.EXPERT, diffSelected[Difficulty.EXPERT].transform.GetChild(0).renderer.material.GetColor("_TintColor"));
 		diffActiveColor.Add(Difficulty.EDIT, diffSelected[Difficulty.EDIT].transform.GetChild(0).renderer.material.GetColor("_TintColor"));
+		
+		for(int i=0; i<6;i++){
+			PSDiff.Add(i, (ParticleSystem) PSCore.transform.GetChild(0).particleSystem);
+		}
+		
+		for(int i=0; i<6;i++){
+			RayDiff.Add(i, (GameObject) RayCore.transform.GetChild(0).gameObject);
+		}
+		
+		
 		//To do : correct "KeyAlreadyAssign"
 		while(packs.Count() < 5){
 			foreach(var el in LoadManager.Instance.ListSong().Keys){
@@ -144,7 +161,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		createCubeSong();
 		desactiveDiff();
 		activePack(packs.ElementAt(0).Key);
-		//plane.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[packs.ElementAt(0).Key];
+		plane.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[packs.ElementAt(0).Key];
 		diffNumber = new int[6];
 		for(int i=0;i<6; i++){ diffNumber[i] = 0; }
 		decalFade = 0f;
@@ -157,6 +174,10 @@ public class WheelSongMainScript : MonoBehaviour {
 		alreadyRefresh = true;
 		FadeOutBanner = false;
 		FadeInBanner = false;
+		
+		actualySelected = Difficulty.BEGINNER;
+		trulySelected = Difficulty.BEGINNER;
+		onHoverDifficulty = Difficulty.NONE;
 	}
 	
 	// Update is called once per frame
@@ -218,14 +239,18 @@ public class WheelSongMainScript : MonoBehaviour {
 				var el = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].ElementAt(i);
 				GUI.color = new Color(0f, 0f, 0f, 1f);
 				GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.title, "songlabel");
+				GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos + offsetSubstitle)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.subtitle, "infosong");
 				GUI.color = new Color(1f, 1f, 1f, 1f);
 				GUI.Label(new Rect(posSonglist.x*Screen.width, (posSonglist.y + ecartSong*thepos)*Screen.height, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.title, "songlabel");
+				GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos + offsetSubstitle)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.subtitle, "infosong");
 			}else if(thepos > -1f && thepos < 0f){
 				var el = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].ElementAt(i);
 				GUI.color = new Color(0f, 0f, 0f, 1f + thepos);
 				GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.title, "songlabel");
+				GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos + offsetSubstitle)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.subtitle, "infosong");
 				GUI.color = new Color(1f, 1f, 1f, 1f + thepos);
 				GUI.Label(new Rect(posSonglist.x*Screen.width, (posSonglist.y + ecartSong*thepos)*Screen.height, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.title, "songlabel");
+				GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos + offsetSubstitle)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.subtitle, "infosong");
 			}
 			thepos++;
 		}
@@ -246,7 +271,9 @@ public class WheelSongMainScript : MonoBehaviour {
 			for(int i=0; i<=(int)Difficulty.EDIT; i++){
 				if(diffNumber[i] != 0){
 					GUI.color = new Color(1f, 1f, 1f, 1f);
-					GUI.DrawTexture(new Rect(realx + offsetX[i]*Screen.width, realy + theRealEcart*ecartjump, realwidth, realheight), tex[((Difficulty)i).ToString()]);
+					var zoom = 0f;
+					if(onHoverDifficulty  == (Difficulty)i) zoom = diffZoom; 
+					GUI.DrawTexture(new Rect(realx + offsetX[i]*Screen.width - zoom*Screen.width, realy + theRealEcart*ecartjump - zoom*Screen.height, realwidth + zoom*2f*Screen.width, realheight + zoom*2f*Screen.height), tex[((Difficulty)i).ToString()]);
 					/*GUI.color = new Color(0f, 0f, 0f, 1f);
 					GUI.Label(new Rect(diffx + 1f, diffy + theRealEcart*ecartjump + 1f, diffwidth, diffheight), songSelected[(Difficulty)i].level.ToString(), "numberdiff");
 					*/
@@ -261,39 +288,39 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 		
 		//Song Info
-		if(songSelected != null){
+		if(songSelected != null){ 
 			//BPM
-			GUI.Label(new Rect(BPMDisplay.x*Screen.width , BPMDisplay.y*Screen.height, BPMDisplay.width*Screen.width, BPMDisplay.height*Screen.height), "BPM\n" + songSelected[Difficulty.EXPERT].bpmToDisplay, "bpmdisplay");
+			GUI.Label(new Rect(BPMDisplay.x*Screen.width , BPMDisplay.y*Screen.height, BPMDisplay.width*Screen.width, BPMDisplay.height*Screen.height), "BPM\n" + songSelected[(Difficulty)actualySelected].bpmToDisplay, "bpmdisplay");
 			
 			//Artist n stepartist
-			GUI.Label(new Rect(artistnstepDisplay.x*Screen.width , artistnstepDisplay.y*Screen.height, artistnstepDisplay.width*Screen.width, artistnstepDisplay.height*Screen.height), songSelected[Difficulty.EXPERT].artist + " - Step by : " + songSelected[Difficulty.EXPERT].stepartist);
+			GUI.Label(new Rect(artistnstepDisplay.x*Screen.width , artistnstepDisplay.y*Screen.height, artistnstepDisplay.width*Screen.width, artistnstepDisplay.height*Screen.height), songSelected[(Difficulty)actualySelected].artist + " - Step by : " + songSelected[(Difficulty)actualySelected].stepartist);
 			
 			//Number of step
-			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*0f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[Difficulty.EXPERT].numberOfSteps + " Steps", "infosong");
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*0f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[(Difficulty)actualySelected].numberOfSteps + " Steps", "infosong");
 			//Number of jumps						   
-			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*1f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height),  songSelected[Difficulty.EXPERT].numberOfJumps + " Jumps", "infosong");
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*1f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height),  songSelected[(Difficulty)actualySelected].numberOfJumps + " Jumps", "infosong");
 			//Number of hands						   
-			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*2f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[Difficulty.EXPERT].numberOfHands + " Hands", "infosong");
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*2f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[(Difficulty)actualySelected].numberOfHands + " Hands", "infosong");
 			//Number of mines						  
-			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*3f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[Difficulty.EXPERT].numberOfMines + " Mines", "infosong");
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*3f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[(Difficulty)actualySelected].numberOfMines + " Mines", "infosong");
 			//Number of freeze							
-			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*4f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[Difficulty.EXPERT].numberOfFreezes + " Freezes", "infosong");
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*4f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[(Difficulty)actualySelected].numberOfFreezes + " Freezes", "infosong");
 			//Number of rolls						   
-			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*5f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[Difficulty.EXPERT].numberOfRolls + " Rolls", "infosong");
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*5f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[(Difficulty)actualySelected].numberOfRolls + " Rolls", "infosong");
 			//Number of cross						    
-			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*6f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[Difficulty.EXPERT].numberOfCross + " Cross", "infosong");
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*6f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[(Difficulty)actualySelected].numberOfCross + " Cross", "infosong");
 			//Number of footswitch						
-			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*7f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[Difficulty.EXPERT].numberOfFootswitch + " Footswitch", "infosong");
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*7f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[(Difficulty)actualySelected].numberOfFootswitch + " Footswitch", "infosong");
 			//Average Intensity					   	
-			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*8f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), "Av. Intensity : " + songSelected[Difficulty.EXPERT].stepPerSecondAverage.ToString("0.00") + " SPS", "infosong");
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*8f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), "Av. Intensity : " + songSelected[(Difficulty)actualySelected].stepPerSecondAverage.ToString("0.00") + " SPS", "infosong");
 			//Max Intensity (Time)						
-			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*9f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), "Max Intensity : " + songSelected[Difficulty.EXPERT].stepPerSecondMaximum.ToString("0.00") + " SPS", "infosong");
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*9f )*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), "Max Intensity : " + songSelected[(Difficulty)actualySelected].stepPerSecondMaximum.ToString("0.00") + " SPS", "infosong");
 			//Longest Stream (TimePerSecond)		    
-			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*10f)*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), "Max stream : " + songSelected[Difficulty.EXPERT].longestStream.ToString("0.00") + " sec (" + songSelected[Difficulty.EXPERT].stepPerSecondStream.ToString("0.00") + " SPS)", "infosong");
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*10f)*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), "Max stream : " + songSelected[(Difficulty)actualySelected].longestStream.ToString("0.00") + " sec (" + songSelected[(Difficulty)actualySelected].stepPerSecondStream.ToString("0.00") + " SPS)", "infosong");
 			//Number of BPM change						
-			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*11f)*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[Difficulty.EXPERT].bpms.Count - 1 + " BPM changes", "infosong");
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*11f)*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[(Difficulty)actualySelected].bpms.Count - 1 + " BPM changes", "infosong");
 			//Number of stops						    
-			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*12f)*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[Difficulty.EXPERT].stops.Count + " Stops", "infosong");
+			GUI.Label(new Rect(posInfo.x*Screen.width , (posInfo.y + offsetInfo*12f)*Screen.height, posInfo.width*Screen.width, posInfo.height*Screen.height), songSelected[(Difficulty)actualySelected].stops.Count + " Stops", "infosong");
 		}
 	}
 	
@@ -421,10 +448,11 @@ public class WheelSongMainScript : MonoBehaviour {
 						
 						particleOnPlay.active = false;
 					}
-					if(songSelected == null || songSelected.First().Value.title != LinkCubeSong[papa.gameObject]){
-						songSelected = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].FirstOrDefault(c => c.Value.First().Value.title == LinkCubeSong[papa.gameObject]).Value;
+					if(songSelected == null || ((songSelected.First().Value.title + "/" + songSelected.First().Value.subtitle) != LinkCubeSong[papa.gameObject])){
+						songSelected = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].FirstOrDefault(c => (c.Value.First().Value.title + "/" + c.Value.First().Value.subtitle) == LinkCubeSong[papa.gameObject]).Value;
 						activeNumberDiff(songSelected);
 						activeDiff(songSelected);
+						activeDiffPS(songSelected);
 						cubeSelected = papa.gameObject;
 						alreadyRefresh = false;
 						//if(time >= timeBeforeDisplay) plane.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[packs.ElementAt(nextnumberPack).Key];
@@ -444,10 +472,11 @@ public class WheelSongMainScript : MonoBehaviour {
 						{
 							particleOnPlay.active = false;
 						}
-						if(songSelected == null || songSelected.First().Value.title != LinkCubeSong[papa.gameObject]){
-							songSelected = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].FirstOrDefault(c => c.Value.First().Value.title == LinkCubeSong[papa.gameObject]).Value;
+						if(songSelected == null || ((songSelected.First().Value.title + "/" + songSelected.First().Value.subtitle) != LinkCubeSong[papa.gameObject])){
+							songSelected = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].FirstOrDefault(c => (c.Value.First().Value.title + "/" + c.Value.First().Value.subtitle) == LinkCubeSong[papa.gameObject]).Value;
 							activeNumberDiff(songSelected);
 							activeDiff(songSelected);
+							activeDiffPS(songSelected);
 							cubeSelected = papa.gameObject;
 							alreadyRefresh = false;
 							if(alphaBanner > 0) FadeOutBanner = true;
@@ -471,6 +500,21 @@ public class WheelSongMainScript : MonoBehaviour {
 					particleOnPlay.active = false;
 				}
 			}
+			
+			
+			if(theGo != null && theGo.tag == "ZoneDiff"){
+				onHoverDifficulty = (Difficulty)int.Parse(theGo.name);
+				if(Input.GetMouseButtonDown(0)){
+					
+					PSDiff[(int)actualySelected].gameObject.active = false;
+					actualySelected = (Difficulty)int.Parse(theGo.name);
+					trulySelected = (Difficulty)int.Parse(theGo.name);
+					PSDiff[(int)actualySelected].gameObject.active = true;
+					
+				}
+			}else{
+				onHoverDifficulty = Difficulty.NONE;
+			}
 		}else if(particleOnPlay != null && particleOnPlay.active){
 			if(!locked){
 				cubeSelected = null;
@@ -480,7 +524,6 @@ public class WheelSongMainScript : MonoBehaviour {
 				particleOnPlay.active = false;
 			}
 		}
-		
 		
 		if(Input.GetMouseButtonDown(1)){
 			locked = false;
@@ -544,7 +587,12 @@ public class WheelSongMainScript : MonoBehaviour {
 		if(songSelected != null && !alreadyRefresh){
 			if(time >= timeBeforeDisplay){
 				plane.renderer.material.mainTexture = actualBanner;
-				actualBanner = songSelected.First().Value.GetBanner(actualBanner);
+				var thebanner = songSelected.First().Value.GetBanner(actualBanner);
+				if(thebanner != null){
+					actualBanner = thebanner;	
+				}else{
+					plane.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[packs.ElementAt(nextnumberPack).Key];
+				}
 				alreadyRefresh = true;
 				FadeInBanner = true;
 			}else{
@@ -581,9 +629,19 @@ public class WheelSongMainScript : MonoBehaviour {
 				pos -= 3f;
 				thego.SetActiveRecursively(false);
 				songCubePack.Add(thego,el.Key);
-				LinkCubeSong.Add(thego, song.Value.First().Value.title);
+				LinkCubeSong.Add(thego, song.Value.First().Value.title + "/" + song.Value.First().Value.subtitle);
 
 			}
+		}
+	}
+	
+	
+	void activeDiffPS(Dictionary<Difficulty, Song> so){
+		if(so.ContainsKey(trulySelected)){
+			actualySelected = trulySelected;	
+		}else{
+			actualySelected = (Difficulty)so.Keys.Min(c => Mathf.Abs((float)((int)c) - (float)((int)trulySelected)));
+			
 		}
 	}
 	
@@ -594,6 +652,7 @@ public class WheelSongMainScript : MonoBehaviour {
 				
 				//diffSelected[(Difficulty)i].SetActiveRecursively(true);	
 				diffSelected[(Difficulty)i].transform.position = new Vector3(diffSelected[(Difficulty)i].transform.position.x, DataManager.Instance.posYDiff[countpos], diffSelected[(Difficulty)i].transform.position.z);
+				RayDiff[i].transform.position = new Vector3(RayDiff[i].transform.position.x, DataManager.Instance.posYZoneDiff[countpos], RayDiff[i].transform.position.z);
 				countpos++;
 				for(int j=0; j<diffSelected[(Difficulty)i].transform.GetChildCount(); j++){
 					if((int.Parse(diffSelected[(Difficulty)i].transform.GetChild(j).name)) <= so[(Difficulty)i].level){
@@ -604,6 +663,7 @@ public class WheelSongMainScript : MonoBehaviour {
 				}
 			}else{
 				diffSelected[(Difficulty)i].transform.Translate(0f, -100f, 0f);
+				RayDiff[i].transform.Translate(0f, -100f, 0f);
 				for(int j=0; j<diffSelected[(Difficulty)i].transform.GetChildCount(); j++){
 					if(diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.GetColor("_TintColor") == diffActiveColor[(Difficulty)i]) diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.SetColor("_TintColor",new Color(diffActiveColor[(Difficulty)i].r/10f, diffActiveColor[(Difficulty)i].g/10f, diffActiveColor[(Difficulty)i].b/10f, 1f));
 				}

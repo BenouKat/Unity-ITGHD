@@ -24,6 +24,8 @@ public class DataManager{
 	
 	public float[] posYDiff;
 	
+	public float[] posYZoneDiff;
+	
 	public Color[] diffColor;
 	
 	public float globalOffsetSeconds = -0.100f;
@@ -76,6 +78,14 @@ public class DataManager{
 		posYDiff[3] = -0.49f;
 		posYDiff[4] = -0.72f;
 		posYDiff[5] = -0.95f;
+		
+		posYZoneDiff = new float[6];
+		posYZoneDiff[0] = 2.2f;
+		posYZoneDiff[1] = -0.7f;
+		posYZoneDiff[2] = -3.7f;
+		posYZoneDiff[3] = -6.7f;
+		posYZoneDiff[4] = -9.6f;
+		posYZoneDiff[5] = -12.5f;
 		
 		diffColor = new Color[6];
 		diffColor[0] = new Color(0.68f, 0.40f, 1f, 1f);
