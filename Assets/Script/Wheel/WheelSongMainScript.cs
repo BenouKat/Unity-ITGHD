@@ -6,11 +6,12 @@ public class WheelSongMainScript : MonoBehaviour {
 	
 	
 	
-	//To Do : Choisir la difficulté
+	//Bug : Expert -> Easy quand y a pas expert
 	
 	
 	public GameObject miniCubePack;
 	public Camera camerapack;
+	public Camera cameradiff;
 	public GUISkin skin;
 	public GameObject cubeSong;
 	public GameObject cubeBase;
@@ -134,11 +135,11 @@ public class WheelSongMainScript : MonoBehaviour {
 		diffActiveColor.Add(Difficulty.EDIT, diffSelected[Difficulty.EDIT].transform.GetChild(0).renderer.material.GetColor("_TintColor"));
 		
 		for(int i=0; i<6;i++){
-			PSDiff.Add(i, (ParticleSystem) PSCore.transform.GetChild(0).particleSystem);
+			PSDiff.Add(i, (ParticleSystem) PSCore.transform.FindChild(""+i).particleSystem);
 		}
 		
 		for(int i=0; i<6;i++){
-			RayDiff.Add(i, (GameObject) RayCore.transform.GetChild(0).gameObject);
+			RayDiff.Add(i, (GameObject) RayCore.transform.FindChild(""+i).gameObject);
 		}
 		
 		
@@ -178,6 +179,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		actualySelected = Difficulty.BEGINNER;
 		trulySelected = Difficulty.BEGINNER;
 		onHoverDifficulty = Difficulty.NONE;
+		
 	}
 	
 	// Update is called once per frame
@@ -452,7 +454,9 @@ public class WheelSongMainScript : MonoBehaviour {
 						songSelected = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].FirstOrDefault(c => (c.Value.First().Value.title + "/" + c.Value.First().Value.subtitle) == LinkCubeSong[papa.gameObject]).Value;
 						activeNumberDiff(songSelected);
 						activeDiff(songSelected);
+						PSDiff[(int)actualySelected].gameObject.active = false;
 						activeDiffPS(songSelected);
+						PSDiff[(int)actualySelected].gameObject.active = true;
 						cubeSelected = papa.gameObject;
 						alreadyRefresh = false;
 						//if(time >= timeBeforeDisplay) plane.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[packs.ElementAt(nextnumberPack).Key];
@@ -476,7 +480,9 @@ public class WheelSongMainScript : MonoBehaviour {
 							songSelected = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].FirstOrDefault(c => (c.Value.First().Value.title + "/" + c.Value.First().Value.subtitle) == LinkCubeSong[papa.gameObject]).Value;
 							activeNumberDiff(songSelected);
 							activeDiff(songSelected);
+							PSDiff[(int)actualySelected].gameObject.active = false;
 							activeDiffPS(songSelected);
+							PSDiff[(int)actualySelected].gameObject.active = true;
 							cubeSelected = papa.gameObject;
 							alreadyRefresh = false;
 							if(alphaBanner > 0) FadeOutBanner = true;
@@ -496,16 +502,35 @@ public class WheelSongMainScript : MonoBehaviour {
 					cubeSelected = null;
 					songSelected = null;
 					FadeOutBanner = true;
+					PSDiff[(int)actualySelected].gameObject.active = false;
 					desactiveDiff();
 					particleOnPlay.active = false;
 				}
 			}
 			
 			
+			
+		}else if(particleOnPlay != null && particleOnPlay.active){
+			if(!locked){
+				cubeSelected = null;
+				songSelected = null;
+				FadeOutBanner = true;
+				PSDiff[(int)actualySelected].gameObject.active = false;
+				desactiveDiff();
+				particleOnPlay.active = false;
+			}
+		}
+		
+		
+		Ray ray2 = cameradiff.ScreenPointToRay(Input.mousePosition);	
+		RaycastHit hit2;
+			
+		if(Physics.Raycast(ray2, out hit2))
+		{
+			var theGo = hit2.transform.gameObject;
 			if(theGo != null && theGo.tag == "ZoneDiff"){
 				onHoverDifficulty = (Difficulty)int.Parse(theGo.name);
 				if(Input.GetMouseButtonDown(0)){
-					
 					PSDiff[(int)actualySelected].gameObject.active = false;
 					actualySelected = (Difficulty)int.Parse(theGo.name);
 					trulySelected = (Difficulty)int.Parse(theGo.name);
@@ -515,14 +540,8 @@ public class WheelSongMainScript : MonoBehaviour {
 			}else{
 				onHoverDifficulty = Difficulty.NONE;
 			}
-		}else if(particleOnPlay != null && particleOnPlay.active){
-			if(!locked){
-				cubeSelected = null;
-				songSelected = null;
-				FadeOutBanner = true;
-				desactiveDiff();
-				particleOnPlay.active = false;
-			}
+		}else{
+			onHoverDifficulty = Difficulty.NONE;	
 		}
 		
 		if(Input.GetMouseButtonDown(1)){
@@ -640,7 +659,18 @@ public class WheelSongMainScript : MonoBehaviour {
 		if(so.ContainsKey(trulySelected)){
 			actualySelected = trulySelected;	
 		}else{
-			actualySelected = (Difficulty)so.Keys.Min(c => Mathf.Abs((float)((int)c) - (float)((int)trulySelected)));
+			var min = 99;
+			var mini = (int)trulySelected;
+			for(int i=(int)Difficulty.BEGINNER; i<=(int)Difficulty.EDIT; i++){
+				if(so.ContainsKey((Difficulty)i)){
+					var abs = Mathf.Abs((float)i - (float)trulySelected);
+					if(abs < min){
+						min = (int)abs;	
+						mini = i;
+					}
+				}
+			}
+			actualySelected = (Difficulty)mini;
 			
 		}
 	}
@@ -649,9 +679,9 @@ public class WheelSongMainScript : MonoBehaviour {
 		var countpos = 0;
 		for(int i=(int)Difficulty.BEGINNER; i<=(int)Difficulty.EDIT; i++){
 			if(so.ContainsKey((Difficulty)i)){
-				
 				//diffSelected[(Difficulty)i].SetActiveRecursively(true);	
 				diffSelected[(Difficulty)i].transform.position = new Vector3(diffSelected[(Difficulty)i].transform.position.x, DataManager.Instance.posYDiff[countpos], diffSelected[(Difficulty)i].transform.position.z);
+				PSDiff[i].transform.position = new Vector3(PSDiff[i].transform.position.x, DataManager.Instance.posYZoneDiff[countpos], PSDiff[i].transform.position.z);
 				RayDiff[i].transform.position = new Vector3(RayDiff[i].transform.position.x, DataManager.Instance.posYZoneDiff[countpos], RayDiff[i].transform.position.z);
 				countpos++;
 				for(int j=0; j<diffSelected[(Difficulty)i].transform.GetChildCount(); j++){
@@ -673,8 +703,8 @@ public class WheelSongMainScript : MonoBehaviour {
 	
 	void desactiveDiff(){
 		for(int i=(int)Difficulty.BEGINNER; i<=(int)Difficulty.EDIT; i++){
-
-				diffSelected[(Difficulty)i].transform.Translate(0f, -100f, 0f);
+			RayDiff[i].transform.Translate(0f, -100f, 0f);
+			diffSelected[(Difficulty)i].transform.Translate(0f, -100f, 0f);
 		}
 	}
 	

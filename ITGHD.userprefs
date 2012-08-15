@@ -2,10 +2,10 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Wheel\WheelSongMainScript.cs">
     <Files>
-      <File FileName="Assets\Script\Wheel\WheelSongMainScript.cs" Line="507" Column="23" />
+      <File FileName="Assets\Script\Wheel\WheelSongMainScript.cs" Line="663" Column="20" />
       <File FileName="Assets\Script\FrameWork\OpenChart.cs" Line="12" Column="21" />
       <File FileName="Assets\Script\Managers\LoadManager.cs" Line="45" Column="57" />
-      <File FileName="Assets\Script\Managers\DataManager.cs" Line="75" Column="23" />
+      <File FileName="Assets\Script\Managers\DataManager.cs" Line="87" Column="27" />
       <File FileName="Assets\Script\FrameWork\Song.cs" Line="117" Column="11" />
       <File FileName="Assets\Script\Managers\EnumManager.cs" Line="17" Column="6" />
       <File FileName="Assets\Script\Chart\InGameScript.cs" Line="281" Column="121" />
