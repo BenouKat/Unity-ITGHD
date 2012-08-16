@@ -436,6 +436,10 @@ public class OpenChart{
 		freezed[1] = 0;
 		freezed[2] = 0;
 		freezed[3] = 0;
+		
+		//graph
+		var listNumberStep = new Dictionary<double, double>();
+		
 		foreach(var mesure in s.stepchart){
 			
 			for(int beat=0;beat<mesure.Count;beat++){
@@ -505,7 +509,7 @@ public class OpenChart{
 				
 				if((beat*8f)%(mesure.Count) == 0){
 					var newMax = numberStepBetweenTwoBeat/(timetotal - timestartMax);
-					
+					listNumberStep.Add(timetotal, newMax);
 					if(maxStepPerSeconds < newMax){
 						maxStepPerSeconds = newMax;
 					}
@@ -742,6 +746,7 @@ public class OpenChart{
 		}
 		
 		stepbysecAv = (double)countStep/(stoptime - timestart);
+		s.duration = (stoptime - timestart);
 		s.stepPerSecondAverage = stepbysecAv;
 		s.stepPerSecondMaximum = maxStepPerSeconds;
 		//s.timeMaxStep = maxLenght;
@@ -750,6 +755,30 @@ public class OpenChart{
 		s.numberOfFootswitch = numberOfFootswitch;
 		s.numberOfCross = numberOfCross - numberOfFootswitch;
 		s.numberOfHands = numberOfHands;
+		
+		
+		s.intensityGraph = new float[100];
+		
+		var theamountOfTime = s.duration/100f;
+		double thetotaltime = 0;
+		double themoy = 0;
+		double thecountmoy = 0;
+		var countintensity = 0;
+		double theprevioustimetotal = 0;
+		for(int i=0;i<listNumberStep.Count && thetotaltime < s.duration;i++){
+			if((thetotaltime - theprevioustimetotal) >= theamountOfTime){
+				var thevalue = themoy/thecountmoy;
+				s.intensityGraph[countintensity] = (float)thevalue;
+				countintensity++;
+				thecountmoy = 0;
+				themoy = 0;
+				theprevioustimetotal = thetotaltime;
+			}else{
+				themoy += listNumberStep.ElementAt(i).Value;
+				thecountmoy++;
+				thetotaltime = listNumberStep.ElementAt(i).Key;
+			}
+		}
 	}
 	
 	
