@@ -56,8 +56,22 @@ public class Song {
 	public AudioClip GetAudioClip(){
 		var thewww = new WWW(song);
 		while(!thewww.isDone){ }
+		var ac = thewww.GetAudioClip(false, true,AudioType.OGGVORBIS);
+		thewww.Dispose();
+		return ac;
+	}
+	
+	public string GetAudioClipUnstreamed(){
+		return song;
+	}
+	
+	/*
+	public AudioClip SetAudioClip(AudioClip ac){
+		var thewww = new WWW(song);
+		while(!thewww.isDone){ }
 		return thewww.GetAudioClip(false, true);
 	}
+	*/
 	
 	public Texture2D GetBanner(Texture2D tex){
 		if(banner != "noBanner"){

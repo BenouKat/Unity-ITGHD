@@ -1,14 +1,14 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Wheel\WheelSongMainScript.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Managers\DataManager.cs">
     <Files>
-      <File FileName="Assets\Script\Wheel\WheelSongMainScript.cs" Line="817" Column="27" />
-      <File FileName="Assets\Script\FrameWork\OpenChart.cs" Line="81" Column="25" />
+      <File FileName="Assets\Script\Wheel\WheelSongMainScript.cs" Line="882" Column="73" />
+      <File FileName="Assets\Script\FrameWork\Song.cs" Line="57" Column="30" />
+      <File FileName="Assets\Script\FrameWork\OpenChart.cs" Line="78" Column="38" />
       <File FileName="Assets\Script\Managers\LoadManager.cs" Line="45" Column="57" />
-      <File FileName="Assets\Script\Managers\DataManager.cs" Line="87" Column="27" />
-      <File FileName="Assets\Script\FrameWork\Song.cs" Line="32" Column="14" />
-      <File FileName="Assets\Script\Managers\EnumManager.cs" Line="17" Column="6" />
-      <File FileName="Assets\Script\Chart\InGameScript.cs" Line="281" Column="121" />
+      <File FileName="Assets\Script\Managers\DataManager.cs" Line="194" Column="37" />
+      <File FileName="Assets\Script\Managers\EnumManager.cs" Line="25" Column="9" />
+      <File FileName="Assets\Script\Chart\InGameScript.cs" Line="1357" Column="20" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

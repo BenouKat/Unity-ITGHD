@@ -17,6 +17,14 @@ public enum Difficulty{
 	NONE
 }
 
+public enum Judge{
+		BEGINNER,
+		EASY,
+		NORMAL,
+		HARD,
+		EXPERT
+}
+
 public enum Precision{
 		FANTASTIC,
 		EXCELLENT,

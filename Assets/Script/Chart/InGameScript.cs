@@ -1352,13 +1352,15 @@ public class InGameScript : MonoBehaviour {
 	
 	#region util
 	public void GainScoreAndLife(string s){
-		life += lifeBase[s];
-		if(life > 100f){
-			life = 100f;	
-		}else if(life < 0f){
-			life = 0f;	
+		if(combo >= DataManager.Instance.regenComboAfterMiss){
+			life += lifeBase[s];
+			if(life > 100f){
+				life = 100f;	
+			}else if(life < 0f){
+				life = 0f;	
+			}
+			theLifeBar.ChangeBar(life);
 		}
-		theLifeBar.ChangeBar(life);
 		score += scoreBase[s];
 		if(score > 100f){
 			score = 100f;	
@@ -1421,7 +1423,11 @@ public class InGameScript : MonoBehaviour {
 	
 	#region Precision
 	double precToTime(Precision prec){
-		switch(prec){
+		if(prec <= Precision.WAYOFF){
+			return DataManager.Instance.PrecisionValues[prec];	
+		}
+		return 0;
+		/*switch(prec){
 		case Precision.FANTASTIC:
 			return 0.0215;
 		case Precision.EXCELLENT:
@@ -1434,7 +1440,7 @@ public class InGameScript : MonoBehaviour {
 			return 0.180;
 		default:
 			return 0;
-		}
+		}*/
 	}
 	
 	

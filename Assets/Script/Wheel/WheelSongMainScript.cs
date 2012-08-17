@@ -134,6 +134,10 @@ public class WheelSongMainScript : MonoBehaviour {
 	private float time;
 	private bool alreadyRefresh;
 	
+	
+	//Sound
+	AudioClip actualClip;
+	
 	#endregion
 	// Use this for initialization
 	void Start () {
@@ -205,6 +209,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		activePack(packs.ElementAt(0).Key);
 		plane.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[packs.ElementAt(0).Key];
 		diffNumber = new int[6];
+		actualClip = new AudioClip();
 		for(int i=0;i<6; i++){ diffNumber[i] = 0; }
 		decalFade = 0f;
 		decalFadeM = 0f;
@@ -706,7 +711,7 @@ public class WheelSongMainScript : MonoBehaviour {
 							graph.enabled = true;
 							cubeSelected = papa.gameObject;
 							alreadyRefresh = false;
-							
+							audio.Stop();
 							//if(time >= timeBeforeDisplay) plane.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[packs.ElementAt(nextnumberPack).Key];
 							time = 0f;
 							if(alphaBanner > 0) FadeOutBanner = true;
@@ -735,6 +740,7 @@ public class WheelSongMainScript : MonoBehaviour {
 								graph.enabled = true;
 								cubeSelected = papa.gameObject;
 								alreadyRefresh = false;
+								audio.Stop();
 								if(alphaBanner > 0) FadeOutBanner = true;
 								//if(time >= timeBeforeDisplay) plane.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[packs.ElementAt(nextnumberPack).Key];
 								time = 0f;
@@ -753,6 +759,7 @@ public class WheelSongMainScript : MonoBehaviour {
 						songSelected = null;
 						FadeOutBanner = true;
 						graph.enabled = false;
+						audio.Stop();
 						PSDiff[(int)actualySelected].gameObject.active = false;
 						desactiveDiff();
 						particleOnPlay.active = false;
@@ -766,6 +773,7 @@ public class WheelSongMainScript : MonoBehaviour {
 					cubeSelected = null;
 					songSelected = null;
 					FadeOutBanner = true;
+					audio.Stop();
 					PSDiff[(int)actualySelected].gameObject.active = false;
 					graph.enabled = false;
 					desactiveDiff();
@@ -867,16 +875,19 @@ public class WheelSongMainScript : MonoBehaviour {
 			#endregion
 			
 			#region Banner
-			//refreshBanner
+			//refreshBanner and sound
 			if(songSelected != null && !alreadyRefresh){
 				if(time >= timeBeforeDisplay){
 					plane.renderer.material.mainTexture = actualBanner;
 					var thebanner = songSelected.First().Value.GetBanner(actualBanner);
+					//StartCoroutine(startTheSongUnstreamed());
+					startTheSongStreamed();
 					if(thebanner != null){
 						actualBanner = thebanner;	
 					}else{
 						plane.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[packs.ElementAt(nextnumberPack).Key];
 					}
+					
 					alreadyRefresh = true;
 					FadeInBanner = true;
 				}else{
@@ -902,8 +913,37 @@ public class WheelSongMainScript : MonoBehaviour {
 			}
 			
 			#endregion
+			
 		
 		}
+	}
+	
+	
+	IEnumerator startTheSongUnstreamed(){
+		
+		DestroyImmediate(actualClip);
+		var path = songSelected.First().Value.GetAudioClipUnstreamed();
+		var thewww = new WWW(path);
+		while(!thewww.isDone){
+			yield return new WaitForFixedUpdate();
+		}
+		Debug.Log ("coucou");
+		actualClip = thewww.GetAudioClip(false, false, AudioType.OGGVORBIS);
+		thewww.Dispose();
+		audio.clip = actualClip;
+		audio.time = (float)songSelected.First().Value.samplestart;
+		audio.loop = true;
+		audio.Play();
+	}
+	
+	public void startTheSongStreamed(){
+		
+		DestroyImmediate(actualClip);
+		
+		actualClip = songSelected.First().Value.GetAudioClip();
+		audio.clip = actualClip;
+		audio.time = (float)songSelected.First().Value.samplestart;
+		audio.PlayOneShot(actualClip);
 	}
 	
 	

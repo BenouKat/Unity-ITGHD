@@ -22,6 +22,8 @@ public class DataManager{
 	
 	public Dictionary<string, float> LifeWeightValues;
 	
+	public Dictionary<Precision, double> PrecisionValues;
+	
 	public float[] posYDiff;
 	
 	public float[] posYZoneDiff;
@@ -29,6 +31,8 @@ public class DataManager{
 	public Color[] diffColor;
 	
 	public float globalOffsetSeconds = -0.100f;
+	
+	public int regenComboAfterMiss = 5;
 	
 	private static DataManager instance;
 	
@@ -71,6 +75,13 @@ public class DataManager{
 		LifeWeightValues.Add("UNFREEZE",-8f);
 		LifeWeightValues.Add("MINE",-5f);
 		
+		
+		PrecisionValues.Add(Precision.FANTASTIC, 0.0215);
+		PrecisionValues.Add(Precision.EXCELLENT, 0.043);
+		PrecisionValues.Add(Precision.GREAT, 0.102);
+		PrecisionValues.Add(Precision.DECENT, 0.135);
+		PrecisionValues.Add(Precision.WAYOFF, 0.180);
+		
 		posYDiff = new float[6];
 		posYDiff[0] = 0.19f;
 		posYDiff[1] = -0.04f;
@@ -94,6 +105,163 @@ public class DataManager{
 		diffColor[3] = new Color(1f, 0.208f, 0.208f, 1f);
 		diffColor[4] = new Color(0.208f, 0.57f, 1f, 1f);
 		diffColor[5] = new Color(1f, 1f, 1f, 1f);
+		
+	}
+	
+	
+	
+	public void LoadScoreJudge(Judge j){
+		switch(j){
+			case Judge.BEGINNER:
+				ScoreWeightValues["EXCELLENT"] = 1f;
+				ScoreWeightValues["GREAT"] = 0.9f;
+				ScoreWeightValues["DECENT"] = 0.5f;
+				ScoreWeightValues["WAYOFF"] = 0f;
+				ScoreWeightValues["MISS"] = 0f;
+				ScoreWeightValues["MINE"] = -0.01f;
+			break;
+			case Judge.EASY:
+				ScoreWeightValues["EXCELLENT"] = 0.9f;
+				ScoreWeightValues["GREAT"] = 0.6f;
+				ScoreWeightValues["DECENT"] = 0f;
+				ScoreWeightValues["WAYOFF"] = 0f;
+				ScoreWeightValues["MISS"] = -1f;
+				ScoreWeightValues["MINE"] = -0.5f;
+			break;
+			case Judge.NORMAL:
+				ScoreWeightValues["EXCELLENT"] = 0.8f;
+				ScoreWeightValues["GREAT"] = 0.4f;
+				ScoreWeightValues["DECENT"] = 0f;
+				ScoreWeightValues["WAYOFF"] = -1.2f;
+				ScoreWeightValues["MISS"] = -2.4f;
+				ScoreWeightValues["MINE"] = -1.2f;
+			break;
+			case Judge.HARD:
+				ScoreWeightValues["EXCELLENT"] = 0.5f;
+				ScoreWeightValues["GREAT"] = 0.2f;
+				ScoreWeightValues["DECENT"] = -0.5f;
+				ScoreWeightValues["WAYOFF"] = -2f;
+				ScoreWeightValues["MISS"] = -4f;
+				ScoreWeightValues["MINE"] = -2f;
+			break;
+			case Judge.EXPERT:
+				ScoreWeightValues["EXCELLENT"] = 0.3f;
+				ScoreWeightValues["GREAT"] = 0f;
+				ScoreWeightValues["DECENT"] = -2f;
+				ScoreWeightValues["WAYOFF"] = -5f;
+				ScoreWeightValues["MISS"] = -10f;
+				ScoreWeightValues["MINE"] = -10f;
+			break;
+		}
+	}
+	
+	
+	public void LoadHitJudge(Judge j){
+		switch(j){
+			case Judge.BEGINNER:
+				PrecisionValues[Precision.FANTASTIC] = 0.135;
+				PrecisionValues[Precision.EXCELLENT] = 0.180;
+				PrecisionValues[Precision.GREAT] = 0.280;
+				PrecisionValues[Precision.DECENT] = 0.350;
+				PrecisionValues[Precision.WAYOFF] = 0.5;
+			break;
+			case Judge.EASY:
+				PrecisionValues[Precision.FANTASTIC] = 0.043;
+				PrecisionValues[Precision.EXCELLENT] = 0.102;
+				PrecisionValues[Precision.GREAT] = 0.180;
+				PrecisionValues[Precision.DECENT] = 0.240;
+				PrecisionValues[Precision.WAYOFF] = 0.3;
+			break;
+			case Judge.NORMAL:	
+				PrecisionValues[Precision.FANTASTIC] = 0.0215;
+				PrecisionValues[Precision.EXCELLENT] = 0.043;
+				PrecisionValues[Precision.GREAT] = 0.102;
+				PrecisionValues[Precision.DECENT] = 0.135;
+				PrecisionValues[Precision.WAYOFF] = 0.180;
+			break;
+			case Judge.HARD:	
+				PrecisionValues[Precision.FANTASTIC] = 0.015;
+				PrecisionValues[Precision.EXCELLENT] = 0.035;
+				PrecisionValues[Precision.GREAT] = 0.070;
+				PrecisionValues[Precision.DECENT] = 0.1;
+				PrecisionValues[Precision.WAYOFF] = 0.135;
+			break;
+			case Judge.EXPERT:	
+				PrecisionValues[Precision.FANTASTIC] = 0.0075;
+				PrecisionValues[Precision.EXCELLENT] = 0.015;
+				PrecisionValues[Precision.GREAT] = 0.0215;
+				PrecisionValues[Precision.DECENT] = 0.043;
+				PrecisionValues[Precision.WAYOFF] = 0.102;
+			break;
+		}
+		
+	}
+	
+	
+	public void LoadLifeJudge(Judge j){
+		switch(j){
+			case Judge.BEGINNER:
+				LifeWeightValues["FANTASTIC"] = 5f;
+				LifeWeightValues["EXCELLENT"] = 2f;
+				LifeWeightValues["GREAT"] = 1f;
+				LifeWeightValues["DECENT"] = 0.2f;
+				LifeWeightValues["WAYOFF"] = -0.2f;
+				LifeWeightValues["MISS"] = -1f;
+				LifeWeightValues["MINE"] = -0.1f;
+				LifeWeightValues["FREEZE"] = 5f;
+				LifeWeightValues["UNFREEZE"] = -0.2f;
+				regenComboAfterMiss = 0;
+			break;
+			case Judge.EASY:
+				LifeWeightValues["FANTASTIC"] = 1.5f;
+				LifeWeightValues["EXCELLENT"] = 1f;
+				LifeWeightValues["GREAT"] = 0.5f;
+				LifeWeightValues["DECENT"] = 0f;
+				LifeWeightValues["WAYOFF"] = -2.5f;
+				LifeWeightValues["MISS"] = -5f;
+				LifeWeightValues["MINE"] = -2.5f;
+				LifeWeightValues["FREEZE"] = 1.5f;
+				LifeWeightValues["UNFREEZE"] = -3.5f;
+				regenComboAfterMiss = 2;
+			break;
+			case Judge.NORMAL:	
+				LifeWeightValues["FANTASTIC"] = 0.8f;
+				LifeWeightValues["EXCELLENT"] = 0.7f;
+				LifeWeightValues["GREAT"] = 0.4f;
+				LifeWeightValues["DECENT"] = 0f;
+				LifeWeightValues["WAYOFF"] = -5f;
+				LifeWeightValues["MISS"] = -10f;
+				LifeWeightValues["MINE"] = -5f;
+				LifeWeightValues["FREEZE"] = 0.8f;
+				LifeWeightValues["UNFREEZE"] = -8f;
+				regenComboAfterMiss = 5;
+			break;
+			case Judge.HARD:	
+				LifeWeightValues["FANTASTIC"] = 0.5f;
+				LifeWeightValues["EXCELLENT"] = 0.4f;
+				LifeWeightValues["GREAT"] = 0.05f;
+				LifeWeightValues["DECENT"] = -5f;
+				LifeWeightValues["WAYOFF"] = -20f;
+				LifeWeightValues["MISS"] = -25f;
+				LifeWeightValues["MINE"] = -10f;
+				LifeWeightValues["FREEZE"] = 0.5f;
+				LifeWeightValues["UNFREEZE"] = -20f;
+				regenComboAfterMiss = 10;
+			break;
+			case Judge.EXPERT:	
+				LifeWeightValues["FANTASTIC"] = 0.2f;
+				LifeWeightValues["EXCELLENT"] = 0.1f;
+				LifeWeightValues["GREAT"] = 0f;
+				LifeWeightValues["DECENT"] = -20f;
+				LifeWeightValues["WAYOFF"] = -50f;
+				LifeWeightValues["MISS"] = -100f;
+				LifeWeightValues["MINE"] = -25f;
+				LifeWeightValues["FREEZE"] = 0f;
+				LifeWeightValues["UNFREEZE"] = -25f;
+				regenComboAfterMiss = 20;
+			break;
+		}
+		
 		
 	}
 }
