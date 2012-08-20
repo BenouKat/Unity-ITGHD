@@ -17,7 +17,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	public GameObject RayCore;
 	public LineRenderer graph;
 	public LineRenderer separator;
-	
+	public GameObject cacheOption;
 	
 	//List And dictionary
 	private Dictionary<string, GameObject> packs;
@@ -129,6 +129,35 @@ public class WheelSongMainScript : MonoBehaviour {
 	public Vector2 arriveOptionDiff;
 	
 	
+	//Option mode
+	private bool[] stateLoading;
+	public float timeOption;
+	public Rect posOptionTitle;
+	public float offsetYOption;
+	public LineRenderer[] optionSeparator;
+	private Material matCache;
+	private float fadeAlphaOptionTitle;
+	
+	//Option mode Items
+	public Rect[] posItem;
+	private float speedModSelected;
+	private float rateselected;
+	private Dictionary<Judge, string> dicScoreJudge;
+	private Judge scoreJudgeSelected;
+	private Dictionary<Judge, string> dicHitJudge;
+	private Judge hitJudgeSelected;
+	private Dictionary<Judge, string> dicLifeJudge;
+	private Judge lifeJudgeSelected;
+	private string[] aSkin;
+	private int skinSelected;
+	private string[] aRace;
+	private int raceSelected;
+	private string[] aDisplay;
+	private int displaySelected;
+	private string[] aDeath;
+	private int deathSelected;
+	
+	
 	//General Update
 	public float timeBeforeDisplay;
 	private float time;
@@ -164,6 +193,14 @@ public class WheelSongMainScript : MonoBehaviour {
 		tex.Add("EDIT", (Texture2D) Resources.Load("edit"));
 		tex.Add("graph", (Texture2D) Resources.Load("graph"));
 		tex.Add("bouton", (Texture2D) Resources.Load("GUIBarMini"));
+		tex.Add("Option1", (Texture2D) Resources.Load("Speedmod"));
+		tex.Add("Option2", (Texture2D) Resources.Load("Rate"));
+		tex.Add("Option7", (Texture2D) Resources.Load("Race"));
+		tex.Add("Option3", (Texture2D) Resources.Load("HitJudge"));
+		tex.Add("Option4", (Texture2D) Resources.Load("ScoreJudge"));
+		tex.Add("Option5", (Texture2D) Resources.Load("LifeJudge"));
+		tex.Add("Option6", (Texture2D) Resources.Load("Display"));
+		tex.Add("Option8", (Texture2D) Resources.Load("Death"));
 		
 		diffSelected.Add(Difficulty.BEGINNER, GameObject.Find("DifficultyB"));
 		diffSelected.Add(Difficulty.EASY, GameObject.Find("DifficultyEs"));
@@ -226,6 +263,10 @@ public class WheelSongMainScript : MonoBehaviour {
 		movinOption = false;
 		OptionMode = false;
 		textButton = "Option";
+		stateLoading = new bool[8];
+		matCache = cacheOption.renderer.material;
+		fadeAlphaOptionTitle = 0f;
+		for(int i=0;i<8;i++) stateLoading[i] = false;
 		actualySelected = Difficulty.BEGINNER;
 		trulySelected = Difficulty.BEGINNER;
 		onHoverDifficulty = Difficulty.NONE;
@@ -464,6 +505,27 @@ public class WheelSongMainScript : MonoBehaviour {
 			GUI.color = DataManager.Instance.diffColor[(int)actualySelected];
 			GUI.Label(new Rect(diffx + offsetXDiff*Screen.width, diffy + theRealEcart*ecartjump + offsetYDiff*Screen.height, diffwidth, diffheight), songSelected[actualySelected].level.ToString(), "numberdiff");
 					
+		}
+		
+		
+		
+		#endregion
+		
+		
+		
+		#region OptionMode
+		
+		//Option
+		if((OptionMode || movinNormal) && !movinOption){
+			for(int i=0;i<stateLoading.Lenght;i++){
+				if(stateLoading[i]){
+					GUI.DrawTexture(new Rect(posOptionTitile.x*Screen.width, (posOptionTitle.y + offsetYOption)*Screen.height, posOptionTitle.width*Screen.width, posOptionTitle.height*Screen.height), tex["Option" + (i+1)]);
+				
+					
+				
+				}
+			}
+		
 		}
 		
 		#endregion
@@ -914,11 +976,18 @@ public class WheelSongMainScript : MonoBehaviour {
 			
 			#endregion
 			
-		
+			#region option
+			
+			if(matCache.color.a > 0f){
+				fadeAlphaOptionTitle -= Time.deltaTime/timeOption;
+				matCache.color = new Color(matCache.color.r, matCache.color.g, matCache.color.b, fadeAlphaOptionTitle);
+			}
+			
+			#endregion
 		}
 	}
 	
-	
+	#region sound
 	IEnumerator startTheSongUnstreamed(){
 		
 		DestroyImmediate(actualClip);
@@ -945,7 +1014,24 @@ public class WheelSongMainScript : MonoBehaviour {
 		audio.time = (float)songSelected.First().Value.samplestart;
 		audio.PlayOneShot(actualClip);
 	}
+	#endregion
 	
+	
+	#region Option
+	
+	IEnumerator startOptionFade(){
+		
+		for(int i=0;i<stateLoading.Length;i++){
+			matCache.color = new Color(matCache.color.r, matCache.color.g, matCache.color.b, 1f);
+			stateLoading[i] = true;
+			if(i == 0) optionSeparator[0].enabled = true;
+			optionSeparator[i+1].enabled = true;
+			yield return new WaitForSeconds(timeOption);
+		}
+		
+	}
+	
+	#endregion
 	
 	#region difficulty
 	void activeDiffPS(Dictionary<Difficulty, Song> so){
