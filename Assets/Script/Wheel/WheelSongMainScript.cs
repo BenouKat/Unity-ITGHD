@@ -140,22 +140,17 @@ public class WheelSongMainScript : MonoBehaviour {
 	
 	//Option mode Items
 	public Rect[] posItem;
+	public float ecartForBack;
 	private float speedModSelected;
 	private float rateselected;
-	private Dictionary<Judge, string> dicScoreJudge;
 	private Judge scoreJudgeSelected;
-	private Dictionary<Judge, string> dicHitJudge;
 	private Judge hitJudgeSelected;
-	private Dictionary<Judge, string> dicLifeJudge;
 	private Judge lifeJudgeSelected;
-	private string[] aSkin;
 	private int skinSelected;
-	private string[] aRace;
 	private int raceSelected;
-	private string[] aDisplay;
-	private int displaySelected;
-	private string[] aDeath;
+	private bool[] displaySelected;
 	private int deathSelected;
+	
 	
 	
 	//General Update
@@ -195,12 +190,13 @@ public class WheelSongMainScript : MonoBehaviour {
 		tex.Add("bouton", (Texture2D) Resources.Load("GUIBarMini"));
 		tex.Add("Option1", (Texture2D) Resources.Load("Speedmod"));
 		tex.Add("Option2", (Texture2D) Resources.Load("Rate"));
-		tex.Add("Option7", (Texture2D) Resources.Load("Race"));
-		tex.Add("Option3", (Texture2D) Resources.Load("HitJudge"));
-		tex.Add("Option4", (Texture2D) Resources.Load("ScoreJudge"));
-		tex.Add("Option5", (Texture2D) Resources.Load("LifeJudge"));
-		tex.Add("Option6", (Texture2D) Resources.Load("Display"));
-		tex.Add("Option8", (Texture2D) Resources.Load("Death"));
+		tex.Add("Option3", (Texture2D) Resources.Load("Skin"));
+		tex.Add("Option4", (Texture2D) Resources.Load("HitJudge"));
+		tex.Add("Option5", (Texture2D) Resources.Load("ScoreJudge"));
+		tex.Add("Option6", (Texture2D) Resources.Load("LifeJudge"));
+		tex.Add("Option7", (Texture2D) Resources.Load("Display"));
+		tex.Add("Option8", (Texture2D) Resources.Load("Race"));
+		tex.Add("Option9", (Texture2D) Resources.Load("Death"));
 		
 		diffSelected.Add(Difficulty.BEGINNER, GameObject.Find("DifficultyB"));
 		diffSelected.Add(Difficulty.EASY, GameObject.Find("DifficultyEs"));
@@ -263,10 +259,24 @@ public class WheelSongMainScript : MonoBehaviour {
 		movinOption = false;
 		OptionMode = false;
 		textButton = "Option";
-		stateLoading = new bool[8];
 		matCache = cacheOption.renderer.material;
 		fadeAlphaOptionTitle = 0f;
+		stateLoading = new bool[9];
+		displaySelected = new bool[DataManager.Instance.aDisplay.Length];
 		for(int i=0;i<8;i++) stateLoading[i] = false;
+		for(int j=0;j<DataManager.Instance.aDisplay.Length;j++) displaySelected[j] = false;
+		
+		speedModSelected = 2f;
+		rateselected = 0f;
+		scoreJudgeSelected = Judge.NORMAL;
+		hitJudgeSelected = Judge.NORMAL;
+		lifeJudgeSelected = Judge.NORMAL;
+		skinSelected = 0;
+		raceSelected = 0;
+		deathSelected = 0;
+		
+		
+		
 		actualySelected = Difficulty.BEGINNER;
 		trulySelected = Difficulty.BEGINNER;
 		onHoverDifficulty = Difficulty.NONE;
@@ -517,11 +527,57 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 		//Option
 		if((OptionMode || movinNormal) && !movinOption){
-			for(int i=0;i<stateLoading.Lenght;i++){
+			for(int i=0;i<stateLoading.Length;i++){
 				if(stateLoading[i]){
-					GUI.DrawTexture(new Rect(posOptionTitile.x*Screen.width, (posOptionTitle.y + offsetYOption)*Screen.height, posOptionTitle.width*Screen.width, posOptionTitle.height*Screen.height), tex["Option" + (i+1)]);
-				
+					GUI.DrawTexture(new Rect(posOptionTitle.x*Screen.width, (posOptionTitle.y + offsetYOption)*Screen.height, posOptionTitle.width*Screen.width, posOptionTitle.height*Screen.height), tex["Option" + (i+1)]);
+					switch(i){
+						case 0:
+							//speedmod
+						break;
+						case 1:
+							//Rate
+						break;
+						case 2:
+							//skin
+							GUI.Label(new Rect(posItem[2].x*Screen.width, posItem[2].y*Screen.height, posItem[2].width*Screen.width, posItem[2].height*Screen.height), DataManager.Instance.aSkin[skinSelected]);
+							GUI.Button(new Rect((posItem[2].x - ecartForBack)*Screen.width, posItem[2].y*Screen.height, posItem[2].width*Screen.width, posItem[2].height*Screen.height), "", "Backward");
+							GUI.Button(new Rect((posItem[2].x + ecartForBack)*Screen.width, posItem[2].y*Screen.height, posItem[2].width*Screen.width, posItem[2].height*Screen.height), "", "Forward");
+						break;
+						case 3:
+							//hit
+							GUI.Label(new Rect(posItem[3].x*Screen.width, posItem[3].y*Screen.height, posItem[3].width*Screen.width, posItem[3].height*Screen.height), DataManager.Instance.dicHitJudge[hitJudgeSelected]);
+							GUI.Button(new Rect((posItem[3].x - ecartForBack)*Screen.width, posItem[3].y*Screen.height, posItem[3].width*Screen.width, posItem[3].height*Screen.height), "", "Backward");
+							GUI.Button(new Rect((posItem[3].x + ecartForBack)*Screen.width, posItem[3].y*Screen.height, posItem[3].width*Screen.width, posItem[3].height*Screen.height), "", "Forward");
+						break;
+						case 4:
+							//score
+							GUI.Label(new Rect(posItem[4].x*Screen.width, posItem[4].y*Screen.height, posItem[4].width*Screen.width, posItem[4].height*Screen.height), DataManager.Instance.dicScoreJudge[scoreJudgeSelected]);
+							GUI.Button(new Rect((posItem[4].x - ecartForBack)*Screen.width, posItem[4].y*Screen.height, posItem[4].width*Screen.width, posItem[4].height*Screen.height), "", "Backward");
+							GUI.Button(new Rect((posItem[4].x + ecartForBack)*Screen.width, posItem[4].y*Screen.height, posItem[4].width*Screen.width, posItem[4].height*Screen.height), "", "Forward");
+						break;
+						case 5:
+							//life judge
+							GUI.Label(new Rect(posItem[5].x*Screen.width, posItem[5].y*Screen.height, posItem[5].width*Screen.width, posItem[5].height*Screen.height), DataManager.Instance.dicScoreJudge[lifeJudgeSelected]);
+							GUI.Button(new Rect((posItem[5].x - ecartForBack)*Screen.width, posItem[5].y*Screen.height, posItem[5].width*Screen.width, posItem[5].height*Screen.height), "", "Backward");
+							GUI.Button(new Rect((posItem[5].x + ecartForBack)*Screen.width, posItem[5].y*Screen.height, posItem[5].width*Screen.width, posItem[5].height*Screen.height), "", "Forward");
+						break;
+						case 6:
+							//display
+						break;
+						case 7:
+							//race
+							GUI.Label(new Rect(posItem[7].x*Screen.width, posItem[7].y*Screen.height, posItem[7].width*Screen.width, posItem[7].height*Screen.height), DataManager.Instance.aRace[raceSelected]);
+							GUI.Button(new Rect((posItem[7].x - ecartForBack)*Screen.width, posItem[7].y*Screen.height, posItem[7].width*Screen.width, posItem[7].height*Screen.height), "", "Backward");
+							GUI.Button(new Rect((posItem[7].x + ecartForBack)*Screen.width, posItem[7].y*Screen.height, posItem[7].width*Screen.width, posItem[7].height*Screen.height), "", "Forward");
+						break;
+						case 8:
+							//death
+							GUI.Label(new Rect(posItem[8].x*Screen.width, posItem[8].y*Screen.height, posItem[8].width*Screen.width, posItem[8].height*Screen.height), DataManager.Instance.aDeath[deathSelected]);
+							GUI.Button(new Rect((posItem[8].x - ecartForBack)*Screen.width, posItem[8].y*Screen.height, posItem[8].width*Screen.width, posItem[8].height*Screen.height), "", "Backward");
+							GUI.Button(new Rect((posItem[8].x + ecartForBack)*Screen.width, posItem[8].y*Screen.height, posItem[8].width*Screen.width, posItem[8].height*Screen.height), "", "Forward");
+						break;
 					
+					}
 				
 				}
 			}
@@ -573,6 +629,7 @@ public class WheelSongMainScript : MonoBehaviour {
 				diffSelected[actualySelected].transform.position = new Vector3(-1.2f, 0.75f, 2f);
 				plane.transform.position = new Vector3(0f, 12f, 20f);
 				movinOption = false;
+				StartCoroutine(startOptionFade());
 			}
 		}
 		
@@ -978,7 +1035,7 @@ public class WheelSongMainScript : MonoBehaviour {
 			
 			#region option
 			
-			if(matCache.color.a > 0f){
+			if(OptionMode && matCache.color.a > 0f){
 				fadeAlphaOptionTitle -= Time.deltaTime/timeOption;
 				matCache.color = new Color(matCache.color.r, matCache.color.g, matCache.color.b, fadeAlphaOptionTitle);
 			}
@@ -1021,13 +1078,18 @@ public class WheelSongMainScript : MonoBehaviour {
 	
 	IEnumerator startOptionFade(){
 		
+		var posInit = cacheOption.transform.position;
+		cacheOption.active = true;
 		for(int i=0;i<stateLoading.Length;i++){
 			matCache.color = new Color(matCache.color.r, matCache.color.g, matCache.color.b, 1f);
 			stateLoading[i] = true;
 			if(i == 0) optionSeparator[0].enabled = true;
 			optionSeparator[i+1].enabled = true;
 			yield return new WaitForSeconds(timeOption);
+			cacheOption.transform.Translate(0f, -2f, 0f);
 		}
+		cacheOption.active = false;
+		cacheOption.transform.position = posInit;
 		
 	}
 	

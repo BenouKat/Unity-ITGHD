@@ -36,7 +36,13 @@ public class DataManager{
 	
 	private static DataManager instance;
 	
-	
+	public Dictionary<Judge, string> dicScoreJudge;
+	public Dictionary<Judge, string> dicHitJudge;
+	public Dictionary<Judge, string> dicLifeJudge;
+	public string[] aSkin;
+	public string[] aRace;
+	public string[] aDisplay;
+	public string[] aDeath;
 	
 	
 	public static DataManager Instance{
@@ -75,7 +81,7 @@ public class DataManager{
 		LifeWeightValues.Add("UNFREEZE",-8f);
 		LifeWeightValues.Add("MINE",-5f);
 		
-		
+		PrecisionValues = new Dictionary<Precision, double>();
 		PrecisionValues.Add(Precision.FANTASTIC, 0.0215);
 		PrecisionValues.Add(Precision.EXCELLENT, 0.043);
 		PrecisionValues.Add(Precision.GREAT, 0.102);
@@ -106,9 +112,68 @@ public class DataManager{
 		diffColor[4] = new Color(0.208f, 0.57f, 1f, 1f);
 		diffColor[5] = new Color(1f, 1f, 1f, 1f);
 		
+		InitDicOption();
+		
 	}
 	
-	
+	public void InitDicOption(){
+		dicScoreJudge = new Dictionary<Judge, string>();
+		dicHitJudge = new Dictionary<Judge, string>();
+		dicLifeJudge = new Dictionary<Judge, string>();
+		aSkin = new string[4];
+		aRace = new string[11];
+		aDisplay = new string[9];
+		aDeath = new string[3];
+		
+		dicScoreJudge.Add(Judge.BEGINNER, "Children");
+		dicScoreJudge.Add(Judge.EASY, "Sympathic");
+		dicScoreJudge.Add(Judge.NORMAL, "Normal");
+		dicScoreJudge.Add(Judge.HARD, "Horrible");
+		dicScoreJudge.Add(Judge.EXPERT, "Hellish");
+		
+		dicHitJudge.Add(Judge.BEGINNER, "Blind");
+		dicHitJudge.Add(Judge.EASY, "Soft");
+		dicHitJudge.Add(Judge.NORMAL, "Normal");
+		dicHitJudge.Add(Judge.HARD, "Sniper");
+		dicHitJudge.Add(Judge.EXPERT, "Asian");
+		
+		dicLifeJudge.Add(Judge.BEGINNER, "Candy");
+		dicLifeJudge.Add(Judge.EASY, "Nice");
+		dicLifeJudge.Add(Judge.NORMAL, "Normal");
+		dicLifeJudge.Add(Judge.HARD, "Painful");
+		dicLifeJudge.Add(Judge.EXPERT, "Mortal");
+		
+		aSkin[0] = "Cublast";
+		aSkin[1] = "Dacepad";
+		aSkin[2] = "Bubble";
+		aSkin[3] = "Strange";
+		
+		aRace[0] = "None";
+		aRace[1] = "C Race";
+		aRace[2] = "B Race";
+		aRace[3] = "A Race";
+		aRace[4] = "S Race";
+		aRace[5] = "Bronze race";
+		aRace[6] = "Silver race";
+		aRace[7] = "Gold race";
+		aRace[8] = "Quad race";
+		aRace[9] = "FC Race";
+		aRace[10] = "FEC Race";
+		
+		aDisplay[0] = "No mine";
+		aDisplay[1] = "No jump";
+		aDisplay[2] = "No hands";
+		aDisplay[3] = "No judge";
+		aDisplay[4] = "No target";
+		aDisplay[5] = "No background";
+		aDisplay[6] = "No lifebar";
+		aDisplay[7] = "No score";
+		aDisplay[8] = "No song bar";
+		
+		aDeath[0] = "Immediatly";
+		aDeath[1] = "After 30 misses";
+		aDeath[2] = "Never";
+	}
 	
 	public void LoadScoreJudge(Judge j){
 		switch(j){
