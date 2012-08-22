@@ -44,6 +44,30 @@ public class DataManager{
 	public string[] aDisplay;
 	public string[] aDeath;
 	
+	public KeyValuePair<string, string> songSelected;
+	
+	public Difficulty difficultySelected;
+	
+	public float speedmodSelected;
+	
+	public float rateSelected;
+	
+	public int skinSelected;
+	
+	public Judge scoreJudgeSelected;
+	
+	public Judge hitJudgeSelected;
+	
+	public Judge lifeJudgeSelected;
+	
+	public int raceSelected;
+	
+	public bool[] displaySelected;
+	
+	public int deathSelected;
+	
+	
+	
 	
 	public static DataManager Instance{
 		get{
@@ -54,6 +78,7 @@ public class DataManager{
 			return instance;
 		}
 	}
+	
 	
 	
 	
@@ -328,5 +353,30 @@ public class DataManager{
 		}
 		
 		
+	}
+	
+	public float giveTargetScoreOfRace(int index){
+		switch(index){
+			case 0:
+				return 0f;
+			case 1:
+				return 55f;
+			case 2:
+				return 68f;
+			case 3:
+				return 80f;
+			case 4:
+				return 89f;
+			case 5:
+				return 96f;
+			case 6:
+				return 98f;
+			case 7:
+				return 99f;
+			case 8:
+				return 100f;
+			default:
+				return 0f;
+		}
 	}
 }

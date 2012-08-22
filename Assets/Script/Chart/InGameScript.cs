@@ -31,9 +31,6 @@ public class InGameScript : MonoBehaviour {
 	
 	private Song thesong;
 	
-	
-	private AudioSource source;
-	
 	//USED FOR UPDATE FUNCTION
 	private double timebpm; //Temps joué sur la totalité, non live, non remise à 0
 	private float timechart; //Temps joué sur le bpm actuel en live avec remise à 0
@@ -48,7 +45,8 @@ public class InGameScript : MonoBehaviour {
 	private double actualBPM; //Bpm actuel
 	
 	private double actualstop;
-	public float speedmod = 4f; //speedmod (trop lent ?)
+	private float speedmod; //speedmod 
+	public float speedmodRate = 2f; //speedmod ajustation 
 	
 	//Temps pour le lachement de freeze
 	public float unfrozed = 0.350f;
@@ -81,7 +79,10 @@ public class InGameScript : MonoBehaviour {
 	
 	//SCORE
 	private float score;
+	private float scoreInverse;
+	private float targetScoreInverse;
 	private Dictionary<string, float> scoreBase;
+	private Dictionary<string, int> scoreCount;
 	public Rect posPercent = new Rect(0.39f, 0f, 0.45f, 0.05f);
 	//FPS
 	private long _count;
@@ -147,6 +148,19 @@ public class InGameScript : MonoBehaviour {
 	private float colorCombo;
 	private int signCombo = -1;
 	private bool alreadytaged = true;
+	private int comboMisses;
+	
+	
+	//FAIL OR CLEAR
+	private bool fail;
+	private bool dead;
+	private bool clear;
+	private bool fullCombo;
+	private bool fullExCombo;
+	private bool perfect;
+	private bool isFullComboRace;
+	private bool isFullExComboRace;
+	private int typeOfDeath; // 0 : Immediatly, 1 : After 30 misses, 2 : Never
 	
 	//SONG
 	private AudioClip songLoaded;
@@ -159,12 +173,19 @@ public class InGameScript : MonoBehaviour {
 	//Start
 	void Start () {
 		
+		//Data from option
+		speedmod = DataManager.Instance.speedmodSelected*speedmodRate;
+		DataManager.Instance.LoadScoreJudge(DataManager.Instance.scoreJudgeSelected);
+		DataManager.Instance.LoadHitJudge(DataManager.Instance.hitJudgeSelected);
+		DataManager.Instance.LoadLifeJudge(DataManager.Instance.lifeJudgeSelected);
+		isFullComboRace = DataManager.Instance.raceSelected == 9;
+		isFullExComboRace = DataManager.Instance.raceSelected == 10;
+		targetScoreInverse = DataManager.Instance.giveTargetScoreOfRace(DataManager.Instance.raceSelected);
 		
-	
 		firstArrow = -10f;
 		lastArrow = -10f;
-		thesong = LoadManager.Instance.FindSong("Face The Noise", "Related By Blood")[Difficulty.EXPERT];
-		songLoaded = thesong.GetAudioClip();
+		thesong = LoadManager.Instance.FindSong(DataManager.Instance.songSelected.Key, DataManager.Instance.songSelected.Value)[DataManager.Instance.difficultySelected];
+		StartCoroutine(getTheSongAudio(thesong.GetAudioClipUnstreamed()));
 		createTheChart(thesong);
 		Application.targetFrameRate = -1;
 		QualitySettings.vSyncCount = 0;
@@ -221,23 +242,25 @@ public class InGameScript : MonoBehaviour {
 		
 		//init score and lifebase
 		scoreBase = new Dictionary<string, float>();
+		scoreCount = new Dictionary<string, int>();
 		lifeBase = new Dictionary<string, float>();
 		var fantasticValue = 100f/(thesong.numberOfStepsWithoutJumps + thesong.numberOfJumps + thesong.numberOfFreezes + thesong.numberOfRolls);
 		foreach(Precision el in Enum.GetValues(typeof(Precision))){
 			if(el != Precision.NONE){
 				scoreBase.Add(el.ToString(), fantasticValue*DataManager.Instance.ScoreWeightValues[el.ToString()]);
 				lifeBase.Add(el.ToString(), DataManager.Instance.LifeWeightValues[el.ToString()]);
+				scoreCount.Add(el.ToString(), 0);
 			}
 		}
 		
 		life = 50f;
 		score = 0f;
+		scoreInverse = 100f;
 		
 		
 		theLifeBar = lifeBar.GetComponent<LifeBar>();
 		
 		
-		source = gameObject.GetComponent<AudioSource>();
 		//var bps = thesong.getBPS(actualBPM);
 		//changeBPM -= (float)(bps*thesong.offset)*speedmod;
 		firstUpdate = true;
@@ -252,7 +275,7 @@ public class InGameScript : MonoBehaviour {
 		ct = ComboType.FULLFANTASTIC;
 		matProgressBar = progressBarEmpty.renderer.material;
 		colorCombo = 1f;
-		
+		comboMisses = 0;
 		
 		//GUI
 		wd = posPercent.width*128;
@@ -262,6 +285,15 @@ public class InGameScript : MonoBehaviour {
 		
 		displaying = scoreDecoupe();
 		thetab = comboDecoupe();
+		
+		
+		//Fail and clear
+		fail = false;
+		clear = false;
+		fullCombo = false;
+		fullExCombo = false;
+		perfect = false;
+		dead = false;
 	}
 	
 	
@@ -325,7 +357,7 @@ public class InGameScript : MonoBehaviour {
 			_timer = 0;
 		}
 		
-		if(oneSecond >= 1f){
+		if(oneSecond >= 1f && !dead){
 			//timetotal for this frame
 			
 			timetotalchart = timebpm + timechart + totaltimestop;
@@ -381,7 +413,7 @@ public class InGameScript : MonoBehaviour {
 			timetotalchart = timebpm + timechart + totaltimestop;
 			if(firstUpdate){
 				if(startTheSong <= 0f){
-					source.PlayOneShot(songLoaded);
+					audio.Play();
 					timechart += startTheSong;
 					//Debug.Log(startTheSong);
 					timetotalchart = timebpm + timechart + totaltimestop;
@@ -392,6 +424,22 @@ public class InGameScript : MonoBehaviour {
 			}
 			
 			BumpsBPM();
+			
+			
+			if(thesong.duration < timetotalchart && !fail){
+				clear = true;
+				if(scoreCount["DECENT"] == 0 && scoreCount["WAYOFF"] == 0 && scoreCount["MISS"] == 0){
+					if(scoreCount["EXCELLENT"] == 0 && scoreCount["GREAT"] == 0) perfect = true;
+					if(scoreCount["GREAT"] == 0) fullExCombo = true;
+					fullCombo = true;
+				}
+			}
+			
+			if(fail){
+				if(typeOfDeath != 2 && (typeOfDeath == 0 || comboMisses >= 30)){
+					dead = true;
+				}
+			}
 			
 			//timetotalchart = timebpm + timechart + totaltimestop;
 			//if((timetotalchart - totalchartbegin) < 0.001f)Debug.Log("Progression : " + (timetotalchart - totalchartbegin) + " / dt : " + Time.deltaTime + " / washere : " + iwashere + " / time : " + timetotalchart);
@@ -1362,12 +1410,19 @@ public class InGameScript : MonoBehaviour {
 			theLifeBar.ChangeBar(life);
 		}
 		score += scoreBase[s];
+		scoreInverse -= (1-scoreBase[s]);
 		if(score > 100f){
 			score = 100f;	
 		}else if(score < 0f){
 			score = 0f;	
 		}
 		displaying = scoreDecoupe();
+		
+		scoreCount[s] += 1;
+		
+		if(life <= 0f || scoreInverse < targetScoreInverse){
+			fail = true;
+		}
 	}
 	
 	public void GainCombo(int c, Precision prec){
@@ -1385,7 +1440,9 @@ public class InGameScript : MonoBehaviour {
 			}
 		}
 		thetab = comboDecoupe();
-		
+		if(isFullExComboRace && ct == ComboType.FULLCOMBO){
+			fail = true;
+		}
 	}
 	
 	Rect scoreDecoupe(){
@@ -1414,10 +1471,18 @@ public class InGameScript : MonoBehaviour {
 		}
 	}
 	
-	public void ComboStop(){
+	public void ComboStop(bool miss = false){
 		combo = 0;	
 		ct = ComboType.NONE;
 		thetab = comboDecoupe();
+		if(isFullComboRace || isFullExComboRace){
+			fail = true;
+		}
+		if(miss){
+			comboMisses++;
+		}else{
+			comboMisses = 0;
+		}
 	}
 	#endregion
 	
@@ -1451,6 +1516,12 @@ public class InGameScript : MonoBehaviour {
 	}
 	
 	Precision timeToPrec(double prec){
+	
+		var theprec = DataManager.Instance.PrecisionValues.FirstOrDefault(c => (prec <= c.Value));
+		if(theprec != null) return theprec.Value;
+		return Precision.MISS;
+		
+		/*
 		if(prec <= 0.0215){
 			return Precision.FANTASTIC;
 		}else if(prec <= 0.043){
@@ -1462,7 +1533,7 @@ public class InGameScript : MonoBehaviour {
 		}else if(prec <= 0.180){
 			return Precision.WAYOFF;
 		}
-		return Precision.MISS;
+		return Precision.MISS;*/
 		
 	}
 	
@@ -1888,6 +1959,20 @@ public class InGameScript : MonoBehaviour {
 		}
 	
 		
+	}
+	
+	
+	IEnumerator getTheSongAudio(string path){
+	
+		var thewww = new WWW(path);
+		while(!thewww.isDone){
+			yield return new WaitForFixedUpdate();
+		}
+		songLoaded = thewww.GetAudioClip(false, false, AudioType.OGGVORBIS);
+		thewww.Dispose();
+		audio.clip = songLoaded;
+		audio.loop = false;
+	
 	}
 	
 	#endregion

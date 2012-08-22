@@ -260,7 +260,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		OptionMode = false;
 		textButton = "Option";
 		matCache = cacheOption.renderer.material;
-		fadeAlphaOptionTitle = 0f;
+		fadeAlphaOptionTitle = 1f;
 		stateLoading = new bool[9];
 		displaySelected = new bool[DataManager.Instance.aDisplay.Length];
 		for(int i=0;i<8;i++) stateLoading[i] = false;
@@ -485,8 +485,7 @@ public class WheelSongMainScript : MonoBehaviour {
 					OptionMode = true;
 					textButton = "Back";
 				}else{
-					OptionMode = false;
-					movinNormal = true;
+					StartCoroutine(endOptionFade());
 					
 				}
 				
@@ -521,7 +520,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 		#endregion
 		
-		
+		GUI.color = new Color(1f, 1f, 1f, 1f);
 		
 		#region OptionMode
 		
@@ -529,7 +528,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		if((OptionMode || movinNormal) && !movinOption){
 			for(int i=0;i<stateLoading.Length;i++){
 				if(stateLoading[i]){
-					GUI.DrawTexture(new Rect(posOptionTitle.x*Screen.width, (posOptionTitle.y + offsetYOption)*Screen.height, posOptionTitle.width*Screen.width, posOptionTitle.height*Screen.height), tex["Option" + (i+1)]);
+					GUI.DrawTexture(new Rect(posOptionTitle.x*Screen.width, (posOptionTitle.y + offsetYOption*i)*Screen.height, posOptionTitle.width*Screen.width, posOptionTitle.height*Screen.height), tex["Option" + (i+1)]);
 					switch(i){
 						case 0:
 							//speedmod
@@ -1033,15 +1032,17 @@ public class WheelSongMainScript : MonoBehaviour {
 			
 			#endregion
 			
-			#region option
+			
+		}
+		
+		#region option
 			
 			if(OptionMode && matCache.color.a > 0f){
 				fadeAlphaOptionTitle -= Time.deltaTime/timeOption;
 				matCache.color = new Color(matCache.color.r, matCache.color.g, matCache.color.b, fadeAlphaOptionTitle);
 			}
 			
-			#endregion
-		}
+		#endregion
 	}
 	
 	#region sound
@@ -1085,9 +1086,31 @@ public class WheelSongMainScript : MonoBehaviour {
 			stateLoading[i] = true;
 			if(i == 0) optionSeparator[0].enabled = true;
 			optionSeparator[i+1].enabled = true;
+			fadeAlphaOptionTitle = 1f;
 			yield return new WaitForSeconds(timeOption);
 			cacheOption.transform.Translate(0f, -2f, 0f);
 		}
+		cacheOption.active = false;
+		cacheOption.transform.position = posInit;
+		
+	}
+	
+	IEnumerator endOptionFade(){
+		
+		var posInit = cacheOption.transform.position;
+		cacheOption.transform.Translate(0f, -16f, 0f);
+		cacheOption.active = true;
+		for(int i=stateLoading.Length-1;i>=0;i--){
+			matCache.color = new Color(matCache.color.r, matCache.color.g, matCache.color.b, 1f);
+			stateLoading[i] = false;
+			if(i == stateLoading.Length-1) optionSeparator[optionSeparator.Length-1].enabled = false;
+			optionSeparator[i].enabled = false;
+			fadeAlphaOptionTitle = 1f;
+			yield return new WaitForSeconds(timeOption);
+			cacheOption.transform.Translate(0f, 2f, 0f);
+		}
+		OptionMode = false;
+		movinNormal = true;
 		cacheOption.active = false;
 		cacheOption.transform.position = posInit;
 		

@@ -11,6 +11,7 @@ public class ArrowScript : MonoBehaviour {
 	public bool missed;
 	public bool valid;
 	public bool alreadyScored;
+	private double precWayoff;
 	// Use this for initialization
 	void Start () {
 		igs = Engine.GetComponent<InGameScript>();
@@ -32,15 +33,16 @@ public class ArrowScript : MonoBehaviour {
 		missed = false;
 		valid = false;
 		alreadyScored = false;
+		precWayoff = DataManager.Instance.PrecisionValues[Precision.WAYOFF];
 	}
 	
 	// Update is called once per frame
 	void LateUpdate () {
-		if(!missed && !valid && associatedArrow.time <= (igs.getTotalTimeChart() - (double)0.18)){
+		if(!missed && !valid && associatedArrow.time <= (igs.getTotalTimeChart() - precWayoff)){
 			missed = true;
 			
 			if(!alreadyScored){
-				igs.ComboStop();
+				igs.ComboStop(true);
 				igs.displayPrec(1);
 				igs.GainScoreAndLife("MISS");
 				igs.stateSpeed = 0f;
