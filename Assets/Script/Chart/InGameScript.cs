@@ -1323,29 +1323,38 @@ public class InGameScript : MonoBehaviour {
 	void StartParticleLeft(Precision prec){
 		var displayPrec = prec.ToString();
 		if(prec < Precision.DECENT && combo >= 100) displayPrec += "C";
-		precLeft[displayPrec].Play();
+		var ps = precLeft[displayPrec];
+		if(!ps.gameObject.active) ps.gameObject.active = true;
+		ps.Play();
 	}
 	
 	void StartParticleDown(Precision prec){
 		var displayPrec = prec.ToString();
 		if(prec < Precision.DECENT && combo >= 100) displayPrec += "C";
-		precDown[displayPrec].Play();
+		var ps = precDown[displayPrec];
+		if(!ps.gameObject.active) ps.gameObject.active = true;
+		ps.Play();
 	}
 	
 	void StartParticleUp(Precision prec){
 		var displayPrec = prec.ToString();
 		if(prec < Precision.DECENT && combo >= 100) displayPrec += "C";
-		precUp[displayPrec].Play();
+		var ps = precUp[displayPrec];
+		if(!ps.gameObject.active) ps.gameObject.active = true;
+		ps.Play();
 	}
 	
 	void StartParticleRight(Precision prec){
 		var displayPrec = prec.ToString();
 		if(prec < Precision.DECENT && combo >= 100) displayPrec += "C";
-		precRight[displayPrec].Play();
+		var ps = precRight[displayPrec];
+		if(!ps.gameObject.active) ps.gameObject.active = true;
+		ps.Play();
 	}
 	
 	void StartParticleFreezeLeft(bool state){
 		var ps = precLeft["FREEZE"];
+		if(!ps.gameObject.active) ps.gameObject.active = true;
 		ps.Play();
 		ps.time = 1f;
 		ps.loop = state;
@@ -1354,6 +1363,7 @@ public class InGameScript : MonoBehaviour {
 	
 	void StartParticleFreezeRight(bool state){
 		var ps = precRight["FREEZE"];
+		if(!ps.gameObject.active) ps.gameObject.active = true;
 		ps.Play();
 		ps.time = 1f;
 		ps.loop = state;
@@ -1362,6 +1372,7 @@ public class InGameScript : MonoBehaviour {
 	
 	void StartParticleFreezeDown(bool state){
 		var ps = precDown["FREEZE"];
+		if(!ps.gameObject.active) ps.gameObject.active = true;
 		ps.Play();
 		ps.time = 1f;
 		ps.loop = state;
@@ -1370,6 +1381,7 @@ public class InGameScript : MonoBehaviour {
 	
 	void StartParticleFreezeUp(bool state){
 		var ps = precUp["FREEZE"];
+		if(!ps.gameObject.active) ps.gameObject.active = true;
 		ps.Play();
 		ps.time = 1f;
 		ps.loop = state;
@@ -1377,22 +1389,30 @@ public class InGameScript : MonoBehaviour {
 	}
 	
 	public void StartParticleMineLeft(){
-		precLeft["MINE"].Play();
+		var ps = precLeft["MINE"];
+		if(!ps.gameObject.active) ps.gameObject.active = true;
+		ps.Play();
 		
 	}
 	
 	public void StartParticleMineRight(){
-		precRight["MINE"].Play();
+		var ps = precRight["MINE"];
+		if(!ps.gameObject.active) ps.gameObject.active = true;
+		ps.Play();
 		
 	}
 	
 	public void StartParticleMineDown(){
-		precDown["MINE"].Play();
+		var ps = precDown["MINE"];
+		if(!ps.gameObject.active) ps.gameObject.active = true;
+		ps.Play();
 		
 	}
 	
 	public void StartParticleMineUp(){
-		precUp["MINE"].Play();
+		var ps = precUp["MINE"];
+		if(!ps.gameObject.active) ps.gameObject.active = true;
+		ps.Play();
 		
 	}
 	
@@ -1754,6 +1774,8 @@ public class InGameScript : MonoBehaviour {
 							break;
 						}
 						listNeighboors.Add(theArrow);
+						goArrow.SetActiveRecursivly(false);
+						GetComponent<ManageGameObject>().listarrow.Add(timetotal, goArrow);
 						//barrow = true;
 					}else if(note[i] == '2'){
 						barr = true;
@@ -1776,6 +1798,8 @@ public class InGameScript : MonoBehaviour {
 							break;
 						}
 						listNeighboors.Add(theArrow);
+						goArrow.SetActiveRecursivly(false);
+						GetComponent<ManageGameObject>().listarrow.Add(timetotal, goArrow);
 					}else if(note[i] == '3'){
 						barr = true;
 						var theArrow = ArrowFreezed[i];
@@ -1805,6 +1829,8 @@ public class InGameScript : MonoBehaviour {
 							break;
 						}
 						listNeighboors.Add(theArrow);
+						goArrow.SetActiveRecursivly(false);
+						GetComponent<ManageGameObject>().listarrow.Add(timetotal, goArrow);
 					}else if(note[i] == 'M'){
 						var goArrow = (GameObject) Instantiate(mines, new Vector3(i*2, -ypos, 0f), mines.transform.rotation);
 						var theArrow = new Arrow(goArrow, ArrowType.MINE, timetotal);
@@ -1865,6 +1891,7 @@ public class InGameScript : MonoBehaviour {
 				
 			}
 		}
+		GetComponent<ManageGameObject>().DoTheStartSort();
 	}
 	
 	

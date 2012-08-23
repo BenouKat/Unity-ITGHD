@@ -140,6 +140,10 @@ public class WheelSongMainScript : MonoBehaviour {
 	
 	//Option mode Items
 	public Rect[] posItem;
+	public Rect[] posItemLabel;
+	public float offsetXDisplay;
+	public float borderXDisplay;
+	public float offsetSpeedRateX;
 	public float ecartForBack;
 	private float speedModSelected;
 	private float rateselected;
@@ -266,7 +270,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		for(int i=0;i<8;i++) stateLoading[i] = false;
 		for(int j=0;j<DataManager.Instance.aDisplay.Length;j++) displaySelected[j] = false;
 		
-		speedModSelected = 2f;
+		speedmodSelected = 2f;
 		rateselected = 0f;
 		scoreJudgeSelected = Judge.NORMAL;
 		hitJudgeSelected = Judge.NORMAL;
@@ -532,48 +536,151 @@ public class WheelSongMainScript : MonoBehaviour {
 					switch(i){
 						case 0:
 							//speedmod
+							var speedmodstring = GUI.TextArea (new Rect(posItem[0].x*Screen.width, posItem[0].y*Screen.height, posItem[0].width*Screen.width, posItem[0].height*Screen.height), speedmodstring, 5);
+							
+							if(!String.IsNullOrEmpty(ratestring)){
+								double result;
+								if(System.Double.TryParse(stringToEdit, out result){
+									if(result >= (double)0.25 && result <= (double)15){
+										speedmodSelected = result;
+										GUI.Label(new Rect((posItemLabel[0] + offsetSpeedRateX).x*Screen.width, posItemLabel[0].y*Screen.height, posItemLabel[0].width*Screen.width, posItemLabel[0].height*Screen.height), "Speedmod : x" + speedmodSelected.ToString("0.00") + "%");
+									}else{
+										GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
+										GUI.Label(new Rect((posItemLabel[0] + offsetSpeedRateX).x*Screen.width, posItemLabel[0].y*Screen.height, posItemLabel[0].width*Screen.width, posItemLabel[0].height*Screen.height), "Speedmod must be between x0.25 and x15");
+										GUI.color = new Color(1f, 1f, 1f, 1f);
+									}
+								}else{
+									GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
+									GUI.Label(new Rect((posItemLabel[0] + offsetSpeedRateX).x*Screen.width, posItemLabel[0].y*Screen.height, posItemLabel[0].width*Screen.width, posItemLabel[0].height*Screen.height), "Speedmod is not a valid value");
+									GUI.color = new Color(1f, 1f, 1f, 1f);
+								}
+							}
 						break;
 						case 1:
 							//Rate
+							var ratestring = GUI.TextArea (new Rect(posItem[1].x*Screen.width, posItem[1].y*Screen.height, posItem[1].width*Screen.width, posItem[1].height*Screen.height), ratestring, 4);
+							if(!String.IsNullOrEmpty(ratestring)){
+								int rateresult;
+								if(System.Int.TryParse(stringToEdit, out rateresult){
+									if(rateresult >= -90 && rateresult <= 100){
+										rateSelected = rateresult;
+										GUI.Label(new Rect((posItemLabel[1] + offsetSpeedRateX).x*Screen.width, posItemLabel[1].y*Screen.height, posItemLabel[1].width*Screen.width, posItemLabel[1].height*Screen.height), "Rate : " + rateSelected.ToString("00") + "%");
+									}else{
+										GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
+										GUI.Label(new Rect((posItemLabel[1] + offsetSpeedRateX).x*Screen.width, posItemLabel[1].y*Screen.height, posItemLabel[1].width*Screen.width, posItemLabel[1].height*Screen.height), "Rate must be between -90% and +100%");
+										GUI.color = new Color(1f, 1f, 1f, 1f);
+									}
+								}else{
+									GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
+									GUI.Label(new Rect((posItemLabel[1] + offsetSpeedRateX).x*Screen.width, posItemLabel[1].y*Screen.height, posItemLabel[1].width*Screen.width, posItemLabel[1].height*Screen.height), "Rate is not a valid value");
+									GUI.color = new Color(1f, 1f, 1f, 1f);
+								}
+							}
+							
 						break;
 						case 2:
 							//skin
-							GUI.Label(new Rect(posItem[2].x*Screen.width, posItem[2].y*Screen.height, posItem[2].width*Screen.width, posItem[2].height*Screen.height), DataManager.Instance.aSkin[skinSelected]);
-							GUI.Button(new Rect((posItem[2].x - ecartForBack)*Screen.width, posItem[2].y*Screen.height, posItem[2].width*Screen.width, posItem[2].height*Screen.height), "", "Backward");
-							GUI.Button(new Rect((posItem[2].x + ecartForBack)*Screen.width, posItem[2].y*Screen.height, posItem[2].width*Screen.width, posItem[2].height*Screen.height), "", "Forward");
+							GUI.Label(new Rect(posItemLabel[2].x*Screen.width, posItemLabel[2].y*Screen.height, posItemLabel[2].width*Screen.width, posItemLabel[2].height*Screen.height), DataManager.Instance.aSkin[skinSelected]);
+							if(GUI.Button(new Rect((posItem[2].x - ecartForBack)*Screen.width, posItem[2].y*Screen.height, posItem[2].width*Screen.width, posItem[2].height*Screen.height), "", "Backward")){
+								if(skinSelected == 0){
+									skinSelected = DataManager.Instance.aSkin.Length - 1;
+								}else{
+									skinSelected--;
+								}
+							}
+							if(GUI.Button(new Rect((posItem[2].x + ecartForBack)*Screen.width, posItem[2].y*Screen.height, posItem[2].width*Screen.width, posItem[2].height*Screen.height), "", "Forward")){
+								if(skinSelected == DataManager.Instance.aSkin.Length - 1){
+									skinSelected = 0;
+								}else{
+									skinSelected++;
+								}
+							}
 						break;
 						case 3:
 							//hit
-							GUI.Label(new Rect(posItem[3].x*Screen.width, posItem[3].y*Screen.height, posItem[3].width*Screen.width, posItem[3].height*Screen.height), DataManager.Instance.dicHitJudge[hitJudgeSelected]);
-							GUI.Button(new Rect((posItem[3].x - ecartForBack)*Screen.width, posItem[3].y*Screen.height, posItem[3].width*Screen.width, posItem[3].height*Screen.height), "", "Backward");
-							GUI.Button(new Rect((posItem[3].x + ecartForBack)*Screen.width, posItem[3].y*Screen.height, posItem[3].width*Screen.width, posItem[3].height*Screen.height), "", "Forward");
+							GUI.Label(new Rect(posItemLabel[3].x*Screen.width, posItemLabel[3].y*Screen.height, posItemLabel[3].width*Screen.width, posItemLabel[3].height*Screen.height), DataManager.Instance.dicHitJudge[hitJudgeSelected]);
+							if(hitJudgeSelected > Judge.BEGINNER){
+								if(GUI.Button(new Rect((posItem[3].x - ecartForBack)*Screen.width, posItem[3].y*Screen.height, posItem[3].width*Screen.width, posItem[3].height*Screen.height), "", "Backward")){
+									hitJudgeSelected--;
+								}
+							}
+							if(hitJudgeSelected < Judge.EXPERT){
+								if(GUI.Button(new Rect((posItem[3].x + ecartForBack)*Screen.width, posItem[3].y*Screen.height, posItem[3].width*Screen.width, posItem[3].height*Screen.height), "", "Forward")){
+									hitJudgeSelected++;
+								}
+							}
 						break;
 						case 4:
 							//score
-							GUI.Label(new Rect(posItem[4].x*Screen.width, posItem[4].y*Screen.height, posItem[4].width*Screen.width, posItem[4].height*Screen.height), DataManager.Instance.dicScoreJudge[scoreJudgeSelected]);
-							GUI.Button(new Rect((posItem[4].x - ecartForBack)*Screen.width, posItem[4].y*Screen.height, posItem[4].width*Screen.width, posItem[4].height*Screen.height), "", "Backward");
-							GUI.Button(new Rect((posItem[4].x + ecartForBack)*Screen.width, posItem[4].y*Screen.height, posItem[4].width*Screen.width, posItem[4].height*Screen.height), "", "Forward");
+							GUI.Label(new Rect(posItemLabel[4].x*Screen.width, posItemLabel[4].y*Screen.height, posItemLabel[4].width*Screen.width, posItemLabel[4].height*Screen.height), DataManager.Instance.dicScoreJudge[scoreJudgeSelected]);
+							if(scoreJudgeSelected > Judge.BEGINNER){
+								if(GUI.Button(new Rect((posItem[4].x - ecartForBack)*Screen.width, posItem[4].y*Screen.height, posItem[4].width*Screen.width, posItem[4].height*Screen.height), "", "Backward")){
+									scoreJudgeSelected--;
+								}
+							}
+							if(scoreJudgeSelected < Judge.EXPERT){
+								if(GUI.Button(new Rect((posItem[4].x + ecartForBack)*Screen.width, posItem[4].y*Screen.height, posItem[4].width*Screen.width, posItem[4].height*Screen.height), "", "Forward")){
+									scoreJudgeSelected++;
+								}
+							}
 						break;
 						case 5:
 							//life judge
-							GUI.Label(new Rect(posItem[5].x*Screen.width, posItem[5].y*Screen.height, posItem[5].width*Screen.width, posItem[5].height*Screen.height), DataManager.Instance.dicScoreJudge[lifeJudgeSelected]);
-							GUI.Button(new Rect((posItem[5].x - ecartForBack)*Screen.width, posItem[5].y*Screen.height, posItem[5].width*Screen.width, posItem[5].height*Screen.height), "", "Backward");
-							GUI.Button(new Rect((posItem[5].x + ecartForBack)*Screen.width, posItem[5].y*Screen.height, posItem[5].width*Screen.width, posItem[5].height*Screen.height), "", "Forward");
+							GUI.Label(new Rect(posItemLabel[5].x*Screen.width, posItemLabel[5].y*Screen.height, posItemLabel[5].width*Screen.width, posItemLabel[5].height*Screen.height), DataManager.Instance.dicScoreJudge[lifeJudgeSelected]);
+							if(lifeJudgeSelected > Judge.BEGINNER){
+								if(GUI.Button(new Rect((posItem[5].x - ecartForBack)*Screen.width, posItem[5].y*Screen.height, posItem[5].width*Screen.width, posItem[5].height*Screen.height), "", "Backward")){
+									lifeJudgeSelected--;
+								}
+							}
+							if(lifeJudgeSelected < Judge.EXPERT){
+								if(GUI.Button(new Rect((posItem[5].x + ecartForBack)*Screen.width, posItem[5].y*Screen.height, posItem[5].width*Screen.width, posItem[5].height*Screen.height), "", "Forward")){
+									lifeJudgeSelected++;
+								}
+							}
 						break;
 						case 6:
 							//display
+							for(int j=0; j<aDisplay.Length; j++){
+								if(GUI.Button(new Rect((posItem[6].x - borderXDisplay + offsetXDisplay*j)*Screen.width, posItem[6].y*Screen.height, posItem[6].width*Screen.width, posItem[6].height*Screen.height), DataManager.Instance.aDisplay[j])){
+									displaySelected[j] = !displaySelected[j];
+								}
+							}
 						break;
 						case 7:
 							//race
-							GUI.Label(new Rect(posItem[7].x*Screen.width, posItem[7].y*Screen.height, posItem[7].width*Screen.width, posItem[7].height*Screen.height), DataManager.Instance.aRace[raceSelected]);
-							GUI.Button(new Rect((posItem[7].x - ecartForBack)*Screen.width, posItem[7].y*Screen.height, posItem[7].width*Screen.width, posItem[7].height*Screen.height), "", "Backward");
-							GUI.Button(new Rect((posItem[7].x + ecartForBack)*Screen.width, posItem[7].y*Screen.height, posItem[7].width*Screen.width, posItem[7].height*Screen.height), "", "Forward");
+							GUI.Label(new Rect(posItemLabel[7].x*Screen.width, posItemLabel[7].y*Screen.height, posItemLabel[7].width*Screen.width, posItemLabel[7].height*Screen.height), DataManager.Instance.aRace[raceSelected]);
+							if(GUI.Button(new Rect((posItem[7].x - ecartForBack)*Screen.width, posItem[7].y*Screen.height, posItem[7].width*Screen.width, posItem[7].height*Screen.height), "", "Backward")){
+								if(raceSelected == 0){
+									raceSelected = DataManager.Instance.aRace.Length - 1;
+								}else{
+									raceSelected--;
+								}
+							}
+							if(GUI.Button(new Rect((posItem[7].x + ecartForBack)*Screen.width, posItem[7].y*Screen.height, posItem[7].width*Screen.width, posItem[7].height*Screen.height), "", "Forward")){
+								if(raceSelected == DataManager.Instance.aRace.Length - 1){
+									raceSelected = 0;
+								}else{
+									raceSelected++;
+								}
+							}
 						break;
 						case 8:
 							//death
-							GUI.Label(new Rect(posItem[8].x*Screen.width, posItem[8].y*Screen.height, posItem[8].width*Screen.width, posItem[8].height*Screen.height), DataManager.Instance.aDeath[deathSelected]);
-							GUI.Button(new Rect((posItem[8].x - ecartForBack)*Screen.width, posItem[8].y*Screen.height, posItem[8].width*Screen.width, posItem[8].height*Screen.height), "", "Backward");
-							GUI.Button(new Rect((posItem[8].x + ecartForBack)*Screen.width, posItem[8].y*Screen.height, posItem[8].width*Screen.width, posItem[8].height*Screen.height), "", "Forward");
+							GUI.Label(new Rect(posItemLabel[8].x*Screen.width, posItemLabel[8].y*Screen.height, posItemLabel[8].width*Screen.width, posItemLabel[8].height*Screen.height), DataManager.Instance.aDeath[deathSelected]);
+							if(GUI.Button(new Rect((posItem[8].x - ecartForBack)*Screen.width, posItem[8].y*Screen.height, posItem[8].width*Screen.width, posItem[8].height*Screen.height), "", "Backward")){
+								if(deathSelected == 0){
+									deathSelected = DataManager.Instance.aDeath.Length - 1;
+								}else{
+									deathSelected--;
+								}
+							}
+							if(GUI.Button(new Rect((posItem[8].x + ecartForBack)*Screen.width, posItem[8].y*Screen.height, posItem[8].width*Screen.width, posItem[8].height*Screen.height), "", "Forward")){
+								if(deathSelected == DataManager.Instance.aDeath.Length - 1){
+									deathSelected = 0;
+								}else{
+									deathSelected++;
+								}
+							}
 						break;
 					
 					}
