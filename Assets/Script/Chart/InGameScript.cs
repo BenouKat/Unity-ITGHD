@@ -1537,8 +1537,8 @@ public class InGameScript : MonoBehaviour {
 	
 	Precision timeToPrec(double prec){
 	
-		var theprec = DataManager.Instance.PrecisionValues.FirstOrDefault(c => (prec <= c.Value));
-		if(theprec != null) return theprec.Value;
+		var theprec = DataManager.Instance.PrecisionValues.Where(c => (prec <= c.Value));
+		if(theprec.Count() > 0) return theprec.First().Key;
 		return Precision.MISS;
 		
 		/*
@@ -1774,7 +1774,7 @@ public class InGameScript : MonoBehaviour {
 							break;
 						}
 						listNeighboors.Add(theArrow);
-						goArrow.SetActiveRecursivly(false);
+						goArrow.SetActiveRecursively(false);
 						GetComponent<ManageGameObject>().listarrow.Add(timetotal, goArrow);
 						//barrow = true;
 					}else if(note[i] == '2'){
@@ -1798,7 +1798,7 @@ public class InGameScript : MonoBehaviour {
 							break;
 						}
 						listNeighboors.Add(theArrow);
-						goArrow.SetActiveRecursivly(false);
+						goArrow.SetActiveRecursively(false);
 						GetComponent<ManageGameObject>().listarrow.Add(timetotal, goArrow);
 					}else if(note[i] == '3'){
 						barr = true;
@@ -1829,7 +1829,7 @@ public class InGameScript : MonoBehaviour {
 							break;
 						}
 						listNeighboors.Add(theArrow);
-						goArrow.SetActiveRecursivly(false);
+						goArrow.SetActiveRecursively(false);
 						GetComponent<ManageGameObject>().listarrow.Add(timetotal, goArrow);
 					}else if(note[i] == 'M'){
 						var goArrow = (GameObject) Instantiate(mines, new Vector3(i*2, -ypos, 0f), mines.transform.rotation);

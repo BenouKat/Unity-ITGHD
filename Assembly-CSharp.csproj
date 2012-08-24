@@ -48,6 +48,8 @@
      <Compile Include="Assets\Script\Chart\ArrowScript.cs" />
      <Compile Include="Assets\Script\Chart\InGameScript.cs" />
      <Compile Include="Assets\Script\Chart\LifeBar.cs" />
+     <Compile Include="Assets\Script\Chart\ManageGameObject.cs" />
+     <Compile Include="Assets\Script\Chart\ManageParticule.cs" />
      <Compile Include="Assets\Script\Chart\MineScript.cs" />
      <Compile Include="Assets\Script\Chart\MoveBackground.cs" />
      <Compile Include="Assets\Script\Chart\MoveCameraBackground.cs" />

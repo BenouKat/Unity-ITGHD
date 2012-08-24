@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-using System.Generic;
+using System.Collections.Generic;
 using System.Linq;
 
 public class ManageGameObject : MonoBehaviour {
@@ -21,7 +21,7 @@ public class ManageGameObject : MonoBehaviour {
 		if(listarrow.Count > 0){
 			var next = listarrow.First();
 			if(next.Key < (time + zoneAppear)){
-				next.Value.SetActiveRecursivly(true);
+				next.Value.SetActiveRecursively(true);
 				listarrow.Remove(next.Key);
 			}
 			
@@ -30,11 +30,11 @@ public class ManageGameObject : MonoBehaviour {
 	}
 	
 	
-	void DoTheStartSort(){
+	public void DoTheStartSort(){
 		listarrow.OrderBy(c => c.Key);
 		for(int i=0; i<listarrow.Count; i++){
 			if(listarrow.ElementAt(i).Key < (time + zoneAppear)){
-				listarrow.ElementAt(i).Value.SetActiveRecursivly(true);
+				listarrow.ElementAt(i).Value.SetActiveRecursively(true);
 				listarrow.Remove(listarrow.ElementAt(i).Key);
 				i--;
 			}
