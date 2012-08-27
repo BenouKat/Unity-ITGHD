@@ -2,9 +2,13 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Wheel\WheelSongMainScript.cs">
     <Files>
-      <File FileName="Assets\Script\Wheel\WheelSongMainScript.cs" Line="671" Column="10" />
-      <File FileName="Assets\Script\Chart\ManageGameObject.cs" Line="37" Column="54" />
-      <File FileName="Assets\Script\Chart\InGameScript.cs" Line="163" Column="68" />
+      <File FileName="Assets\Script\Wheel\WheelSongMainScript.cs" Line="426" Column="22" />
+      <File FileName="Assets\Script\Managers\DataManager.cs" Line="194" Column="29" />
+      <File FileName="Assets\Script\MainMenu\MainMenu.cs" Line="274" Column="3" />
+      <File FileName="Assets\Script\Managers\FadeManager.cs" Line="40" Column="11" />
+      <File FileName="Assets\Script\Chart\InGameScript.cs" Line="187" Column="47" />
+      <File FileName="Assets\Script\FrameWork\OpenChart.cs" Line="253" Column="10" />
+      <File FileName="Assets\Script\Managers\LoadManager.cs" Line="85" Column="3" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

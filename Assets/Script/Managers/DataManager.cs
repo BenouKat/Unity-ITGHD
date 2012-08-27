@@ -44,7 +44,7 @@ public class DataManager{
 	public string[] aDisplay;
 	public string[] aDeath;
 	
-	public KeyValuePair<string, string> songSelected;
+	public Song songSelected;
 	
 	public Difficulty difficultySelected;
 	
@@ -169,7 +169,7 @@ public class DataManager{
 		dicLifeJudge.Add(Judge.EXPERT, "Mortal");
 		
 		aSkin[0] = "Cublast";
-		aSkin[1] = "Dacepad";
+		aSkin[1] = "Dancepad";
 		aSkin[2] = "Bubble";
 		aSkin[3] = "Strange";
 		
@@ -188,12 +188,12 @@ public class DataManager{
 		aDisplay[0] = "No mine";
 		aDisplay[1] = "No jump";
 		aDisplay[2] = "No hands";
-		aDisplay[3] = "No judge";
-		aDisplay[4] = "No target";
-		aDisplay[5] = "No background";
-		aDisplay[6] = "No lifebar";
+		aDisplay[3] = "No freeze";
+		aDisplay[4] = "No judge";
+		aDisplay[5] = "No backg.";
+		aDisplay[6] = "No target";
 		aDisplay[7] = "No score";
-		aDisplay[8] = "No song bar";
+		aDisplay[8] = "No UI";
 		
 		aDeath[0] = "Immediatly";
 		aDeath[1] = "After 30 misses";
@@ -378,5 +378,20 @@ public class DataManager{
 			default:
 				return 0f;
 		}
+	}
+	
+	
+	public string giveLevelToLoad(string level){
+		switch(level){
+		case "Free":
+			return "Free";
+		case "MainMenu":
+			return "MainMenu";
+		case "Chart":
+			return "ChartScene";
+		default:
+			return "MainMenu";
+		}
+		
 	}
 }

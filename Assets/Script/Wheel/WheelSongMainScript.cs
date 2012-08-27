@@ -25,7 +25,9 @@ public class WheelSongMainScript : MonoBehaviour {
 	private Dictionary<string, GameObject> packs;
 	private Dictionary<GameObject, float> cubesPos;
 	private Dictionary<GameObject, string> songCubePack;
+	private Dictionary<GameObject, string> customSongCubePack;
 	private Dictionary<GameObject, string> LinkCubeSong;
+	private Dictionary<GameObject, string> customLinkCubeSong;
 	private Dictionary<Difficulty, Song> songSelected;
 	private Dictionary<Difficulty, GameObject> diffSelected;
 	private Dictionary<Difficulty, Color> diffActiveColor;
@@ -161,6 +163,30 @@ public class WheelSongMainScript : MonoBehaviour {
 	private string ratestring;
 	
 	
+	//Anim options
+	public float timeFadeOut;
+	public float timeFadeOutDisplay;
+	private float[] alphaText;
+	private float[] alphaDisplay;
+	private float[] offsetFading;
+	private float[] offsetPreviousFading;
+	private bool[] isFading;
+	private bool[] isFadingDisplay;
+	private int previousSelected;
+	public float offsetBaseFading;
+	
+	
+	//Search Bar
+	public Rect SearchBarPos;
+	private Dictionary<string, Dictionary<Difficulty, Song>> songList;
+	private string search;
+	private string searchOldValue;
+	//Tri
+	
+	
+	
+	//Keyboard support
+	
 	
 	//General Update
 	public float timeBeforeDisplay;
@@ -181,6 +207,8 @@ public class WheelSongMainScript : MonoBehaviour {
 		cubesPos = new Dictionary<GameObject, float>();
 		songCubePack = new Dictionary<GameObject, string>();
 		LinkCubeSong = new Dictionary<GameObject, string>();
+		customSongCubePack = new Dictionary<GameObject, string>();
+		customLinkCubeSong = new Dictionary<GameObject, string>();
 		diffSelected = new Dictionary<Difficulty, GameObject>();
 		diffActiveColor = new Dictionary<Difficulty, Color>();
 		PSDiff = new Dictionary<int, ParticleSystem>();
@@ -272,7 +300,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		fadeAlphaOptionTitle = 1f;
 		stateLoading = new bool[9];
 		displaySelected = new bool[DataManager.Instance.aDisplay.Length];
-		for(int i=0;i<8;i++) stateLoading[i] = false;
+		for(int i=0;i<stateLoading.Length-1;i++) stateLoading[i] = false;
 		for(int j=0;j<DataManager.Instance.aDisplay.Length;j++) displaySelected[j] = false;
 		
 		speedmodSelected = 2f;
@@ -287,11 +315,29 @@ public class WheelSongMainScript : MonoBehaviour {
 		speedmodstring = "2.00";
 		ratestring = "00";
 		
+		alphaText = new float[stateLoading.Length];
+		isFading = new bool[stateLoading.Length];
+		alphaDisplay = new float[stateLoading.Length];
+		isFadingDisplay = new bool[stateLoading.Length];
+		offsetFading = new float[stateLoading.Length];
+		offsetPreviousFading = new float[stateLoading.Length];
+		for(int i=0;i<stateLoading.Length;i++) offsetFading[i] = 0f;
+		for(int i=0;i<stateLoading.Length;i++) offsetPreviousFading[i] = 0f;
+		for(int i=0;i<stateLoading.Length;i++) isFading[i] = false;
+		for(int i=0;i<stateLoading.Length;i++) alphaText[i] = 1f;
+		for(int i=0;i<stateLoading.Length;i++) isFadingDisplay[i] = false;
+		for(int i=0;i<stateLoading.Length;i++) alphaDisplay[i] = 0f;
 		
+		
+		search = "";
+		songList = new Dictionary<string, Dictionary<Difficulty, Song>>();
+			
 		actualySelected = Difficulty.BEGINNER;
 		trulySelected = Difficulty.BEGINNER;
 		onHoverDifficulty = Difficulty.NONE;
 		
+		
+//		GetComponent<FadeManager>().FadeOut();
 	}
 	
 	// Update is called once per frame
@@ -302,59 +348,62 @@ public class WheelSongMainScript : MonoBehaviour {
 		if(!OptionMode){
 			#region packGUI
 			//Packs
-			var decal = ((Screen.width - wd*Screen.width)/2);
-			if(movinBackward) GUI.Label(new Rect((xm10*2f + decalFadeM)*Screen.width + decal, y*Screen.height, wd*Screen.width, ht*Screen.height), packs.ElementAt(PrevInt(numberPack, 2)).Key);
-			if(!movinForward) GUI.Label(new Rect((xm10 + decalFadeM)*Screen.width + decal, y*Screen.height, wd*Screen.width, ht*Screen.height), packs.ElementAt(PrevInt(numberPack, 1)).Key);
-			GUI.Label(new Rect(decalFade > 0 ? decalFade*Screen.width + decal : decalFadeM*Screen.width + decal  , y*Screen.height, wd*Screen.width, ht*Screen.height), packs.ElementAt(numberPack).Key);
-			if(!movinBackward) GUI.Label(new Rect((x10 + decalFade)*Screen.width + decal, y*Screen.height, wd*Screen.width, ht*Screen.height), packs.ElementAt(NextInt(numberPack, 1)).Key);
-			if(movinForward) GUI.Label(new Rect((x10*2f + decalFade)*Screen.width + decal, y*Screen.height, wd*Screen.width, ht*Screen.height), packs.ElementAt(NextInt(numberPack, 2)).Key);
+			if(search.Trim().Length >= 3){
+				var decal = ((Screen.width - wd*Screen.width)/2);
+				if(movinBackward) GUI.Label(new Rect((xm10*2f + decalFadeM)*Screen.width + decal, y*Screen.height, wd*Screen.width, ht*Screen.height), packs.ElementAt(PrevInt(numberPack, 2)).Key);
+				if(!movinForward) GUI.Label(new Rect((xm10 + decalFadeM)*Screen.width + decal, y*Screen.height, wd*Screen.width, ht*Screen.height), packs.ElementAt(PrevInt(numberPack, 1)).Key);
+				GUI.Label(new Rect(decalFade > 0 ? decalFade*Screen.width + decal : decalFadeM*Screen.width + decal  , y*Screen.height, wd*Screen.width, ht*Screen.height), packs.ElementAt(numberPack).Key);
+				if(!movinBackward) GUI.Label(new Rect((x10 + decalFade)*Screen.width + decal, y*Screen.height, wd*Screen.width, ht*Screen.height), packs.ElementAt(NextInt(numberPack, 1)).Key);
+				if(movinForward) GUI.Label(new Rect((x10*2f + decalFade)*Screen.width + decal, y*Screen.height, wd*Screen.width, ht*Screen.height), packs.ElementAt(NextInt(numberPack, 2)).Key);
+				
 			
-		
-		
-			if(GUI.Button(new Rect(posBackward.x*Screen.width, posBackward.y*Screen.height, posBackward.width*Screen.width, posBackward.height*Screen.height),"","LBackward") && !movinBackward && !movinNormal && !movinOption){
-				nextnumberPack = PrevInt(numberPack, 1);
-				activePack(packs.ElementAt(nextnumberPack).Key);
-				movinBackward = true;
-				startnumber = 0;
-				camerapack.transform.position = new Vector3(0f, 0f, 0f);
-				cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
-			}
-			if(GUI.Button(new Rect(posBackward.x*Screen.width, posBackward.y*Screen.height + ecart*Screen.height, posBackward.width*Screen.width, posBackward.height*Screen.height),"","Backward") && !movinNormal && !movinOption){
-				nextnumberPack = PrevInt(numberPack, 3);
-				activePack(packs.ElementAt(nextnumberPack).Key);
-				movinBackwardFast = true;
-				startnumber = 0;
-				camerapack.transform.position = new Vector3(0f, 0f, 0f);
-				cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
-			}
 			
-			if(GUI.Button(new Rect(posForward.x*Screen.width, posForward.y*Screen.height, posForward.width*Screen.width, posForward.height*Screen.height),"","LForward") && !movinForward && !movinNormal && !movinOption)
-			{
-				nextnumberPack = NextInt(numberPack, 1);
-				activePack(packs.ElementAt(nextnumberPack).Key);
-				movinForward = true;
-				startnumber = 0;
-				camerapack.transform.position = new Vector3(0f, 0f, 0f);
-				cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
-			}
-			if(GUI.Button(new Rect(posForward.x*Screen.width, posForward.y*Screen.height + ecart*Screen.height, posForward.width*Screen.width, posForward.height*Screen.height),"","Forward") && !movinNormal && !movinOption){
-				nextnumberPack = NextInt(numberPack, 3);
-				activePack(packs.ElementAt(nextnumberPack).Key);
-				movinForwardFast = true;
-				startnumber = 0;
-				camerapack.transform.position = new Vector3(0f, 0f, 0f);
-				cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
+				if(GUI.Button(new Rect(posBackward.x*Screen.width, posBackward.y*Screen.height, posBackward.width*Screen.width, posBackward.height*Screen.height),"","LBackward") && !movinBackward && !movinNormal && !movinOption){
+					nextnumberPack = PrevInt(numberPack, 1);
+					activePack(packs.ElementAt(nextnumberPack).Key);
+					movinBackward = true;
+					startnumber = 0;
+					camerapack.transform.position = new Vector3(0f, 0f, 0f);
+					cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
+				}
+				if(GUI.Button(new Rect(posBackward.x*Screen.width, posBackward.y*Screen.height + ecart*Screen.height, posBackward.width*Screen.width, posBackward.height*Screen.height),"","Backward") && !movinNormal && !movinOption){
+					nextnumberPack = PrevInt(numberPack, 3);
+					activePack(packs.ElementAt(nextnumberPack).Key);
+					movinBackwardFast = true;
+					startnumber = 0;
+					camerapack.transform.position = new Vector3(0f, 0f, 0f);
+					cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
+				}
+				
+				if(GUI.Button(new Rect(posForward.x*Screen.width, posForward.y*Screen.height, posForward.width*Screen.width, posForward.height*Screen.height),"","LForward") && !movinForward && !movinNormal && !movinOption)
+				{
+					nextnumberPack = NextInt(numberPack, 1);
+					activePack(packs.ElementAt(nextnumberPack).Key);
+					movinForward = true;
+					startnumber = 0;
+					camerapack.transform.position = new Vector3(0f, 0f, 0f);
+					cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
+				}
+				if(GUI.Button(new Rect(posForward.x*Screen.width, posForward.y*Screen.height + ecart*Screen.height, posForward.width*Screen.width, posForward.height*Screen.height),"","Forward") && !movinNormal && !movinOption){
+					nextnumberPack = NextInt(numberPack, 3);
+					activePack(packs.ElementAt(nextnumberPack).Key);
+					movinForwardFast = true;
+					startnumber = 0;
+					camerapack.transform.position = new Vector3(0f, 0f, 0f);
+					cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
+				}
 			}
 			#endregion
 			
 			#region songGUI
 			//SONGS
-			 
+			
+			var packOnRender = search.Trim().Length >= 3 ? songList : LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key];
 			var thepos = -posLabel;
-			for(int i=0; i<LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].Count; i++){
+			for(int i=0; i<packOnRender.Count; i++){
 				if(thepos >= 0f && thepos <= numberToDisplay){
 					
-					var el = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].ElementAt(i);
+					var el = packOnRender.ElementAt(i);
 					GUI.color = new Color(0f, 0f, 0f, 1f - totalAlpha);
 					GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.title, "songlabel");
 					GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos + offsetSubstitle)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.subtitle, "infosong");
@@ -362,7 +411,7 @@ public class WheelSongMainScript : MonoBehaviour {
 					GUI.Label(new Rect(posSonglist.x*Screen.width, (posSonglist.y + ecartSong*thepos)*Screen.height, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.title, "songlabel");
 					GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos + offsetSubstitle)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.subtitle, "infosong");
 				}else if(thepos > -1f && thepos < 0f){
-					var el = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].ElementAt(i);
+					var el = packOnRender.ElementAt(i);
 					GUI.color = new Color(0f, 0f, 0f, 1f + thepos);
 					GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.title, "songlabel");
 					GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos + offsetSubstitle)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.subtitle, "infosong");
@@ -372,6 +421,50 @@ public class WheelSongMainScript : MonoBehaviour {
 				}
 				thepos++;
 			}
+			#endregion
+		
+			//Perte de focus ?
+			#region SearchBar
+				search = GUI.TextArea(new Rect(SearchBarPos.x*Screen.width, SearchBarPos.y*Screen.height, SearchBarPos.width*Screen.width, SearchBarPos.height*Screen.height), search.Trim());
+				if(search != searchOldValue){
+					if(!String.IsNullOrEmpty(search.Trim()) && search.Trim().Length >= 3){
+						songList = LoadManager.Instance.ListSong(songList, search.Trim());
+						if(particleOnPlay != null){
+							cubeSelected = null;
+							songSelected = null;
+							FadeOutBanner = true;
+							graph.enabled = false;
+							audio.Stop();
+							PSDiff[(int)actualySelected].gameObject.active = false;
+							desactiveDiff();
+							particleOnPlay.active = false;
+							locked = false;
+						}
+						
+						desactivePack();
+						createCubeSong(songList);
+						activeCustomPack();
+						
+					}else if(songList.Count > 0 && search.Trim().Length < 3){
+						songList.Clear();
+						if(particleOnPlay != null){
+							cubeSelected = null;
+							songSelected = null;
+							FadeOutBanner = true;
+							graph.enabled = false;
+							audio.Stop();
+							PSDiff[(int)actualySelected].gameObject.active = false;
+							desactiveDiff();
+							particleOnPlay.active = false;
+							locked = false;
+						}
+						activePack(packs.ElementAt(nextnumberPack).Key);
+						DestroyCustomCubeSong();
+						
+					}
+				}
+				searchOldValue = search;
+			
 			#endregion
 		}
 		
@@ -412,6 +505,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		#endregion
 		
 		GUI.color = new Color(1f, 1f, 1f, 1f - totalAlpha);
+		
 		
 		#region songinfoGUI
 		//Song Info
@@ -473,7 +567,18 @@ public class WheelSongMainScript : MonoBehaviour {
 			
 			//Jouer
 			if(GUI.Button(new Rect(Jouer.x*Screen.width, Jouer.y*Screen.height, Jouer.width*Screen.width, Jouer.height*Screen.height), "Play", "labelGo")){
-				Debug.Log("Play " + songSelected[actualySelected].title + " in " + actualySelected.ToString() + " mode");	
+				DataManager.Instance.songSelected =  songSelected[actualySelected];
+				DataManager.Instance.difficultySelected = actualySelected;
+				DataManager.Instance.speedmodSelected = speedmodSelected;
+				DataManager.Instance.rateSelected = rateSelected;
+				DataManager.Instance.skinSelected = skinSelected;
+				DataManager.Instance.scoreJudgeSelected = scoreJudgeSelected;
+				DataManager.Instance.hitJudgeSelected = hitJudgeSelected;
+				DataManager.Instance.lifeJudgeSelected = lifeJudgeSelected;
+				DataManager.Instance.raceSelected = raceSelected;
+				DataManager.Instance.displaySelected = displaySelected;
+				DataManager.Instance.deathSelected = deathSelected;
+				GetComponent<FadeManager>().FadeIn(DataManager.Instance.giveLevelToLoad("Chart"));
 			}
 		
 			//Option
@@ -601,61 +706,93 @@ public class WheelSongMainScript : MonoBehaviour {
 						break;
 						case 2:
 							//skin
-							GUI.Label(new Rect(posItemLabel[2].x*Screen.width, posItemLabel[2].y*Screen.height, posItemLabel[2].width*Screen.width, posItemLabel[2].height*Screen.height), DataManager.Instance.aSkin[skinSelected], "bpmdisplay");
+							GUI.color = new Color(1f, 1f, 1f, alphaText[2]);
+							GUI.Label(new Rect(posItemLabel[2].x*Screen.width, (posItemLabel[2].y - offsetFading[2])*Screen.height, posItemLabel[2].width*Screen.width, posItemLabel[2].height*Screen.height), DataManager.Instance.aSkin[skinSelected], "bpmdisplay");
+							GUI.color = new Color(1f, 1f, 1f, 1 - alphaText[2]);
+							if(isFading[2]) GUI.Label(new Rect(posItemLabel[2].x*Screen.width, (posItemLabel[2].y + offsetPreviousFading[2])*Screen.height, posItemLabel[2].width*Screen.width, posItemLabel[2].height*Screen.height), DataManager.Instance.aSkin[previousSelected], "bpmdisplay");
+							GUI.color = new Color(1f, 1f, 1f, 1f);
 							if(GUI.Button(new Rect((posItem[2].x - ecartForBack)*Screen.width, posItem[2].y*Screen.height, posItem[2].width*Screen.width, posItem[2].height*Screen.height), "", "LBackward")){
+								previousSelected = skinSelected;
 								if(skinSelected == 0){
 									skinSelected = DataManager.Instance.aSkin.Length - 1;
 								}else{
 									skinSelected--;
 								}
+								StartCoroutine(OptionAnim(2, true));
 							}
 							if(GUI.Button(new Rect((posItem[2].x + ecartForBack)*Screen.width, posItem[2].y*Screen.height, posItem[2].width*Screen.width, posItem[2].height*Screen.height), "", "LForward")){
+								previousSelected = skinSelected;
 								if(skinSelected == DataManager.Instance.aSkin.Length - 1){
 									skinSelected = 0;
 								}else{
 									skinSelected++;
 								}
+								StartCoroutine(OptionAnim(2, false));
 							}
 						break;
 						case 3:
 							//hit
-							GUI.Label(new Rect(posItemLabel[3].x*Screen.width, posItemLabel[3].y*Screen.height, posItemLabel[3].width*Screen.width, posItemLabel[3].height*Screen.height), DataManager.Instance.dicHitJudge[hitJudgeSelected], "bpmdisplay");
+							GUI.color = new Color(1f, 1f, 1f, alphaText[3]);
+							GUI.Label(new Rect(posItemLabel[3].x*Screen.width, (posItemLabel[3].y - offsetFading[3])*Screen.height, posItemLabel[3].width*Screen.width, posItemLabel[3].height*Screen.height), DataManager.Instance.dicHitJudge[hitJudgeSelected], "bpmdisplay");
+							GUI.color = new Color(1f, 1f, 1f, 1 - alphaText[3]);
+							if(isFading[3]) GUI.Label(new Rect(posItemLabel[3].x*Screen.width, (posItemLabel[3].y + offsetPreviousFading[3])*Screen.height, posItemLabel[3].width*Screen.width, posItemLabel[3].height*Screen.height), DataManager.Instance.dicHitJudge[(Judge)previousSelected], "bpmdisplay");
+							GUI.color = new Color(1f, 1f, 1f, 1f);
 							if(hitJudgeSelected > Judge.BEGINNER){
 								if(GUI.Button(new Rect((posItem[3].x - ecartForBack)*Screen.width, posItem[3].y*Screen.height, posItem[3].width*Screen.width, posItem[3].height*Screen.height), "", "LBackward")){
+									previousSelected = (int)hitJudgeSelected;
 									hitJudgeSelected--;
+									StartCoroutine(OptionAnim(3, true));
 								}
 							}
 							if(hitJudgeSelected < Judge.EXPERT){
 								if(GUI.Button(new Rect((posItem[3].x + ecartForBack)*Screen.width, posItem[3].y*Screen.height, posItem[3].width*Screen.width, posItem[3].height*Screen.height), "", "LForward")){
+									previousSelected = (int)hitJudgeSelected;
 									hitJudgeSelected++;
+									StartCoroutine(OptionAnim(3, false));
 								}
 							}
 						break;
 						case 4:
 							//score
-							GUI.Label(new Rect(posItemLabel[4].x*Screen.width, posItemLabel[4].y*Screen.height, posItemLabel[4].width*Screen.width, posItemLabel[4].height*Screen.height), DataManager.Instance.dicScoreJudge[scoreJudgeSelected], "bpmdisplay");
+							GUI.color = new Color(1f, 1f, 1f, alphaText[4]);
+							GUI.Label(new Rect(posItemLabel[4].x*Screen.width, (posItemLabel[4].y - offsetFading[4])*Screen.height, posItemLabel[4].width*Screen.width, posItemLabel[4].height*Screen.height), DataManager.Instance.dicScoreJudge[scoreJudgeSelected], "bpmdisplay");
+							GUI.color = new Color(1f, 1f, 1f, 1 - alphaText[4]);
+							if(isFading[4]) GUI.Label(new Rect(posItemLabel[4].x*Screen.width, (posItemLabel[4].y + offsetPreviousFading[4])*Screen.height, posItemLabel[4].width*Screen.width, posItemLabel[4].height*Screen.height), DataManager.Instance.dicScoreJudge[(Judge)previousSelected], "bpmdisplay");
+							GUI.color = new Color(1f, 1f, 1f, 1f);
 							if(scoreJudgeSelected > Judge.BEGINNER){
 								if(GUI.Button(new Rect((posItem[4].x - ecartForBack)*Screen.width, posItem[4].y*Screen.height, posItem[4].width*Screen.width, posItem[4].height*Screen.height), "", "LBackward")){
+									previousSelected = (int)scoreJudgeSelected;
 									scoreJudgeSelected--;
+									StartCoroutine(OptionAnim(4, true));
 								}
 							}
 							if(scoreJudgeSelected < Judge.EXPERT){
 								if(GUI.Button(new Rect((posItem[4].x + ecartForBack)*Screen.width, posItem[4].y*Screen.height, posItem[4].width*Screen.width, posItem[4].height*Screen.height), "", "LForward")){
+									previousSelected = (int)scoreJudgeSelected;
 									scoreJudgeSelected++;
+									StartCoroutine(OptionAnim(4, false));
 								}
 							}
 						break;
 						case 5:
 							//life judge
-							GUI.Label(new Rect(posItemLabel[5].x*Screen.width, posItemLabel[5].y*Screen.height, posItemLabel[5].width*Screen.width, posItemLabel[5].height*Screen.height), DataManager.Instance.dicLifeJudge[lifeJudgeSelected], "bpmdisplay");
+							GUI.color = new Color(1f, 1f, 1f, alphaText[5]);
+							GUI.Label(new Rect(posItemLabel[5].x*Screen.width, (posItemLabel[5].y - offsetFading[5])*Screen.height, posItemLabel[5].width*Screen.width, posItemLabel[5].height*Screen.height), DataManager.Instance.dicLifeJudge[lifeJudgeSelected], "bpmdisplay");
+							GUI.color = new Color(1f, 1f, 1f, 1 - alphaText[5]);
+							if(isFading[5]) GUI.Label(new Rect(posItemLabel[5].x*Screen.width, (posItemLabel[5].y + offsetPreviousFading[5])*Screen.height, posItemLabel[5].width*Screen.width, posItemLabel[5].height*Screen.height), DataManager.Instance.dicLifeJudge[(Judge)previousSelected], "bpmdisplay");
+							GUI.color = new Color(1f, 1f, 1f, 1f);
 							if(lifeJudgeSelected > Judge.BEGINNER){
 								if(GUI.Button(new Rect((posItem[5].x - ecartForBack)*Screen.width, posItem[5].y*Screen.height, posItem[5].width*Screen.width, posItem[5].height*Screen.height), "", "LBackward")){
+									previousSelected = (int)lifeJudgeSelected;
 									lifeJudgeSelected--;
+									StartCoroutine(OptionAnim(5, true));
 								}
 							}
 							if(lifeJudgeSelected < Judge.EXPERT){
 								if(GUI.Button(new Rect((posItem[5].x + ecartForBack)*Screen.width, posItem[5].y*Screen.height, posItem[5].width*Screen.width, posItem[5].height*Screen.height), "", "LForward")){
+									previousSelected = (int)lifeJudgeSelected;
 									lifeJudgeSelected++;
+									StartCoroutine(OptionAnim(5, false));
 								}
 							}
 						break;
@@ -663,48 +800,67 @@ public class WheelSongMainScript : MonoBehaviour {
 							//display
 							for(int j=0; j<DataManager.Instance.aDisplay.Length; j++){
 								if(displaySelected[j]){
+									GUI.color = new Color(1f, 1f, 1f, alphaDisplay[j]);
 									GUI.DrawTexture(new Rect((posItem[6].x - borderXDisplay + offsetXDisplay*j + selectedImage.x)*Screen.width, (posItem[6].y + selectedImage.y)*Screen.height, selectedImage.width*Screen.width, selectedImage.height*Screen.height), tex["bouton"]);
+									GUI.color = new Color(1f, 1f, 1f, 1f);
 								}
 							
-								if(GUI.Button(new Rect((posItem[6].x - borderXDisplay + offsetXDisplay*j)*Screen.width, posItem[6].y*Screen.height, posItem[6].width*Screen.width, posItem[6].height*Screen.height), DataManager.Instance.aDisplay[j], "labelNormal")){
+								if(GUI.Button(new Rect((posItem[6].x - borderXDisplay + offsetXDisplay*j)*Screen.width, posItem[6].y*Screen.height, posItem[6].width*Screen.width, posItem[6].height*Screen.height), DataManager.Instance.aDisplay[j], "labelNormal") && !isFadingDisplay[j]){
 									displaySelected[j] = !displaySelected[j];
+									StartCoroutine(OptionAnimDisplay(j, !displaySelected[j]));
 								}
 							}
 						break;
 						case 7:
 							//race
-							GUI.Label(new Rect(posItemLabel[7].x*Screen.width, posItemLabel[7].y*Screen.height, posItemLabel[7].width*Screen.width, posItemLabel[7].height*Screen.height), DataManager.Instance.aRace[raceSelected], "bpmdisplay");
+							GUI.color = new Color(1f, 1f, 1f, alphaText[7]);
+							GUI.Label(new Rect(posItemLabel[7].x*Screen.width, (posItemLabel[7].y - offsetFading[7])*Screen.height, posItemLabel[7].width*Screen.width, posItemLabel[7].height*Screen.height), DataManager.Instance.aRace[raceSelected], "bpmdisplay");
+							GUI.color = new Color(1f, 1f, 1f, 1 - alphaText[7]);
+							if(isFading[7]) GUI.Label(new Rect(posItemLabel[7].x*Screen.width, (posItemLabel[7].y + offsetPreviousFading[7])*Screen.height, posItemLabel[7].width*Screen.width, posItemLabel[7].height*Screen.height), DataManager.Instance.aRace[previousSelected], "bpmdisplay");
+							GUI.color = new Color(1f, 1f, 1f, 1f);
 							if(GUI.Button(new Rect((posItem[7].x - ecartForBack)*Screen.width, posItem[7].y*Screen.height, posItem[7].width*Screen.width, posItem[7].height*Screen.height), "", "LBackward")){
+								previousSelected = raceSelected;
 								if(raceSelected == 0){
 									raceSelected = DataManager.Instance.aRace.Length - 1;
 								}else{
 									raceSelected--;
 								}
+								StartCoroutine(OptionAnim(7, true));
 							}
 							if(GUI.Button(new Rect((posItem[7].x + ecartForBack)*Screen.width, posItem[7].y*Screen.height, posItem[7].width*Screen.width, posItem[7].height*Screen.height), "", "LForward")){
+								previousSelected = raceSelected;
 								if(raceSelected == DataManager.Instance.aRace.Length - 1){
 									raceSelected = 0;
 								}else{
 									raceSelected++;
 								}
+								StartCoroutine(OptionAnim(7, false));
 							}
 						break;
 						case 8:
 							//death
-							GUI.Label(new Rect(posItemLabel[8].x*Screen.width, posItemLabel[8].y*Screen.height, posItemLabel[8].width*Screen.width, posItemLabel[8].height*Screen.height), DataManager.Instance.aDeath[deathSelected], "bpmdisplay");
+							GUI.color = new Color(1f, 1f, 1f, alphaText[8]);
+							GUI.Label(new Rect(posItemLabel[8].x*Screen.width, (posItemLabel[8].y - offsetFading[8])*Screen.height, posItemLabel[8].width*Screen.width, posItemLabel[8].height*Screen.height), DataManager.Instance.aDeath[deathSelected], "bpmdisplay");
+							GUI.color = new Color(1f, 1f, 1f, 1 - alphaText[8]);
+							if(isFading[8]) GUI.Label(new Rect(posItemLabel[8].x*Screen.width, (posItemLabel[8].y + offsetPreviousFading[8])*Screen.height, posItemLabel[8].width*Screen.width, posItemLabel[8].height*Screen.height), DataManager.Instance.aDeath[previousSelected], "bpmdisplay");
+							GUI.color = new Color(1f, 1f, 1f, 1f);
 							if(GUI.Button(new Rect((posItem[8].x - ecartForBack)*Screen.width, posItem[8].y*Screen.height, posItem[8].width*Screen.width, posItem[8].height*Screen.height), "", "LBackward")){
+								previousSelected = deathSelected;
 								if(deathSelected == 0){
 									deathSelected = DataManager.Instance.aDeath.Length - 1;
 								}else{
 									deathSelected--;
 								}
+								StartCoroutine(OptionAnim(8, true));
 							}
 							if(GUI.Button(new Rect((posItem[8].x + ecartForBack)*Screen.width, posItem[8].y*Screen.height, posItem[8].width*Screen.width, posItem[8].height*Screen.height), "", "LForward")){
+								previousSelected = deathSelected;
 								if(deathSelected == DataManager.Instance.aDeath.Length - 1){
 									deathSelected = 0;
 								}else{
 									deathSelected++;
 								}
+								StartCoroutine(OptionAnim(8, false));
 							}
 						break;
 					
@@ -932,6 +1088,12 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 		if(!movinNormal && !movinOption && !OptionMode){
 			
+			#region ListChanges
+			var packOnRender = search.Trim().Length >= 3 ? songList : LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key];
+			var linkOnRender = search.Trim().Length >= 3 ? customLinkCubeSong : LinkCubeSong;
+			var songCubeOnRender = search.Trim().Length >= 3 ? customSongCubePack : songCubePack;
+			#endregion
+			
 			#region Raycast
 			//Raycast songlist
 			Ray ray = camerapack.ScreenPointToRay(Input.mousePosition);	
@@ -950,8 +1112,8 @@ public class WheelSongMainScript : MonoBehaviour {
 							
 							particleOnPlay.active = false;
 						}
-						if(songSelected == null || ((songSelected.First().Value.title + "/" + songSelected.First().Value.subtitle) != LinkCubeSong[papa.gameObject])){
-							songSelected = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].FirstOrDefault(c => (c.Value.First().Value.title + "/" + c.Value.First().Value.subtitle) == LinkCubeSong[papa.gameObject]).Value;
+						if(songSelected == null || ((songSelected.First().Value.title + "/" + songSelected.First().Value.subtitle) != linkOnRender[papa.gameObject])){
+							songSelected = packOnRender.FirstOrDefault(c => (c.Value.First().Value.title + "/" + c.Value.First().Value.subtitle) == linkOnRender[papa.gameObject]).Value;
 							activeNumberDiff(songSelected);
 							activeDiff(songSelected);
 							PSDiff[(int)actualySelected].gameObject.active = false;
@@ -979,8 +1141,8 @@ public class WheelSongMainScript : MonoBehaviour {
 							{
 								particleOnPlay.active = false;
 							}
-							if(songSelected == null || ((songSelected.First().Value.title + "/" + songSelected.First().Value.subtitle) != LinkCubeSong[papa.gameObject])){
-								songSelected = LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key].FirstOrDefault(c => (c.Value.First().Value.title + "/" + c.Value.First().Value.subtitle) == LinkCubeSong[papa.gameObject]).Value;
+							if(songSelected == null || ((songSelected.First().Value.title + "/" + songSelected.First().Value.subtitle) != linkOnRender[papa.gameObject])){
+								songSelected = packOnRender.FirstOrDefault(c => (c.Value.First().Value.title + "/" + c.Value.First().Value.subtitle) == linkOnRender[papa.gameObject]).Value;
 								activeNumberDiff(songSelected);
 								activeDiff(songSelected);
 								PSDiff[(int)actualySelected].gameObject.active = false;
@@ -1068,7 +1230,7 @@ public class WheelSongMainScript : MonoBehaviour {
 				startnumber--;
 				
 				
-			}else if(Input.GetAxis("Mouse ScrollWheel") < 0 && startnumber < (songCubePack.Where(c => packs.ElementAt(nextnumberPack).Key == c.Value).Count() - numberToDisplay + 1)){
+			}else if(Input.GetAxis("Mouse ScrollWheel") < 0 && startnumber < (songCubeOnRender.Where(c => packs.ElementAt(nextnumberPack).Key == c.Value).Count() - numberToDisplay + 1)){
 				startnumber++;
 			}
 			
@@ -1092,14 +1254,14 @@ public class WheelSongMainScript : MonoBehaviour {
 			//Move song list
 			if(oldpos > newpos){
 			
-				var cubeel2 = songCubePack.FirstOrDefault(c => !c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y - 3f*numberToDisplay) && !(c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
+				var cubeel2 = songCubeOnRender.FirstOrDefault(c => !c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y - 3f*numberToDisplay) && !(c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
 				if(cubeel2 != null) {
 					cubeel2.SetActiveRecursively(true);
 					if(cubeSelected == null || cubeSelected != cubeel2) cubeel2.transform.FindChild("Selection").gameObject.active = false;
 				}
 				
 				
-				var cubeel = songCubePack.FirstOrDefault(c => c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
+				var cubeel = songCubeOnRender.FirstOrDefault(c => c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
 				if(cubeel != null) {
 					cubeel.SetActiveRecursively(false);
 					cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, cubeBase.transform.position.y -3f, cubeBase.transform.position.z);
@@ -1109,12 +1271,12 @@ public class WheelSongMainScript : MonoBehaviour {
 				
 			}else if(oldpos < newpos){
 				
-				var cubeel2 = songCubePack.FirstOrDefault(c => c.Key.active && (c.Key.transform.position.y < camerapack.transform.position.y - 3f*numberToDisplay) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
+				var cubeel2 = songCubeOnRender.FirstOrDefault(c => c.Key.active && (c.Key.transform.position.y < camerapack.transform.position.y - 3f*numberToDisplay) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
 				if(cubeel2 != null) {
 					cubeel2.SetActiveRecursively(false);
 				}
 				
-				var cubeel = songCubePack.FirstOrDefault(c => !c.Key.active && (c.Key.transform.position.y < camerapack.transform.position.y + 5f) && (c.Key.transform.position.y > camerapack.transform.position.y - 3f*(numberToDisplay - 2)) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
+				var cubeel = songCubeOnRender.FirstOrDefault(c => !c.Key.active && (c.Key.transform.position.y < camerapack.transform.position.y + 5f) && (c.Key.transform.position.y > camerapack.transform.position.y - 3f*(numberToDisplay - 2)) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
 				if(cubeel != null) {
 					cubeel.SetActiveRecursively(true);
 					if(cubeSelected == null || cubeSelected != cubeel) cubeel.transform.FindChild("Selection").gameObject.active = false;
@@ -1250,6 +1412,67 @@ public class WheelSongMainScript : MonoBehaviour {
 	
 	#endregion
 	
+	#region AnimOption
+	IEnumerator OptionAnim(int i, bool reverse){
+		isFading[i] = true;
+		
+		if(reverse){
+			offsetFading[i] = -offsetBaseFading;
+			offsetPreviousFading[i] = 0f;
+			alphaText[i] = 0f;
+			while(offsetFading[i] < 0){
+				offsetFading[i] += offsetBaseFading*Time.deltaTime/timeFadeOut;
+				offsetPreviousFading[i] -= offsetBaseFading*Time.deltaTime/timeFadeOut;
+				alphaText[i] += Time.deltaTime/timeFadeOut;
+				
+				yield return new WaitForFixedUpdate();
+			}
+			
+		}else{
+			offsetFading[i] = offsetBaseFading;
+			offsetPreviousFading[i] = 0f;
+			alphaText[i] = 0f;
+			while(offsetFading[i] > 0f){
+				offsetFading[i] -= offsetBaseFading*Time.deltaTime/timeFadeOut;
+				offsetPreviousFading[i] += offsetBaseFading*Time.deltaTime/timeFadeOut;
+				alphaText[i] += Time.deltaTime/timeFadeOut;
+				
+				yield return new WaitForFixedUpdate();
+			}
+			
+		}
+		
+		isFading[i] = false;
+		offsetFading[i] = 0f;
+		offsetPreviousFading[i] = offsetBaseFading;
+		alphaText[i] = 1f;
+	}
+	
+	IEnumerator OptionAnimDisplay(int i, bool reverse){
+		isFadingDisplay[i] = true;
+		
+		if(reverse){
+			alphaDisplay[i] = 1f;
+			while(alphaDisplay[i] > 0){
+				alphaDisplay[i] -= Time.deltaTime/timeFadeOutDisplay;
+				yield return new WaitForFixedUpdate();
+			}
+			alphaDisplay[i] = 0f;
+		}else{
+			alphaDisplay[i] = 0f;
+			while(alphaDisplay[i] < 1){
+				alphaDisplay[i] += Time.deltaTime/timeFadeOutDisplay;
+				yield return new WaitForFixedUpdate();
+			}
+			alphaDisplay[i] = 1f;
+		}
+		
+		isFadingDisplay[i] = false;
+		
+	}
+	
+	#endregion
+	
 	#region difficulty
 	void activeDiffPS(Dictionary<Difficulty, Song> so){
 		if(so.ContainsKey(trulySelected)){
@@ -1332,6 +1555,25 @@ public class WheelSongMainScript : MonoBehaviour {
 		alphaBanner = 1f;
 		FadeOutBanner = false;
 	}
+	
+	void activeCustomPack(){
+		foreach(var el in customSongCubePack){
+			if(el.Key.transform.position.y > - 3f*numberToDisplay){
+				el.Key.SetActiveRecursively(true);
+				el.Key.transform.FindChild("Selection").gameObject.active = false;
+			}else if(el.Key.active){
+				el.Key.SetActiveRecursively(false);
+			}
+		}
+	}
+	
+	void desactivePack(){
+		foreach(var el in songCubePack){
+			if(el.Key.active){
+				el.Key.SetActiveRecursively(false);
+			}
+		}
+	}
 	#endregion
 	
 	#region graph
@@ -1359,6 +1601,31 @@ public class WheelSongMainScript : MonoBehaviour {
 
 			}
 		}
+	}
+	
+	void createCubeSong(Dictionary<string, Dictionary<Difficulty, Song>> theSongList){
+		var pos = 2f;
+		foreach(var cubes in customSongCubePack){
+			Destroy(cubes.Key);
+		}
+		customSongCubePack.Clear();
+		customLinkCubeSong.Clear();
+		foreach(var song in theSongList){
+			var thego = (GameObject) Instantiate(cubeSong, new Vector3(-25f, pos, 0f), cubeSong.transform.rotation);
+			pos -= 3f;
+			thego.SetActiveRecursively(false);
+			customSongCubePack.Add(thego,packs.ElementAt(nextnumberPack).Key);
+			customLinkCubeSong.Add(thego, song.Value.First().Value.title + "/" + song.Value.First().Value.subtitle);
+
+		}
+	}
+	
+	void DestroyCustomCubeSong(){
+		foreach(var cubes in customSongCubePack){
+			Destroy(cubes.Key);
+		}
+		customSongCubePack.Clear();
+		customLinkCubeSong.Clear();
 	}
 	
 	

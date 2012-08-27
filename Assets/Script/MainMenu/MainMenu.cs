@@ -121,7 +121,7 @@ public class MainMenu : MonoBehaviour {
 		}
 		
 		if(timeSelect >= timeFade && !iFade){
-			fm.FadeIn();
+			fm.FadeIn(forbiddenTouch);
 			iFade = true;
 		}
 	}

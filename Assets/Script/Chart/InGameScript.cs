@@ -184,7 +184,7 @@ public class InGameScript : MonoBehaviour {
 		
 		firstArrow = -10f;
 		lastArrow = -10f;
-		thesong = LoadManager.Instance.FindSong(DataManager.Instance.songSelected.Key, DataManager.Instance.songSelected.Value)[DataManager.Instance.difficultySelected];
+		thesong = DataManager.Instance.songSelected;
 		StartCoroutine(getTheSongAudio(thesong.GetAudioClipUnstreamed()));
 		createTheChart(thesong);
 		Application.targetFrameRate = -1;

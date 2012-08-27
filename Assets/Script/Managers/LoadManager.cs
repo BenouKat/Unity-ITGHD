@@ -81,6 +81,22 @@ public class LoadManager{
 		
 	}
 	
+	public Dictionary<string, Dictionary<Difficulty, Song>> ListSong(Dictionary<string, Dictionary<Difficulty, Song>> previousList, string contains){
+		
+		var finalList = new Dictionary<string, Dictionary<Difficulty, Song>>();
+		if(previousList.Count == 0){
+			foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.First().Value.title.ToLower().Contains(contains.ToLower())).Count() > 0)){
+				foreach(var song in packs.Value.Where(r => r.Value.First().Value.title.ToLower().Contains(contains.ToLower()))){
+					finalList.Add(song.Value.First().Value.title + "[" + packs.Key + "]", song.Value);
+				}
+			}
+		}else{
+			finalList = previousList.Where(r => r.Value.First().Value.title.ToLower().Contains(contains.ToLower())).ToDictionary(v => v.Key, v => v.Value);
+		}
+		
+		return finalList;
+	}
+	
 	public Dictionary<string, Texture2D> ListTexture(){
 		return bannerPack;
 		

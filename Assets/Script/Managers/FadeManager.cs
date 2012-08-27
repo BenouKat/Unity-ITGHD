@@ -13,6 +13,9 @@ public class FadeManager : MonoBehaviour {
 	private FadeState fs;
 	
 	public bool startFeded;
+	
+	
+	private string levelToLoad;
 	// Use this for initialization
 	void Start () {
 		fade = (Texture2D) Resources.Load("Fade");
@@ -32,6 +35,7 @@ public class FadeManager : MonoBehaviour {
 				posFadex -= Time.deltaTime/speedFade;
 				if(posFadex <= posxfinal){
 					fs = FadeState.DISPLAY;	
+					Application.LoadLevel(DataManager.Instance.giveLevelToLoad(levelToLoad));
 				}
 				break;
 			case FadeState.FADEOUT:
@@ -56,5 +60,11 @@ public class FadeManager : MonoBehaviour {
 	public void FadeOut(){
 		posFadex = posxfinal;
 		fs = FadeState.FADEOUT;
+	}
+	
+	public void FadeIn(string levelName){
+		posFadex = 1f;
+		fs = FadeState.FADEIN;
+		levelToLoad = levelName;
 	}
 }
