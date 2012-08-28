@@ -39,8 +39,8 @@ public class OpenChart{
 		
 		var files = (string[]) Directory.GetFiles(directory);
 		
-		var stream = files.FirstOrDefault(c => (c.Contains(".sm") || c.Contains(".SM")) && !c.Contains(".old")  && !c.Contains(".dwi") && !c.Contains(".DWI") && !c.Contains("._"));
-		if(stream == null) stream = files.FirstOrDefault(c => (c.Contains(".dwi") || c.Contains(".DWI"))   && !c.Contains(".old") && !c.Contains("._"));
+		var stream = files.FirstOrDefault(c => (c.ToLower().Contains(".sm")) && !c.ToLower().Contains(".old")  && !c.ToLower().Contains(".dwi") && !c.Contains("._"));
+		if(stream == null) stream = files.FirstOrDefault(c => (c.ToLower().Contains(".dwi"))   && !c.ToLower().Contains(".old") && !c.Contains("._"));
 		if(stream == null) return null;
 		StreamReader sr = new StreamReader(stream);
 		songContent = sr.ReadToEnd();
@@ -51,6 +51,14 @@ public class OpenChart{
 		List<string> listLine = new List<string>();
 		listLine.AddRange(thesong);
 		List<int> indexNotes = new List<int>();
+		
+		//traitement des commentaires.
+		/* Non : Impossible de savoir si single ou double :(
+		for(int i=0; i < listLine.Count;i++){
+			if(listLine.ElementAt(i).Contains("//")){
+				listLine[i] = listLine.ElementAt(i).Split("//".ToCharArray())[0];
+			}
+		}*/
 		
 		for(int i=0; i < listLine.Count;i++){
 			if(listLine.ElementAt(i).Contains("NOTES")){
@@ -69,6 +77,7 @@ public class OpenChart{
 			var theartist = listLine.FirstOrDefault(c => c.Contains("ARTIST")).Split(':');
 			var artist = theartist[1].Replace(";","");
 			var theoffset = listLine.FirstOrDefault(c => c.Contains("OFFSET")).Split(':');
+			if(theoffset[1].Contains("//")) theoffset[1] = theoffset[1].Split('/')[0]; //Special Destination fix
 			var offset = System.Convert.ToDouble(theoffset[1].Replace(";",""));
 			var thesamplestart = listLine.FirstOrDefault(c => c.Contains("SAMPLESTART")).Split(':');
 			var samplestart = System.Convert.ToDouble(thesamplestart[1].Replace(";",""));
@@ -76,12 +85,17 @@ public class OpenChart{
 			var samplelenght = System.Convert.ToDouble(thesamplelenght[1].Replace(";",""));
 			//"file://" + 
 			var theBanner = listLine.FirstOrDefault(c => c.Contains("BANNER")).Split(':');
-			var bannerTemp = files.FirstOrDefault(c => c.Contains(theBanner[1].Replace(";","")));
+			var bannerTemp = "";
+			if(!String.IsNullOrEmpty(theBanner[1].Replace(";","")))
+			{
+				bannerTemp = files.FirstOrDefault(c => c.Contains(theBanner[1].Replace(";","")));
+			}else{
+				bannerTemp = files.FirstOrDefault(c => (c.ToLower().Contains("bn") || c.ToLower().Contains("banner")) && (c.ToLower().Contains(".png") || c.ToLower().Contains(".jpg") || c.ToLower().Contains(".bmp") || c.ToLower().Contains(".jpeg")));	
+			}
 			var banner = "noBanner";
 			if(!String.IsNullOrEmpty(bannerTemp)){
 				banner = "file://" +  bannerTemp.Replace('\\', '/');
 			}
-			
 			var theBpmListMesured = new Dictionary<double, double>();
 			var theStopListMesured = new Dictionary<double, double>();
 			
@@ -248,13 +262,27 @@ public class OpenChart{
 			
 			var thedisplayBPM = "";
 			if(listLine.FirstOrDefault(c => c.Contains("DISPLAYBPM")) != null){
-				var thes = listLine.FirstOrDefault(c => c.Contains("DISPLAYBPM")).Split(':');
-				if(thes.Count() > 2){
-					thedisplayBPM = System.Convert.ToDouble(thes[1].Replace(";", "")).ToString("0") + " -> " + System.Convert.ToDouble(thes[2].Replace(";", "")).ToString("0");
-				}else{
-					thedisplayBPM = System.Convert.ToDouble(thes[1].Replace(";", "")).ToString("0");
+				try{
+					string[] thes = listLine.FirstOrDefault(c => c.Contains("DISPLAYBPM")).Split(':');
+					if(thes.Count() > 2){
+						thedisplayBPM = System.Convert.ToDouble(thes[1].Replace(";", "")).ToString("0") + " -> " + System.Convert.ToDouble(thes[2].Replace(";", "")).ToString("0");
+					}else{
+						thedisplayBPM = System.Convert.ToDouble(thes[1].Replace(";", "")).ToString("0");
+					}
+				}catch{ //Special Gravity Blast fix
+					string[] thes = listLine.FirstOrDefault(c => c.Contains("DISPLAYBPM")).Split(':');
+					var theindex = 0;
+					for(int o=0; o<thes.Count(); o++){
+						if(thes[o].Contains("DISPLAYBPM")){
+							theindex = o + 1;
+						}
+					}
+					if((thes.Count() - theindex - 1) > 2){
+						thedisplayBPM = System.Convert.ToDouble(thes[theindex].Replace(";", "")).ToString("0") + " -> " + System.Convert.ToDouble(thes[theindex+1].Replace(";", "")).ToString("0");
+					}else{
+						thedisplayBPM = System.Convert.ToDouble(thes[theindex].Replace(";", "")).ToString("0");
+					}
 				}
-				
 			}else{
 				var themin = theBpmList.Min(c => c.Value);
 				var themax = theBpmList.Max(c => c.Value);

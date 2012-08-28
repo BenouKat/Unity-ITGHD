@@ -8,7 +8,7 @@ public class DataManager{
 	
 	
 	
-	
+	//DATA GAME
 	//0 - Fantastic
 	//1 - Excellent
 	//2 - Great
@@ -24,18 +24,30 @@ public class DataManager{
 	
 	public Dictionary<Precision, double> PrecisionValues;
 	
+	
+	//RENDER
+	public List<Material> skyboxList;
+	
+	//WHEEL SONG
 	public float[] posYDiff;
 	
 	public float[] posYZoneDiff;
 	
 	public Color[] diffColor;
 	
+	
+	//SYSTEM
 	public float globalOffsetSeconds = -0.100f;
 	
 	public int regenComboAfterMiss = 5;
 	
+	
+	//INSTANCE
 	private static DataManager instance;
 	
+	
+	
+	//OPTION
 	public Dictionary<Judge, string> dicScoreJudge;
 	public Dictionary<Judge, string> dicHitJudge;
 	public Dictionary<Judge, string> dicLifeJudge;
@@ -136,6 +148,20 @@ public class DataManager{
 		diffColor[3] = new Color(1f, 0.208f, 0.208f, 1f);
 		diffColor[4] = new Color(0.208f, 0.57f, 1f, 1f);
 		diffColor[5] = new Color(1f, 1f, 1f, 1f);
+		
+		skyboxList = new List<Material>();
+		skyboxList.Add((Material) Resources.Load("Skyboxes/Skybox1")); 
+		skyboxList.Add((Material) Resources.Load("Skyboxes/Skybox2")); 
+		skyboxList.Add((Material) Resources.Load("Skyboxes/Skybox3")); 
+		skyboxList.Add((Material) Resources.Load("Skyboxes/Skybox5")); 
+		skyboxList.Add((Material) Resources.Load("Skyboxes/Skybox6")); 
+		skyboxList.Add((Material) Resources.Load("Skyboxes/Skybox7")); 
+		skyboxList.Add((Material) Resources.Load("Skyboxes/Skybox10")); 
+		skyboxList.Add((Material) Resources.Load("Skyboxes/Skybox11")); 
+		skyboxList.Add((Material) Resources.Load("Skyboxes/Skybox13")); 
+		skyboxList.Add((Material) Resources.Load("Skyboxes/Skybox15")); 
+		skyboxList.Add((Material) Resources.Load("Skyboxes/Skybox18")); 
+		skyboxList.Add((Material) Resources.Load("Skyboxes/Skybox20")); 
 		
 		InitDicOption();
 		

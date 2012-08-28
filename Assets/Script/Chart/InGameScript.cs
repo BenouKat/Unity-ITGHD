@@ -182,6 +182,14 @@ public class InGameScript : MonoBehaviour {
 		isFullComboRace = DataManager.Instance.raceSelected == 9;
 		isFullExComboRace = DataManager.Instance.raceSelected == 10;
 		targetScoreInverse = DataManager.Instance.giveTargetScoreOfRace(DataManager.Instance.raceSelected);
+		typeOfDeath = DataManager.Instance.deathSelected;
+		
+		var rand = (int)(UnityEngine.Random.value*DataManager.Instance.skyboxList.Count);
+		if(rand == DataManager.Instance.skyboxList.Count){
+			rand--;	
+		}
+		
+		RenderSettings.skybox = DataManager.Instance.skyboxList.ElementAt(11);
 		
 		firstArrow = -10f;
 		lastArrow = -10f;
@@ -474,11 +482,11 @@ public class InGameScript : MonoBehaviour {
 		
 		
 		if(stateSpeed > 0){
-			slow.renderer.material.color = new Color(1f, 0f, 0f, 1f);
+			slow.renderer.material.color = new Color(1f, 0f, 0f, 0.5f);
 			stateSpeed = 0f;
 			changeColorSlow = true;
 		}else if(stateSpeed < 0){
-			fast.renderer.material.color = new Color(1f, 0f, 0f, 1f);
+			fast.renderer.material.color = new Color(1f, 0f, 0f, 0.5f);
 			stateSpeed = 0f;
 			changeColorFast = true;
 		}
@@ -487,13 +495,13 @@ public class InGameScript : MonoBehaviour {
 			var div = Time.deltaTime/ClignSpeed;
 			var col = fast.renderer.material.color.r - div;
 			var colp = fast.renderer.material.color.g + div;
-			fast.renderer.material.color = new Color(col, colp, colp, 1f);
+			fast.renderer.material.color = new Color(col, colp, colp, 0.5f);
 			if(col <= 0.5f) changeColorFast = false;
 		}else if(changeColorSlow){
 			var div = Time.deltaTime/ClignSpeed;
 			var col = slow.renderer.material.color.r - div;
 			var colp = slow.renderer.material.color.g + div;
-			slow.renderer.material.color = new Color(col, colp, colp, 1f);
+			slow.renderer.material.color = new Color(col, colp, colp, 0.5f);
 			if(col <= 0.5f) changeColorSlow = false;
 		}
 		

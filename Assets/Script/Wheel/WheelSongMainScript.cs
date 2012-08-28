@@ -330,6 +330,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 		
 		search = "";
+		searchOldValue = "";
 		songList = new Dictionary<string, Dictionary<Difficulty, Song>>();
 			
 		
@@ -351,7 +352,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		if(!OptionMode){
 			#region packGUI
 			//Packs
-			if(search.Trim().Length >= 3){
+			if(search.Trim().Length < 3){
 				var decal = ((Screen.width - wd*Screen.width)/2);
 				if(movinBackward) GUI.Label(new Rect((xm10*2f + decalFadeM)*Screen.width + decal, y*Screen.height, wd*Screen.width, ht*Screen.height), packs.ElementAt(PrevInt(numberPack, 2)).Key);
 				if(!movinForward) GUI.Label(new Rect((xm10 + decalFadeM)*Screen.width + decal, y*Screen.height, wd*Screen.width, ht*Screen.height), packs.ElementAt(PrevInt(numberPack, 1)).Key);
@@ -428,9 +429,8 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 			//Perte de focus ?
 			#region SearchBar
-				GUI.SetNextControlName("textfocus");
 				search = GUI.TextArea(new Rect(SearchBarPos.x*Screen.width, SearchBarPos.y*Screen.height, SearchBarPos.width*Screen.width, SearchBarPos.height*Screen.height), search.Trim());
-				GUI.FocusControl("textfocus");
+				
 				if(search != searchOldValue){
 					if(!String.IsNullOrEmpty(search.Trim()) && search.Trim().Length >= 3){
 						songList = LoadManager.Instance.ListSong(songList, search.Trim());
@@ -445,12 +445,14 @@ public class WheelSongMainScript : MonoBehaviour {
 							particleOnPlay.active = false;
 							locked = false;
 						}
-						
+						startnumber = 0;
+						camerapack.transform.position = new Vector3(0f, 0f, 0f);
+						cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
 						desactivePack();
 						createCubeSong(songList);
 						activeCustomPack();
-						
-					}else if(songList.Count > 0 && search.Trim().Length < 3){
+						StartCoroutine(AnimSearchBar(false));
+					}else if(search.Trim().Length < 3 && searchOldValue.Trim().Length > search.Trim().Length){
 						songList.Clear();
 						if(particleOnPlay != null){
 							cubeSelected = null;
@@ -463,13 +465,16 @@ public class WheelSongMainScript : MonoBehaviour {
 							particleOnPlay.active = false;
 							locked = false;
 						}
+						startnumber = 0;
+						camerapack.transform.position = new Vector3(0f, 0f, 0f);
+						cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
 						activePack(packs.ElementAt(nextnumberPack).Key);
 						DestroyCustomCubeSong();
-						
+						StartCoroutine(AnimSearchBar(true));
 					}
 					if(songList.Count == 0 && search.Trim().Length >= 3){
 						GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
-						GUI.Label(new Rect(posSonglist.x*Screen.width, (posSonglist.y + ecartSong*-posLabel)*Screen.height, posSonglist.width*Screen.width, posSonglist.height*Screen.height), "No entry", "songlabel");
+						GUI.Label(new Rect(posSonglist.x*Screen.width, posSonglist.y*Screen.height, posSonglist.width*Screen.width, posSonglist.height*Screen.height), "No entry", "songlabel");
 						GUI.color = new Color(1f, 1f, 1f, 1f);
 					}
 				}
@@ -1485,6 +1490,33 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 	}
 	
+	#endregion
+	
+	#region AnimSearchBar
+	IEnumerator AnimSearchBar(bool reverse){
+		if(!reverse){
+			while(Mathf.Abs(packs.First().Value.transform.position.y - 17f) > limite){
+				foreach(var pa in packs){
+					pa.Value.transform.position = Vector3.Lerp(pa.Value.transform.position, new Vector3(pa.Value.transform.position.x, 17f, pa.Value.transform.position.z), Time.deltaTime/speedMove);
+				}
+				yield return new WaitForFixedUpdate();
+			}
+			foreach(var pa in packs){
+				pa.Value.transform.position = new Vector3(pa.Value.transform.position.x, 17f, pa.Value.transform.position.z);
+			}
+		}else{
+			while(Mathf.Abs(packs.First().Value.transform.position.y - 13f) > limite){
+				foreach(var pa in packs){
+					pa.Value.transform.position = Vector3.Lerp(pa.Value.transform.position, new Vector3(pa.Value.transform.position.x, 13f, pa.Value.transform.position.z), Time.deltaTime/speedMove);
+				}
+				yield return new WaitForFixedUpdate();
+			}
+			foreach(var pa in packs){
+				pa.Value.transform.position = new Vector3(pa.Value.transform.position.x, 13f, pa.Value.transform.position.z);
+			}
+		}
+		
+	}
 	#endregion
 	
 	#region difficulty
