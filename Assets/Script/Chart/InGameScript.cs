@@ -51,6 +51,11 @@ public class InGameScript : MonoBehaviour {
 	//Temps pour le lachement de freeze
 	public float unfrozed = 0.350f;
 	
+	private KeyCode KeyCodeUp;
+	private KeyCode KeyCodeDown;
+	private KeyCode KeyCodeLeft;
+	private KeyCode KeyCodeRight;
+	
 	//DISPLAY PREC
 	
 	//Temps pour l'affichage des scores
@@ -183,18 +188,22 @@ public class InGameScript : MonoBehaviour {
 		isFullExComboRace = DataManager.Instance.raceSelected == 10;
 		targetScoreInverse = DataManager.Instance.giveTargetScoreOfRace(DataManager.Instance.raceSelected);
 		typeOfDeath = DataManager.Instance.deathSelected;
-		
+		KeyCodeDown = DataManager.Instance.KeyCodeDown;
+		KeyCodeUp = DataManager.Instance.KeyCodeUp;
+		KeyCodeLeft = DataManager.Instance.KeyCodeLeft;
+		KeyCodeRight = DataManager.Instance.KeyCodeRight;
 		var rand = (int)(UnityEngine.Random.value*DataManager.Instance.skyboxList.Count);
 		if(rand == DataManager.Instance.skyboxList.Count){
 			rand--;	
 		}
 		
-		RenderSettings.skybox = DataManager.Instance.skyboxList.ElementAt(11);
+		RenderSettings.skybox = DataManager.Instance.skyboxList.ElementAt(rand);
 		
 		firstArrow = -10f;
 		lastArrow = -10f;
 		thesong = DataManager.Instance.songSelected;
-		StartCoroutine(getTheSongAudio(thesong.GetAudioClipUnstreamed()));
+		audio.clip = thesong.GetAudioClip();
+		audio.loop = false;
 		createTheChart(thesong);
 		Application.targetFrameRate = -1;
 		QualitySettings.vSyncCount = 0;
@@ -683,7 +692,7 @@ public class InGameScript : MonoBehaviour {
 	//Null ref exception quand il n'y a plus de flèche !
 	void VerifyKeysInput(){
 		
-		if(Input.GetKeyDown(KeyCode.LeftArrow) && arrowLeftList.Any()){
+		if(Input.GetKeyDown(KeyCodeLeft) && arrowLeftList.Any()){
 			var ar = findNextLeftArrow();
 			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
 			
@@ -836,7 +845,7 @@ public class InGameScript : MonoBehaviour {
 		}
 		
 		
-		if(Input.GetKeyDown(KeyCode.DownArrow) && arrowDownList.Any()){
+		if(Input.GetKeyDown(KeyCodeDown) && arrowDownList.Any()){
 			var ar = findNextDownArrow();
 			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
 			
@@ -986,7 +995,7 @@ public class InGameScript : MonoBehaviour {
 		}
 		
 		
-		if(Input.GetKeyDown(KeyCode.UpArrow) && arrowUpList.Any()){
+		if(Input.GetKeyDown(KeyCodeUp) && arrowUpList.Any()){
 			var ar = findNextUpArrow();
 			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
 			
@@ -1137,7 +1146,7 @@ public class InGameScript : MonoBehaviour {
 		}
 		
 		
-		if(Input.GetKeyDown(KeyCode.RightArrow) && arrowRightList.Any()){
+		if(Input.GetKeyDown(KeyCodeRight) && arrowRightList.Any()){
 			var ar = findNextRightArrow();
 			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
 			
@@ -1293,7 +1302,7 @@ public class InGameScript : MonoBehaviour {
 	//Verify Key for all frames
 	void VerifyKeysOutput(){
 		if(arrowFrozen.Count > 0){
-			if(Input.GetKey(KeyCode.LeftArrow)){
+			if(Input.GetKey(KeyCodeLeft)){
 					if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 0f && c.Key.arrowType == ArrowType.FREEZE)){
 						var ar = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 0f);
 						arrowFrozen[ar.Key] = 0f;
@@ -1301,7 +1310,7 @@ public class InGameScript : MonoBehaviour {
 			}
 			
 			
-			if(Input.GetKey(KeyCode.DownArrow)){
+			if(Input.GetKey(KeyCodeDown)){
 				if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 2f && c.Key.arrowType == ArrowType.FREEZE)){
 					var ar = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 2f);
 					arrowFrozen[ar.Key] = 0f;
@@ -1309,7 +1318,7 @@ public class InGameScript : MonoBehaviour {
 			}
 			
 			
-			if(Input.GetKey(KeyCode.UpArrow)){
+			if(Input.GetKey(KeyCodeUp)){
 				if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 4f && c.Key.arrowType == ArrowType.FREEZE)){
 					var ar = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 4f);
 					arrowFrozen[ar.Key] = 0f;
@@ -1317,7 +1326,7 @@ public class InGameScript : MonoBehaviour {
 			}
 			
 			
-			if(Input.GetKey(KeyCode.RightArrow)){
+			if(Input.GetKey(KeyCodeRight)){
 				if(arrowFrozen.Any(c => c.Key.goArrow.transform.position.x == 6f && c.Key.arrowType == ArrowType.FREEZE)){
 					var ar = arrowFrozen.First(c => c.Key.goArrow.transform.position.x == 6f);
 					arrowFrozen[ar.Key] = 0f;
@@ -2003,18 +2012,6 @@ public class InGameScript : MonoBehaviour {
 	}
 	
 	
-	IEnumerator getTheSongAudio(string path){
-	
-		var thewww = new WWW(path);
-		while(!thewww.isDone){
-			yield return new WaitForFixedUpdate();
-		}
-		songLoaded = thewww.GetAudioClip(false, false, AudioType.OGGVORBIS);
-		thewww.Dispose();
-		audio.clip = songLoaded;
-		audio.loop = false;
-	
-	}
 	
 	#endregion
 }

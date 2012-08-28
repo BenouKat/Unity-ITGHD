@@ -28,6 +28,12 @@ public class DataManager{
 	//RENDER
 	public List<Material> skyboxList;
 	
+	//KEYS
+	public KeyCode KeyCodeUp;
+	public KeyCode KeyCodeDown;
+	public KeyCode KeyCodeLeft;
+	public KeyCode KeyCodeRight;
+	
 	//WHEEL SONG
 	public float[] posYDiff;
 	
@@ -37,7 +43,7 @@ public class DataManager{
 	
 	
 	//SYSTEM
-	public float globalOffsetSeconds = -0.100f;
+	public float globalOffsetSeconds = 0.280f;
 	
 	public int regenComboAfterMiss = 5;
 	
@@ -162,6 +168,12 @@ public class DataManager{
 		skyboxList.Add((Material) Resources.Load("Skyboxes/Skybox15")); 
 		skyboxList.Add((Material) Resources.Load("Skyboxes/Skybox18")); 
 		skyboxList.Add((Material) Resources.Load("Skyboxes/Skybox20")); 
+		
+		KeyCodeLeft = KeyCode.E;
+		KeyCodeDown = KeyCode.T;
+		KeyCodeUp = KeyCode.U;
+		KeyCodeRight = KeyCode.O;
+		
 		
 		InitDicOption();
 		
