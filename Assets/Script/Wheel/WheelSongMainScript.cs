@@ -192,7 +192,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	public float timeBeforeDisplay;
 	private float time;
 	private bool alreadyRefresh;
-	
+	private bool alreadyFade;
 	
 	//Sound
 	AudioClip actualClip;
@@ -332,12 +332,15 @@ public class WheelSongMainScript : MonoBehaviour {
 		search = "";
 		songList = new Dictionary<string, Dictionary<Difficulty, Song>>();
 			
+		
+		alreadyFade = false;
+			
 		actualySelected = Difficulty.BEGINNER;
 		trulySelected = Difficulty.BEGINNER;
 		onHoverDifficulty = Difficulty.NONE;
 		
 		
-//		GetComponent<FadeManager>().FadeOut();
+		
 	}
 	
 	// Update is called once per frame
@@ -425,7 +428,9 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 			//Perte de focus ?
 			#region SearchBar
+				GUI.SetNextControlName("textfocus");
 				search = GUI.TextArea(new Rect(SearchBarPos.x*Screen.width, SearchBarPos.y*Screen.height, SearchBarPos.width*Screen.width, SearchBarPos.height*Screen.height), search.Trim());
+				GUI.FocusControl("textfocus");
 				if(search != searchOldValue){
 					if(!String.IsNullOrEmpty(search.Trim()) && search.Trim().Length >= 3){
 						songList = LoadManager.Instance.ListSong(songList, search.Trim());
@@ -461,6 +466,11 @@ public class WheelSongMainScript : MonoBehaviour {
 						activePack(packs.ElementAt(nextnumberPack).Key);
 						DestroyCustomCubeSong();
 						
+					}
+					if(songList.Count == 0 && search.Trim().Length >= 3){
+						GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
+						GUI.Label(new Rect(posSonglist.x*Screen.width, (posSonglist.y + ecartSong*-posLabel)*Screen.height, posSonglist.width*Screen.width, posSonglist.height*Screen.height), "No entry", "songlabel");
+						GUI.color = new Color(1f, 1f, 1f, 1f);
 					}
 				}
 				searchOldValue = search;
@@ -578,7 +588,7 @@ public class WheelSongMainScript : MonoBehaviour {
 				DataManager.Instance.raceSelected = raceSelected;
 				DataManager.Instance.displaySelected = displaySelected;
 				DataManager.Instance.deathSelected = deathSelected;
-				GetComponent<FadeManager>().FadeIn(DataManager.Instance.giveLevelToLoad("Chart"));
+				GetComponent<FadeManager>().FadeIn("chart");
 			}
 		
 			//Option
@@ -878,6 +888,10 @@ public class WheelSongMainScript : MonoBehaviour {
 	
 	void Update(){
 		
+		if(!alreadyFade){
+			GetComponent<FadeManager>().FadeOut();
+			alreadyFade = true;
+		}
 		#region MoveToOptionUpdate
 		//Move to option
 		if(movinOption){

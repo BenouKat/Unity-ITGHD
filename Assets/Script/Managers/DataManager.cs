@@ -382,15 +382,15 @@ public class DataManager{
 	
 	
 	public string giveLevelToLoad(string level){
-		switch(level){
-		case "Free":
+		switch(level.Trim().ToLower()){
+		case "free":
 			return "Free";
-		case "MainMenu":
+		case "mainmenu":
 			return "MainMenu";
-		case "Chart":
+		case "chart":
 			return "ChartScene";
 		default:
-			return "MainMenu";
+			return "fail";
 		}
 		
 	}

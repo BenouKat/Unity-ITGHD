@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-
+using System;
 public class FadeManager : MonoBehaviour {
 	
 	
@@ -14,6 +14,7 @@ public class FadeManager : MonoBehaviour {
 	
 	public bool startFeded;
 	
+	public int depth = -20;
 	
 	private string levelToLoad;
 	// Use this for initialization
@@ -24,10 +25,12 @@ public class FadeManager : MonoBehaviour {
 			fs = FadeState.DISPLAY;
 			posFadex = posxfinal;
 		}
+		
 	}
 	
 	
 	void OnGUI(){
+		GUI.depth = depth;
 		if(fs != FadeState.NONE){
 			switch(fs){
 			case FadeState.FADEIN:
@@ -35,7 +38,7 @@ public class FadeManager : MonoBehaviour {
 				posFadex -= Time.deltaTime/speedFade;
 				if(posFadex <= posxfinal){
 					fs = FadeState.DISPLAY;	
-					Application.LoadLevel(DataManager.Instance.giveLevelToLoad(levelToLoad));
+					if(!String.IsNullOrEmpty(levelToLoad)) Application.LoadLevel(DataManager.Instance.giveLevelToLoad(levelToLoad));
 				}
 				break;
 			case FadeState.FADEOUT:
@@ -54,6 +57,7 @@ public class FadeManager : MonoBehaviour {
 	
 	public void FadeIn(){
 		posFadex = 1f;
+		levelToLoad = "";
 		fs = FadeState.FADEIN;
 	}
 	
@@ -64,7 +68,8 @@ public class FadeManager : MonoBehaviour {
 	
 	public void FadeIn(string levelName){
 		posFadex = 1f;
-		fs = FadeState.FADEIN;
 		levelToLoad = levelName;
+		fs = FadeState.FADEIN;
+		
 	}
 }

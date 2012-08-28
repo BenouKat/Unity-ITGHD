@@ -11,8 +11,8 @@ public class ManageGameObject : MonoBehaviour {
 	
 	public float zoneAppear = 10f;
 // Use this for initialization
-	void Start () {
-		
+	void Awake () {
+		listarrow = new Dictionary<double, GameObject>();
 		time = 0f;
 	}
 	
@@ -26,7 +26,7 @@ public class ManageGameObject : MonoBehaviour {
 			}
 			
 		}
-		
+		time += Time.deltaTime;
 	}
 	
 	
@@ -40,6 +40,14 @@ public class ManageGameObject : MonoBehaviour {
 			}
 		}
 	
+	}
+	
+	
+	public void Add(double timetotal, GameObject go){
+		if(listarrow.ContainsKey(timetotal)){
+			timetotal += 0.0000001;
+		}
+		listarrow.Add(timetotal, go);
 	}
 
 }

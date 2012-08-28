@@ -81,6 +81,7 @@ public class InGameScript : MonoBehaviour {
 	private float score;
 	private float scoreInverse;
 	private float targetScoreInverse;
+	private float fantasticValue;
 	private Dictionary<string, float> scoreBase;
 	private Dictionary<string, int> scoreCount;
 	public Rect posPercent = new Rect(0.39f, 0f, 0.45f, 0.05f);
@@ -244,7 +245,7 @@ public class InGameScript : MonoBehaviour {
 		scoreBase = new Dictionary<string, float>();
 		scoreCount = new Dictionary<string, int>();
 		lifeBase = new Dictionary<string, float>();
-		var fantasticValue = 100f/(thesong.numberOfStepsWithoutJumps + thesong.numberOfJumps + thesong.numberOfFreezes + thesong.numberOfRolls);
+		fantasticValue = 100f/(thesong.numberOfStepsWithoutJumps + thesong.numberOfJumps + thesong.numberOfFreezes + thesong.numberOfRolls);
 		foreach(Precision el in Enum.GetValues(typeof(Precision))){
 			if(el != Precision.NONE){
 				scoreBase.Add(el.ToString(), fantasticValue*DataManager.Instance.ScoreWeightValues[el.ToString()]);
@@ -436,6 +437,7 @@ public class InGameScript : MonoBehaviour {
 			}
 			
 			if(fail){
+				Debug.Log("i'm dead");
 				if(typeOfDeath != 2 && (typeOfDeath == 0 || comboMisses >= 30)){
 					dead = true;
 				}
@@ -807,7 +809,7 @@ public class InGameScript : MonoBehaviour {
 						displayPrec(prec);
 						GainScoreAndLife(timeToPrec(prec).ToString());
 					}
-					ComboStop();
+					ComboStop(false);
 			}
 			
 			if(prec > precToTime(Precision.FANTASTIC) && prec < precToTime(Precision.WAYOFF)){
@@ -959,7 +961,7 @@ public class InGameScript : MonoBehaviour {
 						displayPrec(prec);
 						GainScoreAndLife(timeToPrec(prec).ToString());
 					}
-					ComboStop();
+					ComboStop(false);
 			}
 			
 			if(prec > precToTime(Precision.FANTASTIC) && prec < precToTime(Precision.WAYOFF)){
@@ -1109,7 +1111,7 @@ public class InGameScript : MonoBehaviour {
 						displayPrec(prec);
 						GainScoreAndLife(timeToPrec(prec).ToString());
 					}
-					ComboStop();
+					ComboStop(false);
 			}
 			
 			if(prec > precToTime(Precision.FANTASTIC) && prec < precToTime(Precision.WAYOFF)){
@@ -1260,7 +1262,7 @@ public class InGameScript : MonoBehaviour {
 						displayPrec(prec);
 						GainScoreAndLife(timeToPrec(prec).ToString());
 					}
-					ComboStop();
+					ComboStop(false);
 			}
 			
 			if(prec > precToTime(Precision.FANTASTIC) && prec < precToTime(Precision.WAYOFF)){
@@ -1420,7 +1422,7 @@ public class InGameScript : MonoBehaviour {
 	
 	#region util
 	public void GainScoreAndLife(string s){
-		if(combo >= DataManager.Instance.regenComboAfterMiss){
+		if(lifeBase[s] <= 0 || combo >= DataManager.Instance.regenComboAfterMiss){
 			life += lifeBase[s];
 			if(life > 100f){
 				life = 100f;	
@@ -1430,7 +1432,8 @@ public class InGameScript : MonoBehaviour {
 			theLifeBar.ChangeBar(life);
 		}
 		score += scoreBase[s];
-		scoreInverse -= (1-scoreBase[s]);
+		scoreInverse -= (fantasticValue-scoreBase[s]);
+		//Debug.Log ("si : " + scoreInverse);
 		if(score > 100f){
 			score = 100f;	
 		}else if(score < 0f){
@@ -1441,6 +1444,7 @@ public class InGameScript : MonoBehaviour {
 		scoreCount[s] += 1;
 		
 		if(life <= 0f || scoreInverse < targetScoreInverse){
+			//Debug.Log ("Fail at life");
 			fail = true;
 		}
 	}
@@ -1461,6 +1465,7 @@ public class InGameScript : MonoBehaviour {
 		}
 		thetab = comboDecoupe();
 		if(isFullExComboRace && ct == ComboType.FULLCOMBO){
+			//Debug.Log("Fail at FEC race");
 			fail = true;
 		}
 	}
@@ -1491,11 +1496,12 @@ public class InGameScript : MonoBehaviour {
 		}
 	}
 	
-	public void ComboStop(bool miss = false){
+	public void ComboStop(bool miss){
 		combo = 0;	
 		ct = ComboType.NONE;
 		thetab = comboDecoupe();
 		if(isFullComboRace || isFullExComboRace){
+			//Debug.Log ("Fail at combo race");
 			fail = true;
 		}
 		if(miss){
@@ -1775,7 +1781,7 @@ public class InGameScript : MonoBehaviour {
 						}
 						listNeighboors.Add(theArrow);
 						goArrow.SetActiveRecursively(false);
-						GetComponent<ManageGameObject>().listarrow.Add(timetotal, goArrow);
+						gameObject.GetComponent<ManageGameObject>().Add(timetotal, goArrow);
 						//barrow = true;
 					}else if(note[i] == '2'){
 						barr = true;
@@ -1799,7 +1805,7 @@ public class InGameScript : MonoBehaviour {
 						}
 						listNeighboors.Add(theArrow);
 						goArrow.SetActiveRecursively(false);
-						GetComponent<ManageGameObject>().listarrow.Add(timetotal, goArrow);
+						GetComponent<ManageGameObject>().Add(timetotal, goArrow);
 					}else if(note[i] == '3'){
 						barr = true;
 						var theArrow = ArrowFreezed[i];
@@ -1830,7 +1836,7 @@ public class InGameScript : MonoBehaviour {
 						}
 						listNeighboors.Add(theArrow);
 						goArrow.SetActiveRecursively(false);
-						GetComponent<ManageGameObject>().listarrow.Add(timetotal, goArrow);
+						GetComponent<ManageGameObject>().Add(timetotal, goArrow);
 					}else if(note[i] == 'M'){
 						var goArrow = (GameObject) Instantiate(mines, new Vector3(i*2, -ypos, 0f), mines.transform.rotation);
 						var theArrow = new Arrow(goArrow, ArrowType.MINE, timetotal);

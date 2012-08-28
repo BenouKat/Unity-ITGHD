@@ -249,7 +249,12 @@ public class OpenChart{
 			var thedisplayBPM = "";
 			if(listLine.FirstOrDefault(c => c.Contains("DISPLAYBPM")) != null){
 				var thes = listLine.FirstOrDefault(c => c.Contains("DISPLAYBPM")).Split(':');
-				thedisplayBPM = System.Convert.ToDouble(thes[1].Replace(";", "")).ToString("0");
+				if(thes.Count() > 2){
+					thedisplayBPM = System.Convert.ToDouble(thes[1].Replace(";", "")).ToString("0") + " -> " + System.Convert.ToDouble(thes[2].Replace(";", "")).ToString("0");
+				}else{
+					thedisplayBPM = System.Convert.ToDouble(thes[1].Replace(";", "")).ToString("0");
+				}
+				
 			}else{
 				var themin = theBpmList.Min(c => c.Value);
 				var themax = theBpmList.Max(c => c.Value);
