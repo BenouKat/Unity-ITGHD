@@ -207,6 +207,7 @@ public class InGameScript : MonoBehaviour {
 		createTheChart(thesong);
 		Application.targetFrameRate = -1;
 		QualitySettings.vSyncCount = 0;
+		Time.fixedDeltaTime = 0.016666666f;
 		nextSwitchBPM = 1;
 		nextSwitchStop = 0;
 		actualBPM = thesong.bpms.First().Value;
@@ -384,6 +385,7 @@ public class InGameScript : MonoBehaviour {
 			//iwashere = 0;
 			
 			//Move Arrows
+			//VersionLibre
 			MoveArrows();
 				
 			//Verify inputs
@@ -457,6 +459,7 @@ public class InGameScript : MonoBehaviour {
 				Debug.Log("i'm dead");
 				if(typeOfDeath != 2 && (typeOfDeath == 0 || comboMisses >= 30)){
 					dead = true;
+					
 				}
 			}
 			
@@ -465,6 +468,7 @@ public class InGameScript : MonoBehaviour {
 			
 		}else{
 			oneSecond += Time.deltaTime;
+			
 		}
 		
 	}
@@ -480,6 +484,11 @@ public class InGameScript : MonoBehaviour {
 	
 	
 	void FixedUpdate(){
+		
+		/*if(oneSecond >= 1f && !dead){
+			MoveArrows();
+		}*/
+		
 		if(matArrowModel.color.r > 0.5f){
 			var m = 0.5f*Time.deltaTime/speedBumps;
 			matArrowModel.color -= new Color(m,m,m, 0f);
@@ -543,8 +552,9 @@ public class InGameScript : MonoBehaviour {
 	//For moving arrows or do some displaying things
 	
 	#region Defilement chart
+	
 	void MoveArrows(){
-		
+	
 		var bps = thesong.getBPS(actualBPM);
 		var move = -((float)(bps*timechart))*speedmod +  changeBPM;
 		TMainCamera.position = new Vector3(3f, move - 5, -10f);
@@ -565,7 +575,7 @@ public class InGameScript : MonoBehaviour {
 		}
 	}
 	
-	//IL FAUT TOUT REVOIR
+	
 	void VerifyBPMnSTOP(){
 		//BPM change verify
 		if(nextSwitchBPM < thesong.bpms.Count && (thesong.bpms.ElementAt(nextSwitchBPM).Key <= timetotalchart)){
@@ -692,7 +702,7 @@ public class InGameScript : MonoBehaviour {
 	//Null ref exception quand il n'y a plus de flèche !
 	void VerifyKeysInput(){
 		
-		if(Input.GetKeyDown(KeyCodeLeft) && arrowLeftList.Any()){
+		if(Input.GetKeyDown(KeyCodeLeft) && (arrowLeftList.Any() || arrowFrozen.Any())){
 			var ar = findNextLeftArrow();
 			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
 			
@@ -845,7 +855,7 @@ public class InGameScript : MonoBehaviour {
 		}
 		
 		
-		if(Input.GetKeyDown(KeyCodeDown) && arrowDownList.Any()){
+		if(Input.GetKeyDown(KeyCodeDown) && (arrowDownList.Any() || arrowFrozen.Any())){
 			var ar = findNextDownArrow();
 			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
 			
@@ -995,7 +1005,7 @@ public class InGameScript : MonoBehaviour {
 		}
 		
 		
-		if(Input.GetKeyDown(KeyCodeUp) && arrowUpList.Any()){
+		if(Input.GetKeyDown(KeyCodeUp) && (arrowUpList.Any() || arrowFrozen.Any())){
 			var ar = findNextUpArrow();
 			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
 			
@@ -1146,7 +1156,7 @@ public class InGameScript : MonoBehaviour {
 		}
 		
 		
-		if(Input.GetKeyDown(KeyCodeRight) && arrowRightList.Any()){
+		if(Input.GetKeyDown(KeyCodeRight) && (arrowRightList.Any() || arrowFrozen.Any())){
 			var ar = findNextRightArrow();
 			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
 			

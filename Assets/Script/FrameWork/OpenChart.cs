@@ -627,6 +627,7 @@ public class OpenChart{
 					if(!doubleselection){
 						switch(iselected){
 							case 0:
+							//fs
 								if(((casevalidate[1] == 2 && casevalidate[2] == 0) || (casevalidate[2] == 2 && casevalidate[1] == 0)) && casevalidate[0] == 0 && casevalidate[3] == 1){
 									numberOfFootswitch++;
 									casevalidate[0] = 1;
@@ -639,9 +640,9 @@ public class OpenChart{
 									casevalidate[2] = 0;
 									casevalidate[3] = 0;
 								}
-							
-								if(caseCrossvalidate[0] == 0 && (((caseCrossvalidate[1] == 1 || caseCrossvalidate[1] == 2) && caseCrossvalidate[2] == 0) 
-								|| (caseCrossvalidate[1] == 0 && (caseCrossvalidate[2] == 1 || caseCrossvalidate[2] == 2)) && caseCrossvalidate[3] == 1)){
+							//cross
+								if((caseCrossvalidate[0] == 0 && (((caseCrossvalidate[1] == 1 || caseCrossvalidate[1] == 2) && caseCrossvalidate[2] == 0) 
+								|| (caseCrossvalidate[1] == 0 && (caseCrossvalidate[2] == 1 || caseCrossvalidate[2] == 2))) && caseCrossvalidate[3] == 1)){
 									numberOfCross++;
 									caseCrossvalidate[0] = 1;
 									caseCrossvalidate[1] = 0;
@@ -655,6 +656,7 @@ public class OpenChart{
 								}
 								break;
 							case 1:
+							//fs
 								if(((casevalidate[0] == 0 && casevalidate[3] == 1) || (casevalidate[0] == 1 && casevalidate[3] == 0)) && casevalidate[2] == 0 &&  casevalidate[1] < 2){
 									casevalidate[1]++;
 								}else{
@@ -663,7 +665,7 @@ public class OpenChart{
 									casevalidate[2] = 0;
 									casevalidate[3] = 0;
 								}
-							
+							//cross
 								if((caseCrossvalidate[0] == 1 || caseCrossvalidate[3] == 1)){
 									if(caseCrossvalidate[0] == 1 && caseCrossvalidate[1] == 1 && caseCrossvalidate[2] == 2 && caseCrossvalidate[3] == 0){
 										caseCrossvalidate[2] = 0;
@@ -683,6 +685,7 @@ public class OpenChart{
 								}
 								break;
 							case 2:
+							//fs
 								if(((casevalidate[0] == 0 && casevalidate[3] == 1) || (casevalidate[0] == 1 && casevalidate[3] == 0)) && casevalidate[1] == 0 &&  casevalidate[2] < 2){
 									casevalidate[2]++;
 								}else{
@@ -691,7 +694,7 @@ public class OpenChart{
 									casevalidate[2] = 0;
 									casevalidate[3] = 0;
 								}
-							
+							//cross
 								if((caseCrossvalidate[0] == 1 || caseCrossvalidate[3] == 1)){
 									if(caseCrossvalidate[0] == 1 && caseCrossvalidate[1] == 2 && caseCrossvalidate[2] == 1 && caseCrossvalidate[3] == 0){
 										caseCrossvalidate[1] = 0;
@@ -712,6 +715,7 @@ public class OpenChart{
 								}
 								break;
 							case 3:
+							//fs
 								if(((casevalidate[1] == 2 && casevalidate[2] == 0) || (casevalidate[2] == 2 && casevalidate[1] == 0)) && casevalidate[3] == 0 && casevalidate[0] == 1){
 									numberOfFootswitch++;
 									casevalidate[0] = 0;
@@ -724,7 +728,7 @@ public class OpenChart{
 									casevalidate[2] = 0;
 									casevalidate[3] = 1;
 								}
-							
+							//cross
 								if(caseCrossvalidate[0] == 1 && (( caseCrossvalidate[1] == 2 && caseCrossvalidate[2] == 0) 
 									|| (caseCrossvalidate[1] == 0 &&  caseCrossvalidate[2] == 2) && caseCrossvalidate[3] == 0)){
 									numberOfCross++;
