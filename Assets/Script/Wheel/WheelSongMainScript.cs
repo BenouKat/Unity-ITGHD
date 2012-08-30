@@ -213,7 +213,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		diffActiveColor = new Dictionary<Difficulty, Color>();
 		PSDiff = new Dictionary<int, ParticleSystem>();
 		RayDiff = new Dictionary<int, GameObject>();
-		//LoadManager.Instance.Loading();
+		LoadManager.Instance.Loading();
 		actualBanner = new Texture2D(256,512);
 		
 		tex = new Dictionary<string, Texture2D>();

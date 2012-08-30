@@ -566,7 +566,7 @@ public class OpenChart{
 					timestartMax = timetotal;
 				}
 				var barr = false;
-				
+				var barrstop = false;
 				var iselected = -1;
 				var doubleselection = false;
 				var tripleselect = 0;
@@ -593,6 +593,7 @@ public class OpenChart{
 						freezed[i] = 1;
 					}else if(note[i] == '3'){
 						freezed[i] = 0;
+						barrstop = true;
 					}else if(note[i] == '4'){
 						barr = true;
 						if(iselected == -1){
@@ -602,7 +603,7 @@ public class OpenChart{
 						}
 						freezed[i] = 1;
 					}else if(note[i] == 'M'){
-						
+						barrstop = true;
 						
 					
 					}
@@ -616,11 +617,14 @@ public class OpenChart{
 				if(tripleselect >= 3f){
 					numberOfHands++;
 				}
+				if(barr || barrstop){
+					stoptime = timetotal;	
+				}
 				
-				if(barr == true){
+				if(barr){
 				
 					if(timestart == -10f) timestart = timetotal;
-					stoptime = timetotal;
+					
 					countStep++;
 					numberStepBetweenTwoBeat++;
 					
