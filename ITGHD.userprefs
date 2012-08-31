@@ -2,9 +2,11 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Chart\InGameScript.cs">
     <Files>
-      <File FileName="Assets\Script\FrameWork\OpenChart.cs" Line="622" Column="6" />
-      <File FileName="Assets\Script\Chart\InGameScript.cs" Line="380" Column="51" />
+      <File FileName="Assets\Script\Chart\ManageGameObject.cs" Line="1" Column="1" />
+      <File FileName="Assets\Script\FrameWork\OpenChart.cs" Line="802" Column="27" />
+      <File FileName="Assets\Script\Chart\InGameScript.cs" Line="402" Column="12" />
       <File FileName="Assets\Script\Wheel\WheelSongMainScript.cs" Line="233" Column="63" />
+      <File FileName="Assets\Script\Managers\DataManager.cs" Line="46" Column="45" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

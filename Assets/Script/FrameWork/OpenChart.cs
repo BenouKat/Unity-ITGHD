@@ -604,8 +604,6 @@ public class OpenChart{
 						freezed[i] = 1;
 					}else if(note[i] == 'M'){
 						barrstop = true;
-						
-					
 					}
 					
 				}
@@ -787,7 +785,7 @@ public class OpenChart{
 		}
 		
 		stepbysecAv = (double)countStep/(stoptime - timestart);
-		s.duration = (stoptime - timestart);
+		s.duration = stoptime;
 		s.stepPerSecondAverage = stepbysecAv;
 		s.stepPerSecondMaximum = maxStepPerSeconds;
 		//s.timeMaxStep = maxLenght;

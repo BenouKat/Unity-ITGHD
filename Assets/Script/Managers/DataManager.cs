@@ -43,7 +43,7 @@ public class DataManager{
 	
 	
 	//SYSTEM
-	public float globalOffsetSeconds = 0.280f;
+	public float globalOffsetSeconds = -0.120f;
 	
 	public int regenComboAfterMiss = 5;
 	

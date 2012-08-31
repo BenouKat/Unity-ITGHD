@@ -26,6 +26,7 @@ public class InGameScript : MonoBehaviour {
 	public GameObject fast;
 	private Material matProgressBar;
 	private Material matProgressBarFull;
+	public Camera particleComboCam;
 	
 	private LifeBar theLifeBar;
 	
@@ -113,6 +114,7 @@ public class InGameScript : MonoBehaviour {
 	private Dictionary<string, ParticleSystem> precRight;
 	private Dictionary<string, ParticleSystem> precUp;
 	private Dictionary<string, ParticleSystem> precDown;
+	private Dictionary<string, ParticleSystem> clearcombo;
 	
 	
 	
@@ -164,28 +166,34 @@ public class InGameScript : MonoBehaviour {
 	private bool clear;
 	private bool fullCombo;
 	private bool fullExCombo;
+	private bool fullFantCombo;
 	private bool perfect;
 	private bool isFullComboRace;
 	private bool isFullExComboRace;
 	private int typeOfDeath; // 0 : Immediatly, 1 : After 30 misses, 2 : Never
 	public float timeFailAppear;
 	public float timeFailDisappear;
+	public float timeClearDisappear;
 	private float zoomfail;
 	public float speedzoom;
 	public float speedziwp;
 	private float zwip;
 	public Rect posFail;
+	public Rect posClear;
 	private bool appearFailok;
 	private bool disappearFailok;
 	public float speedAlphaFailFade;
 	private float failalpha;
 	private bool cacheFailed;
+	public float speedFadeAudio;
+	private float passalpha;
+	public Rect fullComboPos;
+	
 	
 	//SONG
 	private AudioClip songLoaded;
 	//DEBUG
 	//private int iwashere;
-	
 	#endregion
 	
 	
@@ -215,7 +223,7 @@ public class InGameScript : MonoBehaviour {
 		firstArrow = -10f;
 		lastArrow = -10f;
 		thesong = DataManager.Instance.songSelected;
-		audio.clip = thesong.GetAudioClip();
+		songLoaded = thesong.GetAudioClip();
 		audio.loop = false;
 		createTheChart(thesong);
 		Application.targetFrameRate = -1;
@@ -239,6 +247,7 @@ public class InGameScript : MonoBehaviour {
 		precLeft = new Dictionary<string, ParticleSystem>();
 		precUp = new Dictionary<string, ParticleSystem>();
 		precDown = new Dictionary<string, ParticleSystem>();
+		clearcombo = new Dictionary<string, ParticleSystem>();
 		
 		//Prepare the scene
 		foreach(var el in Enum.GetValues(typeof(PrecParticle))){
@@ -247,6 +256,11 @@ public class InGameScript : MonoBehaviour {
 			precRight.Add( el.ToString(), (ParticleSystem) arrowRight.transform.GetChild(0).gameObject.transform.FindChild(el.ToString()).particleSystem );
 			precUp.Add( el.ToString(), (ParticleSystem) arrowUp.transform.GetChild(0).gameObject.transform.FindChild(el.ToString()).particleSystem );
 		}
+		for(int i=0; i< particleComboCam.transform.GetChildCount(); i++){
+			clearcombo.Add(particleComboCam.transform.GetChild(i).name, particleComboCam.transform.GetChild(i).particleSystem);
+		}
+		
+		
 		TMainCamera = MainCamera.transform;
 		
 		//Textures
@@ -270,7 +284,8 @@ public class InGameScript : MonoBehaviour {
 		TextureBase.Add("CLEAR", (Texture2D) Resources.Load("Clear"));
 		TextureBase.Add("FC", (Texture2D) Resources.Load("FC"));
 		TextureBase.Add("FEC", (Texture2D) Resources.Load("FEC"));
-		TextureBase.Add("PEFECT", (Texture2D) Resources.Load("Perfect"));
+		TextureBase.Add("FFC", (Texture2D) Resources.Load("FFC"));
+		TextureBase.Add("PERFECT", (Texture2D) Resources.Load("Perfect"));
 		
 		//stuff
 		scoreToDisplay = Precision.NONE;
@@ -334,6 +349,7 @@ public class InGameScript : MonoBehaviour {
 		clear = false;
 		fullCombo = false;
 		fullExCombo = false;
+		fullFantCombo = false;
 		perfect = false;
 		dead = false;
 		zwip = 0;
@@ -341,6 +357,7 @@ public class InGameScript : MonoBehaviour {
 		disappearFailok = false;
 		zoomfail = 0f;
 		failalpha = 0f;
+		passalpha = 0f;
 		cacheFailed = true;
 	}
 	
@@ -352,10 +369,9 @@ public class InGameScript : MonoBehaviour {
 		
 		//fake stuff
 		GUI.Label(new Rect(0.9f*Screen.width, 0.05f*Screen.height, 200f, 200f), fps.ToString());	
+			
 		//end fake stuff
-		
-		
-		if(timeDisplayScore < limitDisplayScore){
+		if(timeDisplayScore < limitDisplayScore && !clear){
 
 			GUI.color = new Color(1f, 1f, 1f, alpha);
 			GUI.DrawTexture(new Rect(posScore.x*Screen.width - zoom, posScore.y*Screen.height, posScore.width*Screen.width + zoom*2, posScore.height*Screen.height), TextureBase[scoreToDisplay.ToString()]); 
@@ -366,7 +382,7 @@ public class InGameScript : MonoBehaviour {
 			
 		
 		for(int i=0;i<5;i++){
-			if(i > 2 && displaying[i] == 0) break;
+			if((i == 3 && displaying[3] == 0 && displaying[4] == 0) || (i == 4 && displaying[4] == 0)) break;
 			GUI.DrawTexture(new Rect((posPercent.x + ecart*(4-i))*Screen.width, posPercent.y*Screen.height,  posPercent.width*Screen.width,  posPercent.height*Screen.height), TextureBase["S" + displaying[i]]);
 			
 		}
@@ -382,8 +398,8 @@ public class InGameScript : MonoBehaviour {
 			}
 		}
 		
+		
 		if(dead){
-			GUI.color = new Color(1f, 1f, 1f, 1f);
 			if(oneSecond > timeFailAppear){
 				GUI.color = new Color(1f, 1f, 1f, failalpha);
 				GUI.DrawTexture(new Rect(0f,0f, Screen.width*1.2f, Screen.height*1.2f), TextureBase["BLACK"]);
@@ -396,9 +412,23 @@ public class InGameScript : MonoBehaviour {
 			}
 			
 		}
-		
+				
 		if(clear){
-			
+			//if(oneSecond > timeFailAppear){
+				var ratiow = (float)posClear.width/(float)Mathf.Max (posClear.width, posClear.height);
+				var ratioh = (float)posClear.height/(float)Mathf.Max (posClear.width, posClear.height);
+				if(fullCombo || fullExCombo || fullFantCombo || perfect){
+					GUI.color = new Color(1f, 1f, 1f, passalpha*alpha);
+					GUI.DrawTexture(new Rect(fullComboPos.x*Screen.width,fullComboPos.y*Screen.width, fullComboPos.width*Screen.width, fullComboPos.height*Screen.height), TextureBase[perfect ? "PERFECT" : (fullFantCombo ? "FFC" : (fullExCombo ? "FEC" : "FC"))]);
+				}
+				//GUI.DrawTexture(new Rect(0f,0f, Screen.width*1.2f, Screen.height*1.2f), TextureBase["BLACK"]);
+				
+				GUI.color = new Color(1f, 1f, 1f, 1f);
+				if(appearFailok) GUI.DrawTexture(new Rect((posClear.x - zwip - ratiow*zoomfail/2f)*Screen.width, (posClear.y + zwip - ratioh*zoomfail/2f)*Screen.height ,
+					(posClear.width + zwip*2 + ratiow*zoomfail)*Screen.width, (posClear.height - zwip*2 + ratioh*zoomfail)*Screen.height), TextureBase["CLEAR"]);	
+				GUI.color = new Color(1f, 1f, 1f, failalpha);
+				GUI.DrawTexture(new Rect(0f,0f, Screen.width*1.2f, Screen.height*1.2f), TextureBase["BLACK"]);
+			//}
 			
 		}
 		
@@ -456,9 +486,8 @@ public class InGameScript : MonoBehaviour {
 			}
 			zwip = height/2f;
 			cacheFailed = true;
+			//Lancer la scène de score
 		}
-		
-			
 	}
 	
 	// Update is called once per frame
@@ -474,7 +503,7 @@ public class InGameScript : MonoBehaviour {
 			_timer = 0;
 		}
 		
-		if(oneSecond >= 1f && !dead){
+		if((oneSecond >= 1f && !dead) || clear){
 			//timetotal for this frame
 			
 			timetotalchart = timebpm + timechart + totaltimestop;
@@ -531,7 +560,7 @@ public class InGameScript : MonoBehaviour {
 			timetotalchart = timebpm + timechart + totaltimestop;
 			if(firstUpdate){
 				if(startTheSong <= 0f){
-					audio.Play();
+					audio.PlayOneShot(songLoaded);
 					timechart += startTheSong;
 					//Debug.Log(startTheSong);
 					timetotalchart = timebpm + timechart + totaltimestop;
@@ -544,13 +573,19 @@ public class InGameScript : MonoBehaviour {
 			BumpsBPM();
 			
 			
-			if(thesong.duration < timetotalchart && !fail){
+			if(thesong.duration < timetotalchart && !fail && !clear){
 				clear = true;
 				if(scoreCount["DECENT"] == 0 && scoreCount["WAYOFF"] == 0 && scoreCount["MISS"] == 0){
-					if(scoreCount["EXCELLENT"] == 0 && scoreCount["GREAT"] == 0) perfect = true;
+					if(score >= 100f || scoreInverse == 100f) perfect = true;
+					if(scoreCount["EXCELLENT"] == 0 && scoreCount["GREAT"] == 0) fullFantCombo = true;
 					if(scoreCount["GREAT"] == 0) fullExCombo = true;
 					fullCombo = true;
 				}
+				oneSecond = 0f;
+				failalpha = 0f;
+				passalpha = 1f;
+				alpha = 1f;
+				sensFantastic = true;
 			}
 			
 			if(fail){
@@ -563,6 +598,34 @@ public class InGameScript : MonoBehaviour {
 					alpha = 1f;
 					sensFantastic = true;
 				}
+			}
+			
+			if(clear){
+				oneSecond += Time.deltaTime;
+				if(audio.volume > 0) audio.volume -= Time.deltaTime/speedFadeAudio;
+					
+				if(!appearFailok){
+					StartCoroutine(swipTexture(false, posClear.height));
+					var contains = perfect ? "Perfect" : (fullFantCombo ? "FFC" : (fullExCombo ? "FEC" : ( fullCombo ? "FC" : "noPS")) );
+					if(!contains.Contains("noPS")){
+						particleComboCam.gameObject.active = true;
+						foreach(var part in clearcombo.Where(c => c.Key.Contains(contains))){
+							part.Value.gameObject.active = true;
+							part.Value.Play();
+						}
+					}
+					
+					appearFailok = true;
+					
+				}
+				if(oneSecond > timeClearDisappear - 1){
+					passalpha -= Time.deltaTime;
+				}
+				if(oneSecond > timeClearDisappear){
+					if(failalpha >= 1){} //Passer à la scène de score
+					failalpha += Time.deltaTime/speedAlphaFailFade;
+				}
+				ClignCombo();
 			}
 			
 			//timetotalchart = timebpm + timechart + totaltimestop;
@@ -757,8 +820,17 @@ public class InGameScript : MonoBehaviour {
 		}
 		
 		
+	}
+	
+	void ClignCombo(){
+		if(sensFantastic){
+			alpha -= 0.2f*Time.deltaTime/timeClignotementFantastic;
+			sensFantastic = alpha > 0.8f;
+		}else{
+			alpha += 0.2f*Time.deltaTime/timeClignotementFantastic;
+			sensFantastic = alpha >= 1f;
+		}
 		
-		timeDisplayScore += Time.deltaTime;
 		
 	}
 	
@@ -988,6 +1060,7 @@ public class InGameScript : MonoBehaviour {
 		
 		if(Input.GetKeyDown(KeyCodeDown) && (arrowDownList.Any() || arrowFrozen.Any())){
 			var ar = findNextDownArrow();
+			
 			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
 			
 			if(prec < precToTime(Precision.GREAT)){ //great
