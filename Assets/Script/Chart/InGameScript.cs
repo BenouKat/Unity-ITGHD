@@ -91,6 +91,9 @@ public class InGameScript : MonoBehaviour {
 	private Dictionary<string, float> scoreBase;
 	private Dictionary<string, int> scoreCount;
 	public Rect posPercent = new Rect(0.39f, 0f, 0.45f, 0.05f);
+	private List<double> precAverage;
+	
+	
 	//FPS
 	private long _count;
 	private long fps;
@@ -260,6 +263,7 @@ public class InGameScript : MonoBehaviour {
 			clearcombo.Add(particleComboCam.transform.GetChild(i).name, particleComboCam.transform.GetChild(i).particleSystem);
 		}
 		
+		precAverage = new List<double>();
 		
 		TMainCamera = MainCamera.transform;
 		
@@ -907,7 +911,8 @@ public class InGameScript : MonoBehaviour {
 		
 		if(Input.GetKeyDown(KeyCodeLeft) && (arrowLeftList.Any() || arrowFrozen.Any())){
 			var ar = findNextLeftArrow();
-			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
+			double realprec = ar.time - (timetotalchart - Time.deltaTime);
+			double prec = Mathf.Abs((float)(realprec));
 			
 			if(prec < precToTime(Precision.GREAT)){ //great
 				
@@ -976,6 +981,7 @@ public class InGameScript : MonoBehaviour {
 							arrowRightList.Remove(right);
 							StartParticleRight(timeToPrec(prec));
 						}
+						precAverage.Add(realprec);
 						GainScoreAndLife(timeToPrec(prec).ToString());
 						displayPrec(prec);
 						GainCombo(ar.neighboors.Count, timeToPrec(prec));
@@ -991,6 +997,7 @@ public class InGameScript : MonoBehaviour {
 						StartParticleFreezeLeft(true);
 						
 					}
+					precAverage.Add(realprec);
 					GainCombo(1, timeToPrec(prec));
 					arrowLeftList.Remove(ar);
 					StartParticleLeft(timeToPrec(prec));
@@ -1029,10 +1036,12 @@ public class InGameScript : MonoBehaviour {
 								arrowRightList.Remove(right);
 								StartParticleRight(timeToPrec(prec));
 							}
+							precAverage.Add(realprec);
 							GainScoreAndLife(timeToPrec(prec).ToString());
 							displayPrec(prec);
 						}
 					}else{
+						precAverage.Add(realprec);
 						ar.goArrow.GetComponent<ArrowScript>().missed = true;
 						arrowLeftList.Remove(ar);
 						StartParticleLeft(timeToPrec(prec));
@@ -1061,7 +1070,8 @@ public class InGameScript : MonoBehaviour {
 		if(Input.GetKeyDown(KeyCodeDown) && (arrowDownList.Any() || arrowFrozen.Any())){
 			var ar = findNextDownArrow();
 			
-			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
+			double realprec = ar.time - (timetotalchart - Time.deltaTime);
+			double prec = Mathf.Abs((float)(realprec));
 			
 			if(prec < precToTime(Precision.GREAT)){ //great
 				
@@ -1129,6 +1139,7 @@ public class InGameScript : MonoBehaviour {
 							arrowRightList.Remove(right);
 							StartParticleRight(timeToPrec(prec));
 						}
+						precAverage.Add(realprec);
 						GainCombo(ar.neighboors.Count, timeToPrec(prec));
 						GainScoreAndLife(timeToPrec(prec).ToString());
 						displayPrec(prec);
@@ -1144,6 +1155,7 @@ public class InGameScript : MonoBehaviour {
 						StartParticleFreezeDown(true);
 						
 					}
+					precAverage.Add(realprec);
 					GainCombo(1, timeToPrec(prec));
 					arrowDownList.Remove(ar);
 					StartParticleDown(timeToPrec(prec));
@@ -1182,10 +1194,12 @@ public class InGameScript : MonoBehaviour {
 								arrowRightList.Remove(right);
 								StartParticleRight(timeToPrec(prec));
 							}
+							precAverage.Add(realprec);
 							GainScoreAndLife(timeToPrec(prec).ToString());
 							displayPrec(prec);
 						}
 					}else{
+						precAverage.Add(realprec);
 						ar.goArrow.GetComponent<ArrowScript>().missed = true;
 						arrowDownList.Remove(ar);
 						StartParticleDown(timeToPrec(prec));
@@ -1211,7 +1225,8 @@ public class InGameScript : MonoBehaviour {
 		
 		if(Input.GetKeyDown(KeyCodeUp) && (arrowUpList.Any() || arrowFrozen.Any())){
 			var ar = findNextUpArrow();
-			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
+			double realprec = ar.time - (timetotalchart - Time.deltaTime);
+			double prec = Mathf.Abs((float)(realprec));
 			
 			if(prec < precToTime(Precision.GREAT)){ //great
 				
@@ -1279,6 +1294,7 @@ public class InGameScript : MonoBehaviour {
 							arrowRightList.Remove(right);
 							StartParticleRight(timeToPrec(prec));
 						}
+						precAverage.Add(realprec);
 						GainCombo(ar.neighboors.Count, timeToPrec(prec));
 						GainScoreAndLife(timeToPrec(prec).ToString());
 						displayPrec(prec);
@@ -1294,6 +1310,7 @@ public class InGameScript : MonoBehaviour {
 						StartParticleFreezeUp(true);
 						
 					}
+					precAverage.Add(realprec);
 					GainCombo(1, timeToPrec(prec));
 					arrowUpList.Remove(ar);
 					StartParticleUp(timeToPrec(prec));
@@ -1332,10 +1349,12 @@ public class InGameScript : MonoBehaviour {
 								arrowRightList.Remove(right);
 								StartParticleRight(timeToPrec(prec));
 							}
+							precAverage.Add(realprec);
 							GainScoreAndLife(timeToPrec(prec).ToString());
 							displayPrec(prec);
 						}
 					}else{
+						precAverage.Add(realprec);
 						ar.goArrow.GetComponent<ArrowScript>().missed = true;
 						arrowUpList.Remove(ar);
 						StartParticleUp(timeToPrec(prec));
@@ -1362,7 +1381,8 @@ public class InGameScript : MonoBehaviour {
 		
 		if(Input.GetKeyDown(KeyCodeRight) && (arrowRightList.Any() || arrowFrozen.Any())){
 			var ar = findNextRightArrow();
-			double prec = Mathf.Abs((float)(ar.time - (timetotalchart - Time.deltaTime)));
+			double realprec = ar.time - (timetotalchart - Time.deltaTime);
+			double prec = Mathf.Abs((float)(realprec));
 			
 			if(prec < precToTime(Precision.GREAT)){ //great
 				
@@ -1430,6 +1450,7 @@ public class InGameScript : MonoBehaviour {
 							arrowRightList.Remove(right);
 							StartParticleRight(timeToPrec(prec));
 						}
+						precAverage.Add(realprec);
 						GainCombo(ar.neighboors.Count, timeToPrec(prec));
 						GainScoreAndLife(timeToPrec(prec).ToString());
 						displayPrec(prec);
@@ -1445,6 +1466,7 @@ public class InGameScript : MonoBehaviour {
 						StartParticleFreezeRight(true);
 						
 					}
+					precAverage.Add(realprec);
 					GainCombo(1, timeToPrec(prec));
 					arrowRightList.Remove(ar);
 					StartParticleRight(timeToPrec(prec));
@@ -1483,10 +1505,12 @@ public class InGameScript : MonoBehaviour {
 								arrowRightList.Remove(right);
 								StartParticleRight(timeToPrec(prec));
 							}
+							precAverage.Add(realprec);
 							GainScoreAndLife(timeToPrec(prec).ToString());
 							displayPrec(prec);
 						}
 					}else{
+						precAverage.Add(realprec);
 						ar.goArrow.GetComponent<ArrowScript>().missed = true;
 						arrowRightList.Remove(ar);
 						StartParticleRight(timeToPrec(prec));
