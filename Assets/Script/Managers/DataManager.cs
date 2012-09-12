@@ -86,6 +86,20 @@ public class DataManager{
 	
 	
 	
+	//SONG RESULT
+	
+	public float scoreEarned;
+	
+	public List<double> precAverage;
+	
+	public Dictionary<double, int> timeCombo;
+	
+	public Dictionary<double, double> lifeGraph;
+	
+	public double firstEx;
+	public double firstGreat;
+	public double firstMisteak;
+	
 	
 	public static DataManager Instance{
 		get{
@@ -98,7 +112,7 @@ public class DataManager{
 	}
 	
 	
-	
+	//
 	
 	public void Init(){
 		ScoreWeightValues = new Dictionary<string, float>();
@@ -416,6 +430,66 @@ public class DataManager{
 			default:
 				return 0f;
 		}
+	}
+	
+	public string giveNoteOfScore(float score){
+		if(score == 100f){
+			return "=;QUAD";	
+		}
+		if(score >= 99f){
+			return "=;GOLD";	
+		}
+		if(score >= 98f){
+			return "=;SILVER";
+		}
+		if(score >= 96f){
+			return "=;BRONZE";
+		}
+		//S
+		if(score >= 95f){
+			return "+;S";
+		}
+		if(score >= 90f){
+			return "=;S";	
+		}
+		if(score >= 89f){
+			return "-;S";	
+		}
+		
+		//A
+		if(score >= 88f){
+			return "+;A";
+		}
+		if(score >= 81f){
+			return "=;A";	
+		}
+		if(score >= 80f){
+			return "-;A";	
+		}
+		
+		//B
+		if(score >= 78f){
+			return "+;B";	
+		}
+		if(score >= 70f){
+			return "=;B";	
+		}
+		if(score >= 68f){
+			return "-;B";	
+		}
+		
+		//C
+		if(score >= 65f){
+			return "+;C";	
+		}
+		if(score >= 58f){
+			return "=;C";	
+		}
+		if(score >= 55f){
+			return "-;C";	
+		}
+		
+		return "=;BAD";
 	}
 	
 	

@@ -91,8 +91,13 @@ public class InGameScript : MonoBehaviour {
 	private Dictionary<string, float> scoreBase;
 	private Dictionary<string, int> scoreCount;
 	public Rect posPercent = new Rect(0.39f, 0f, 0.45f, 0.05f);
+	//PassToDataManager
 	private List<double> precAverage;
-	
+	private Dictionary<double, int> timeCombo;
+	private Dictionary<double, double> lifeGraph;
+	public double firstEx;
+	public double firstGreat;
+	public double firstMisteak;
 	
 	//FPS
 	private long _count;
@@ -264,6 +269,8 @@ public class InGameScript : MonoBehaviour {
 		}
 		
 		precAverage = new List<double>();
+		timeCombo = new Dictionary<double, int>();
+		lifeGraph = new Dictionary<double, double>();
 		
 		TMainCamera = MainCamera.transform;
 		
@@ -309,14 +316,24 @@ public class InGameScript : MonoBehaviour {
 			if(el != Precision.NONE){
 				scoreBase.Add(el.ToString(), fantasticValue*DataManager.Instance.ScoreWeightValues[el.ToString()]);
 				lifeBase.Add(el.ToString(), DataManager.Instance.LifeWeightValues[el.ToString()]);
-				scoreCount.Add(el.ToString(), 0);
+				
 			}
 		}
+		
+		foreach(Precision el2 in Enum.GetValues(typeof(PrecisionCount))){
+			if(el2 != Precision.NONE){
+				scoreCount.Add(el2.ToString(), 0);
+			}
+		}
+		
+		
 		
 		life = 50f;
 		score = 0f;
 		scoreInverse = 100f;
-		
+		firstEx = 0;
+		firstGreat = 0;
+		firstMisteak = 0;
 		
 		theLifeBar = lifeBar.GetComponent<LifeBar>();
 		
@@ -864,6 +881,7 @@ public class InGameScript : MonoBehaviour {
 						break;
 					}
 					GainScoreAndLife("FREEZE");
+					scoreCount[el.Key.arrowType == ArrowType.FREEZE ? "FREEZE" : "ROLL"] += 1;
 					DestroyImmediate(el.Key.goArrow);
 					DestroyImmediate(el.Key.goFreeze);
 					
@@ -906,7 +924,8 @@ public class InGameScript : MonoBehaviour {
 	
 	
 	//Verify keys Input at this frame
-	//Null ref exception quand il n'y a plus de flèche !
+	
+	//Revoir la façon de gérer les mines...
 	void VerifyKeysInput(){
 		
 		if(Input.GetKeyDown(KeyCodeLeft) && (arrowLeftList.Any() || arrowFrozen.Any())){
@@ -982,9 +1001,12 @@ public class InGameScript : MonoBehaviour {
 							StartParticleRight(timeToPrec(prec));
 						}
 						precAverage.Add(realprec);
-						GainScoreAndLife(timeToPrec(prec).ToString());
+						var ttp = timeToPrec(prec);
+						GainScoreAndLife(ttp.ToString());
+						scoreCount[ttp.ToString()] += 1;
+						scoreCount[ar.neighboors.Count > 2 ? "HANDS" : "JUMPS"] += 1;
 						displayPrec(prec);
-						GainCombo(ar.neighboors.Count, timeToPrec(prec));
+						GainCombo(ar.neighboors.Count, ttp);
 					}
 				}else{
 					if(ar.arrowType == ArrowType.NORMAL || ar.arrowType == ArrowType.MINE){
@@ -998,10 +1020,12 @@ public class InGameScript : MonoBehaviour {
 						
 					}
 					precAverage.Add(realprec);
-					GainCombo(1, timeToPrec(prec));
+					var ttp = timeToPrec(prec);
+					scoreCount[ttp.ToString()] += 1 ;
+					GainCombo(1, ttp);
 					arrowLeftList.Remove(ar);
-					StartParticleLeft(timeToPrec(prec));
-					GainScoreAndLife(timeToPrec(prec).ToString());
+					StartParticleLeft(ttp);
+					GainScoreAndLife(ttp.ToString());
 					displayPrec(prec);
 				}
 				
@@ -1037,16 +1061,20 @@ public class InGameScript : MonoBehaviour {
 								StartParticleRight(timeToPrec(prec));
 							}
 							precAverage.Add(realprec);
-							GainScoreAndLife(timeToPrec(prec).ToString());
+							var ttp = timeToPrec(prec);
+							scoreCount[ttp.ToString()] += 1;
+							GainScoreAndLife(ttp.ToString());
 							displayPrec(prec);
 						}
 					}else{
 						precAverage.Add(realprec);
+						var ttp = timeToPrec(prec);
+						scoreCount[ttp.ToString()] += 1;
 						ar.goArrow.GetComponent<ArrowScript>().missed = true;
 						arrowLeftList.Remove(ar);
-						StartParticleLeft(timeToPrec(prec));
+						StartParticleLeft(ttp);
 						displayPrec(prec);
-						GainScoreAndLife(timeToPrec(prec).ToString());
+						GainScoreAndLife(ttp.ToString());
 					}
 					ComboStop(false);
 			}
@@ -1140,8 +1168,11 @@ public class InGameScript : MonoBehaviour {
 							StartParticleRight(timeToPrec(prec));
 						}
 						precAverage.Add(realprec);
-						GainCombo(ar.neighboors.Count, timeToPrec(prec));
-						GainScoreAndLife(timeToPrec(prec).ToString());
+						var ttp = timeToPrec(prec);
+						scoreCount[ttp.ToString()] += 1;
+						GainCombo(ar.neighboors.Count, ttp);
+						scoreCount[ar.neighboors.Count > 2 ? "HANDS" : "JUMPS"] += 1;
+						GainScoreAndLife(ttp.ToString());
 						displayPrec(prec);
 					}
 				}else{
@@ -1156,10 +1187,12 @@ public class InGameScript : MonoBehaviour {
 						
 					}
 					precAverage.Add(realprec);
-					GainCombo(1, timeToPrec(prec));
+					var ttp = timeToPrec(prec);
+					scoreCount[ttp.ToString()] += 1;
+					GainCombo(1, ttp);
 					arrowDownList.Remove(ar);
-					StartParticleDown(timeToPrec(prec));
-					GainScoreAndLife(timeToPrec(prec).ToString());
+					StartParticleDown(ttp);
+					GainScoreAndLife(ttp.ToString());
 					displayPrec(prec);
 				}
 				
@@ -1195,16 +1228,20 @@ public class InGameScript : MonoBehaviour {
 								StartParticleRight(timeToPrec(prec));
 							}
 							precAverage.Add(realprec);
-							GainScoreAndLife(timeToPrec(prec).ToString());
+							var ttp = timeToPrec(prec);
+							scoreCount[ttp.ToString()] += 1;
+							GainScoreAndLife(ttp.ToString());
 							displayPrec(prec);
 						}
 					}else{
 						precAverage.Add(realprec);
+						var ttp = timeToPrec(prec);
+						scoreCount[ttp.ToString()] += 1;
 						ar.goArrow.GetComponent<ArrowScript>().missed = true;
 						arrowDownList.Remove(ar);
-						StartParticleDown(timeToPrec(prec));
+						StartParticleDown(ttp);
 						displayPrec(prec);
-						GainScoreAndLife(timeToPrec(prec).ToString());
+						GainScoreAndLife(ttp.ToString());
 					}
 					ComboStop(false);
 			}
@@ -1295,8 +1332,11 @@ public class InGameScript : MonoBehaviour {
 							StartParticleRight(timeToPrec(prec));
 						}
 						precAverage.Add(realprec);
-						GainCombo(ar.neighboors.Count, timeToPrec(prec));
-						GainScoreAndLife(timeToPrec(prec).ToString());
+						var ttp = timeToPrec(prec);
+						scoreCount[ttp.ToString()] += 1;
+						GainCombo(ar.neighboors.Count, ttp);
+						scoreCount[ar.neighboors.Count > 2 ? "HANDS" : "JUMPS"] += 1;
+						GainScoreAndLife(ttp.ToString());
 						displayPrec(prec);
 					}
 				}else{
@@ -1311,10 +1351,12 @@ public class InGameScript : MonoBehaviour {
 						
 					}
 					precAverage.Add(realprec);
-					GainCombo(1, timeToPrec(prec));
+					var ttp = timeToPrec(prec);
+					scoreCount[ttp.ToString()] += 1;
+					GainCombo(1, ttp);
 					arrowUpList.Remove(ar);
-					StartParticleUp(timeToPrec(prec));
-					GainScoreAndLife(timeToPrec(prec).ToString());
+					StartParticleUp(ttp);
+					GainScoreAndLife(ttp.ToString());
 					displayPrec(prec);
 				}
 				
@@ -1350,16 +1392,20 @@ public class InGameScript : MonoBehaviour {
 								StartParticleRight(timeToPrec(prec));
 							}
 							precAverage.Add(realprec);
-							GainScoreAndLife(timeToPrec(prec).ToString());
+							var ttp = timeToPrec(prec);
+							scoreCount[ttp.ToString()] += 1;
+							GainScoreAndLife(ttp.ToString());
 							displayPrec(prec);
 						}
 					}else{
 						precAverage.Add(realprec);
+						var ttp = timeToPrec(prec);
+						scoreCount[ttp.ToString()] += 1;
 						ar.goArrow.GetComponent<ArrowScript>().missed = true;
 						arrowUpList.Remove(ar);
-						StartParticleUp(timeToPrec(prec));
+						StartParticleUp(ttp);
 						displayPrec(prec);
-						GainScoreAndLife(timeToPrec(prec).ToString());
+						GainScoreAndLife(ttp.ToString());
 					}
 					ComboStop(false);
 			}
@@ -1451,8 +1497,11 @@ public class InGameScript : MonoBehaviour {
 							StartParticleRight(timeToPrec(prec));
 						}
 						precAverage.Add(realprec);
-						GainCombo(ar.neighboors.Count, timeToPrec(prec));
-						GainScoreAndLife(timeToPrec(prec).ToString());
+						var ttp = timeToPrec(prec);
+						scoreCount[ttp.ToString()] += 1;
+						GainCombo(ar.neighboors.Count, ttp);
+						scoreCount[ar.neighboors.Count > 2 ? "HANDS" : "JUMPS"] += 1;
+						GainScoreAndLife(ttp.ToString());
 						displayPrec(prec);
 					}
 				}else{
@@ -1467,10 +1516,12 @@ public class InGameScript : MonoBehaviour {
 						
 					}
 					precAverage.Add(realprec);
-					GainCombo(1, timeToPrec(prec));
+					var ttp = timeToPrec(prec);
+					scoreCount[ttp.ToString()] += 1;
+					GainCombo(1, ttp);
 					arrowRightList.Remove(ar);
-					StartParticleRight(timeToPrec(prec));
-					GainScoreAndLife(timeToPrec(prec).ToString());
+					StartParticleRight(ttp);
+					GainScoreAndLife(ttp.ToString());
 					displayPrec(prec);
 				}
 				
@@ -1506,16 +1557,20 @@ public class InGameScript : MonoBehaviour {
 								StartParticleRight(timeToPrec(prec));
 							}
 							precAverage.Add(realprec);
-							GainScoreAndLife(timeToPrec(prec).ToString());
+							var ttp = timeToPrec(prec);
+							scoreCount[ttp.ToString()] += 1;
+							GainScoreAndLife(ttp.ToString());
 							displayPrec(prec);
 						}
 					}else{
 						precAverage.Add(realprec);
+						var ttp = timeToPrec(prec);
+						scoreCount[ttp.ToString()] += 1;
 						ar.goArrow.GetComponent<ArrowScript>().missed = true;
 						arrowRightList.Remove(ar);
-						StartParticleRight(timeToPrec(prec));
+						StartParticleRight(ttp);
 						displayPrec(prec);
-						GainScoreAndLife(timeToPrec(prec).ToString());
+						GainScoreAndLife(ttp.ToString());
 					}
 					ComboStop(false);
 			}
@@ -1679,6 +1734,7 @@ public class InGameScript : MonoBehaviour {
 	public void GainScoreAndLife(string s){
 		if(lifeBase[s] <= 0 || combo >= DataManager.Instance.regenComboAfterMiss){
 			life += lifeBase[s];
+			lifeGraph.Add(timetotalchart, life);
 			if(life > 100f){
 				life = 100f;	
 			}else if(life < 0f){
@@ -1696,7 +1752,7 @@ public class InGameScript : MonoBehaviour {
 		}
 		displaying = scoreDecoupe();
 		
-		scoreCount[s] += 1;
+		
 		
 		if(life <= 0f || scoreInverse < targetScoreInverse){
 			//Debug.Log ("Fail at life");
@@ -1704,17 +1760,41 @@ public class InGameScript : MonoBehaviour {
 		}
 	}
 	
+	public void AddMineToScoreCombo(){
+		scoreCount["MINE"] += 1;	
+	}
+	
 	public void GainCombo(int c, Precision prec){
 		combo+= c;
 		if(ct != ComboType.NONE){
 			if(ct == ComboType.FULLFANTASTIC && prec != Precision.FANTASTIC){
-				if(	prec == Precision.EXCELLENT){ ct = ComboType.FULLEXCELLENT; }
-				else if(	prec == Precision.GREAT){ ct = ComboType.FULLCOMBO; }
-				else { ct = ComboType.NONE; }
+				if(	prec == Precision.EXCELLENT){ 
+					ct = ComboType.FULLEXCELLENT;
+					firstEx = timetotalchart;
+				}
+				else if(prec == Precision.GREAT){ 
+					ct = ComboType.FULLCOMBO; 
+					firstEx = timetotalchart;
+					firstGreat = timetotalchart;
+				}
+				else { 
+					firstEx = timetotalchart;
+					firstGreat = timetotalchart;
+					firstMisteak = timetotalchart;
+					ct = ComboType.NONE; 
+				}
 			}else if(ct == ComboType.FULLEXCELLENT && prec > Precision.EXCELLENT){
-				if(	prec == Precision.GREAT){ ct = ComboType.FULLCOMBO; }
-				else { ct = ComboType.NONE; }
+				if(	prec == Precision.GREAT){ 
+					firstGreat = timetotalchart;
+					ct = ComboType.FULLCOMBO; 
+				}
+				else { 
+					firstGreat = timetotalchart;
+					firstMisteak = timetotalchart;
+					ct = ComboType.NONE; 
+				}
 			}else if(ct == ComboType.FULLCOMBO && prec > Precision.GREAT){
+				firstMisteak = timetotalchart;
 				ct = ComboType.NONE;
 			}
 		}
@@ -1759,6 +1839,8 @@ public class InGameScript : MonoBehaviour {
 	}
 	*/
 	public void ComboStop(bool miss){
+		
+		timeCombo.Add(timetotalchart, combo);
 		combo = 0;	
 		ct = ComboType.NONE;
 		thetab = comboDecoupe();
@@ -1771,6 +1853,24 @@ public class InGameScript : MonoBehaviour {
 		}else{
 			comboMisses = 0;
 		}
+	}
+	
+	
+	void SendDataToDatamanager(){
+		DataManager.Instance.scoreEarned = score;
+	
+		DataManager.Instance.precAverage = precAverage;
+	
+		DataManager.Instance.timeCombo = timeCombo;
+	
+		DataManager.Instance.lifeGraph = lifeGraph;
+		
+		DataManager.Instance.firstEx = firstEx;
+		
+		DataManager.Instance.firstGreat = firstGreat;
+		
+		DataManager.Instance.firstMisteak = firstMisteak;
+		
 	}
 	#endregion
 	

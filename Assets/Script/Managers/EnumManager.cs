@@ -38,6 +38,21 @@ public enum Precision{
 		NONE
 }
 
+public enum PrecisionCount{
+		FANTASTIC,
+		EXCELLENT,
+		GREAT,
+		DECENT,
+		WAYOFF,
+		MISS,
+		FREEZE,
+		MINE,
+		HANDS,
+		ROLL,
+		JUMPS,
+		NONE
+}
+
 public enum ArrowType{
 		NORMAL,
 		FREEZE,
