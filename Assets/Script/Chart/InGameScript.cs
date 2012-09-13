@@ -643,7 +643,10 @@ public class InGameScript : MonoBehaviour {
 					passalpha -= Time.deltaTime;
 				}
 				if(oneSecond > timeClearDisappear){
-					if(failalpha >= 1){} //Passer à la scène de score
+					if(failalpha >= 1){
+							SendDataToDatamanager();
+							//Passer à la scène de score
+					} 
 					failalpha += Time.deltaTime/speedAlphaFailFade;
 				}
 				ClignCombo();
@@ -662,6 +665,14 @@ public class InGameScript : MonoBehaviour {
 			if(dead && !disappearFailok && oneSecond > timeFailDisappear){
 				StartCoroutine(swipTexture(true, posFail.height));
 				disappearFailok = true;
+			}
+			if(dead && disappearfailok && oneSecond > timeFailDisappear + 1){
+				
+				//Passer à la scène de score
+				//Proposer Retry / Score
+				//si score :
+				SendDataToDatamanager();
+				
 			}
 			if(dead && oneSecond > timeFailAppear){
 				//zoomfail += Time.deltaTime/speedzoom;
@@ -1870,6 +1881,11 @@ public class InGameScript : MonoBehaviour {
 		DataManager.Instance.firstGreat = firstGreat;
 		
 		DataManager.Instance.firstMisteak = firstMisteak;
+		
+		DataManager.Instance.perfect = perfect;
+		DataManager.Instance.fullFantCombo = fullFantCombo;
+		DataManager.Instance.fullExCombo = fullExCombo;
+		DataManager.Instance.fullCombo = fullCombo;
 		
 	}
 	#endregion

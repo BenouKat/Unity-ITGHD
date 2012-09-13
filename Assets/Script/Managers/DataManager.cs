@@ -99,6 +99,10 @@ public class DataManager{
 	public double firstEx;
 	public double firstGreat;
 	public double firstMisteak;
+	public bool perfect;
+	public bool fullFantCombo;
+	public bool fullExCombo;
+	public bool fullCombo;
 	
 	
 	public static DataManager Instance{
