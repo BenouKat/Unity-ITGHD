@@ -25,6 +25,21 @@ public enum Judge{
 		EXPERT
 }
 
+public enum ScoreCount{
+		FANTASTIC,
+		EXCELLENT,
+		GREAT,
+		DECENT,
+		WAYOFF,
+		MISS,
+		FREEZE,
+		ROLL,
+		JUMPS,
+		HANDS,
+		MINE,
+		NONE
+}
+
 public enum Precision{
 		FANTASTIC,
 		EXCELLENT,
@@ -35,21 +50,6 @@ public enum Precision{
 		FREEZE,
 		UNFREEZE,
 		MINE,
-		NONE
-}
-
-public enum PrecisionCount{
-		FANTASTIC,
-		EXCELLENT,
-		GREAT,
-		DECENT,
-		WAYOFF,
-		MISS,
-		FREEZE,
-		MINE,
-		HANDS,
-		ROLL,
-		JUMPS,
 		NONE
 }
 

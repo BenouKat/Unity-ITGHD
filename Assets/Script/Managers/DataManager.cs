@@ -41,6 +41,7 @@ public class DataManager{
 	
 	public Color[] diffColor;
 	
+	public Color[] precColor;
 	
 	//SYSTEM
 	public float globalOffsetSeconds = -0.120f;
@@ -95,6 +96,8 @@ public class DataManager{
 	public Dictionary<double, int> timeCombo;
 	
 	public Dictionary<double, double> lifeGraph;
+	
+	public Dictionary<string, int> scoreCount;
 	
 	public double firstEx;
 	public double firstGreat;
@@ -172,6 +175,14 @@ public class DataManager{
 		diffColor[3] = new Color(1f, 0.208f, 0.208f, 1f);
 		diffColor[4] = new Color(0.208f, 0.57f, 1f, 1f);
 		diffColor[5] = new Color(1f, 1f, 1f, 1f);
+		
+		precColor = new Color[6];
+		precColor[0] = new Color(0.6f, 1f, 1f, 1f);
+		precColor[1] = new Color(1f, 1f, 0.6f, 1f);
+		precColor[2] = new Color(0.6f, 1f, 0.6f, 1f);
+		precColor[3] = new Color(0.8f, 0.6f, 1f, 1f);
+		precColor[4] = new Color(1f, 0.8f, 0.6f, 1f);
+		precColor[5] = new Color(1f, 0.6f, 0.6f, 1f);
 		
 		skyboxList = new List<Material>();
 		skyboxList.Add((Material) Resources.Load("Skyboxes/Skybox1")); 

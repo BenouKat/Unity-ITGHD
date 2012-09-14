@@ -320,8 +320,8 @@ public class InGameScript : MonoBehaviour {
 			}
 		}
 		
-		foreach(Precision el2 in Enum.GetValues(typeof(PrecisionCount))){
-			if(el2 != Precision.NONE){
+		foreach(ScoreCount el2 in Enum.GetValues(typeof(ScoreCount))){
+			if(el2 != ScoreCount.NONE){
 				scoreCount.Add(el2.ToString(), 0);
 			}
 		}
@@ -666,7 +666,7 @@ public class InGameScript : MonoBehaviour {
 				StartCoroutine(swipTexture(true, posFail.height));
 				disappearFailok = true;
 			}
-			if(dead && disappearfailok && oneSecond > timeFailDisappear + 1){
+			if(dead && disappearFailok && oneSecond > timeFailDisappear + 1){
 				
 				//Passer à la scène de score
 				//Proposer Retry / Score
@@ -1886,6 +1886,8 @@ public class InGameScript : MonoBehaviour {
 		DataManager.Instance.fullFantCombo = fullFantCombo;
 		DataManager.Instance.fullExCombo = fullExCombo;
 		DataManager.Instance.fullCombo = fullCombo;
+		
+		DataManager.Instance.scoreCount = scoreCount;
 		
 	}
 	#endregion
