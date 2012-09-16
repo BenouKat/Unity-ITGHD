@@ -50,7 +50,7 @@ public class MineScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void LateUpdate () {
-		
+		//MINE A CORRIGER !!
 		if(!missed){
 			if(associatedArrow.time <= igs.getTotalTimeChart() && Input.GetKey(associatedKeyCode)){
 				this.pm();

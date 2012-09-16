@@ -50,7 +50,7 @@ public class ScoreScript : MonoBehaviour {
 	private int[] numberOfOthers;
 	// Use this for initialization
 	void Start () {
-		initTest();
+		//initTest();
 			
 		
 		numberOfOthers = new int[5];
@@ -67,7 +67,7 @@ public class ScoreScript : MonoBehaviour {
 		dicTex.Add("NoteB", (Texture2D) Resources.Load("NoteB"));
 		dicTex.Add("NoteC", (Texture2D) Resources.Load("NoteC"));
 		dicTex.Add("NoteBAD", (Texture2D) Resources.Load("NoteBAD"));
-		dicTex.Add("Fail", (Texture2D) Resources.Load("Fail"));
+		dicTex.Add("FAIL", (Texture2D) Resources.Load("Fail"));
 		for(int i=0;i<10;i++){
 			dicTex.Add("S" + i, (Texture2D) Resources.Load("Numbers/S" + i));
 		}
@@ -120,12 +120,12 @@ public class ScoreScript : MonoBehaviour {
 		for(int i=0; i<(int)ScoreCount.FREEZE;i++){
 			if(!shadow) GUI.color = DataManager.Instance.precColor[i];
 			GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posNotationRow1, offsetPosNot, i), shadow), 
-				DataManager.Instance.scoreCount[((ScoreCount)i).ToString()].ToString());
+				DataManager.Instance.scoreCount[((ScoreCount)i).ToString()].ToString(), "Numbers");
 		
 			if(!shadow) GUI.color = new Color(1f, 1f, 1f, 1f);
 			
 			GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posNotationRow1Tot, offsetPosNot, i), shadow), 
-				"(" + ((float)DataManager.Instance.scoreCount[((ScoreCount)i).ToString()] / (float)DataManager.Instance.songSelected.numberOfStepsWithoutJumps).ToString("0") + "%)");
+				"(" + (((float)DataManager.Instance.scoreCount[((ScoreCount)i).ToString()] / (float)DataManager.Instance.songSelected.numberOfStepsWithoutJumps)*100f).ToString("0") + "%)");
 		
 		}
 		
@@ -138,7 +138,7 @@ public class ScoreScript : MonoBehaviour {
 			}
 			
 			GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posNotationRow2, offsetPosNot, i - (int)ScoreCount.FREEZE), shadow), 
-				DataManager.Instance.scoreCount[((ScoreCount)i).ToString()].ToString());
+				DataManager.Instance.scoreCount[((ScoreCount)i).ToString()].ToString(), "Numbers");
 			
 			if(!shadow) GUI.color = new Color(1f, 1f, 1f, 1f);
 			
@@ -150,9 +150,9 @@ public class ScoreScript : MonoBehaviour {
 		
 		if(!shadow) GUI.color = new Color(1f, 1f, 1f, 1f);
 		
-		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 0), shadow), "First ex or less : " + DataManager.Instance.firstEx);
-		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 1), shadow), "First great or less : " + DataManager.Instance.firstGreat);
-		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 2), shadow), "First misteak : " + DataManager.Instance.firstMisteak);
+		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 0), shadow), "First ex or less : " + DataManager.Instance.firstEx.ToString("0.00") + "%");
+		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 1), shadow), "First great or less : " + DataManager.Instance.firstGreat.ToString("0.00") + "%");
+		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 2), shadow), "First misteak : " + DataManager.Instance.firstMisteak.ToString("0.00") + "%");
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 3), shadow), "Average precision : " + averagePrec.ToString("0.000") + "ms");
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 4), shadow), "Average Timing : " + ((DataManager.Instance.perfect || DataManager.Instance.fullFantCombo) ? "None" : (sens > 0) ? "Too slow (" + percentSens.ToString("00") + "%)" : (sens < 0) ? "Too fast (" + percentSens.ToString("00") + "%)" : "Mixed fast/slow"));
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 5), shadow), "Max Combo : ");
@@ -166,6 +166,10 @@ public class ScoreScript : MonoBehaviour {
 		
 		
 		GUI.DrawTexture(resizeRect(posScoringTitle), dicTex["ScoreTitle"]);
+		if(noteToDisplay == "FAIL"){
+			posNote.x = 0.625f;
+			posNote.width = 0.3f; //dirty !!! Fix later :)
+		}
 		GUI.DrawTexture(resizeRect(posNote), dicTex[noteToDisplay]);
 		if(!String.IsNullOrEmpty(critismToDisplay)){
 			GUI.DrawTexture(resizeRect(posCritism), dicTex[critismToDisplay]);
@@ -228,9 +232,15 @@ public class ScoreScript : MonoBehaviour {
 		decoupeScore[3] = System.Int32.Parse(""+decoupe[4]);
 		decoupeScore[4] = System.Int32.Parse(""+decoupe[5]);
 		
-		noteToDisplay = "Note" + DataManager.Instance.giveNoteOfScore(DataManager.Instance.scoreEarned).Split(';')[1];
-		critismToDisplay = DataManager.Instance.giveNoteOfScore(DataManager.Instance.scoreEarned).Split(';')[0];
-		if(critismToDisplay == "=") critismToDisplay = "";
+		if(DataManager.Instance.fail){
+			noteToDisplay = "FAIL";
+			critismToDisplay = "";
+		}else{
+			noteToDisplay = "Note" + DataManager.Instance.giveNoteOfScore(DataManager.Instance.scoreEarned).Split(';')[1];
+			critismToDisplay = DataManager.Instance.giveNoteOfScore(DataManager.Instance.scoreEarned).Split(';')[0];
+			if(critismToDisplay == "=") critismToDisplay = "";
+		}
+		
 		
 		double theav = 0;
 		int signmoins = 0;
@@ -243,16 +253,16 @@ public class ScoreScript : MonoBehaviour {
 		var l = DataManager.Instance.precAverage.Where(c => Mathf.Abs((float)c) > DataManager.Instance.PrecisionValues[Precision.FANTASTIC]).Count();
 		averagePrec = theav/(double)l;
 		if(((float)signplus/(float)l) > 0.6f){ 
-			percentSens = (float)signplus/(float)l;
+			percentSens = ((float)signplus/(float)l)*100f;
 			sens = 1;
 		}
 		if(((float)signmoins/(float)l) > 0.6f){
-			percentSens = (float)signplus/(float)l;
+			percentSens = ((float)signplus/(float)l)*100f;
 			sens = -1;
 		}
 		
 		
-		//A tester
+		
 		var life = new double[200];
 		
 		var thecut = DataManager.Instance.songSelected.duration/(double)200;
@@ -262,15 +272,18 @@ public class ScoreScript : MonoBehaviour {
 		var thetimecut = (double)0;
 		var indexTab = 0;
 		for(int i=0;i<DataManager.Instance.lifeGraph.Count;i++){
-			thetimecut = DataManager.Instance.lifeGraph.ElementAt(i).Key;
+			if(i == 0){
+				thetimecut = DataManager.Instance.lifeGraph.ElementAt(i).Key;
+			}else{
+				thetimecut += DataManager.Instance.lifeGraph.ElementAt(i).Key - DataManager.Instance.lifeGraph.ElementAt(i- 1).Key;
+			}
+			
 			theaddCut += DataManager.Instance.lifeGraph.ElementAt(i).Value;
 			thelastCut = DataManager.Instance.lifeGraph.ElementAt(i).Value;
 			thenumberaddCut++;
-			
-			if(thetimecut > thecut){
-				
+			while(thetimecut > thecut){
 				life[indexTab] = theaddCut/thenumberaddCut;
-				thetimecut = theaddCut - thecut;	
+				thetimecut -= thecut;	
 				thenumberaddCut = 1;
 				theaddCut = thelastCut;
 				indexTab++;
@@ -279,11 +292,15 @@ public class ScoreScript : MonoBehaviour {
 		
 		var thelasttime = thetimecut;
 		var thelastvalue = DataManager.Instance.lifeGraph.Last().Value;
-		while(thelasttime + thecut < DataManager.Instance.songSelected.duration){
+		while(thelasttime + thecut < DataManager.Instance.songSelected.duration && indexTab < 200){
 			life[indexTab] = thelastvalue;
 			indexTab++;
 		};
-		life[indexTab] = thelastvalue;
+		if(indexTab < 200)life[indexTab] = thelastvalue;
+		
+		for(int i=0;i<200;i++){
+			graph.SetPosition(i, new Vector3( -80f + (120f*((float)i/200f)) ,-20f + 10f*(((float)life[i] - 50f)/50f), 0f));
+		}
 	}
 	
 	
@@ -307,7 +324,10 @@ public class ScoreScript : MonoBehaviour {
 		DataManager.Instance.timeCombo = new Dictionary<double, int>();
 	
 		DataManager.Instance.lifeGraph = new Dictionary<double, double>();
-		
+		var dur = DataManager.Instance.songSelected.duration;
+		for(double i=0; i<(dur-1);i += (dur - 1)/200f){
+			DataManager.Instance.lifeGraph.Add((double)i, (double)UnityEngine.Random.value*100);	
+		}
 		DataManager.Instance.firstEx = 15.2;
 		
 		DataManager.Instance.firstGreat = 31.2;
@@ -318,6 +338,7 @@ public class ScoreScript : MonoBehaviour {
 		DataManager.Instance.fullFantCombo = false;
 		DataManager.Instance.fullExCombo = true;
 		DataManager.Instance.fullCombo = true;
+		DataManager.Instance.fail = false;
 		DataManager.Instance.scoreCount = new Dictionary<string, int>();
 		DataManager.Instance.difficultySelected = Difficulty.EXPERT;
 		

@@ -106,7 +106,8 @@ public class DataManager{
 	public bool fullFantCombo;
 	public bool fullExCombo;
 	public bool fullCombo;
-	
+	public bool fail;
+	public bool clear;
 	
 	public static DataManager Instance{
 		get{
@@ -177,12 +178,12 @@ public class DataManager{
 		diffColor[5] = new Color(1f, 1f, 1f, 1f);
 		
 		precColor = new Color[6];
-		precColor[0] = new Color(0.6f, 1f, 1f, 1f);
-		precColor[1] = new Color(1f, 1f, 0.6f, 1f);
-		precColor[2] = new Color(0.6f, 1f, 0.6f, 1f);
-		precColor[3] = new Color(0.8f, 0.6f, 1f, 1f);
-		precColor[4] = new Color(1f, 0.8f, 0.6f, 1f);
-		precColor[5] = new Color(1f, 0.6f, 0.6f, 1f);
+		precColor[0] = new Color(0.4f, 1f, 1f, 1f);
+		precColor[1] = new Color(1f, 1f, 0.4f, 1f);
+		precColor[2] = new Color(0.4f, 1f, 0.4f, 1f);
+		precColor[3] = new Color(0.8f, 0.3f, 1f, 1f);
+		precColor[4] = new Color(1f, 0.6f, 0.3f, 1f);
+		precColor[5] = new Color(1f, 0.4f, 0.4f, 1f);
 		
 		skyboxList = new List<Material>();
 		skyboxList.Add((Material) Resources.Load("Skyboxes/Skybox1")); 

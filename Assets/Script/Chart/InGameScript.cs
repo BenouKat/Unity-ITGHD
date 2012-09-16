@@ -91,6 +91,7 @@ public class InGameScript : MonoBehaviour {
 	private Dictionary<string, float> scoreBase;
 	private Dictionary<string, int> scoreCount;
 	public Rect posPercent = new Rect(0.39f, 0f, 0.45f, 0.05f);
+	
 	//PassToDataManager
 	private List<double> precAverage;
 	private Dictionary<double, int> timeCombo;
@@ -166,7 +167,8 @@ public class InGameScript : MonoBehaviour {
 	private int signCombo = -1;
 	private bool alreadytaged = true;
 	private int comboMisses;
-	
+	private float alphaCombo;
+	public float speedAlphaCombo;
 	
 	//FAIL OR CLEAR
 	private bool fail;
@@ -354,7 +356,7 @@ public class InGameScript : MonoBehaviour {
 		matProgressBarFull = progressBar.renderer.material;
 		colorCombo = 1f;
 		comboMisses = 0;
-		
+		alphaCombo = 0.5f;
 		//GUI
 		/*wd = posPercent.width*128;
 		hg = posPercent.height*1024;
@@ -411,11 +413,12 @@ public class InGameScript : MonoBehaviour {
 		GUI.DrawTexture(new Rect((posPercent.x + ecart*5)*Screen.width + posPercent.width, posPercent.y*Screen.height, posPercent.width*Screen.width, posPercent.height*Screen.height), TextureBase["PERCENT"]);
 		
 		if(combo >= 5f){
-			var czoom = zoom/4f;
-			GUI.color = matProgressBar.color;
+			//var czoom = zoom/4f;
+			var col = matProgressBar.color;
+			GUI.color = new Color(col.r , col.g, col.b, alphaCombo);
 			for(int i=0; i<thetab.Length; i++){
-				GUI.DrawTexture(new Rect((posCombo.x + ((ecartCombo*(thetab.Length-(i+1))/2f) -ecartCombo*((float)i/2f)))*Screen.width - czoom, 
-				posCombo.y*Screen.height, posCombo.width*Screen.width + czoom*2f, posCombo.height*Screen.height), TextureBase["C" + thetab[i]]);
+				GUI.DrawTexture(new Rect((posCombo.x + ((ecartCombo*(thetab.Length-(i+1))/2f) -ecartCombo*((float)i/2f)))*Screen.width, 
+				posCombo.y*Screen.height, posCombo.width*Screen.width, posCombo.height*Screen.height), TextureBase["C" + thetab[i]]);
 			}
 		}
 		
@@ -610,7 +613,7 @@ public class InGameScript : MonoBehaviour {
 			}
 			
 			if(fail){
-				if(typeOfDeath != 2 && (typeOfDeath == 0 || comboMisses >= 30)){
+				if((typeOfDeath != 2 && (typeOfDeath == 0 || comboMisses >= 30)) || thesong.duration < timetotalchart){
 					dead = true;
 					audio.Stop ();
 					matProgressBarFull.color = new Color(0.5f, 0.5f, 0.5f, 1f);
@@ -645,7 +648,7 @@ public class InGameScript : MonoBehaviour {
 				if(oneSecond > timeClearDisappear){
 					if(failalpha >= 1){
 							SendDataToDatamanager();
-							//Passer à la scène de score
+							Application.LoadLevel("ScoreScene");
 					} 
 					failalpha += Time.deltaTime/speedAlphaFailFade;
 				}
@@ -672,6 +675,7 @@ public class InGameScript : MonoBehaviour {
 				//Proposer Retry / Score
 				//si score :
 				SendDataToDatamanager();
+				Application.LoadLevel("ScoreScene");
 				
 			}
 			if(dead && oneSecond > timeFailAppear){
@@ -837,6 +841,9 @@ public class InGameScript : MonoBehaviour {
 			zoom = 0;
 		}
 		
+		if(alphaCombo > 0.5){
+			alphaCombo -= Time.deltaTime/speedAlphaCombo;	
+		}
 		
 		timeDisplayScore += Time.deltaTime;
 		
@@ -1745,7 +1752,7 @@ public class InGameScript : MonoBehaviour {
 	public void GainScoreAndLife(string s){
 		if(lifeBase[s] <= 0 || combo >= DataManager.Instance.regenComboAfterMiss){
 			life += lifeBase[s];
-			lifeGraph.Add(timetotalchart, life);
+			if(!lifeGraph.ContainsKey(timetotalchart)) lifeGraph.Add(timetotalchart, life);
 			if(life > 100f){
 				life = 100f;	
 			}else if(life < 0f){
@@ -1775,8 +1782,13 @@ public class InGameScript : MonoBehaviour {
 		scoreCount["MINE"] += 1;	
 	}
 	
+	public void AddMissToScoreCombo(){
+		scoreCount["MISS"] += 1;	
+	}
+	
 	public void GainCombo(int c, Precision prec){
 		combo+= c;
+		alphaCombo = 1f;
 		if(ct != ComboType.NONE){
 			if(ct == ComboType.FULLFANTASTIC && prec != Precision.FANTASTIC){
 				if(	prec == Precision.EXCELLENT){ 
@@ -1853,7 +1865,11 @@ public class InGameScript : MonoBehaviour {
 		
 		timeCombo.Add(timetotalchart, combo);
 		combo = 0;	
-		ct = ComboType.NONE;
+		if(ct != ComboType.NONE){
+			firstMisteak = timetotalchart;	
+			ct = ComboType.NONE;
+		}
+		
 		thetab = comboDecoupe();
 		if(isFullComboRace || isFullExComboRace){
 			//Debug.Log ("Fail at combo race");
@@ -1889,6 +1905,7 @@ public class InGameScript : MonoBehaviour {
 		
 		DataManager.Instance.scoreCount = scoreCount;
 		
+		DataManager.Instance.fail = fail;
 	}
 	#endregion
 	
