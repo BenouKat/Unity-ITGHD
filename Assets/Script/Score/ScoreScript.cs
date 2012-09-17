@@ -50,7 +50,7 @@ public class ScoreScript : MonoBehaviour {
 	private int[] numberOfOthers;
 	// Use this for initialization
 	void Start () {
-		//initTest();
+		initTest();
 			
 		
 		numberOfOthers = new int[5];
@@ -299,7 +299,7 @@ public class ScoreScript : MonoBehaviour {
 		if(indexTab < 200)life[indexTab] = thelastvalue;
 		
 		for(int i=0;i<200;i++){
-			graph.SetPosition(i, new Vector3( -80f + (120f*((float)i/200f)) ,-20f + 10f*(((float)life[i] - 50f)/50f), 0f));
+			graph.SetPosition(i, new Vector3( -160f + (240f*((float)i/200f)) ,-40f + 20f*(((float)life[i] - 50f)/50f), 0f));
 		}
 	}
 	
@@ -309,7 +309,7 @@ public class ScoreScript : MonoBehaviour {
 		LoadManager.Instance.Loading();
 		
 		DataManager.Instance.songSelected = LoadManager.Instance.FindSong("SongTest", "Hide and Seek")[Difficulty.EXPERT];
-		DataManager.Instance.scoreEarned = 88.00f;
+		DataManager.Instance.scoreEarned = 90.00f;
 	
 		DataManager.Instance.precAverage = new List<double>();
 		DataManager.Instance.precAverage.Add(0.05);
