@@ -1888,6 +1888,8 @@ public class InGameScript : MonoBehaviour {
 	
 		DataManager.Instance.precAverage = precAverage;
 	
+		timeCombo.Add(timetotalchart, combo);
+		
 		DataManager.Instance.timeCombo = timeCombo;
 	
 		DataManager.Instance.lifeGraph = lifeGraph;

@@ -39,6 +39,8 @@ public class ScoreScript : MonoBehaviour {
 	
 	public LineRenderer graph;
 	
+	public Material bannerMat;
+	
 	private Dictionary<string, Texture2D> dicTex;
 	
 	private int[] decoupeScore;
@@ -48,6 +50,14 @@ public class ScoreScript : MonoBehaviour {
 	private int sens;
 	private float percentSens;
 	private int[] numberOfOthers;
+	private int maxCombo;
+	private string stringmod;
+	
+	
+	
+	
+	//TEST
+	private float prectime;
 	// Use this for initialization
 	void Start () {
 		initTest();
@@ -105,7 +115,7 @@ public class ScoreScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
+		
 	}
 	
 	
@@ -115,7 +125,7 @@ public class ScoreScript : MonoBehaviour {
 		if (!shadow) GUI.color = DataManager.Instance.diffColor[(int)DataManager.Instance.difficultySelected];
 		GUI.Label(resizeRectGeneralOffset(resizeRect(posDiffNumber), shadow), DataManager.Instance.songSelected.level.ToString() , "Level"); 
 		if(!shadow) GUI.color = new Color(1f, 1f, 1f, 1f);
-		GUI.Label(resizeRectGeneralOffset(resizeRect(posMods), shadow), "mods1, mods2, mods3, mods4, mods5, mods6");
+		GUI.Label(resizeRectGeneralOffset(resizeRect(posMods), shadow), stringmod);
 		
 		for(int i=0; i<(int)ScoreCount.FREEZE;i++){
 			if(!shadow) GUI.color = DataManager.Instance.precColor[i];
@@ -131,7 +141,11 @@ public class ScoreScript : MonoBehaviour {
 		
 		
 		for(int i=(int)ScoreCount.FREEZE; i<(int)ScoreCount.NONE;i++){
-			if(!shadow && DataManager.Instance.scoreCount[((ScoreCount)i).ToString()] != numberOfOthers[i - (int)ScoreCount.FREEZE]){	
+			if(!shadow && ((ScoreCount)i).ToString() != "MINE" && 
+				DataManager.Instance.scoreCount[((ScoreCount)i).ToString()] != numberOfOthers[i - (int)ScoreCount.FREEZE] ){	
+				GUI.color = DataManager.Instance.precColor[5];
+			}else if(!shadow && ((ScoreCount)i).ToString() == "MINE" && 
+				DataManager.Instance.scoreCount[((ScoreCount)i).ToString()] != 0){	
 				GUI.color = DataManager.Instance.precColor[5];
 			}else if(!shadow){
 				GUI.color = new Color(1f, 1f, 1f, 1f);
@@ -155,7 +169,7 @@ public class ScoreScript : MonoBehaviour {
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 2), shadow), "First misteak : " + DataManager.Instance.firstMisteak.ToString("0.00") + "%");
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 3), shadow), "Average precision : " + averagePrec.ToString("0.000") + "ms");
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 4), shadow), "Average Timing : " + ((DataManager.Instance.perfect || DataManager.Instance.fullFantCombo) ? "None" : (sens > 0) ? "Too slow (" + percentSens.ToString("00") + "%)" : (sens < 0) ? "Too fast (" + percentSens.ToString("00") + "%)" : "Mixed fast/slow"));
-		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 5), shadow), "Max Combo : ");
+		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 5), shadow), "Max Combo : " + maxCombo);
 	}
 	
 	void OnGUI(){
@@ -200,7 +214,6 @@ public class ScoreScript : MonoBehaviour {
 		AllLabel(true);
 		GUI.color = new Color(1f,1f,1f,1f);
 		AllLabel(false);
-		
 	}
 	
 	Rect resizeRect(Rect r){
@@ -223,6 +236,8 @@ public class ScoreScript : MonoBehaviour {
 	
 	void ProcessScore(){
 	
+		bannerMat.mainTexture = DataManager.Instance.songSelected.GetBanner();
+			
 		sens = 0;
 	
 		var decoupe = DataManager.Instance.scoreEarned.ToString("000.00").Trim();
@@ -245,23 +260,39 @@ public class ScoreScript : MonoBehaviour {
 		double theav = 0;
 		int signmoins = 0;
 		int signplus = 0;
-		for(int i=0; i<DataManager.Instance.precAverage.Count; i++){
-			theav += Mathf.Abs((float)DataManager.Instance.precAverage[i]);
-			if(DataManager.Instance.precAverage[i] > DataManager.Instance.PrecisionValues[Precision.FANTASTIC]) signplus++;
-			if(DataManager.Instance.precAverage[i] < -DataManager.Instance.PrecisionValues[Precision.FANTASTIC]) signmoins++;
+		var listprec = DataManager.Instance.precAverage.Where(c => Mathf.Abs((float)c) > DataManager.Instance.PrecisionValues[Precision.FANTASTIC]).ToList();
+		for(int i=0; i<listprec.Count; i++){
+			theav += Mathf.Abs((float)listprec[i]);
+			if(listprec[i] > DataManager.Instance.PrecisionValues[Precision.FANTASTIC]) signplus++;
+			if(listprec[i] < -DataManager.Instance.PrecisionValues[Precision.FANTASTIC]) signmoins++;
 		}
-		var l = DataManager.Instance.precAverage.Where(c => Mathf.Abs((float)c) > DataManager.Instance.PrecisionValues[Precision.FANTASTIC]).Count();
+		var l = listprec.Count();
 		averagePrec = theav/(double)l;
 		if(((float)signplus/(float)l) > 0.6f){ 
 			percentSens = ((float)signplus/(float)l)*100f;
 			sens = 1;
 		}
 		if(((float)signmoins/(float)l) > 0.6f){
-			percentSens = ((float)signplus/(float)l)*100f;
+			percentSens = ((float)signmoins/(float)l)*100f;
 			sens = -1;
 		}
 		
 		
+		stringmod = "";
+		stringmod += "x" + DataManager.Instance.speedmodSelected + ", ";
+		if(DataManager.Instance.hitJudgeSelected != Judge.NORMAL) stringmod += DataManager.Instance.dicHitJudge[DataManager.Instance.hitJudgeSelected] + ", ";
+		if(DataManager.Instance.lifeJudgeSelected != Judge.NORMAL) stringmod += DataManager.Instance.dicLifeJudge[DataManager.Instance.lifeJudgeSelected] + ", ";
+		if(DataManager.Instance.scoreJudgeSelected != Judge.NORMAL) stringmod += DataManager.Instance.dicScoreJudge[DataManager.Instance.scoreJudgeSelected] + ", ";
+		
+		for(int i=0; i< DataManager.Instance.displaySelected.Count(); i++){
+			if(DataManager.Instance.displaySelected[i]){
+				stringmod += DataManager.Instance.aDisplay[i] + ", ";	
+			}
+		}
+		stringmod = stringmod.Remove(stringmod.Length - 2, 2);
+		
+		
+		maxCombo = DataManager.Instance.timeCombo.Max(c => c.Value);
 		
 		var life = new double[200];
 		
@@ -299,7 +330,7 @@ public class ScoreScript : MonoBehaviour {
 		if(indexTab < 200)life[indexTab] = thelastvalue;
 		
 		for(int i=0;i<200;i++){
-			graph.SetPosition(i, new Vector3( -160f + (240f*((float)i/200f)) ,-40f + 20f*(((float)life[i] - 50f)/50f), 0f));
+			graph.SetPosition(i, new Vector3( -160f + (240f*((float)i/200f)) , 19f*(((float)life[i] - 50f)/50f), 0f));
 		}
 	}
 	
@@ -319,6 +350,8 @@ public class ScoreScript : MonoBehaviour {
 		DataManager.Instance.precAverage.Add(0.05);
 		DataManager.Instance.precAverage.Add(0.02);
 		DataManager.Instance.precAverage.Add(-0.05);
+		DataManager.Instance.precAverage.Add(-0.06);
+		DataManager.Instance.precAverage.Add(-0.09);
 		DataManager.Instance.precAverage.Add(-0.001);
 		
 		DataManager.Instance.timeCombo = new Dictionary<double, int>();
@@ -348,6 +381,25 @@ public class ScoreScript : MonoBehaviour {
 				//Debug.Log(el2.ToString());
 			}
 		}
+		
+		DataManager.Instance.hitJudgeSelected = Judge.EASY;
+		DataManager.Instance.lifeJudgeSelected = Judge.HARD;
+		DataManager.Instance.scoreJudgeSelected = Judge.EXPERT;
+		DataManager.Instance.displaySelected = new bool[DataManager.Instance.aDisplay.Count()];
+		DataManager.Instance.displaySelected[0] = true;
+		DataManager.Instance.displaySelected[1] = true;
+		DataManager.Instance.displaySelected[2] = true;
+		DataManager.Instance.displaySelected[3] = true;
+		DataManager.Instance.displaySelected[4] = true;
+		DataManager.Instance.displaySelected[5] = true;
+		DataManager.Instance.displaySelected[6] = true;
+		DataManager.Instance.displaySelected[7] = true;
+		DataManager.Instance.displaySelected[8] = true;
+		
+		
+		DataManager.Instance.timeCombo.Add(0.752,50);
+		DataManager.Instance.timeCombo.Add(5.752,250);
+		DataManager.Instance.timeCombo.Add(10.752,60);
 	}
 	
 }
