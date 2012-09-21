@@ -99,9 +99,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	public Rect posInfo4;
 	public Rect posMaxinten;
 	public Rect Jouer;
-	public Rect JouerTex;
 	public Rect Option;
-	public Rect OptionTex;
 	public float offsetInfo;
 	public float departGraphY;
 	public float topGraphY;
@@ -224,7 +222,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		tex.Add("EXPERT", (Texture2D) Resources.Load("expert"));
 		tex.Add("EDIT", (Texture2D) Resources.Load("edit"));
 		tex.Add("graph", (Texture2D) Resources.Load("graph"));
-		tex.Add("bouton", (Texture2D) Resources.Load("GUIBarMini"));
+		tex.Add("bouton", (Texture2D) Resources.Load("Button"));
 		tex.Add("Option1", (Texture2D) Resources.Load("Speedmod"));
 		tex.Add("Option2", (Texture2D) Resources.Load("Rate"));
 		tex.Add("Option3", (Texture2D) Resources.Load("Skin"));
@@ -569,13 +567,6 @@ public class WheelSongMainScript : MonoBehaviour {
 		#region optionPlayGUI
 		//Option/jouer
 		if(songSelected != null){
-		
-			//JouerTex
-			GUI.DrawTexture(new Rect(JouerTex.x*Screen.width, JouerTex.y*Screen.height, JouerTex.width*Screen.width, JouerTex.height*Screen.height), tex["bouton"]);
-		
-			
-			//OptionTex
-			GUI.DrawTexture(new Rect(OptionTex.x*Screen.width, OptionTex.y*Screen.height, OptionTex.width*Screen.width, OptionTex.height*Screen.height), tex["bouton"]);
 		
 			
 		
@@ -1471,7 +1462,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		isFadingDisplay[i] = true;
 		
 		if(reverse){
-			alphaDisplay[i] = 1f;
+			alphaDisplay[i] = 0.5f;
 			while(alphaDisplay[i] > 0){
 				alphaDisplay[i] -= Time.deltaTime/timeFadeOutDisplay;
 				yield return new WaitForFixedUpdate();
@@ -1479,11 +1470,11 @@ public class WheelSongMainScript : MonoBehaviour {
 			alphaDisplay[i] = 0f;
 		}else{
 			alphaDisplay[i] = 0f;
-			while(alphaDisplay[i] < 1){
+			while(alphaDisplay[i] < 0.5f){
 				alphaDisplay[i] += Time.deltaTime/timeFadeOutDisplay;
 				yield return new WaitForFixedUpdate();
 			}
-			alphaDisplay[i] = 1f;
+			alphaDisplay[i] = 0.5f;
 		}
 		
 		isFadingDisplay[i] = false;

@@ -14,6 +14,7 @@ public class ScoreScript : MonoBehaviour {
 	public Rect posScoringTitle;
 	public Rect posCritism;
 	public Rect posNote;
+	public Vector2 specialFailPos = new Vector2(0.625f, 0.3f);
 	public Rect posScore;
 	public float offsetScore;
 	
@@ -40,6 +41,8 @@ public class ScoreScript : MonoBehaviour {
 	public LineRenderer graph;
 	
 	public Material bannerMat;
+	
+	public List<GameObject> medals;
 	
 	private Dictionary<string, Texture2D> dicTex;
 	
@@ -179,15 +182,18 @@ public class ScoreScript : MonoBehaviour {
 		GUI.skin = skin;
 		
 		
-		GUI.DrawTexture(resizeRect(posScoringTitle), dicTex["ScoreTitle"]);
-		if(noteToDisplay == "FAIL"){
-			posNote.x = 0.625f;
-			posNote.width = 0.3f; //dirty !!! Fix later :)
+		if(noteToDisplay != "MEDAL"){
+			GUI.DrawTexture(resizeRect(posScoringTitle), dicTex["ScoreTitle"]);
+			if(noteToDisplay == "FAIL"){
+				posNote.x = specialFailPos.x;
+				posNote.width = specialFailPos.y;
+			}
+			GUI.DrawTexture(resizeRect(posNote), dicTex[noteToDisplay]);
+			if(!String.IsNullOrEmpty(critismToDisplay)){
+				GUI.DrawTexture(resizeRect(posCritism), dicTex[critismToDisplay]);
+			}
 		}
-		GUI.DrawTexture(resizeRect(posNote), dicTex[noteToDisplay]);
-		if(!String.IsNullOrEmpty(critismToDisplay)){
-			GUI.DrawTexture(resizeRect(posCritism), dicTex[critismToDisplay]);
-		}
+		
 		
 		
 		for(int i=0;i<5;i++){
@@ -240,6 +246,7 @@ public class ScoreScript : MonoBehaviour {
 			
 		sens = 0;
 	
+		//Score
 		var decoupe = DataManager.Instance.scoreEarned.ToString("000.00").Trim();
 		decoupeScore[0] = System.Int32.Parse(""+decoupe[0]);
 		decoupeScore[1] = System.Int32.Parse(""+decoupe[1]);
@@ -247,16 +254,19 @@ public class ScoreScript : MonoBehaviour {
 		decoupeScore[3] = System.Int32.Parse(""+decoupe[4]);
 		decoupeScore[4] = System.Int32.Parse(""+decoupe[5]);
 		
+		//Note
 		if(DataManager.Instance.fail){
 			noteToDisplay = "FAIL";
 			critismToDisplay = "";
+		}else if(DataManager.Instance.scoreEarned >= 96f){
+			noteToDisplay = "MEDAL";
 		}else{
 			noteToDisplay = "Note" + DataManager.Instance.giveNoteOfScore(DataManager.Instance.scoreEarned).Split(';')[1];
 			critismToDisplay = DataManager.Instance.giveNoteOfScore(DataManager.Instance.scoreEarned).Split(';')[0];
 			if(critismToDisplay == "=") critismToDisplay = "";
 		}
 		
-		
+		//Percent and stat
 		double theav = 0;
 		int signmoins = 0;
 		int signplus = 0;
@@ -277,7 +287,7 @@ public class ScoreScript : MonoBehaviour {
 			sens = -1;
 		}
 		
-		
+		//Mods
 		stringmod = "";
 		stringmod += "x" + DataManager.Instance.speedmodSelected + ", ";
 		if(DataManager.Instance.hitJudgeSelected != Judge.NORMAL) stringmod += DataManager.Instance.dicHitJudge[DataManager.Instance.hitJudgeSelected] + ", ";
@@ -291,9 +301,10 @@ public class ScoreScript : MonoBehaviour {
 		}
 		stringmod = stringmod.Remove(stringmod.Length - 2, 2);
 		
-		
+		//Combo
 		maxCombo = DataManager.Instance.timeCombo.Max(c => c.Value);
 		
+		//Graph
 		var life = new double[200];
 		
 		var thecut = DataManager.Instance.songSelected.duration/(double)200;
@@ -332,6 +343,15 @@ public class ScoreScript : MonoBehaviour {
 		for(int i=0;i<200;i++){
 			graph.SetPosition(i, new Vector3( -160f + (240f*((float)i/200f)) , 19f*(((float)life[i] - 50f)/50f), 0f));
 		}
+		
+		//Medal
+		var index = -1;
+		if(DataManager.Instance.scoreEarned >= 96f){
+				index = (int)(DataManager.Instance.scoreEarned - 96);
+				if(index > 0) index -= 1;
+		}
+		if(index != -1) medals.ElementAt(index).SetActiveRecursively(true);
+		
 	}
 	
 	
