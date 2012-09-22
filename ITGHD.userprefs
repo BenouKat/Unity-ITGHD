@@ -1,11 +1,10 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Score\TurnMedal.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Chart\InGameScript.cs">
     <Files>
-      <File FileName="Assets\Script\Wheel\WheelSongMainScript.cs" Line="1483" Column="2" />
-      <File FileName="Assets\Script\Score\ScoreScript.cs" Line="1" Column="1" />
-      <File FileName="Assets\Script\Managers\DataManager.cs" Line="451" Column="16" />
-      <File FileName="Assets\Script\Score\TurnMedal.cs" Line="15" Column="3" />
+      <File FileName="Assets\Script\Score\ScoreScript.cs" Line="104" Column="16" />
+      <File FileName="Assets\Script\Wheel\WheelSongMainScript.cs" Line="892" Column="9" />
+      <File FileName="Assets\Script\Chart\InGameScript.cs" Line="446" Column="8" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

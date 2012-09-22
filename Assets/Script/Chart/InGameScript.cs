@@ -190,6 +190,8 @@ public class InGameScript : MonoBehaviour {
 	private float zwip;
 	public Rect posFail;
 	public Rect posClear;
+	public Rect posRetry;
+	public Rect posGiveUp;
 	private bool appearFailok;
 	private bool disappearFailok;
 	public float speedAlphaFailFade;
@@ -229,6 +231,7 @@ public class InGameScript : MonoBehaviour {
 		}
 		
 		RenderSettings.skybox = DataManager.Instance.skyboxList.ElementAt(rand);
+		DataManager.Instance.skyboxIndexSelected = rand;
 		
 		firstArrow = -10f;
 		lastArrow = -10f;
@@ -432,7 +435,15 @@ public class InGameScript : MonoBehaviour {
 				GUI.color = new Color(1f, 1f, 1f, failalpha*alpha);
 				if(!cacheFailed) GUI.DrawTexture(new Rect((posFail.x - zwip - ratiow*zoomfail/2f)*Screen.width, (posFail.y + zwip - ratioh*zoomfail/2f)*Screen.height ,
 					(posFail.width + zwip*2 + ratiow*zoomfail)*Screen.width, (posFail.height - zwip*2 + ratioh*zoomfail)*Screen.height), TextureBase["FAIL"]);
-				
+				/*if(failalpha > 1){
+					if(GUI.Button(new Rect(posRetry.x*Screen.width, posRetry.y*Screen.height, posRetry.width*Screen.width, posRetry.height*Screen.height), "Retry")){
+							
+					}
+					
+					if(GUI.Button(new Rect(posGiveUp.x*Screen.width, posGiveUp.y*Screen.height, posGiveUp.width*Screen.width, posGiveUp.height*Screen.height), "Give up")){
+						
+					}
+				}*/
 			}
 			
 		}

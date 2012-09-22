@@ -27,6 +27,7 @@ public class DataManager{
 	
 	//RENDER
 	public List<Material> skyboxList;
+	public int skyboxIndexSelected;
 	
 	//KEYS
 	public KeyCode KeyCodeUp;

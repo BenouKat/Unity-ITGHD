@@ -46,6 +46,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	//General GUI
 	private float totalAlpha;
 	private string textButton;
+	private float timeFade;
 	
 	//PackList
 	private int numberPack;
@@ -201,6 +202,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		numberPack = 0;
 		nextnumberPack = 0;
 		startnumber = 0;
+		timeFade = 0f;
 		packs = new Dictionary<string, GameObject>();
 		cubesPos = new Dictionary<GameObject, float>();
 		songCubePack = new Dictionary<GameObject, string>();
@@ -884,9 +886,11 @@ public class WheelSongMainScript : MonoBehaviour {
 	
 	void Update(){
 		
-		if(!alreadyFade){
+		if(!alreadyFade && timeFade > 0.1f){
 			GetComponent<FadeManager>().FadeOut();
 			alreadyFade = true;
+		}else{
+			timeFade += Time.deltaTime;	
 		}
 		#region MoveToOptionUpdate
 		//Move to option

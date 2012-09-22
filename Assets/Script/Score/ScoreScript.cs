@@ -38,11 +38,17 @@ public class ScoreScript : MonoBehaviour {
 	
 	public Rect posCombo;
 	
+	public Rect posRetry;
+	
+	public Rect posQuit;
+	
 	public LineRenderer graph;
 	
 	public Material bannerMat;
 	
 	public List<GameObject> medals;
+	public Cubemap cmToChange;
+	public Camera camToRender;
 	
 	private Dictionary<string, Texture2D> dicTex;
 	
@@ -56,16 +62,48 @@ public class ScoreScript : MonoBehaviour {
 	private int maxCombo;
 	private string stringmod;
 	
+	private bool fadeToChartScene;
+	private bool fadeToFreeScene;
+	private float time;
+	private bool fadeok;
 	
 	
+	
+	private float alphaCombo;
+	public float speedAlphaCombo;
+	public float limitAlphaCombo;
+	private float sensAlphaCombo;
+	
+	private bool statok;
+	private bool graphok;
+	private float alphaTransition;
+	public float speedAlphaTrans;
+	public Camera CameraMov;
+	public GameObject cadreScore;
+	public GameObject cadreGraph;
+	public GameObject graphRenderer;
+	public List<GameObject> openerCadreScore;
+	public float center;
+	public List<GameObject> openerGraphScore;
+	public Vector2 centergraph;
+	public Material cadreScoreMat;
+	public Material cadreGraphMat;
+	
+	public float speedTransTableau;
+	public float speedCameraMov;
+	public float speedFlash;
+	private float FlashCadre;
+	public float FlashGraph;
+	
+	private bool transistionok;
 	
 	//TEST
 	private float prectime;
 	// Use this for initialization
 	void Start () {
-		initTest();
+		//initTest();
 			
-		
+		RenderSettings.skybox = DataManager.Instance.skyboxList[DataManager.Instance.skyboxIndexSelected];
 		numberOfOthers = new int[5];
 		numberOfOthers[0] = DataManager.Instance.songSelected.numberOfFreezes;
 		numberOfOthers[1] = DataManager.Instance.songSelected.numberOfRolls;
@@ -112,60 +150,165 @@ public class ScoreScript : MonoBehaviour {
 			dicTex.Add("COMBO", DataManager.Instance.perfect ? (Texture2D) Resources.Load("Perfect") : 
 				DataManager.Instance.fullFantCombo ? (Texture2D) Resources.Load("FFC") : 
 				DataManager.Instance.fullExCombo ? (Texture2D) Resources.Load("FEC") : (Texture2D) Resources.Load("FC"));
-
+		
+		fadeToFreeScene = false;
+		fadeToChartScene = false;
+		time = 0f;
+		fadeok = false;
+		alphaCombo = limitAlphaCombo;
+		sensAlphaCombo = 1f;
+		alphaTransition = 0f;
+		transistionok = false;
+		statok = false;
+		graphok = false;
+		FlashCadre = 1f;
+		FlashGraph = 1f;
 		ProcessScore();
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		if(!fadeok && time > 0.1f){
+			GetComponent<FadeManager>().FadeOut();	
+			fadeok = true;
+			time = 0f;
+		}
+		
+		if(fadeok && !transistionok){
+			
+			//Camera mov
+			CameraMov.transform.eulerAngles = Vector3.Lerp(CameraMov.transform.eulerAngles, new Vector3(0f, 0f, 0f), Time.deltaTime/speedCameraMov);
+			if(CameraMov.transform.eulerAngles.x <= 0.01f){
+				CameraMov.transform.eulerAngles = new Vector3(0f, 0f, 0f);
+				alphaTransition += Time.deltaTime/speedAlphaTrans;
+				if(alphaTransition >= 1){
+					alphaTransition = 1f;
+					transistionok = true;	
+				}
+			}
+			
+			//Cadre stat
+			if(time > 0.5f){
+				if(Mathf.Abs(openerCadreScore.First().transform.position.y - 7.5f) <= 0.1f && !statok){
+					for(int i=0;i<openerCadreScore.Count;i++){
+						openerCadreScore.ElementAt(i).active = false;
+					}	
+					statok = true;
+					cadreScore.SetActiveRecursively(true);
+				}else{
+					for(int i=0;i<openerCadreScore.Count;i++){
+						openerCadreScore.ElementAt(i).transform.position = Vector3.Lerp(openerCadreScore.ElementAt(i).transform.position, new Vector3(openerCadreScore.ElementAt(i).transform.position.x, center + Mathf.Pow(-1, i)*3.2f, openerCadreScore.ElementAt(i).transform.position.z), Time.deltaTime/speedTransTableau );
+					}
+				}
+				
+				if(statok && FlashCadre > 0){
+					FlashCadre -= Time.deltaTime/speedFlash;
+					if(FlashCadre < 0) FlashCadre = 0f;
+					cadreScoreMat.color = new Color(0f, 0.075f + (1-0.075f)*FlashCadre, 0.05f + (1-0.05f)*FlashCadre);
+				}
+				
+				//Cadre graph
+				if(Mathf.Abs(openerGraphScore.First().transform.position.x - 4f) <= 0.1f && !graphok){
+					if(Mathf.Abs(openerGraphScore.First().transform.position.y - 2f) <= 0.1f && !graphok){
+						for(int i=0;i<openerGraphScore.Count;i++){
+							openerGraphScore.ElementAt(i).active = false;
+						}	
+						graphok = true;
+						cadreGraph.SetActiveRecursively(true);
+						graphRenderer.SetActiveRecursively(true);
+					}else{
+						for(int i=0;i<openerGraphScore.Count;i++){
+							openerGraphScore.ElementAt(i).transform.position = Vector3.Lerp(openerGraphScore.ElementAt(i).transform.position, new Vector3(openerGraphScore.ElementAt(i).transform.position.x, centergraph.y + Mathf.Pow(-1, (int)((float)i/2f))*1f, openerGraphScore.ElementAt(i).transform.position.z), Time.deltaTime/speedTransTableau );
+						}
+					}
+				}else{
+					for(int i=0;i<openerGraphScore.Count;i++){
+						openerGraphScore.ElementAt(i).transform.position = Vector3.Lerp(openerGraphScore.ElementAt(i).transform.position, new Vector3(centergraph.x + Mathf.Pow(-1, i)*6f, openerGraphScore.ElementAt(i).transform.position.y, openerGraphScore.ElementAt(i).transform.position.z), Time.deltaTime/speedTransTableau );
+					}
+				}
+				
+				if(graphok && FlashGraph > 0){
+					FlashGraph -= Time.deltaTime/speedFlash;
+					if(FlashGraph < 0) FlashGraph = 0f;
+					cadreGraphMat.color = new Color(0f, 0.155f + (1-0.155f)*FlashGraph, 0.08f + (1-0.08f)*FlashGraph);
+				}
+			
+			}else{
+				time += Time.deltaTime;	
+			}
+			
+		}else{
+			if(fadeToChartScene && time > 1.5f){
+				Application.LoadLevel("ChartScene");	
+			}
+			
+			if(fadeToFreeScene && time > 1.5f){
+				Application.LoadLevel("Free");	
+			}
+			
+			if(!fadeok || fadeToChartScene || fadeToFreeScene){
+				time += Time.deltaTime;	
+			}
+			if(fadeToChartScene || fadeToFreeScene){
+				audio.volume -= Time.deltaTime/1.5f;	
+			}
+			
+			
+			alphaCombo += sensAlphaCombo*Time.deltaTime/speedAlphaCombo;
+			if((sensAlphaCombo == -1f && alphaCombo < limitAlphaCombo) || (sensAlphaCombo == 1f && alphaCombo > 1f)){
+				sensAlphaCombo *= -1f;	
+			}
+		}
 		
 	}
 	
 	
 	void AllLabel(bool shadow){
 		GUI.Label(resizeRectGeneralOffset(resizeRect(posTitleArtistBPM), shadow), DataManager.Instance.songSelected.title + "\n" + DataManager.Instance.songSelected.artist + " - " + DataManager.Instance.songSelected.stepartist, "SongInfo");
-		
-		if (!shadow) GUI.color = DataManager.Instance.diffColor[(int)DataManager.Instance.difficultySelected];
+		var col = DataManager.Instance.diffColor[(int)DataManager.Instance.difficultySelected];
+		if (!shadow) GUI.color = new Color(col.r, col.g, col.b, alphaTransition);
 		GUI.Label(resizeRectGeneralOffset(resizeRect(posDiffNumber), shadow), DataManager.Instance.songSelected.level.ToString() , "Level"); 
-		if(!shadow) GUI.color = new Color(1f, 1f, 1f, 1f);
+		if(!shadow) GUI.color = new Color(1f, 1f, 1f, alphaTransition);
 		GUI.Label(resizeRectGeneralOffset(resizeRect(posMods), shadow), stringmod);
 		
-		for(int i=0; i<(int)ScoreCount.FREEZE;i++){
-			if(!shadow) GUI.color = DataManager.Instance.precColor[i];
-			GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posNotationRow1, offsetPosNot, i), shadow), 
-				DataManager.Instance.scoreCount[((ScoreCount)i).ToString()].ToString(), "Numbers");
-		
-			if(!shadow) GUI.color = new Color(1f, 1f, 1f, 1f);
+		if(statok){
+			for(int i=0; i<(int)ScoreCount.FREEZE;i++){
+				if(!shadow) GUI.color = DataManager.Instance.precColor[i];
+				GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posNotationRow1, offsetPosNot, i), shadow), 
+					DataManager.Instance.scoreCount[((ScoreCount)i).ToString()].ToString(), "Numbers");
 			
-			GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posNotationRow1Tot, offsetPosNot, i), shadow), 
-				"(" + (((float)DataManager.Instance.scoreCount[((ScoreCount)i).ToString()] / (float)DataManager.Instance.songSelected.numberOfStepsWithoutJumps)*100f).ToString("0") + "%)");
-		
-		}
-		
-		
-		for(int i=(int)ScoreCount.FREEZE; i<(int)ScoreCount.NONE;i++){
-			if(!shadow && ((ScoreCount)i).ToString() != "MINE" && 
-				DataManager.Instance.scoreCount[((ScoreCount)i).ToString()] != numberOfOthers[i - (int)ScoreCount.FREEZE] ){	
-				GUI.color = DataManager.Instance.precColor[5];
-			}else if(!shadow && ((ScoreCount)i).ToString() == "MINE" && 
-				DataManager.Instance.scoreCount[((ScoreCount)i).ToString()] != 0){	
-				GUI.color = DataManager.Instance.precColor[5];
-			}else if(!shadow){
-				GUI.color = new Color(1f, 1f, 1f, 1f);
+				if(!shadow) GUI.color = new Color(1f, 1f, 1f, 1f);
+				
+				GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posNotationRow1Tot, offsetPosNot, i), shadow), 
+					"(" + (((float)DataManager.Instance.scoreCount[((ScoreCount)i).ToString()] / (float)DataManager.Instance.songSelected.numberOfStepsWithoutJumps)*100f).ToString("0") + "%)");
+			
 			}
 			
-			GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posNotationRow2, offsetPosNot, i - (int)ScoreCount.FREEZE), shadow), 
-				DataManager.Instance.scoreCount[((ScoreCount)i).ToString()].ToString(), "Numbers");
 			
-			if(!shadow) GUI.color = new Color(1f, 1f, 1f, 1f);
-			
-			
-			GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posNotationRow2Tot, offsetPosNot, i - (int)ScoreCount.FREEZE), shadow), 
-				"/ " + numberOfOthers[i - (int)ScoreCount.FREEZE]);
-			
+			for(int i=(int)ScoreCount.FREEZE; i<(int)ScoreCount.NONE;i++){
+				if(!shadow && ((ScoreCount)i).ToString() != "MINE" && 
+					DataManager.Instance.scoreCount[((ScoreCount)i).ToString()] != numberOfOthers[i - (int)ScoreCount.FREEZE] ){	
+					GUI.color = DataManager.Instance.precColor[5];
+				}else if(!shadow && ((ScoreCount)i).ToString() == "MINE" && 
+					DataManager.Instance.scoreCount[((ScoreCount)i).ToString()] != 0){	
+					GUI.color = DataManager.Instance.precColor[5];
+				}else if(!shadow){
+					GUI.color = new Color(1f, 1f, 1f, 1f);
+				}
+				
+				GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posNotationRow2, offsetPosNot, i - (int)ScoreCount.FREEZE), shadow), 
+					DataManager.Instance.scoreCount[((ScoreCount)i).ToString()].ToString(), "Numbers");
+				
+				if(!shadow) GUI.color = new Color(1f, 1f, 1f, 1f);
+				
+				
+				GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posNotationRow2Tot, offsetPosNot, i - (int)ScoreCount.FREEZE), shadow), 
+					"/ " + numberOfOthers[i - (int)ScoreCount.FREEZE]);
+				
+			}
 		}
 		
-		if(!shadow) GUI.color = new Color(1f, 1f, 1f, 1f);
+		if(!shadow) GUI.color = new Color(1f, 1f, 1f, alphaTransition);
 		
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 0), shadow), "First ex or less : " + DataManager.Instance.firstEx.ToString("0.00") + "%");
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 1), shadow), "First great or less : " + DataManager.Instance.firstGreat.ToString("0.00") + "%");
@@ -182,8 +325,10 @@ public class ScoreScript : MonoBehaviour {
 		GUI.skin = skin;
 		
 		
+		
+		GUI.DrawTexture(resizeRect(posScoringTitle), dicTex["ScoreTitle"]);
+		
 		if(noteToDisplay != "MEDAL"){
-			GUI.DrawTexture(resizeRect(posScoringTitle), dicTex["ScoreTitle"]);
 			if(noteToDisplay == "FAIL"){
 				posNote.x = specialFailPos.x;
 				posNote.width = specialFailPos.y;
@@ -195,9 +340,9 @@ public class ScoreScript : MonoBehaviour {
 		}
 		
 		
-		
+		GUI.color = new Color(1f, 1f, 1f, alphaTransition);
 		for(int i=0;i<5;i++){
-			if(i > 1 || (i == 0 && (float)(decoupeScore[0]) != 0f) || (i == 1 && (float)(decoupeScore[1]) != 0f)) GUI.DrawTexture(resizeRectOfX(posScore, offsetScore, i), dicTex["S" + decoupeScore[i]]);
+			if(i > 1 || (i == 0 && (float)(decoupeScore[0]) != 0f) || (i == 1 && (((float)(decoupeScore[0]) != 0f) || (float)(decoupeScore[1]) != 0f))) GUI.DrawTexture(resizeRectOfX(posScore, offsetScore, i), dicTex["S" + decoupeScore[i]]);
 			
 		}
 		GUI.DrawTexture(new Rect((posScore.x + offsetScore*2 + ((float)offsetScore/2f))*Screen.width, posScore.y*Screen.height, posScore.width*Screen.width, posScore.height*Screen.height), dicTex["DOT"]);
@@ -206,20 +351,40 @@ public class ScoreScript : MonoBehaviour {
 		
 		GUI.DrawTexture(resizeRect(posDiff), dicTex[DataManager.Instance.difficultySelected.ToString()]);
 		
-		for(int i=0; i<(int)ScoreCount.FREEZE;i++){
-			
-			GUI.DrawTexture(resizeRectOfY(posTexNotationRow1, offsetPosTex, i), dicTex[((ScoreCount)i).ToString().ToUpper()]);
-		}
-		for(int i=(int)ScoreCount.FREEZE; i<(int)ScoreCount.NONE;i++){
-			
-			GUI.DrawTexture(resizeRectOfY(posTexNotationRow2, offsetPosTex, i - (int)ScoreCount.FREEZE), dicTex[((ScoreCount)i).ToString().ToUpper()]);
+		GUI.color = new Color(1f, 1f, 1f, 1f);
+		
+		if(statok){
+			for(int i=0; i<(int)ScoreCount.FREEZE;i++){
+				
+				GUI.DrawTexture(resizeRectOfY(posTexNotationRow1, offsetPosTex, i), dicTex[((ScoreCount)i).ToString().ToUpper()]);
+			}
+			for(int i=(int)ScoreCount.FREEZE; i<(int)ScoreCount.NONE;i++){
+				
+				GUI.DrawTexture(resizeRectOfY(posTexNotationRow2, offsetPosTex, i - (int)ScoreCount.FREEZE), dicTex[((ScoreCount)i).ToString().ToUpper()]);
+			}
 		}
 		
-		if(dicTex.ContainsKey("COMBO")) GUI.DrawTexture(resizeRect(posCombo), dicTex["COMBO"]);
-		GUI.color = new Color(0f,0f,0f,0.7f);
+		GUI.color = new Color(1f, 1f, 1f, alphaTransition);
+		if(dicTex.ContainsKey("COMBO")){
+			GUI.color = new Color(1f, 1f, 1f, alphaCombo);
+			GUI.DrawTexture(resizeRect(posCombo), dicTex["COMBO"]);
+			
+		}
+		GUI.color = new Color(0f,0f,0f,0.7f*alphaTransition);
 		AllLabel(true);
-		GUI.color = new Color(1f,1f,1f,1f);
+		GUI.color = new Color(1f,1f,1f,alphaTransition);
 		AllLabel(false);
+		
+		GUI.color = new Color(1f, 1f, 1f, alphaTransition);
+		if(GUI.Button(resizeRect(posRetry), "Retry") && fadeok && !fadeToChartScene && !fadeToFreeScene){
+			fadeToChartScene = true;
+			GetComponent<FadeManager>().FadeIn();	
+		}
+		
+		if(GUI.Button(resizeRect(posQuit), "Quit") && fadeok && !fadeToChartScene && !fadeToFreeScene){
+			fadeToFreeScene = true;
+			GetComponent<FadeManager>().FadeIn();	
+		}
 	}
 	
 	Rect resizeRect(Rect r){
@@ -345,13 +510,18 @@ public class ScoreScript : MonoBehaviour {
 		}
 		
 		//Medal
-		var index = -1;
+		var indexMedal = -1;
 		if(DataManager.Instance.scoreEarned >= 96f){
-				index = (int)(DataManager.Instance.scoreEarned - 96);
-				if(index > 0) index -= 1;
+				indexMedal = (int)(DataManager.Instance.scoreEarned - 96);
+				if(indexMedal > 0) indexMedal -= 1;
 		}
-		if(index != -1) medals.ElementAt(index).SetActiveRecursively(true);
+		if(indexMedal != -1){
+			medals.ElementAt(indexMedal).SetActiveRecursively(true);
+		}
 		
+		
+		camToRender.RenderToCubemap(cmToChange);
+		camToRender.gameObject.active = false;
 	}
 	
 	
@@ -359,9 +529,15 @@ public class ScoreScript : MonoBehaviour {
 	
 		LoadManager.Instance.Loading();
 		
+		var rand = (int)(UnityEngine.Random.value*DataManager.Instance.skyboxList.Count);
+		if(rand == DataManager.Instance.skyboxList.Count){
+			rand--;	
+		}
+		DataManager.Instance.skyboxIndexSelected = rand;
+			
 		DataManager.Instance.songSelected = LoadManager.Instance.FindSong("SongTest", "Hide and Seek")[Difficulty.EXPERT];
-		DataManager.Instance.scoreEarned = 90.00f;
-	
+		DataManager.Instance.scoreEarned = 100.00f;
+		
 		DataManager.Instance.precAverage = new List<double>();
 		DataManager.Instance.precAverage.Add(0.05);
 		DataManager.Instance.precAverage.Add(0.02);
@@ -388,7 +564,7 @@ public class ScoreScript : MonoBehaviour {
 		DataManager.Instance.firstMisteak = 50.7;
 		
 		DataManager.Instance.perfect = false;
-		DataManager.Instance.fullFantCombo = false;
+		DataManager.Instance.fullFantCombo = true;
 		DataManager.Instance.fullExCombo = true;
 		DataManager.Instance.fullCombo = true;
 		DataManager.Instance.fail = false;
@@ -401,7 +577,7 @@ public class ScoreScript : MonoBehaviour {
 				//Debug.Log(el2.ToString());
 			}
 		}
-		
+		DataManager.Instance.speedmodSelected = 4f;
 		DataManager.Instance.hitJudgeSelected = Judge.EASY;
 		DataManager.Instance.lifeJudgeSelected = Judge.HARD;
 		DataManager.Instance.scoreJudgeSelected = Judge.EXPERT;
