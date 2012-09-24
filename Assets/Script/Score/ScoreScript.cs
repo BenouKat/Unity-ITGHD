@@ -310,9 +310,9 @@ public class ScoreScript : MonoBehaviour {
 		
 		if(!shadow) GUI.color = new Color(1f, 1f, 1f, alphaTransition);
 		
-		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 0), shadow), "First ex or less : " + DataManager.Instance.firstEx.ToString("0.00") + "%");
-		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 1), shadow), "First great or less : " + DataManager.Instance.firstGreat.ToString("0.00") + "%");
-		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 2), shadow), "First misteak : " + DataManager.Instance.firstMisteak.ToString("0.00") + "%");
+		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 0), shadow), "First ex or less : " + ((DataManager.Instance.firstEx/DataManager.Instance.songSelected.duration)*100f).ToString("0.00") + "%");
+		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 1), shadow), "First great or less : " + ((DataManager.Instance.firstGreat/DataManager.Instance.songSelected.duration)*100f).ToString("0.00") + "%");
+		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 2), shadow), "First misteak : " + ((DataManager.Instance.firstMisteak/DataManager.Instance.songSelected.duration)*100f).ToString("0.00") + "%");
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 3), shadow), "Average precision : " + averagePrec.ToString("0.000") + "ms");
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 4), shadow), "Average Timing : " + ((DataManager.Instance.perfect || DataManager.Instance.fullFantCombo) ? "None" : (sens > 0) ? "Too slow (" + percentSens.ToString("00") + "%)" : (sens < 0) ? "Too fast (" + percentSens.ToString("00") + "%)" : "Mixed fast/slow"));
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 5), shadow), "Max Combo : " + maxCombo);

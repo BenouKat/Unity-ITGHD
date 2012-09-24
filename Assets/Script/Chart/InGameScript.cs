@@ -136,11 +136,11 @@ public class InGameScript : MonoBehaviour {
 	public float ecartCombo;
 	private int[] displaying; //score decoup
 	private int[] thetab; //combo decoup
+	public GUISkin skin;
 	
 	//DISPLAY
 	private Color bumpColor;
 	public float bumpfadeSpeed = 0.5f;
-	
 	
 	//START
 	private bool firstUpdate;
@@ -182,7 +182,7 @@ public class InGameScript : MonoBehaviour {
 	private bool isFullExComboRace;
 	private int typeOfDeath; // 0 : Immediatly, 1 : After 30 misses, 2 : Never
 	public float timeFailAppear;
-	public float timeFailDisappear;
+	private float timeFailDisappear;
 	public float timeClearDisappear;
 	private float zoomfail;
 	public float speedzoom;
@@ -196,11 +196,14 @@ public class InGameScript : MonoBehaviour {
 	private bool disappearFailok;
 	public float speedAlphaFailFade;
 	private float failalpha;
+	private float buttonfailalpha;
+	public float speedbuttonfailalpha;
 	private bool cacheFailed;
 	public float speedFadeAudio;
 	private float passalpha;
 	public Rect fullComboPos;
-	
+	private bool deadAndRetry;
+	private bool deadAndGiveUp;
 	
 	//SONG
 	private AudioClip songLoaded;
@@ -428,6 +431,7 @@ public class InGameScript : MonoBehaviour {
 		
 		if(dead){
 			if(oneSecond > timeFailAppear){
+				GUI.skin = skin;
 				GUI.color = new Color(1f, 1f, 1f, failalpha);
 				GUI.DrawTexture(new Rect(0f,0f, Screen.width*1.2f, Screen.height*1.2f), TextureBase["BLACK"]);
 				var ratiow = (float)posFail.width/(float)Mathf.Max (posFail.width, posFail.height);
@@ -435,15 +439,16 @@ public class InGameScript : MonoBehaviour {
 				GUI.color = new Color(1f, 1f, 1f, failalpha*alpha);
 				if(!cacheFailed) GUI.DrawTexture(new Rect((posFail.x - zwip - ratiow*zoomfail/2f)*Screen.width, (posFail.y + zwip - ratioh*zoomfail/2f)*Screen.height ,
 					(posFail.width + zwip*2 + ratiow*zoomfail)*Screen.width, (posFail.height - zwip*2 + ratioh*zoomfail)*Screen.height), TextureBase["FAIL"]);
-				/*if(failalpha > 1){
-					if(GUI.Button(new Rect(posRetry.x*Screen.width, posRetry.y*Screen.height, posRetry.width*Screen.width, posRetry.height*Screen.height), "Retry")){
-							
+				if(failalpha >= 1f){
+					GUI.color = new Color(1f, 1f, 1f, buttonfailalpha);
+					if(GUI.Button(new Rect(posRetry.x*Screen.width, posRetry.y*Screen.height, posRetry.width*Screen.width, posRetry.height*Screen.height), "Retry") && !deadAndRetry && !deadAndGiveUp){
+							deadAndRetry = true;
 					}
 					
-					if(GUI.Button(new Rect(posGiveUp.x*Screen.width, posGiveUp.y*Screen.height, posGiveUp.width*Screen.width, posGiveUp.height*Screen.height), "Give up")){
-						
+					if(GUI.Button(new Rect(posGiveUp.x*Screen.width, posGiveUp.y*Screen.height, posGiveUp.width*Screen.width, posGiveUp.height*Screen.height), "Give up") && !deadAndRetry && !deadAndGiveUp){
+							deadAndGiveUp = true;
 					}
-				}*/
+				}
 			}
 			
 		}
@@ -609,7 +614,11 @@ public class InGameScript : MonoBehaviour {
 			
 			
 			if(thesong.duration < timetotalchart && !fail && !clear){
-				clear = true;
+				if(life > 0f){
+					clear = true;
+				}else{
+					fail = true;
+				}
 				if(scoreCount["DECENT"] == 0 && scoreCount["WAYOFF"] == 0 && scoreCount["MISS"] == 0){
 					if(score >= 100f || scoreInverse == 100f) perfect = true;
 					if(scoreCount["EXCELLENT"] == 0 && scoreCount["GREAT"] == 0) fullFantCombo = true;
@@ -618,6 +627,7 @@ public class InGameScript : MonoBehaviour {
 				}
 				oneSecond = 0f;
 				failalpha = 0f;
+				buttonfailalpha = 0f;
 				passalpha = 1f;
 				alpha = 1f;
 				sensFantastic = true;
@@ -671,29 +681,40 @@ public class InGameScript : MonoBehaviour {
 			
 		}else{
 			oneSecond += Time.deltaTime;
+			if(dead && oneSecond > timeFailAppear){
+				//zoomfail += Time.deltaTime/speedzoom;
+				if(failalpha < 1) failalpha += Time.deltaTime/speedAlphaFailFade;
+				if(failalpha >= 1 && buttonfailalpha < 1) buttonfailalpha += Time.deltaTime/speedbuttonfailalpha;
+				ClignFailed();
+			}
 			if(dead && !appearFailok && oneSecond > timeFailAppear + 1){
 				StartCoroutine(swipTexture(false, posFail.height));
 				appearFailok = true;
 				cacheFailed = false;
 			}
-			if(dead && !disappearFailok && oneSecond > timeFailDisappear){
+			if(dead && !disappearFailok && (deadAndRetry || deadAndGiveUp)){
 				StartCoroutine(swipTexture(true, posFail.height));
 				disappearFailok = true;
+				timeFailDisappear = oneSecond;
 			}
-			if(dead && disappearFailok && oneSecond > timeFailDisappear + 1){
+			if(dead && disappearFailok && oneSecond < timeFailDisappear + 1f && buttonfailalpha > 0){
+				buttonfailalpha -= Time.deltaTime/speedbuttonfailalpha;
+			}
+			if(dead && disappearFailok && oneSecond > timeFailDisappear + 1f ){
 				
 				//Passer à la scène de score
 				//Proposer Retry / Score
 				//si score :
 				SendDataToDatamanager();
-				Application.LoadLevel("ScoreScene");
+				if(deadAndRetry){
+					Application.LoadLevel("ChartScene");
+				}else if(deadAndGiveUp){
+					Application.LoadLevel("ScoreScene");
+				}
+				
 				
 			}
-			if(dead && oneSecond > timeFailAppear){
-				//zoomfail += Time.deltaTime/speedzoom;
-				if(failalpha < 1) failalpha += Time.deltaTime/speedAlphaFailFade;
-				ClignFailed();
-			}
+			
 			
 		}
 		
@@ -2247,7 +2268,7 @@ public class InGameScript : MonoBehaviour {
 						listNeighboors.Add(theArrow);
 						goArrow.SetActiveRecursively(false);
 						GetComponent<ManageGameObject>().Add(timetotal, goArrow);
-					}else if(note[i] == 'M'){
+					}else if(note[i] == 'M' && !DataManager.Instance.displaySelected[0]){
 						var goArrow = (GameObject) Instantiate(mines, new Vector3(i*2, -ypos, 0f), mines.transform.rotation);
 						var theArrow = new Arrow(goArrow, ArrowType.MINE, timetotal);
 						switch(i){
