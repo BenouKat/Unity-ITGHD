@@ -71,7 +71,7 @@ public class MainMenu : MonoBehaviour {
 	void Start () {
 		
 		//Load
-		LoadManager.Instance.Loading();
+		if(!LoadManager.Instance.alreadyLoaded) LoadManager.Instance.Loading();
 		TextManager.Instance.LoadTextFile();
 		fm = gameObject.GetComponent<FadeManager>();
 		

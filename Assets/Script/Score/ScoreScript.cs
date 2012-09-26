@@ -10,51 +10,59 @@ public class ScoreScript : MonoBehaviour {
 	
 	//Changer la police en fonction de la résolution
 	
+	#region Declaration
 	public GUISkin skin;
+	
+	//Position element
 	public Rect posScoringTitle;
 	public Rect posCritism;
 	public Rect posNote;
 	public Vector2 specialFailPos = new Vector2(0.625f, 0.3f);
 	public Rect posScore;
 	public float offsetScore;
-	
 	public Rect posTitleArtistBPM;
 	public Rect posDiff;
 	public Rect posDiffNumber;
 	public Rect posMods;
-	
 	public Rect posNotationRow1;
 	public Rect posNotationRow1Tot;
 	public Rect posNotationRow2;
 	public Rect posNotationRow2Tot;
 	public float offsetPosNot;
-	
 	public Rect posTexNotationRow1;
 	public Rect posTexNotationRow2;
 	public float offsetPosTex;
-	
 	public Rect posInfo;
 	public float offsetPosInfo;
-	
 	public Rect posCombo;
-	
 	public Rect posRetry;
-	
 	public Rect posQuit;
 	
-	public LineRenderer graph;
+	
+	//Graph
+	public GameObject graph;
 	
 	public Material bannerMat;
 	
+	public GameObject cubeDangerZone;
+	
+	
+	//Medals
 	public List<GameObject> medals;
 	public Cubemap cmToChange;
 	public Camera camToRender;
 	
+	//Texture
 	private Dictionary<string, Texture2D> dicTex;
 	
+	//Score
 	private int[] decoupeScore;
+	
+	//Note
 	private string noteToDisplay;
 	private string critismToDisplay;
+	
+	//Infos
 	private double averagePrec;
 	private int sens;
 	private float percentSens;
@@ -62,18 +70,21 @@ public class ScoreScript : MonoBehaviour {
 	private int maxCombo;
 	private string stringmod;
 	
+	//Fade
 	private bool fadeToChartScene;
 	private bool fadeToFreeScene;
 	private float time;
 	private bool fadeok;
 	
 	
-	
+	//Clignotement alpha
 	private float alphaCombo;
 	public float speedAlphaCombo;
 	public float limitAlphaCombo;
 	private float sensAlphaCombo;
 	
+	
+	//Transition entry
 	private bool statok;
 	private bool graphok;
 	private float alphaTransition;
@@ -88,28 +99,26 @@ public class ScoreScript : MonoBehaviour {
 	public Vector2 centergraph;
 	public Material cadreScoreMat;
 	public Material cadreGraphMat;
-	
+	private List<LineRenderer> lrToActivate;
+	private List<GameObject> dzToActivate;
 	public float speedTransTableau;
 	public float speedCameraMov;
 	public float speedFlash;
 	private float FlashCadre;
 	public float FlashGraph;
-	
 	private bool transistionok;
 	
 	//TEST
 	private float prectime;
 	// Use this for initialization
+	
+	#endregion
+	
 	void Start () {
 		//initTest();
 			
-		RenderSettings.skybox = DataManager.Instance.skyboxList[DataManager.Instance.skyboxIndexSelected];
-		numberOfOthers = new int[5];
-		numberOfOthers[0] = DataManager.Instance.songSelected.numberOfFreezes;
-		numberOfOthers[1] = DataManager.Instance.songSelected.numberOfRolls;
-		numberOfOthers[2] = DataManager.Instance.songSelected.numberOfJumps;
-		numberOfOthers[3] = DataManager.Instance.songSelected.numberOfHands;
-		numberOfOthers[4] = DataManager.Instance.songSelected.numberOfMines;
+		
+		//Ajout dans le dictionnaire de texture
 		
 		dicTex = new Dictionary<string, Texture2D>();
 		dicTex.Add("ScoreTitle", (Texture2D) Resources.Load("ScoringResult"));
@@ -150,6 +159,20 @@ public class ScoreScript : MonoBehaviour {
 			dicTex.Add("COMBO", DataManager.Instance.perfect ? (Texture2D) Resources.Load("Perfect") : 
 				DataManager.Instance.fullFantCombo ? (Texture2D) Resources.Load("FFC") : 
 				DataManager.Instance.fullExCombo ? (Texture2D) Resources.Load("FEC") : (Texture2D) Resources.Load("FC"));
+		
+		
+		//Skybox scene
+		RenderSettings.skybox = DataManager.Instance.skyboxList[DataManager.Instance.skyboxIndexSelected];
+		//for optim
+		numberOfOthers = new int[5];
+		numberOfOthers[0] = DataManager.Instance.songSelected.numberOfFreezes;
+		numberOfOthers[1] = DataManager.Instance.songSelected.numberOfRolls;
+		numberOfOthers[2] = DataManager.Instance.songSelected.numberOfJumps;
+		numberOfOthers[3] = DataManager.Instance.songSelected.numberOfHands;
+		numberOfOthers[4] = DataManager.Instance.songSelected.numberOfMines;
+		
+		
+		//Score
 		
 		fadeToFreeScene = false;
 		fadeToChartScene = false;
@@ -215,7 +238,12 @@ public class ScoreScript : MonoBehaviour {
 						}	
 						graphok = true;
 						cadreGraph.SetActiveRecursively(true);
-						graphRenderer.SetActiveRecursively(true);
+						foreach(var ls in lrToActivate){
+							ls.gameObject.SetActiveRecursively(true);	
+						}
+						foreach(var ds in dzToActivate){
+							ds.SetActiveRecursively(true);	
+						}
 					}else{
 						for(int i=0;i<openerGraphScore.Count;i++){
 							openerGraphScore.ElementAt(i).transform.position = Vector3.Lerp(openerGraphScore.ElementAt(i).transform.position, new Vector3(openerGraphScore.ElementAt(i).transform.position.x, centergraph.y + Mathf.Pow(-1, (int)((float)i/2f))*1f, openerGraphScore.ElementAt(i).transform.position.z), Time.deltaTime/speedTransTableau );
@@ -238,17 +266,19 @@ public class ScoreScript : MonoBehaviour {
 			}
 			
 		}else{
-			if(fadeToChartScene && time > 1.5f){
-				Application.LoadLevel("ChartScene");	
+			if(time > 1.5f){
+				if(fadeToChartScene){
+					Application.LoadLevel("ChartScene");	
+				}else if(fadeToFreeScene){
+					Application.LoadLevel("Free");	
+				}
 			}
 			
-			if(fadeToFreeScene && time > 1.5f){
-				Application.LoadLevel("Free");	
-			}
 			
 			if(!fadeok || fadeToChartScene || fadeToFreeScene){
 				time += Time.deltaTime;	
 			}
+			
 			if(fadeToChartScene || fadeToFreeScene){
 				audio.volume -= Time.deltaTime/1.5f;	
 			}
@@ -263,6 +293,7 @@ public class ScoreScript : MonoBehaviour {
 	}
 	
 	
+	#region GUI
 	void AllLabel(bool shadow){
 		GUI.Label(resizeRectGeneralOffset(resizeRect(posTitleArtistBPM), shadow), DataManager.Instance.songSelected.title + "\n" + DataManager.Instance.songSelected.artist + " - " + DataManager.Instance.songSelected.stepartist, "SongInfo");
 		var col = DataManager.Instance.diffColor[(int)DataManager.Instance.difficultySelected];
@@ -310,9 +341,9 @@ public class ScoreScript : MonoBehaviour {
 		
 		if(!shadow) GUI.color = new Color(1f, 1f, 1f, alphaTransition);
 		
-		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 0), shadow), "First ex or less : " + ((DataManager.Instance.firstEx/DataManager.Instance.songSelected.duration)*100f).ToString("0.00") + "%");
-		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 1), shadow), "First great or less : " + ((DataManager.Instance.firstGreat/DataManager.Instance.songSelected.duration)*100f).ToString("0.00") + "%");
-		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 2), shadow), "First misteak : " + ((DataManager.Instance.firstMisteak/DataManager.Instance.songSelected.duration)*100f).ToString("0.00") + "%");
+		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 0), shadow), "First ex or less : " + ((DataManager.Instance.firstEx == -1) ? "Never" : ((DataManager.Instance.firstEx/DataManager.Instance.songSelected.duration)*100f).ToString("0.00") + "%"));
+		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 1), shadow), "First great or less : " + ((DataManager.Instance.firstGreat == -1) ? "Never" : ((DataManager.Instance.firstGreat/DataManager.Instance.songSelected.duration)*100f).ToString("0.00") + "%"));
+		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 2), shadow), "First misteak : " + ((DataManager.Instance.firstMisteak == -1) ? "Never" : ((DataManager.Instance.firstMisteak/DataManager.Instance.songSelected.duration)*100f).ToString("0.00") + "%"));
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 3), shadow), "Average precision : " + averagePrec.ToString("0.000") + "ms");
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 4), shadow), "Average Timing : " + ((DataManager.Instance.perfect || DataManager.Instance.fullFantCombo) ? "None" : (sens > 0) ? "Too slow (" + percentSens.ToString("00") + "%)" : (sens < 0) ? "Too fast (" + percentSens.ToString("00") + "%)" : "Mixed fast/slow"));
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 5), shadow), "Max Combo : " + maxCombo);
@@ -386,7 +417,9 @@ public class ScoreScript : MonoBehaviour {
 			GetComponent<FadeManager>().FadeIn();	
 		}
 	}
+	#endregion
 	
+	#region util
 	Rect resizeRect(Rect r){
 		return new Rect(r.x*Screen.width, r.y*Screen.height, r.width*Screen.width, r.height*Screen.height);
 	}
@@ -404,7 +437,9 @@ public class ScoreScript : MonoBehaviour {
 		return r;
 		
 	}
+	#endregion
 	
+	#region process
 	void ProcessScore(){
 	
 		bannerMat.mainTexture = DataManager.Instance.songSelected.GetBanner();
@@ -471,13 +506,94 @@ public class ScoreScript : MonoBehaviour {
 		
 		//Graph
 		var life = new double[200];
-		
+		var dangerZone = new Dictionary<float, float>();
+		var deathZone = new Dictionary<float, float>();
+		var beginDanger = 0f;
+		var endDanger = 0f;
+		var iminDangerZone = false;
+		var iminDeathZone = false;
+			
+			
 		var thecut = DataManager.Instance.songSelected.duration/(double)200;
+		double thelastgoodvalue = 50;
+		/*var theaddCut = (double)0;
+		var thelastCut = (double)0;
+		var thenumberaddCut = 0;
+		var thetimecut = (double)0;
+		var indexTab = 0;*/
+		
+		
+		for(int i=0; i<200; i++){
+			if(i == 0){
+				life[i] = 50;
+			}else{
+				if(DataManager.Instance.lifeGraph.Where(c => c.Key <= thecut*i).Count() == 0){
+					life[i] = thelastgoodvalue;
+				}else{
+					double moy = 0;
+					int numbermoy = 0;
+					List<double> keyToRemove = new List<double>();
+					foreach(var val in DataManager.Instance.lifeGraph.Where(c => c.Key <= (thecut*i))){
+						moy += val.Value;
+						thelastgoodvalue = val.Value;
+						keyToRemove.Add(val.Key);
+						numbermoy++;
+					}
+					foreach(var rem in keyToRemove){
+						DataManager.Instance.lifeGraph.Remove(rem);	
+					}
+					life[i] = moy/(double)numbermoy;
+				}
+				
+			}
+			
+			if(life[i] > 5f && iminDeathZone){
+				iminDeathZone = false;
+				endDanger = i;
+				var offset = 0f;
+				if(i != 0){
+					offset = (5f-(float)life[i-1])/(float)(life[i] - life[i - 1]);
+				}
+				deathZone.Add(beginDanger, endDanger + offset);
+			}
+			
+			if((life[i] > 25f) && iminDangerZone){
+				endDanger = i;
+				iminDangerZone = false;
+				var offset = 0f;
+				if(i != 0){
+					offset = (25f-(float)life[i-1])/(float)(life[i] - life[i - 1]);
+				}
+				dangerZone.Add(beginDanger, endDanger + offset);
+			}
+			
+			if(life[i] <= 5f && !iminDeathZone){
+				iminDeathZone = true;
+				var offset = 0f;
+				if(i != 0){
+					offset = (5f-(float)life[i])/(float)(life[i - 1] - life[i]);
+				}
+				beginDanger = i - offset;
+			}
+			
+			if(life[i] <= 25f && !iminDangerZone){
+				iminDangerZone = true;
+				var offset = 0f;
+				if(i != 0){
+					offset = (25f-(float)life[i])/(float)(life[i - 1] - life[i]);
+				}
+				beginDanger = i - offset;
+			}
+		}
+		
+		/* old system
+		
 		var theaddCut = (double)0;
 		var thelastCut = (double)0;
 		var thenumberaddCut = 0;
 		var thetimecut = (double)0;
 		var indexTab = 0;
+		
 		for(int i=0;i<DataManager.Instance.lifeGraph.Count;i++){
 			if(i == 0){
 				thetimecut = DataManager.Instance.lifeGraph.ElementAt(i).Key;
@@ -489,11 +605,53 @@ public class ScoreScript : MonoBehaviour {
 			thelastCut = DataManager.Instance.lifeGraph.ElementAt(i).Value;
 			thenumberaddCut++;
 			while(thetimecut > thecut){
-				life[indexTab] = theaddCut/thenumberaddCut;
+				life[indexTab] = theaddCut/(double)thenumberaddCut;
 				thetimecut -= thecut;	
 				thenumberaddCut = 1;
 				theaddCut = thelastCut;
+				
+				if(life[indexTab] > 5f && iminDeathZone){
+					iminDeathZone = false;
+					endDanger = indexTab;
+					var offset = 0f;
+					if(indexTab != 0){
+						offset = (5f-(float)life[indexTab-1])/(float)(life[indexTab] - life[indexTab - 1]);
+					}
+					deathZone.Add(beginDanger, endDanger + offset);
+				}
+				
+				if((life[indexTab] > 25f) && iminDangerZone){
+					endDanger = indexTab;
+					iminDangerZone = false;
+					var offset = 0f;
+					if(indexTab != 0){
+						offset = (25f-(float)life[indexTab-1])/(float)(life[indexTab] - life[indexTab - 1]);
+					}
+					dangerZone.Add(beginDanger, endDanger + offset);
+				}
+				
+				if(life[indexTab] <= 5f && !iminDeathZone){
+					iminDeathZone = true;
+					var offset = 0f;
+					if(indexTab != 0){
+						offset = (5f-(float)life[indexTab])/(float)(life[indexTab - 1] - life[indexTab]);
+					}
+					beginDanger = indexTab - offset;
+				}
+				
+				if(life[indexTab] <= 25f && !iminDangerZone){
+					iminDangerZone = true;
+					var offset = 0f;
+					if(indexTab != 0){
+						offset = (25f-(float)life[indexTab])/(float)(life[indexTab - 1] - life[indexTab]);
+					}
+					beginDanger = indexTab - offset;
+				}
+				
 				indexTab++;
+				
+				
+				
 			}
 		}
 		
@@ -503,11 +661,122 @@ public class ScoreScript : MonoBehaviour {
 			life[indexTab] = thelastvalue;
 			indexTab++;
 		};
-		if(indexTab < 200)life[indexTab] = thelastvalue;
+		if(indexTab < 200)life[indexTab] = thelastvalue;*/
 		
-		for(int i=0;i<200;i++){
-			graph.SetPosition(i, new Vector3( -160f + (240f*((float)i/200f)) , 19f*(((float)life[i] - 50f)/50f), 0f));
+		
+		var indexfe = -1;
+		var indexfg = -1;
+		var indexfm = -1;
+		var dur = DataManager.Instance.songSelected.duration;
+		
+		if(DataManager.Instance.firstEx == -1){
+			indexfe = 200;
 		}
+		if(DataManager.Instance.firstGreat == -1){
+			indexfg = 200;	
+		}
+		if(DataManager.Instance.firstMisteak == -1){
+			indexfm = 200;	
+		}
+		for(int i=0; i<200; i++){
+			if(indexfe == -1 && DataManager.Instance.firstEx - DataManager.Instance.firstArrow <= (dur/200f)*i){
+				indexfe = i;	
+			}
+			if(indexfg == -1 && DataManager.Instance.firstGreat - DataManager.Instance.firstArrow <= (dur/200f)*i){
+				indexfg = i;	
+			}
+			if(indexfm == -1 && DataManager.Instance.firstMisteak - DataManager.Instance.firstArrow <= (dur/200f)*i){
+				indexfm = i;	
+			}
+		}
+		var graphFant = ((GameObject) Instantiate(graph, graph.transform.position, graph.transform.rotation)).GetComponent<LineRenderer>();
+		var graphEx = ((GameObject) Instantiate(graph, graph.transform.position, graph.transform.rotation)).GetComponent<LineRenderer>();
+		var graphGreat = ((GameObject) Instantiate(graph, graph.transform.position, graph.transform.rotation)).GetComponent<LineRenderer>();
+		var graphAll = ((GameObject) Instantiate(graph, graph.transform.position, graph.transform.rotation)).GetComponent<LineRenderer>();
+		lrToActivate = new List<LineRenderer>();
+		if(indexfe != 0){
+			graphFant.SetVertexCount(indexfe + 1);
+			//graphFant.SetColors(DataManager.Instance.precColor[0], DataManager.Instance.precColor[0]);
+			graphFant.materials.First().color = DataManager.Instance.precColor[0];
+			for(int i=0;i<=indexfe;i++){
+				graphFant.SetPosition(i, new Vector3( -160f + (240f*((float)i/200f)) , 19f*(((float)life[i] - 50f)/50f), 0f));
+			}
+			graphFant.gameObject.SetActiveRecursively(false);
+			lrToActivate.Add(graphFant);
+		}else{
+			Destroy(graphFant.gameObject);	
+		}
+		
+		if(indexfe != indexfg && indexfe != 200){
+			graphEx.SetVertexCount(indexfg - indexfe + 1);
+			//graphEx.SetColors(DataManager.Instance.precColor[1], DataManager.Instance.precColor[1]);
+			graphEx.materials.First().color = DataManager.Instance.precColor[1];
+			for(int i=indexfe;i<=indexfg;i++){
+				graphEx.SetPosition(i - indexfe, new Vector3( -160f + (240f*((float)i/200f)) , 19f*(((float)life[i] - 50f)/50f), 0f));
+			}	
+			graphEx.gameObject.SetActiveRecursively(false);
+			lrToActivate.Add(graphEx);
+		}else{
+			Destroy(graphEx.gameObject);	
+		}
+		
+		if(indexfg != indexfm && indexfg != 200){
+			graphGreat.SetVertexCount(indexfm - indexfg + 1);
+			//graphGreat.SetColors(DataManager.Instance.precColor[2], DataManager.Instance.precColor[2]);
+			graphGreat.materials.First().color = DataManager.Instance.precColor[2];
+			for(int i=indexfg;i<=indexfm;i++){
+				graphGreat.SetPosition(i - indexfg, new Vector3( -160f + (240f*((float)i/200f)) , 19f*(((float)life[i] - 50f)/50f), 0f));
+			}	
+			graphGreat.gameObject.SetActiveRecursively(false);
+			lrToActivate.Add(graphGreat);
+		}else{
+			Destroy(graphGreat.gameObject);	
+		}
+		
+		if(indexfm != 200){
+			graphAll.SetVertexCount(200 - indexfm);
+			//graphAll.SetColors(new Color(0f, 0.3f, 0.1f, 1f), new Color(0f, 0.3f, 0.1f, 1f));
+			graphAll.materials.First().color = new Color(0.85f, 1f, 0.85f, 1f);
+			for(int i=indexfm;i<200;i++){
+				graphAll.SetPosition(i - indexfm, new Vector3( -160f + (240f*((float)i/200f)) , 19f*(((float)life[i] - 50f)/50f), 0f));
+			}
+			graphAll.gameObject.SetActiveRecursively(false);
+			lrToActivate.Add(graphAll);
+		}else{
+			Destroy(graphAll);	
+		}
+		
+		/*
+		for(int i=0;i<200;i++){
+			
+			graph.SetPosition(i, new Vector3( -160f + (240f*((float)i/200f)) , 19f*(((float)life[i] - 50f)/50f), 0f));
+		}*/
+		
+		//Graph dangerzone
+		
+		foreach(var dz in dangerZone){
+			var debut = (dz.Key/200f)*12f - 8f;	
+			var fin = (dz.Value/200f)*12f - 8f;	
+			
+			var thezone = (GameObject) Instantiate(cubeDangerZone, new Vector3(((fin + debut)/2f), cubeDangerZone.transform.position.y, cubeDangerZone.transform.position.z), cubeDangerZone.transform.rotation);
+			thezone.transform.localScale = new Vector3((fin - debut), thezone.transform.localScale.y, thezone.transform.localScale.z);
+			thezone.renderer.material.color = new Color(1f, 1f, 0f, 0.3f);
+			thezone.SetActiveRecursively(false);
+			dzToActivate.Add(thezone);
+		}
+		
+		foreach(var dz in deathZone){
+			var debut = ((float)dz.Key/200f)*12f - 8f;	
+			var fin = ((float)dz.Value/200f)*12f - 8f;	
+			
+			var thezone = (GameObject) Instantiate(cubeDangerZone, new Vector3(((fin + debut)/2f), cubeDangerZone.transform.position.y, cubeDangerZone.transform.position.z), cubeDangerZone.transform.rotation);
+			thezone.transform.localScale = new Vector3((fin - debut), thezone.transform.localScale.y, thezone.transform.localScale.z);
+			thezone.renderer.material.color = new Color(1f, 0f, 0f, 0.3f);
+			thezone.SetActiveRecursively(false);
+			dzToActivate.Add(thezone);
+		}
+		
+		
 		
 		//Medal
 		var indexMedal = -1;
@@ -522,8 +791,9 @@ public class ScoreScript : MonoBehaviour {
 		
 		camToRender.RenderToCubemap(cmToChange);
 		camToRender.gameObject.active = false;
+		
 	}
-	
+	#endregion
 	
 	void initTest(){
 	

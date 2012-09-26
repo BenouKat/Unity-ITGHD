@@ -54,7 +54,10 @@
      <Compile Include="Assets\Script\Chart\MoveBackground.cs" />
      <Compile Include="Assets\Script\Chart\MoveCameraBackground.cs" />
      <Compile Include="Assets\Script\FrameWork\OpenChart.cs" />
+     <Compile Include="Assets\Script\FrameWork\Profile.cs" />
      <Compile Include="Assets\Script\FrameWork\Song.cs" />
+     <Compile Include="Assets\Script\FrameWork\SongInfoProfil.cs" />
+     <Compile Include="Assets\Script\FrameWork\VersionDeserializationBinder.cs" />
      <Compile Include="Assets\Script\MainMenu\ArrowFake.cs" />
      <Compile Include="Assets\Script\MainMenu\FakeChart.cs" />
      <Compile Include="Assets\Script\MainMenu\MainMenu.cs" />
@@ -63,6 +66,7 @@
      <Compile Include="Assets\Script\Managers\EnumManager.cs" />
      <Compile Include="Assets\Script\Managers\FadeManager.cs" />
      <Compile Include="Assets\Script\Managers\LoadManager.cs" />
+     <Compile Include="Assets\Script\Managers\ProfileManager.cs" />
      <Compile Include="Assets\Script\Managers\TextManager.cs" />
      <Compile Include="Assets\Script\Score\BumpArrow.cs" />
      <Compile Include="Assets\Script\Score\ScoreScript.cs" />

@@ -20,9 +20,10 @@ public class LoadManager{
 	
 	private Dictionary<string, Dictionary<string, Dictionary<Difficulty, Song>>> songs;
 	private Dictionary<string, Texture2D> bannerPack;
+	public bool alreadyLoaded;
 	
 	private LoadManager(){
-
+		alreadyLoaded = false;
 		
 	}
 	
@@ -65,6 +66,8 @@ public class LoadManager{
 					
 			}
 		}
+		
+		alreadyLoaded = true;
 	}
 	
 	private string[] lastDir(string dir){

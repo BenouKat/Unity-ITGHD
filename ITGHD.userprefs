@@ -1,6 +1,13 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace />
-  <MonoDevelop.Ide.Workbench />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Score\ScoreScript.cs">
+    <Files>
+      <File FileName="Assets\Script\Score\ScoreScript.cs" Line="358" Column="3" />
+      <File FileName="Assets\Script\Chart\InGameScript.cs" Line="1941" Column="50" />
+      <File FileName="Assets\Script\Managers\DataManager.cs" Line="116" Column="26" />
+      <File FileName="Assets\Script\Managers\TextManager.cs" Line="33" Column="64" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

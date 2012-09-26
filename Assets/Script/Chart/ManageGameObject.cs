@@ -44,7 +44,7 @@ public class ManageGameObject : MonoBehaviour {
 	
 	
 	public void Add(double timetotal, GameObject go){
-		if(listarrow.ContainsKey(timetotal)){
+		while(listarrow.ContainsKey(timetotal)){
 			timetotal += 0.0000001;
 		}
 		listarrow.Add(timetotal, go);

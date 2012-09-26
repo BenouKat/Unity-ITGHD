@@ -34,6 +34,10 @@ public class DataManager{
 	public KeyCode KeyCodeDown;
 	public KeyCode KeyCodeLeft;
 	public KeyCode KeyCodeRight;
+	public KeyCode SecondaryKeyCodeUp;
+	public KeyCode SecondaryKeyCodeDown;
+	public KeyCode SecondaryKeyCodeLeft;
+	public KeyCode SecondaryKeyCodeRight;
 	
 	//WHEEL SONG
 	public float[] posYDiff;
@@ -109,6 +113,7 @@ public class DataManager{
 	public bool fullCombo;
 	public bool fail;
 	public bool clear;
+	public double firstArrow;
 	
 	public static DataManager Instance{
 		get{

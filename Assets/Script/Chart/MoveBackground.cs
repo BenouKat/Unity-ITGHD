@@ -4,11 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 public class MoveBackground : MonoBehaviour {
 	
-	private List<Transform> cubeBG;
+	public List<Transform> cubeBG;
 	private List<Vector3> rotate;
 	public float speed;
+	
+	
 	// Use this for initialization
-	void Start () {
+	void Awake () {
 		var firstcubeBG = new List<GameObject>();
 		firstcubeBG.AddRange(GameObject.FindGameObjectsWithTag("Background"));
 		cubeBG = new List<Transform>();

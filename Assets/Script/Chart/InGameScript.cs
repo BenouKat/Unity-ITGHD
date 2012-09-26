@@ -56,6 +56,10 @@ public class InGameScript : MonoBehaviour {
 	private KeyCode KeyCodeDown;
 	private KeyCode KeyCodeLeft;
 	private KeyCode KeyCodeRight;
+	public KeyCode SecondaryKeyCodeUp;
+	public KeyCode SecondaryKeyCodeDown;
+	public KeyCode SecondaryKeyCodeLeft;
+	public KeyCode SecondaryKeyCodeRight;
 	
 	//DISPLAY PREC
 	
@@ -141,11 +145,13 @@ public class InGameScript : MonoBehaviour {
 	//DISPLAY
 	private Color bumpColor;
 	public float bumpfadeSpeed = 0.5f;
+	public bool[] displayValue;
 	
 	//START
 	private bool firstUpdate;
 	private float oneSecond;
 	private float startTheSong; //Time pour démarrer la chanson
+	private bool scenechartfaded;
 	
 	//BUMP
 	private int nextBump;
@@ -228,6 +234,10 @@ public class InGameScript : MonoBehaviour {
 		KeyCodeUp = DataManager.Instance.KeyCodeUp;
 		KeyCodeLeft = DataManager.Instance.KeyCodeLeft;
 		KeyCodeRight = DataManager.Instance.KeyCodeRight;
+		SecondaryKeyCodeDown = DataManager.Instance.SecondaryKeyCodeDown;
+		SecondaryKeyCodeUp = DataManager.Instance.SecondaryKeyCodeUp;
+		SecondaryKeyCodeLeft = DataManager.Instance.SecondaryKeyCodeLeft;
+		SecondaryKeyCodeRight = DataManager.Instance.SecondaryKeyCodeRight;
 		var rand = (int)(UnityEngine.Random.value*DataManager.Instance.skyboxList.Count);
 		if(rand == DataManager.Instance.skyboxList.Count){
 			rand--;	
@@ -235,6 +245,7 @@ public class InGameScript : MonoBehaviour {
 		
 		RenderSettings.skybox = DataManager.Instance.skyboxList.ElementAt(rand);
 		DataManager.Instance.skyboxIndexSelected = rand;
+		displayValue = DataManager.Instance.displaySelected;
 		
 		firstArrow = -10f;
 		lastArrow = -10f;
@@ -311,7 +322,7 @@ public class InGameScript : MonoBehaviour {
 		timeDisplayScore = Mathf.Infinity;
 		sensFantastic = true;
 		alpha = 1f;
-		
+		scenechartfaded = false;
 		
 		
 		
@@ -337,11 +348,12 @@ public class InGameScript : MonoBehaviour {
 		
 		
 		life = 50f;
+		lifeGraph.Add(0, life);
 		score = 0f;
 		scoreInverse = 100f;
-		firstEx = 0;
-		firstGreat = 0;
-		firstMisteak = 0;
+		firstEx = -1;
+		firstGreat = -1;
+		firstMisteak = -1;
 		
 		theLifeBar = lifeBar.GetComponent<LifeBar>();
 		
@@ -388,8 +400,40 @@ public class InGameScript : MonoBehaviour {
 		failalpha = 0f;
 		passalpha = 0f;
 		cacheFailed = true;
+		
+		
+		
+		//Transformation display
+		if(displayValue[4]){ //No judge
+			limitDisplayScore = -1f;
+		}
+		
+		if(displayValue[5]){ //No background
+			RenderSettings.skybox = null;
+			foreach(var tr in GetComponent<MoveBackground>().cubeBG){
+				tr.gameObject.renderer.enabled = false;
+			}
+			GetComponent<MoveBackground>().enabled = false;
+		}
+		
+		if(displayValue[6]){ //No target
+			arrowLeft.renderer.enabled = false;
+			arrowDown.renderer.enabled = false;
+			arrowUp.renderer.enabled = false;
+			arrowRight.renderer.enabled = false;
+		}
+		
+		//No score : inside the code
+		
+		//No UI
+		if(displayValue[8]){
+			lifeBar.renderer.enabled = false;
+			progressBar.renderer.enabled = false;
+			progressBarEmpty.renderer.enabled = false;
+			slow.renderer.enabled = false;
+			fast.renderer.enabled = false;
+		}
 	}
-	
 	
 	
 	
@@ -408,25 +452,29 @@ public class InGameScript : MonoBehaviour {
 		
 		GUI.color = new Color(1f, 1f, 1f, 1f);
 		
-			
-		
-		for(int i=0;i<5;i++){
-			if((i == 3 && displaying[3] == 0 && displaying[4] == 0) || (i == 4 && displaying[4] == 0)) break;
-			GUI.DrawTexture(new Rect((posPercent.x + ecart*(4-i))*Screen.width, posPercent.y*Screen.height,  posPercent.width*Screen.width,  posPercent.height*Screen.height), TextureBase["S" + displaying[i]]);
-			
+		if(!displayValue[7]){
+				
+			for(int i=0;i<5;i++){
+				if((i == 3 && displaying[3] == 0 && displaying[4] == 0) || (i == 4 && displaying[4] == 0)) break;
+				GUI.DrawTexture(new Rect((posPercent.x + ecart*(4-i))*Screen.width, posPercent.y*Screen.height,  posPercent.width*Screen.width,  posPercent.height*Screen.height), TextureBase["S" + displaying[i]]);
+				
+			}
+			GUI.DrawTexture(new Rect((posPercent.x + ((ecart*2)+(ecart/2f)))*Screen.width, posPercent.y*Screen.height,  posPercent.width*Screen.width, posPercent.height*Screen.height), TextureBase["DOT"]);
+			GUI.DrawTexture(new Rect((posPercent.x + ecart*5)*Screen.width + posPercent.width, posPercent.y*Screen.height, posPercent.width*Screen.width, posPercent.height*Screen.height), TextureBase["PERCENT"]);
 		}
-		GUI.DrawTexture(new Rect((posPercent.x + ((ecart*2)+(ecart/2f)))*Screen.width, posPercent.y*Screen.height,  posPercent.width*Screen.width, posPercent.height*Screen.height), TextureBase["DOT"]);
-		GUI.DrawTexture(new Rect((posPercent.x + ecart*5)*Screen.width + posPercent.width, posPercent.y*Screen.height, posPercent.width*Screen.width, posPercent.height*Screen.height), TextureBase["PERCENT"]);
 		
-		if(combo >= 5f){
-			//var czoom = zoom/4f;
-			var col = matProgressBar.color;
-			GUI.color = new Color(col.r , col.g, col.b, alphaCombo);
-			for(int i=0; i<thetab.Length; i++){
-				GUI.DrawTexture(new Rect((posCombo.x + ((ecartCombo*(thetab.Length-(i+1))/2f) -ecartCombo*((float)i/2f)))*Screen.width, 
-				posCombo.y*Screen.height, posCombo.width*Screen.width, posCombo.height*Screen.height), TextureBase["C" + thetab[i]]);
+		if(!displayValue[8]){
+			if(combo >= 5f){
+				//var czoom = zoom/4f;
+				var col = matProgressBar.color;
+				GUI.color = new Color(col.r , col.g, col.b, alphaCombo);
+				for(int i=0; i<thetab.Length; i++){
+					GUI.DrawTexture(new Rect((posCombo.x + ((ecartCombo*(thetab.Length-(i+1))/2f) -ecartCombo*((float)i/2f)))*Screen.width, 
+					posCombo.y*Screen.height, posCombo.width*Screen.width, posCombo.height*Screen.height), TextureBase["C" + thetab[i]]);
+				}
 			}
 		}
+		
 		
 		
 		if(dead){
@@ -472,63 +520,10 @@ public class InGameScript : MonoBehaviour {
 			
 		}
 		
-		//OLD Mechanism
-		//if(Event.current.type.Equals(EventType.Repaint)){
-		/*
-			if(score >= 10f) Graphics.DrawTexture(new Rect(posPercent.x*Screen.width, posPercent.y*Screen.height, wd, hg), TextureBase["SCORENUMBER"], new Rect(0f, - displaying.x, 1f, 0.1f), 0,0,0,0);
-			Graphics.DrawTexture(new Rect(posPercent.x*Screen.width + posPercent.width*ecart, posPercent.y*Screen.height, wd, hg), TextureBase["SCORENUMBER"], new Rect(0f, - displaying.y, 1f, 0.1f), 0,0,0,0);
-			Graphics.DrawTexture(new Rect(posPercent.x*Screen.width + posPercent.width*(ecart+(ecart/2f)), posPercent.y*Screen.height, wd, hgt*4), TextureBase["SCORESYMBOL"], new Rect(0f, 0f, 1f, 0.5f), 0,0,0,0);
-			Graphics.DrawTexture(new Rect(posPercent.x*Screen.width + posPercent.width*ecart*2, posPercent.y*Screen.height, wd, hg), TextureBase["SCORENUMBER"], new Rect(0f, - displaying.width, 1f, 0.1f), 0,0,0,0);
-			Graphics.DrawTexture(new Rect(posPercent.x*Screen.width + posPercent.width*ecart*3, posPercent.y*Screen.height, wd, hg), TextureBase["SCORENUMBER"], new Rect(0f, - displaying.height, 1f, 0.1f), 0,0,0,0);
-			Graphics.DrawTexture(new Rect(posPercent.x*Screen.width + posPercent.width*ecart*4, posPercent.y*Screen.height, wd, hgt*4), TextureBase["SCORESYMBOL"], new Rect(0f, 0.5f, 1f, 0.5f), 0,0,0,0);
-		*/
-		
-	
-		
-		
-		
-		
-			/*
-			if(combo >= 5){
-				Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*(ecart*(thetab.Length-1)/2f) - czoom, posCombo.y*Screen.height, wd + czoom*2f, hg), TextureBase["COMBONUMBER"], new Rect(0f, - thetab[0], 1f, 0.1f), 0,0,0,0);
-				if(combo > 9){
-					Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*((ecart*(thetab.Length-2)/2f) - ecart*0.5f)- czoom, posCombo.y*Screen.height, wd+ czoom*2f, hg), TextureBase["COMBONUMBER"], new Rect(0f, - thetab[1], 1f, 0.1f), 0,0,0,0);
-					if(combo >99){
-						Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*((ecart*(thetab.Length-3)/2f) -ecart)- czoom, posCombo.y*Screen.height, wd+ czoom*2f, hg), TextureBase["COMBONUMBER"], new Rect(0f, - thetab[2], 1f, 0.1f), 0,0,0,0);
-						if(combo >999){
-							Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*((ecart*(thetab.Length-4)/2f) -ecart*1.5f)- czoom, posCombo.y*Screen.height, wd+ czoom*2f, hg), TextureBase["COMBONUMBER"], new Rect(0f, - thetab[3], 1f, 0.1f), 0,0,0,0);
-							if(combo >9999){
-								Graphics.DrawTexture(new Rect(posCombo.x*Screen.width + posCombo.width*(-ecart*2f)- czoom, posCombo.y*Screen.height , wd+ czoom*2f, hg), TextureBase["COMBONUMBER"], new Rect(0f, - thetab[4], 1f, 0.1f), 0,0,0,0);
-							}
-						}
-					}
-				}
-			}*/
-		//}
-		
 	}
 	
 	
-	IEnumerator swipTexture(bool reverse, float height){
-		
-		if(!reverse){
-			zwip = height/2f;
-			while(zwip > 0f){
-				zwip -= height/2f*Time.deltaTime/speedziwp;
-				yield return new WaitForFixedUpdate();
-			}
-			zwip = 0f;
-		}else{
-			zwip = 0f;
-			while(zwip < height/2f){
-				zwip += height/2f*Time.deltaTime/speedziwp;
-				yield return new WaitForFixedUpdate();
-			}
-			zwip = height/2f;
-			cacheFailed = true;
-			//Lancer la scène de score
-		}
-	}
+	
 	
 	// Update is called once per frame
 	void Update () {
@@ -543,7 +538,7 @@ public class InGameScript : MonoBehaviour {
 			_timer = 0;
 		}
 		
-		if((oneSecond >= 1f && !dead) || clear){
+		if((oneSecond >= 2f && !dead) || clear){
 			//timetotal for this frame
 			
 			timetotalchart = timebpm + timechart + totaltimestop;
@@ -598,11 +593,12 @@ public class InGameScript : MonoBehaviour {
 			
 			//Start song
 			timetotalchart = timebpm + timechart + totaltimestop;
+			
+			
 			if(firstUpdate){
 				if(startTheSong <= 0f){
 					audio.PlayOneShot(songLoaded);
-					timechart += startTheSong;
-					//Debug.Log(startTheSong);
+					timechart -= startTheSong;  //+ ou - ??
 					timetotalchart = timebpm + timechart + totaltimestop;
 					firstUpdate = false;
 				}else{
@@ -612,6 +608,7 @@ public class InGameScript : MonoBehaviour {
 			
 			BumpsBPM();
 			
+			//Fail/Clear part
 			
 			if(thesong.duration < timetotalchart && !fail && !clear){
 				if(life > 0f){
@@ -650,7 +647,7 @@ public class InGameScript : MonoBehaviour {
 				if(audio.volume > 0) audio.volume -= Time.deltaTime/speedFadeAudio;
 					
 				if(!appearFailok){
-					StartCoroutine(swipTexture(false, posClear.height));
+					StartCoroutine(swipTexture(false, posClear.height, 0f));
 					var contains = perfect ? "Perfect" : (fullFantCombo ? "FFC" : (fullExCombo ? "FEC" : ( fullCombo ? "FC" : "noPS")) );
 					if(!contains.Contains("noPS")){
 						particleComboCam.gameObject.active = true;
@@ -681,40 +678,45 @@ public class InGameScript : MonoBehaviour {
 			
 		}else{
 			oneSecond += Time.deltaTime;
-			if(dead && oneSecond > timeFailAppear){
-				//zoomfail += Time.deltaTime/speedzoom;
-				if(failalpha < 1) failalpha += Time.deltaTime/speedAlphaFailFade;
-				if(failalpha >= 1 && buttonfailalpha < 1) buttonfailalpha += Time.deltaTime/speedbuttonfailalpha;
-				ClignFailed();
-			}
-			if(dead && !appearFailok && oneSecond > timeFailAppear + 1){
-				StartCoroutine(swipTexture(false, posFail.height));
-				appearFailok = true;
-				cacheFailed = false;
-			}
-			if(dead && !disappearFailok && (deadAndRetry || deadAndGiveUp)){
-				StartCoroutine(swipTexture(true, posFail.height));
-				disappearFailok = true;
-				timeFailDisappear = oneSecond;
-			}
-			if(dead && disappearFailok && oneSecond < timeFailDisappear + 1f && buttonfailalpha > 0){
-				buttonfailalpha -= Time.deltaTime/speedbuttonfailalpha;
-			}
-			if(dead && disappearFailok && oneSecond > timeFailDisappear + 1f ){
-				
-				//Passer à la scène de score
-				//Proposer Retry / Score
-				//si score :
-				SendDataToDatamanager();
-				if(deadAndRetry){
-					Application.LoadLevel("ChartScene");
-				}else if(deadAndGiveUp){
-					Application.LoadLevel("ScoreScene");
-				}
-				
-				
-			}
 			
+			if(dead){
+				if(oneSecond > timeFailAppear){
+					//zoomfail += Time.deltaTime/speedzoom;
+					if(failalpha < 1) failalpha += Time.deltaTime/speedAlphaFailFade;
+					if(failalpha >= 1 && buttonfailalpha < 1) buttonfailalpha += Time.deltaTime/speedbuttonfailalpha;
+					ClignFailed();
+				}
+				if(!appearFailok && oneSecond > timeFailAppear + 1){
+					StartCoroutine(swipTexture(false, posFail.height, 0f));
+					appearFailok = true;
+					cacheFailed = false;
+				}
+				if(!disappearFailok && (deadAndRetry || deadAndGiveUp)){
+					StartCoroutine(swipTexture(true, posFail.height, 0.5f));
+					disappearFailok = true;
+					timeFailDisappear = oneSecond;
+				}
+				if(disappearFailok && oneSecond < timeFailDisappear + 1f && buttonfailalpha > 0){
+					buttonfailalpha -= Time.deltaTime/speedbuttonfailalpha;
+				}
+				if(disappearFailok && oneSecond > timeFailDisappear + 1f ){
+					
+					//Passer à la scène de score
+					//Proposer Retry / Score
+					//si score :
+					SendDataToDatamanager();
+					if(deadAndRetry){
+						Application.LoadLevel("ChartScene");
+					}else if(deadAndGiveUp){
+						Application.LoadLevel("ScoreScene");
+					}
+					
+					
+				}
+			}else if(oneSecond >= 0.5f && !scenechartfaded){
+				GetComponent<FadeManager>().FadeOut();
+				scenechartfaded = true;
+			}
 			
 		}
 		
@@ -853,7 +855,7 @@ public class InGameScript : MonoBehaviour {
 	
 	#endregion
 	
-	
+	#region GUI
 	void RefreshGUIPart(){
 		if(scoreToDisplay == Precision.FANTASTIC){
 			if(sensFantastic){
@@ -904,7 +906,7 @@ public class InGameScript : MonoBehaviour {
 		
 		
 	}
-	
+	#endregion
 	
 	#region Inputs verify
 	//Valid or deny the frozen arrow
@@ -1784,12 +1786,12 @@ public class InGameScript : MonoBehaviour {
 	public void GainScoreAndLife(string s){
 		if(lifeBase[s] <= 0 || combo >= DataManager.Instance.regenComboAfterMiss){
 			life += lifeBase[s];
-			if(!lifeGraph.ContainsKey(timetotalchart)) lifeGraph.Add(timetotalchart, life);
 			if(life > 100f){
 				life = 100f;	
 			}else if(life < 0f){
 				life = 0f;	
 			}
+			if(!lifeGraph.ContainsKey(timetotalchart)) lifeGraph.Add(timetotalchart, life);
 			theLifeBar.ChangeBar(life);
 		}
 		score += scoreBase[s];
@@ -1898,6 +1900,8 @@ public class InGameScript : MonoBehaviour {
 		timeCombo.Add(timetotalchart, combo);
 		combo = 0;	
 		if(ct != ComboType.NONE){
+			firstEx = timetotalchart;
+			firstGreat = timetotalchart;
 			firstMisteak = timetotalchart;	
 			ct = ComboType.NONE;
 		}
@@ -1940,6 +1944,30 @@ public class InGameScript : MonoBehaviour {
 		DataManager.Instance.scoreCount = scoreCount;
 		
 		DataManager.Instance.fail = fail;
+		
+		DataManager.Instance.firstArrow = firstArrow;
+	}
+	
+	IEnumerator swipTexture(bool reverse, float height, float wait){
+		
+		if(!reverse){
+			zwip = height/2f;
+			while(zwip > 0f){
+				zwip -= height/2f*Time.deltaTime/speedziwp;
+				yield return new WaitForFixedUpdate();
+			}
+			zwip = 0f;
+		}else{
+			yield return new WaitForSeconds(wait);
+			zwip = 0f;
+			while(zwip < height/2f){
+				zwip += height/2f*Time.deltaTime/speedziwp;
+				yield return new WaitForFixedUpdate();
+			}
+			zwip = height/2f;
+			cacheFailed = true;
+			//Lancer la scène de score
+		}
 	}
 	#endregion
 	
@@ -2115,7 +2143,6 @@ public class InGameScript : MonoBehaviour {
 		double timestop = 0;
 		double timetotal = 0;
 		float prec = 0.001f;
-		
 		var ArrowFreezed = new Arrow[4];
 		Bumps = new List<double>();
 		foreach(var mesure in s.stepchart){
@@ -2184,13 +2211,57 @@ public class InGameScript : MonoBehaviour {
 				timetotal = timecounter + timeBPM + timestop;
 				if((beat)%(mesure.Count/4) == 0) Bumps.Add(timetotal);
 				
-				char[] note = mesure.ElementAt(beat).Trim().ToCharArray();
+				var previousnote = mesure.ElementAt(beat).Trim();
+				
+				
+				//Traitement
+				if(displayValue[0]){ //No mine
+					previousnote = previousnote.Replace('M', '0');
+				}
+				if(displayValue[1]){ //No jump
+					if(previousnote.Where( c => c == '1' || c == '2' || c == '4').Count() == 2){
+						var done = false;
+						for(int i=0; i<4; i++){
+							if(previousnote.ElementAt(i) == '1' || 	previousnote.ElementAt(i) == '2' || previousnote.ElementAt(i) == '4'){
+								if(done){
+									previousnote.Remove(i, 1);
+									previousnote.Insert(i,"0");
+								}else{
+									done = true;	
+								}
+							}
+						}
+					}
+				}
+				if(displayValue[2]){ //No hands
+					if(previousnote.Where( c => c == '1' || c == '2' || c == '4').Count() >= 3){
+						var done = false;
+						for(int i=0; i<4; i++){
+							if(previousnote.ElementAt(i) == '1' || 	previousnote.ElementAt(i) == '2' || previousnote.ElementAt(i) == '4'){
+								if(done){
+									previousnote.Remove(i, 1);
+									previousnote.Insert(i,"0");
+								}else{
+									done = true;	
+								}
+							}
+						}
+					}
+				}
+				
+				if(displayValue[3]){ //No freeze
+					previousnote = previousnote.Replace('2', '1');
+					previousnote = previousnote.Replace('4', '1');
+					previousnote = previousnote.Replace('3', '0');
+				}
+				
+				char[] note = previousnote.ToCharArray();
 				
 				var listNeighboors = new List<Arrow>();
 				var barr = false;
 				for(int i =0;i<4; i++){
 					if(note[i] == '1'){
-						//var theArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos  + (float)s.offset, 0f), arrow.transform.rotation);
+						
 						barr = true;
 						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
 						goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
@@ -2240,10 +2311,14 @@ public class InGameScript : MonoBehaviour {
 					}else if(note[i] == '3'){
 						barr = true;
 						var theArrow = ArrowFreezed[i];
-						var goFreeze = (GameObject) Instantiate(freeze, new Vector3(i*2, (theArrow.goArrow.transform.position.y + ((-ypos - theArrow.goArrow.transform.position.y)/2f)) , 0.5f), freeze.transform.rotation);
-						goFreeze.transform.localScale = new Vector3(1f, -((-ypos - theArrow.goArrow.transform.position.y)/2f), 0.1f);
-						goFreeze.transform.GetChild(0).renderer.material.color = theArrow.goArrow.renderer.material.color;
-						theArrow.setArrowFreeze(timetotal, new Vector3(i*2,-ypos, 0f), goFreeze, null);
+						if(ArrowFreezed[i] != null){
+							var goFreeze = (GameObject) Instantiate(freeze, new Vector3(i*2, (theArrow.goArrow.transform.position.y + ((-ypos - theArrow.goArrow.transform.position.y)/2f)) , 0.5f), freeze.transform.rotation);
+							goFreeze.transform.localScale = new Vector3(1f, -((-ypos - theArrow.goArrow.transform.position.y)/2f), 0.1f);
+							goFreeze.transform.GetChild(0).renderer.material.color = theArrow.goArrow.renderer.material.color;
+							theArrow.setArrowFreeze(timetotal, new Vector3(i*2,-ypos, 0f), goFreeze, null);
+						}
+						
+						ArrowFreezed[i] = null;
 					
 					}else if(note[i] == '4'){
 						barr = true;
@@ -2268,7 +2343,7 @@ public class InGameScript : MonoBehaviour {
 						listNeighboors.Add(theArrow);
 						goArrow.SetActiveRecursively(false);
 						GetComponent<ManageGameObject>().Add(timetotal, goArrow);
-					}else if(note[i] == 'M' && !DataManager.Instance.displaySelected[0]){
+					}else if(note[i] == 'M'){
 						var goArrow = (GameObject) Instantiate(mines, new Vector3(i*2, -ypos, 0f), mines.transform.rotation);
 						var theArrow = new Arrow(goArrow, ArrowType.MINE, timetotal);
 						switch(i){
@@ -2302,8 +2377,7 @@ public class InGameScript : MonoBehaviour {
 						el.imJump = true;
 					}
 				}
-				
-				
+	
 				if(theBPMCounter < s.bpms.Count){
 					if(Mathf.Abs((float)(s.mesureBPMS.ElementAt(theBPMCounter) - mesurecount)) < prec){
 							timeBPM += timecounter;
