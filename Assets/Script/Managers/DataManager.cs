@@ -209,7 +209,10 @@ public class DataManager{
 		KeyCodeDown = KeyCode.T;
 		KeyCodeUp = KeyCode.U;
 		KeyCodeRight = KeyCode.O;
-		
+		SecondaryKeyCodeLeft = KeyCode.LeftArrow;
+		SecondaryKeyCodeDown = KeyCode.DownArrow;
+		SecondaryKeyCodeUp = KeyCode.UpArrow;
+		SecondaryKeyCodeRight = KeyCode.RightArrow;
 		
 		InitDicOption();
 		
@@ -260,7 +263,7 @@ public class DataManager{
 		aRace[10] = "FEC Race";
 		
 		aDisplay[0] = "No mine";
-		aDisplay[1] = "No jump";
+		aDisplay[1] = "No jump"; // doesn't work
 		aDisplay[2] = "No hands";
 		aDisplay[3] = "No freeze";
 		aDisplay[4] = "No judge";

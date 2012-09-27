@@ -344,7 +344,7 @@ public class ScoreScript : MonoBehaviour {
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 0), shadow), "First ex or less : " + ((DataManager.Instance.firstEx == -1) ? "Never" : ((DataManager.Instance.firstEx/DataManager.Instance.songSelected.duration)*100f).ToString("0.00") + "%"));
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 1), shadow), "First great or less : " + ((DataManager.Instance.firstGreat == -1) ? "Never" : ((DataManager.Instance.firstGreat/DataManager.Instance.songSelected.duration)*100f).ToString("0.00") + "%"));
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 2), shadow), "First misteak : " + ((DataManager.Instance.firstMisteak == -1) ? "Never" : ((DataManager.Instance.firstMisteak/DataManager.Instance.songSelected.duration)*100f).ToString("0.00") + "%"));
-		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 3), shadow), "Average precision : " + averagePrec.ToString("0.000") + "ms");
+		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 3), shadow), "Average precision : " + averagePrec.ToString("0.000").Remove(0,2) + "ms");
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 4), shadow), "Average Timing : " + ((DataManager.Instance.perfect || DataManager.Instance.fullFantCombo) ? "None" : (sens > 0) ? "Too slow (" + percentSens.ToString("00") + "%)" : (sens < 0) ? "Too fast (" + percentSens.ToString("00") + "%)" : "Mixed fast/slow"));
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 5), shadow), "Max Combo : " + maxCombo);
 	}
@@ -470,23 +470,33 @@ public class ScoreScript : MonoBehaviour {
 		double theav = 0;
 		int signmoins = 0;
 		int signplus = 0;
-		var listprec = DataManager.Instance.precAverage.Where(c => Mathf.Abs((float)c) > DataManager.Instance.PrecisionValues[Precision.FANTASTIC]).ToList();
-		for(int i=0; i<listprec.Count; i++){
-			theav += Mathf.Abs((float)listprec[i]);
-			if(listprec[i] > DataManager.Instance.PrecisionValues[Precision.FANTASTIC]) signplus++;
-			if(listprec[i] < -DataManager.Instance.PrecisionValues[Precision.FANTASTIC]) signmoins++;
+		for(int i=0; i<DataManager.Instance.precAverage.Count; i++){
+			theav += Mathf.Abs((float)DataManager.Instance.precAverage[i]);
+			
+			if((float)DataManager.Instance.precAverage[i] > DataManager.Instance.PrecisionValues[Precision.FANTASTIC]){
+				signplus++;
+			}else if((float)DataManager.Instance.precAverage[i] < -DataManager.Instance.PrecisionValues[Precision.FANTASTIC]){
+				signmoins++;
+			}
 		}
-		var l = listprec.Count();
-		averagePrec = theav/(double)l;
-		if(((float)signplus/(float)l) > 0.6f){ 
-			percentSens = ((float)signplus/(float)l)*100f;
-			sens = 1;
-		}
-		if(((float)signmoins/(float)l) > 0.6f){
-			percentSens = ((float)signmoins/(float)l)*100f;
-			sens = -1;
+		if(DataManager.Instance.precAverage.Any()){
+			averagePrec = theav/(double)DataManager.Instance.precAverage.Count;
+		}else{
+			averagePrec = 0;
 		}
 		
+		var l = signplus + signmoins;
+		
+		if(l > 0){
+			if(((float)signplus/(float)l) > 0.6f){ 
+				percentSens = ((float)signplus/(float)l)*100f;
+				sens = 1;
+			}
+			if(((float)signmoins/(float)l) > 0.6f){
+				percentSens = ((float)signmoins/(float)l)*100f;
+				sens = -1;
+			}
+		}
 		//Mods
 		stringmod = "";
 		stringmod += "x" + DataManager.Instance.speedmodSelected + ", ";
@@ -510,6 +520,8 @@ public class ScoreScript : MonoBehaviour {
 		var deathZone = new Dictionary<float, float>();
 		var beginDanger = 0f;
 		var endDanger = 0f;
+		var beginDeath = 0f;
+		var endDeath = 0f;
 		var iminDangerZone = false;
 		var iminDeathZone = false;
 			
@@ -549,22 +561,26 @@ public class ScoreScript : MonoBehaviour {
 			
 			if(life[i] > 5f && iminDeathZone){
 				iminDeathZone = false;
-				endDanger = i;
+				
 				var offset = 0f;
 				if(i != 0){
 					offset = (5f-(float)life[i-1])/(float)(life[i] - life[i - 1]);
 				}
-				deathZone.Add(beginDanger, endDanger + offset);
+				endDeath = i - offset;
+				
+				deathZone.Add(beginDeath, endDeath);
 			}
 			
-			if((life[i] > 25f) && iminDangerZone){
-				endDanger = i;
+			if(life[i] > 25f && iminDangerZone){
+				
 				iminDangerZone = false;
 				var offset = 0f;
 				if(i != 0){
 					offset = (25f-(float)life[i-1])/(float)(life[i] - life[i - 1]);
 				}
-				dangerZone.Add(beginDanger, endDanger + offset);
+				endDanger = i - offset;
+							
+				dangerZone.Add(beginDanger, endDanger);
 			}
 			
 			if(life[i] <= 5f && !iminDeathZone){
@@ -573,97 +589,37 @@ public class ScoreScript : MonoBehaviour {
 				if(i != 0){
 					offset = (5f-(float)life[i])/(float)(life[i - 1] - life[i]);
 				}
-				beginDanger = i - offset;
+				if(iminDangerZone){
+					iminDangerZone = false;
+					endDanger = i - offset;
+					dangerZone.Add(beginDanger, endDanger);
+					
+					
+				}
+				
+				beginDeath = i - offset;
 			}
 			
-			if(life[i] <= 25f && !iminDangerZone){
+			if(life[i] <= 25f && life[i] > 5f && !iminDangerZone){
 				iminDangerZone = true;
 				var offset = 0f;
 				if(i != 0){
-					offset = (25f-(float)life[i])/(float)(life[i - 1] - life[i]);
+					if(life[i] < life[i - 1]){
+						offset = (25f-(float)life[i])/(float)(life[i - 1] - life[i]);
+					}else{
+						offset = (5f-(float)life[i - 1])/(float)(life[i] - life[i - 1]);
+					}
+					
 				}
-				beginDanger = i - offset;
+				
+				beginDanger = i - offset;				
 			}
 		}
 		
-		/* old system
+		if(iminDeathZone) deathZone.Add(beginDeath, 200);
+		if(iminDangerZone) deathZone.Add(beginDanger, 200);
 		
-		var theaddCut = (double)0;
-		var thelastCut = (double)0;
-		var thenumberaddCut = 0;
-		var thetimecut = (double)0;
-		var indexTab = 0;
-		
-		for(int i=0;i<DataManager.Instance.lifeGraph.Count;i++){
-			if(i == 0){
-				thetimecut = DataManager.Instance.lifeGraph.ElementAt(i).Key;
-			}else{
-				thetimecut += DataManager.Instance.lifeGraph.ElementAt(i).Key - DataManager.Instance.lifeGraph.ElementAt(i- 1).Key;
-			}
-			
-			theaddCut += DataManager.Instance.lifeGraph.ElementAt(i).Value;
-			thelastCut = DataManager.Instance.lifeGraph.ElementAt(i).Value;
-			thenumberaddCut++;
-			while(thetimecut > thecut){
-				life[indexTab] = theaddCut/(double)thenumberaddCut;
-				thetimecut -= thecut;	
-				thenumberaddCut = 1;
-				theaddCut = thelastCut;
-				
-				if(life[indexTab] > 5f && iminDeathZone){
-					iminDeathZone = false;
-					endDanger = indexTab;
-					var offset = 0f;
-					if(indexTab != 0){
-						offset = (5f-(float)life[indexTab-1])/(float)(life[indexTab] - life[indexTab - 1]);
-					}
-					deathZone.Add(beginDanger, endDanger + offset);
-				}
-				
-				if((life[indexTab] > 25f) && iminDangerZone){
-					endDanger = indexTab;
-					iminDangerZone = false;
-					var offset = 0f;
-					if(indexTab != 0){
-						offset = (25f-(float)life[indexTab-1])/(float)(life[indexTab] - life[indexTab - 1]);
-					}
-					dangerZone.Add(beginDanger, endDanger + offset);
-				}
-				
-				if(life[indexTab] <= 5f && !iminDeathZone){
-					iminDeathZone = true;
-					var offset = 0f;
-					if(indexTab != 0){
-						offset = (5f-(float)life[indexTab])/(float)(life[indexTab - 1] - life[indexTab]);
-					}
-					beginDanger = indexTab - offset;
-				}
-				
-				if(life[indexTab] <= 25f && !iminDangerZone){
-					iminDangerZone = true;
-					var offset = 0f;
-					if(indexTab != 0){
-						offset = (25f-(float)life[indexTab])/(float)(life[indexTab - 1] - life[indexTab]);
-					}
-					beginDanger = indexTab - offset;
-				}
-				
-				indexTab++;
-				
-				
-				
-			}
-		}
-		
-		var thelasttime = thetimecut;
-		var thelastvalue = DataManager.Instance.lifeGraph.Last().Value;
-		while(thelasttime + thecut < DataManager.Instance.songSelected.duration && indexTab < 200){
-			life[indexTab] = thelastvalue;
-			indexTab++;
-		};
-		if(indexTab < 200)life[indexTab] = thelastvalue;*/
-		
-		
+	
 		var indexfe = -1;
 		var indexfg = -1;
 		var indexfm = -1;
@@ -679,13 +635,13 @@ public class ScoreScript : MonoBehaviour {
 			indexfm = 200;	
 		}
 		for(int i=0; i<200; i++){
-			if(indexfe == -1 && DataManager.Instance.firstEx - DataManager.Instance.firstArrow <= (dur/200f)*i){
+			if(indexfe == -1 && DataManager.Instance.firstEx <= (dur/200f)*i){
 				indexfe = i;	
 			}
-			if(indexfg == -1 && DataManager.Instance.firstGreat - DataManager.Instance.firstArrow <= (dur/200f)*i){
+			if(indexfg == -1 && DataManager.Instance.firstGreat <= (dur/200f)*i){
 				indexfg = i;	
 			}
-			if(indexfm == -1 && DataManager.Instance.firstMisteak - DataManager.Instance.firstArrow <= (dur/200f)*i){
+			if(indexfm == -1 && DataManager.Instance.firstMisteak <= (dur/200f)*i){
 				indexfm = i;	
 			}
 		}
@@ -753,27 +709,29 @@ public class ScoreScript : MonoBehaviour {
 		}*/
 		
 		//Graph dangerzone
-		
+		dzToActivate = new List<GameObject>();
 		foreach(var dz in dangerZone){
 			var debut = (dz.Key/200f)*12f - 8f;	
 			var fin = (dz.Value/200f)*12f - 8f;	
-			
-			var thezone = (GameObject) Instantiate(cubeDangerZone, new Vector3(((fin + debut)/2f), cubeDangerZone.transform.position.y, cubeDangerZone.transform.position.z), cubeDangerZone.transform.rotation);
-			thezone.transform.localScale = new Vector3((fin - debut), thezone.transform.localScale.y, thezone.transform.localScale.z);
-			thezone.renderer.material.color = new Color(1f, 1f, 0f, 0.3f);
-			thezone.SetActiveRecursively(false);
-			dzToActivate.Add(thezone);
+			if(debut != fin){
+				var thezone = (GameObject) Instantiate(cubeDangerZone, new Vector3(((fin + debut)/2f), cubeDangerZone.transform.position.y, cubeDangerZone.transform.position.z), cubeDangerZone.transform.rotation);
+				thezone.transform.localScale = new Vector3((fin - debut), thezone.transform.localScale.y, thezone.transform.localScale.z);
+				thezone.renderer.material.color = new Color(1f, 1f, 0f, 0.3f);
+				thezone.SetActiveRecursively(false);
+				dzToActivate.Add(thezone);
+			}
 		}
 		
 		foreach(var dz in deathZone){
 			var debut = ((float)dz.Key/200f)*12f - 8f;	
 			var fin = ((float)dz.Value/200f)*12f - 8f;	
-			
-			var thezone = (GameObject) Instantiate(cubeDangerZone, new Vector3(((fin + debut)/2f), cubeDangerZone.transform.position.y, cubeDangerZone.transform.position.z), cubeDangerZone.transform.rotation);
-			thezone.transform.localScale = new Vector3((fin - debut), thezone.transform.localScale.y, thezone.transform.localScale.z);
-			thezone.renderer.material.color = new Color(1f, 0f, 0f, 0.3f);
-			thezone.SetActiveRecursively(false);
-			dzToActivate.Add(thezone);
+			if(debut != fin){
+				var thezone = (GameObject) Instantiate(cubeDangerZone, new Vector3(((fin + debut)/2f), cubeDangerZone.transform.position.y, cubeDangerZone.transform.position.z - 1), cubeDangerZone.transform.rotation);
+				thezone.transform.localScale = new Vector3((fin - debut), thezone.transform.localScale.y, thezone.transform.localScale.z);
+				thezone.renderer.material.color = new Color(1f, 0f, 0f, 0.3f);
+				thezone.SetActiveRecursively(false);
+				dzToActivate.Add(thezone);
+			}
 		}
 		
 		
@@ -824,8 +782,9 @@ public class ScoreScript : MonoBehaviour {
 	
 		DataManager.Instance.lifeGraph = new Dictionary<double, double>();
 		var dur = DataManager.Instance.songSelected.duration;
-		for(double i=0; i<(dur-1);i += (dur - 1)/200f){
-			DataManager.Instance.lifeGraph.Add((double)i, (double)UnityEngine.Random.value*100);	
+		for(double i=0; i<(dur-1);i += (dur - 1)/400f){
+			if(UnityEngine.Random.value > 0.5f) DataManager.Instance.lifeGraph.Add((double)i, (double)UnityEngine.Random.value*100);	
+			
 		}
 		DataManager.Instance.firstEx = 15.2;
 		

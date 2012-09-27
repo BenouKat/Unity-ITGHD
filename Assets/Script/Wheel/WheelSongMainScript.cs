@@ -22,6 +22,11 @@ public class WheelSongMainScript : MonoBehaviour {
 	public GameObject cacheOption;
 	public AudioSource songClip;
 	public AudioSource mainThemeClip;
+	public ParticleSystem Line1;
+	public ParticleSystem Fond1;
+	public ParticleSystem Explode1;
+	public ParticleSystem Explode2;
+	public ParticleSystem Explode3;
 	
 	//List And dictionary
 	private Dictionary<string, GameObject> packs;
@@ -120,7 +125,8 @@ public class WheelSongMainScript : MonoBehaviour {
 	private bool movinOption;
 	private bool OptionMode;
 	private bool movinNormal;
-	
+	private bool movinSong;
+	private bool SongMode;
 	
 	
 	//Move to option mode
@@ -133,6 +139,20 @@ public class WheelSongMainScript : MonoBehaviour {
 	private Vector2 moveOptionDiff;
 	public Vector2 arriveOptionDiff;
 	
+	
+	//moveToSong
+	private Vector2 departSongDiff;
+	private Vector2 moveSongDiff;
+	public Vector2 arriveSongDiff;
+	public float speedMoveSong;
+	public Rect posSongTitle;
+	public Rect posSubTitle;
+	public Rect posArtist;
+	public Rect posStepArtist;
+	public Rect posBestScore;
+	public Rect posTopProfileScore;
+	private float[] alphaSongLaunch;
+	public float speedAlphaSongLaunch;
 	
 	//Option mode
 	private bool[] stateLoading;
@@ -292,12 +312,16 @@ public class WheelSongMainScript : MonoBehaviour {
 		alphaBanner = 1f;
 		totalAlpha = 0f;
 		locked = false;
+		alphaSongLaunch = new float[6];
+		for(int i=0;i<6; i++){ alphaSongLaunch[i] = 0f; }
 		alreadyRefresh = true;
 		FadeOutBanner = false;
 		FadeInBanner = false;
 		graph.enabled = false;
 		movinOption = false;
 		OptionMode = false;
+		SongMode = false;
+		movinSong = false;
 		textButton = "Option";
 		matCache = cacheOption.renderer.material;
 		fadeAlphaOptionTitle = 1f;
@@ -350,7 +374,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		GUI.skin = skin;
 		GUI.color = new Color(1f, 1f, 1f, 1f - totalAlpha);
 		
-		if(!OptionMode){
+		if(!OptionMode && !SongMode){
 			#region packGUI
 			//Packs
 			if(search.Trim().Length < 3){
@@ -488,7 +512,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 		#region songdifficultyGUI
 		//SongDifficulty
-		if(songSelected != null && !OptionMode){
+		if(songSelected != null && !OptionMode && !SongMode){
 			var realx = posDifficulty.x*Screen.width;
 			var realy = posDifficulty.y*Screen.height;
 			var realwidth = posDifficulty.width*Screen.width;
@@ -525,7 +549,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 		#region songinfoGUI
 		//Song Info
-		if(songSelected != null && !OptionMode){ 
+		if(songSelected != null && !OptionMode && !SongMode){ 
 			//BPM
 			GUI.Label(new Rect(BPMDisplay.x*Screen.width , BPMDisplay.y*Screen.height, BPMDisplay.width*Screen.width, BPMDisplay.height*Screen.height), "BPM\n" + songSelected[(Difficulty)actualySelected].bpmToDisplay, "bpmdisplay");
 			
@@ -569,13 +593,14 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 		#region optionPlayGUI
 		//Option/jouer
-		if(songSelected != null){
+		if(songSelected != null && !movinSong && !SongMode){
 		
 			
 		
 			
 			//Jouer
 			if(GUI.Button(new Rect(Jouer.x*Screen.width, Jouer.y*Screen.height, Jouer.width*Screen.width, Jouer.height*Screen.height), "Play", "labelGo")){
+				
 				DataManager.Instance.songSelected =  songSelected[actualySelected];
 				DataManager.Instance.difficultySelected = actualySelected;
 				DataManager.Instance.speedmodSelected = speedmodSelected;
@@ -587,7 +612,36 @@ public class WheelSongMainScript : MonoBehaviour {
 				DataManager.Instance.raceSelected = raceSelected;
 				DataManager.Instance.displaySelected = displaySelected;
 				DataManager.Instance.deathSelected = deathSelected;
-				GetComponent<FadeManager>().FadeIn("chart");
+				//A déplacer
+				//GetComponent<FadeManager>().FadeIn("chart");
+				
+				PSDiff[(int)actualySelected].gameObject.active = false;
+				for(int i=0;i<RayDiff.Count;i++){
+					RayDiff[i].active = false;	
+				}
+				var ecartjump = 0;
+				for(int i=0; i<(int)actualySelected; i++){
+					if(diffNumber[i] != 0){
+						ecartjump++;
+					}
+				}
+				departSongDiff = new Vector2(posDifficulty.x + offsetX[(int)actualySelected], posDifficulty.y + ecartDiff*ecartjump);
+				moveSongDiff = new Vector2(posDifficulty.x+ offsetX[(int)actualySelected], posDifficulty.y + ecartDiff*ecartjump);
+				graph.enabled = false;
+				for(int i=0;i<diffSelected.Count;i++){
+					diffSelected.ElementAt(i).Value.transform.Translate(0f, -200f, 0f);
+				}
+				movinSong = true;
+				OptionMode = false;
+				for(int i=0;i<optionSeparator.Length; i++){
+					optionSeparator[i].enabled = false;
+				}
+				Line1.Stop ();
+				Fond1.gameObject.active = false;
+				Explode1.Play();
+				Explode2.Play();
+				Explode3.Play();
+				
 			}
 		
 			//Option
@@ -619,7 +673,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		}
 		
 		//During move to option
-		if(OptionMode || movinNormal){
+		if(OptionMode || movinNormal || movinSong || SongMode){
 			var realx = posDifficulty.x*Screen.width;
 			var realy = posDifficulty.y*Screen.height;
 			var realwidth = posDifficulty.width*Screen.width;
@@ -881,6 +935,28 @@ public class WheelSongMainScript : MonoBehaviour {
 		}
 		
 		#endregion
+	
+		#region SongMode
+		
+		if(SongMode){
+
+				GUI.color = new Color(1f, 1f, 1f, alphaSongLaunch[0]);	
+				GUI.Label(new Rect(posSongTitle.x*Screen.width, posSongTitle.y*Screen.height, posSongTitle.width*Screen.width, posSongTitle.height*Screen.height), DataManager.Instance.songSelected.title, "SongInfoBig");
+				GUI.color = new Color(1f, 1f, 1f, alphaSongLaunch[1]);	
+				GUI.Label(new Rect(posSubTitle.x*Screen.width, posSubTitle.y*Screen.height, posSubTitle.width*Screen.width, posSubTitle.height*Screen.height), DataManager.Instance.songSelected.subtitle, "infosong");
+				GUI.color = new Color(1f, 1f, 1f, alphaSongLaunch[2]);	
+				GUI.Label(new Rect(posArtist.x*Screen.width, posArtist.y*Screen.height, posArtist.width*Screen.width, posArtist.height*Screen.height), "By " + DataManager.Instance.songSelected.artist, "songlabel");
+				GUI.color = new Color(1f, 1f, 1f, alphaSongLaunch[3]);	
+				GUI.Label(new Rect(posStepArtist.x*Screen.width, posStepArtist.y*Screen.height, posStepArtist.width*Screen.width, posStepArtist.height*Screen.height), "Stepchart : " + DataManager.Instance.songSelected.stepartist, "songlabel");
+				GUI.color = new Color(1f, 1f, 1f, alphaSongLaunch[4]);	
+				GUI.Label(new Rect(posBestScore.x*Screen.width, posBestScore.y*Screen.height, posBestScore.width*Screen.width, posBestScore.height*Screen.height), "Best Score : ", "SongInfoLittle");
+				GUI.color = new Color(1f, 1f, 1f, alphaSongLaunch[5]);	
+				GUI.Label(new Rect(posTopProfileScore.x*Screen.width, posTopProfileScore.y*Screen.height, posTopProfileScore.width*Screen.width, posTopProfileScore.height*Screen.height), "Top Friend Score : ", "SongInfoLittle");
+			
+		}
+		
+		#endregion
+	
 	}
 	
 	
@@ -902,7 +978,7 @@ public class WheelSongMainScript : MonoBehaviour {
 			foreach(var eld in diffSelected){
 				if(eld.Key != actualySelected) eld.Value.transform.position = Vector3.Lerp(eld.Value.transform.position, new Vector3(5f, eld.Value.transform.position.y, eld.Value.transform.position.z), Time.deltaTime/speedMoveOption);
 			}
-			camerapack.transform.position = Vector3.Lerp(camerapack.transform.position, new Vector3(20f, camerapack.transform.position.y, camerapack.transform.position.z), Time.deltaTime/speedMoveOption);
+			camerapack.transform.position = Vector3.Lerp(camerapack.transform.position, new Vector3(25f, camerapack.transform.position.y, camerapack.transform.position.z), Time.deltaTime/speedMoveOption);
 			basePositionSeparator = Mathf.Lerp(basePositionSeparator, -50f, Time.deltaTime/speedMoveOption);
 			separator.SetPosition(0, new Vector3(basePositionSeparator, -20f, 20f));
 			separator.SetPosition(1, new Vector3(basePositionSeparator, 12f, 20f));
@@ -913,7 +989,7 @@ public class WheelSongMainScript : MonoBehaviour {
 			diffSelected[actualySelected].transform.position = Vector3.Lerp(diffSelected[actualySelected].transform.position, new Vector3(-1.2f, 0.75f, 2f), Time.deltaTime/speedMoveOption);
 			plane.transform.position = Vector3.Lerp(plane.transform.position, new Vector3(0f, 12f, 20f), Time.deltaTime/speedMoveOption);
 			totalAlpha = Mathf.Lerp(totalAlpha, 1f, Time.deltaTime/speedMoveOption);
-			if(Mathf.Abs(camerapack.transform.position.x - 20f) <= limiteMoveOption){
+			if(Mathf.Abs(camerapack.transform.position.x - 25f) <= limiteMoveOption){
 				
 				foreach(var el in packs){
 					el.Value.transform.position = new Vector3(el.Value.transform.position.x, 20f, el.Value.transform.position.z);
@@ -922,7 +998,7 @@ public class WheelSongMainScript : MonoBehaviour {
 					if(eld.Key != actualySelected) eld.Value.transform.position = new Vector3(5f, eld.Value.transform.position.y, eld.Value.transform.position.z);
 				}
 				
-				camerapack.transform.position = new Vector3(20f, camerapack.transform.position.y, camerapack.transform.position.z);
+				camerapack.transform.position = new Vector3(25f, camerapack.transform.position.y, camerapack.transform.position.z);
 				totalAlpha = 1f;
 				separator.SetPosition(0, new Vector3(-50f, -20f, 20f));
 				separator.SetPosition(1, new Vector3(-50f, 12f, 20f));
@@ -932,6 +1008,59 @@ public class WheelSongMainScript : MonoBehaviour {
 				plane.transform.position = new Vector3(0f, 12f, 20f);
 				movinOption = false;
 				StartCoroutine(startOptionFade());
+			}
+		}
+		
+		
+		
+		if(movinSong && !SongMode){
+
+				foreach(var el in packs){
+					el.Value.transform.position = Vector3.Lerp(el.Value.transform.position, new Vector3(el.Value.transform.position.x, 20f, el.Value.transform.position.z), Time.deltaTime/speedMoveSong);
+				}	
+				foreach(var eld in diffSelected){
+					if(eld.Key != actualySelected) eld.Value.transform.position = Vector3.Lerp(eld.Value.transform.position, new Vector3(5f, eld.Value.transform.position.y, eld.Value.transform.position.z), Time.deltaTime/speedMoveSong);
+				}
+				camerapack.transform.position = Vector3.Lerp(camerapack.transform.position, new Vector3(25f, camerapack.transform.position.y, camerapack.transform.position.z), Time.deltaTime/speedMoveSong);
+				basePositionSeparator = Mathf.Lerp(basePositionSeparator, -50f, Time.deltaTime/speedMoveSong);
+				separator.SetPosition(0, new Vector3(basePositionSeparator, -20f, 20f));
+				separator.SetPosition(1, new Vector3(basePositionSeparator, 12f, 20f));
+				moveSongDiff.x = Mathf.Lerp(moveSongDiff.x, arriveSongDiff.x, Time.deltaTime/speedMoveSong);
+				offsetXDiff = moveSongDiff.x - departSongDiff.x;
+				moveSongDiff.y = Mathf.Lerp(moveSongDiff.y, arriveSongDiff.y, Time.deltaTime/speedMoveSong);
+				offsetYDiff = moveSongDiff.y - departSongDiff.y;
+				plane.transform.position = Vector3.Lerp(plane.transform.position, new Vector3(0f, 10f, 20f), Time.deltaTime/speedMoveSong);
+				plane.transform.localScale = Vector3.Lerp(plane.transform.localScale, new Vector3(3f, 2f, 0.8f), Time.deltaTime/speedMoveSong);
+				totalAlpha = Mathf.Lerp(totalAlpha, 1f, Time.deltaTime/speedMoveSong*2f);
+				if(Mathf.Abs(plane.transform.position.y - 10f) <= limiteMoveOption){
+					
+					foreach(var el in packs){
+						el.Value.transform.position = new Vector3(el.Value.transform.position.x, 20f, el.Value.transform.position.z);
+					}	
+					foreach(var eld in diffSelected){
+						if(eld.Key != actualySelected) eld.Value.transform.position = new Vector3(5f, eld.Value.transform.position.y, eld.Value.transform.position.z);
+					}
+					
+					camerapack.transform.position = new Vector3(25f, camerapack.transform.position.y, camerapack.transform.position.z);
+					totalAlpha = 1f;
+					separator.SetPosition(0, new Vector3(-50f, -20f, 20f));
+					separator.SetPosition(1, new Vector3(-50f, 12f, 20f));
+					offsetXDiff = arriveSongDiff.x - departSongDiff.x;
+					offsetYDiff = arriveSongDiff.y - departSongDiff.y;
+					plane.transform.position = new Vector3(0f, 10f, 20f);
+					plane.transform.localScale = new Vector3(3f, 2f, 0.8f);
+					SongMode = true;
+				}
+			
+			
+		}
+		
+		if(SongMode && alphaSongLaunch[5] < 1 ){
+			for(int i=0;i<6;i++){
+				if(alphaSongLaunch[i] < 1){
+					alphaSongLaunch[i] += Time.deltaTime/speedAlphaSongLaunch;
+					i = 6;
+				}
 			}
 		}
 		

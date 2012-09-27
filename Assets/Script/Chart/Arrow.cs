@@ -5,6 +5,7 @@ public class Arrow {
 	
 	public GameObject goArrow;
 	public GameObject goFreeze;
+	public ArrowPosition arrowPos;
 	public ParticleSystem EndFreeze;
 	
 	public ArrowType arrowType;

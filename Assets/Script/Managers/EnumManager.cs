@@ -74,6 +74,13 @@ public enum FadeState{
 		NONE
 }
 
+public enum ArrowPosition{
+	RIGHT,
+	LEFT,
+	UP,
+	DOWN
+}
+
 enum PrecParticle{
 		FANTASTIC,
 		FANTASTICC,
