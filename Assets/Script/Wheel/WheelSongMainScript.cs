@@ -153,6 +153,8 @@ public class WheelSongMainScript : MonoBehaviour {
 	public Rect posTopProfileScore;
 	private float[] alphaSongLaunch;
 	public float speedAlphaSongLaunch;
+	private float alphaBlack;
+	public float speedAlphaBlack;
 	
 	//Option mode
 	private bool[] stateLoading;
@@ -218,6 +220,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	//Sound
 	AudioClip actualClip;
 	public float speedAudioVolume;
+	public AudioClip launchSong;
 	
 	#endregion
 	// Use this for initialization
@@ -257,6 +260,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		tex.Add("Option7", (Texture2D) Resources.Load("Display"));
 		tex.Add("Option8", (Texture2D) Resources.Load("Race"));
 		tex.Add("Option9", (Texture2D) Resources.Load("Death"));
+		tex.Add("Black", (Texture2D) Resources.Load("black"));
 		
 		diffSelected.Add(Difficulty.BEGINNER, GameObject.Find("DifficultyB"));
 		diffSelected.Add(Difficulty.EASY, GameObject.Find("DifficultyEs"));
@@ -311,6 +315,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		time = 0f;
 		alphaBanner = 1f;
 		totalAlpha = 0f;
+		alphaBlack = 0f;
 		locked = false;
 		alphaSongLaunch = new float[6];
 		for(int i=0;i<6; i++){ alphaSongLaunch[i] = 0f; }
@@ -372,6 +377,9 @@ public class WheelSongMainScript : MonoBehaviour {
 	// Update is called once per frame
 	public void OnGUI () {
 		GUI.skin = skin;
+		
+		
+		
 		GUI.color = new Color(1f, 1f, 1f, 1f - totalAlpha);
 		
 		if(!OptionMode && !SongMode){
@@ -641,6 +649,10 @@ public class WheelSongMainScript : MonoBehaviour {
 				Explode1.Play();
 				Explode2.Play();
 				Explode3.Play();
+				songClip.Stop ();
+				songClip.clip = launchSong;
+				songClip.loop = false;
+				songClip.Play();
 				
 			}
 		
@@ -952,7 +964,8 @@ public class WheelSongMainScript : MonoBehaviour {
 				GUI.Label(new Rect(posBestScore.x*Screen.width, posBestScore.y*Screen.height, posBestScore.width*Screen.width, posBestScore.height*Screen.height), "Best Score : ", "SongInfoLittle");
 				GUI.color = new Color(1f, 1f, 1f, alphaSongLaunch[5]);	
 				GUI.Label(new Rect(posTopProfileScore.x*Screen.width, posTopProfileScore.y*Screen.height, posTopProfileScore.width*Screen.width, posTopProfileScore.height*Screen.height), "Top Friend Score : ", "SongInfoLittle");
-			
+				GUI.color = new Color(1f, 1f, 1f, alphaBlack);
+				GUI.DrawTexture(new Rect(0f, 0f, Screen.width+1, Screen.height+1), tex["Black"]);
 		}
 		
 		#endregion
@@ -1050,18 +1063,33 @@ public class WheelSongMainScript : MonoBehaviour {
 					plane.transform.position = new Vector3(0f, 10f, 20f);
 					plane.transform.localScale = new Vector3(3f, 2f, 0.8f);
 					SongMode = true;
+					time = 0f;
 				}
 			
 			
 		}
 		
-		if(SongMode && alphaSongLaunch[5] < 1 ){
-			for(int i=0;i<6;i++){
-				if(alphaSongLaunch[i] < 1){
-					alphaSongLaunch[i] += Time.deltaTime/speedAlphaSongLaunch;
-					i = 6;
+		if(SongMode){
+			if(alphaSongLaunch[5] < 1 ){
+				for(int i=0;i<6;i++){
+					if(alphaSongLaunch[i] < 1){
+						alphaSongLaunch[i] += Time.deltaTime/speedAlphaSongLaunch;
+						i = 6;
+					}
 				}
 			}
+			
+			if(time > 3f){
+				if(alphaBlack < 1){
+					alphaBlack += Time.deltaTime/speedAlphaBlack;	
+				}else{
+					Application.LoadLevel("ChartScene");
+				}
+					
+			}else if(alphaSongLaunch[5] >= 1){
+				time += Time.deltaTime;	
+			}	
+			
 		}
 		
 		
@@ -1473,11 +1501,11 @@ public class WheelSongMainScript : MonoBehaviour {
 			
 			#region Audio
 			
-			if(songSelected != null && mainThemeClip.volume > 0){
-					mainThemeClip.volume -= speedAudioVolume;
+			if(songSelected != null && alreadyRefresh && mainThemeClip.volume > 0){
+					mainThemeClip.volume -= Time.deltaTime/speedAudioVolume;
 			}
-			if(songSelected == null && mainThemeClip.volume < 1){
-					mainThemeClip.volume += speedAudioVolume;
+			if((songSelected == null || !alreadyRefresh) && mainThemeClip.volume < 1){
+					mainThemeClip.volume += Time.deltaTime/speedAudioVolume;
 			}
 			
 			#endregion

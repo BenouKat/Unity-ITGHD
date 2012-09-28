@@ -53,6 +53,19 @@ public class MainMenu : MonoBehaviour {
 	//Fondu de choix
 	public float speedChoice;
 	private float timeSelect;
+	public float speedFadeMenuRapide;
+	
+	
+	//Fondu de sous choix free
+	public Vector3 positionCameraSousChoixFree;
+	public Vector3 rotationCameraSousChoixFree;
+	public float speedMoveSousChoixFree;
+	private bool sousChoixEnPlace;
+	public GameObject packFree;
+	
+	
+	//Sous Choix
+	private string selection;
 	
 	//GUI text d'aide
 	private Texture2D GUITextTexture;
@@ -92,6 +105,8 @@ public class MainMenu : MonoBehaviour {
 		alphaGUIImage = 0f;
 		timeSelect = 0f;
 		iFade = false;
+		selection = "";
+		sousChoixEnPlace = false;
 	}
 	
 	void OnGUI(){
@@ -121,7 +136,7 @@ public class MainMenu : MonoBehaviour {
 		}
 		
 		if(timeSelect >= timeFade && !iFade){
-			fm.FadeIn(forbiddenTouch);
+			fm.FadeIn(selection);
 			iFade = true;
 		}
 	}
@@ -207,7 +222,7 @@ public class MainMenu : MonoBehaviour {
 		}
 		
 		if(!inPlace){
-			if(Camera.main.transform.position.x <= 0.001f){
+			if(Camera.main.transform.position.x <= 0.01f){
 				//Camera.main.transform.eulerAngles = new Vector3(0f, 0f, 0f);
 				Camera.main.transform.position = new Vector3(0f, -35f, -30f);
 				inPlace = true;
@@ -239,6 +254,11 @@ public class MainMenu : MonoBehaviour {
 					}
 					
 					if(Input.GetMouseButtonDown(0)){
+						sousChoixEnPlace = false;
+						selection = forbiddenTouch;
+						if(selection == "Free"){
+							packFree.SetActiveRecursively(true);
+						}
 						this.updat = UpdateSwitchMode;
 					}
 				}else{
@@ -266,11 +286,109 @@ public class MainMenu : MonoBehaviour {
 	}
 	
 	
+	
+	void UpdateSousMenu(){
+
+		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);	
+		RaycastHit hit;
+		
+		if(Physics.Raycast(ray, out hit))
+		{
+			
+			var theGo = hit.transform.gameObject;
+			if(theGo != null && theGo.tag == "SousMenuItem"){
+				if(theGo.name.Contains("Cube")){
+					//theGo.transform.localPosition = Vector3.Lerp(theGo.transform.localPosition, new Vector3(-28f, theGo.transform.localPosition.y, theGo.transform.localPosition.z), Time.deltaTime/speedSlide);
+					if(!goToBack.ContainsKey(theGo.transform.GetChild(0).name)) goToBack.Add(theGo.transform.GetChild(0).name, theGo);
+					forbiddenTouch = theGo.transform.GetChild(0).name;
+					
+				}else{
+					//theGo.transform.parent.localPosition = Vector3.Lerp(theGo.transform.parent.localPosition, new Vector3(-28f, theGo.transform.parent.localPosition.y, theGo.transform.parent.localPosition.z), Time.deltaTime/speedSlide);
+					if(!goToBack.ContainsKey(theGo.name)) goToBack.Add(theGo.name, theGo.transform.parent.gameObject);
+					forbiddenTouch = theGo.name;
+					
+				}
+				
+				if(Input.GetMouseButtonDown(0)){
+					selection = forbiddenTouch;
+				}
+			}else{
+				forbiddenTouch = "";
+			}
+		}else{
+			forbiddenTouch = "";
+		}	
+		var toDelete = new List<string>();
+		foreach(var el in goToBack){
+			if(el.Key != forbiddenTouch){
+				//el.Value.transform.localPosition = Vector3.Lerp(el.Value.transform.localPosition, new Vector3(-20f, el.Value.transform.localPosition.y, el.Value.transform.localPosition.z), Time.deltaTime/speedSlide);
+				if(el.Value.transform.localPosition.x >= -20.01f){
+					//el.Value.transform.localPosition = new Vector3(-20f, el.Value.transform.localPosition.y, el.Value.transform.localPosition.z);
+					toDelete.Add(el.Key);
+				}
+			}
+		}
+		foreach(var del in toDelete){
+			goToBack.Remove(del);	
+		}
+		
+	}
+	
+	
 	//Update de la selection
 	void UpdateSwitchMode(){
-		goToBack[forbiddenTouch].transform.position = Vector3.Lerp(goToBack[forbiddenTouch].transform.position, new Vector3(goToBack[forbiddenTouch].transform.position.x, 50f, goToBack[forbiddenTouch].transform.position.z), Time.deltaTime/speedChoice);
-		Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, new Vector3(Camera.main.transform.position.x, 60f, Camera.main.transform.position.z), Time.deltaTime/speedChoice);
 		
-		timeSelect += Time.deltaTime;
+		if(selection == "Free" ){
+			if(!sousChoixEnPlace){
+				if(Mathf.Abs(Camera.main.transform.position.x - positionCameraSousChoixFree.x) > 0.01f){
+					Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, positionCameraSousChoixFree, Time.deltaTime/speedMoveSousChoixFree);
+					Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.Euler(rotationCameraSousChoixFree), Time.deltaTime/speedMoveSousChoixFree);
+					if(Mathf.Abs(Camera.main.transform.position.x - positionCameraSousChoixFree.x) < 15f) packFree.transform.localPosition = Vector3.Lerp(packFree.transform.localPosition, new Vector3(0f, 0f, 0f), Time.deltaTime/speedFadeMenuRapide);
+				}else{
+					Camera.main.transform.position = positionCameraSousChoixFree;
+					Camera.main.transform.eulerAngles = rotationCameraSousChoixFree;
+					sousChoixEnPlace = true;
+					goToBack[forbiddenTouch].transform.localPosition = new Vector3(-20f, goToBack[forbiddenTouch].transform.localPosition.y, goToBack[forbiddenTouch].transform.localPosition.z);
+					forbiddenTouch = "";
+				}	
+			}else{
+				UpdateSousMenu();
+			}
+			
+			
+		}else if(selection == "Back"){
+			
+			if(Mathf.Abs(Camera.main.transform.position.x) <= 0.001f){
+				Camera.main.transform.position = new Vector3(0f, -35f, -30f);
+				Camera.main.transform.rotation = Quaternion.LookRotation(new Vector3(0f, 0f, 1f));
+				packFree.transform.localPosition = new Vector3(-40f, 0f, 0f);
+				if(selection == "Back") selection = "";
+				sousChoixEnPlace = false;
+				packFree.SetActiveRecursively(false);
+				this.updat = UpdateMainMenu;
+				
+				
+			}else{
+				Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(new Vector3(0f, 0f, 1f)), Time.deltaTime/speedFadeMenuRapide);
+				Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, new Vector3(0f, -35f, -30f), Time.deltaTime/speedFadeMenuRapide);
+				packFree.transform.localPosition = Vector3.Lerp(packFree.transform.localPosition, new Vector3(-40f, 0f, 0f), Time.deltaTime/speedFadeMenuRapide);
+				
+				if(Mathf.Abs(Camera.main.transform.position.x) <= 1f){
+					UpdateMainMenu();
+				}else{
+					forbiddenTouch = "";
+					if(goToBack.Count > 0) goToBack.Clear();
+				}
+			}
+			
+		}else if(!String.IsNullOrEmpty(selection)){
+			goToBack[selection].transform.position = Vector3.Lerp(goToBack[selection].transform.position, new Vector3(goToBack[selection].transform.position.x, 50f, goToBack[selection].transform.position.z), Time.deltaTime/speedChoice);
+			Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, new Vector3(Camera.main.transform.position.x, 60f, Camera.main.transform.position.z), Time.deltaTime/speedChoice);
+			
+			timeSelect += Time.deltaTime;
+		}
+		
 	}
 }
+
+//-57.2
