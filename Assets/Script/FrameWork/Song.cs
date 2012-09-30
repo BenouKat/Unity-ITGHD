@@ -33,12 +33,13 @@ public class Song {
 	
 	public double stepPerSecondAverage;
 	public double stepPerSecondMaximum;
-	//public double timeMaxStep;
 	public double stepPerSecondStream;
 	public double longestStream;
 	public int numberOfCross;
 	public int numberOfFootswitch;
 	public string song;
+	
+	public SongInfoProfil sip;
 	
 	//stepchart
 	public List<List<string>> stepchart;

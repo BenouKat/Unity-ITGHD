@@ -66,13 +66,25 @@ public class MainMenu : MonoBehaviour {
 	
 	//Sous Choix
 	private string selection;
+	public float speedTransistionSousChoix;
 	
 	//GUI text d'aide
 	private Texture2D GUITextTexture;
+	private Texture2D Black;
 	public Rect posGUIimage;
 	public Rect posGUItext;
 	public float speedGUIImage;
 	private float alphaGUIImage;
+	private bool DisplayLabel;
+	
+	
+	//Message d'erreur
+	private bool error;
+	private string listerror = "Story Mods Option Trophy Learn LAN Double";
+	public Rect posError;
+	public float offsetNumberBuild;
+	public float speedFadeError;
+	private float alphaError;
 	
 	public GUISkin skin;
 	
@@ -102,14 +114,20 @@ public class MainMenu : MonoBehaviour {
 		alphaPressStart = 0f;
 		pressStart = (Texture2D) Resources.Load("PressStart");
 		GUITextTexture = (Texture2D) Resources.Load("GUIBar");
+		Black = (Texture2D) Resources.Load("black");
 		alphaGUIImage = 0f;
 		timeSelect = 0f;
 		iFade = false;
 		selection = "";
 		sousChoixEnPlace = false;
+		DisplayLabel = false;
+		error = false;
+		alphaError = 0f;
 	}
 	
 	void OnGUI(){
+		GUI.skin = skin;
+		
 		if(time >= 6 && (this.updat == UpdateUp || this.updat == UpdateTang)){
 			alphaPressStart += signPressStart*(Time.deltaTime/speedPressStart);
 			if((alphaPressStart >= 1f && signPressStart == 1f) || (alphaPressStart <= 0f && signPressStart == -1f)){
@@ -118,8 +136,8 @@ public class MainMenu : MonoBehaviour {
 			GUI.color = new Color(1f, 1f, 1f, alphaPressStart);
 			GUI.DrawTexture(new Rect(posPressStart.x*Screen.width, posPressStart.y*Screen.height, posPressStart.width*Screen.width, posPressStart.height*Screen.height), pressStart);
 		}
-		if(!String.IsNullOrEmpty(forbiddenTouch) && this.updat != UpdateSwitchMode){
-			GUI.skin = skin;
+		if(!String.IsNullOrEmpty(forbiddenTouch) && (this.updat != UpdateSwitchMode || DisplayLabel) && !error){
+			
 			if(alphaGUIImage <= 1f){
 				alphaGUIImage += Time.deltaTime/speedGUIImage;	
 			}
@@ -135,10 +153,17 @@ public class MainMenu : MonoBehaviour {
 			alphaGUIImage -= Time.deltaTime/speedGUIImage;	
 		}
 		
-		if(timeSelect >= timeFade && !iFade){
-			fm.FadeIn(selection);
-			iFade = true;
+		if(error){
+			GUI.color = new Color(1f, 1f, 1f, 0.7f*alphaError);
+			GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), Black);
+			GUI.color = new Color(1f, 1f, 1f, 1f*alphaError);
+			GUI.Label(new Rect(posError.x*Screen.width, posError.y*Screen.height, posError.width*Screen.width, posError.height*Screen.height), 
+				TextManager.Instance.texts["ErrorMainMenuMessage"][forbiddenTouch], "errorMessage");
+			GUI.Label(new Rect(posError.x*Screen.width, (posError.y + offsetNumberBuild)*Screen.height, posError.width*Screen.width, posError.height*Screen.height), 
+				TextManager.Instance.texts["Config"]["NumberBuild"], "errorMessage");
 		}
+		
+		
 	}
 	
 	//Wait avant de lancer le mainmenu
@@ -162,6 +187,16 @@ public class MainMenu : MonoBehaviour {
 			}
 		}else{
 			time += Time.deltaTime;	
+		}
+		
+		if(timeSelect >= timeFade && !iFade){
+			if(selection == "Quit"){
+				Application.Quit();
+			}else{
+				fm.FadeIn(selection);
+				iFade = true;
+			}
+			
 		}
 	}
 	
@@ -232,55 +267,70 @@ public class MainMenu : MonoBehaviour {
 			}
 		}
 		if(Camera.main.transform.position.x <= 1f){
-			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);	
-			RaycastHit hit;
-			//Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(ray.direction), 0.1f);
-			
-			if(Physics.Raycast(ray, out hit))
-			{
+			if(!error){
+				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);	
+				RaycastHit hit;
+				//Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(ray.direction), 0.1f);
 				
-				var theGo = hit.transform.gameObject;
-				if(theGo != null && theGo.tag == "MenuItem"){
-					if(theGo.name.Contains("Cube")){
-						theGo.transform.localPosition = Vector3.Lerp(theGo.transform.localPosition, new Vector3(-28f, theGo.transform.localPosition.y, theGo.transform.localPosition.z), Time.deltaTime/speedSlide);
-						if(!goToBack.ContainsKey(theGo.transform.GetChild(0).name)) goToBack.Add(theGo.transform.GetChild(0).name, theGo);
-						forbiddenTouch = theGo.transform.GetChild(0).name;
-						Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(Vector3.Lerp(new Vector3(0f, 0f, 1f), (theGo.transform.position - Camera.main.transform.position), 0.002f)), 0.1f);
-					}else{
-						theGo.transform.parent.localPosition = Vector3.Lerp(theGo.transform.parent.localPosition, new Vector3(-28f, theGo.transform.parent.localPosition.y, theGo.transform.parent.localPosition.z), Time.deltaTime/speedSlide);
-						if(!goToBack.ContainsKey(theGo.name)) goToBack.Add(theGo.name, theGo.transform.parent.gameObject);
-						forbiddenTouch = theGo.name;
-						Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(Vector3.Lerp(new Vector3(0f, 0f, 1f), (theGo.transform.position - Camera.main.transform.position), 0.002f)), 0.1f);
-					}
+				if(Physics.Raycast(ray, out hit))
+				{
 					
-					if(Input.GetMouseButtonDown(0)){
-						sousChoixEnPlace = false;
-						selection = forbiddenTouch;
-						if(selection == "Free"){
-							packFree.SetActiveRecursively(true);
+					var theGo = hit.transform.gameObject;
+					if(theGo != null && theGo.tag == "MenuItem"){
+						if(theGo.name.Contains("Cube")){
+							theGo.transform.localPosition = Vector3.Lerp(theGo.transform.localPosition, new Vector3(-28f, theGo.transform.localPosition.y, theGo.transform.localPosition.z), Time.deltaTime/speedSlide);
+							if(!goToBack.ContainsKey(theGo.transform.GetChild(0).name)) goToBack.Add(theGo.transform.GetChild(0).name, theGo);
+							forbiddenTouch = theGo.transform.GetChild(0).name;
+							Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(Vector3.Lerp(new Vector3(0f, 0f, 1f), (theGo.transform.position - Camera.main.transform.position), 0.002f)), 0.1f);
+						}else{
+							theGo.transform.parent.localPosition = Vector3.Lerp(theGo.transform.parent.localPosition, new Vector3(-28f, theGo.transform.parent.localPosition.y, theGo.transform.parent.localPosition.z), Time.deltaTime/speedSlide);
+							if(!goToBack.ContainsKey(theGo.name)) goToBack.Add(theGo.name, theGo.transform.parent.gameObject);
+							forbiddenTouch = theGo.name;
+							Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(Vector3.Lerp(new Vector3(0f, 0f, 1f), (theGo.transform.position - Camera.main.transform.position), 0.002f)), 0.1f);
 						}
-						this.updat = UpdateSwitchMode;
+						
+						if(Input.GetMouseButtonDown(0)){
+							if(listerror.Contains(forbiddenTouch)){
+								error = true;	
+							}else{
+								sousChoixEnPlace = false;
+								selection = forbiddenTouch;
+								if(selection == "Free"){
+									packFree.SetActiveRecursively(true);
+								}
+								this.updat = UpdateSwitchMode;
+							}
+							
+						}
+					}else{
+						forbiddenTouch = "";
+						Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(new Vector3(0f, 0f, 1f)), 0.1f);
 					}
 				}else{
 					forbiddenTouch = "";
 					Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(new Vector3(0f, 0f, 1f)), 0.1f);
-				}
-			}else{
-				forbiddenTouch = "";
-				Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(new Vector3(0f, 0f, 1f)), 0.1f);
-			}	
-			var toDelete = new List<string>();
-			foreach(var el in goToBack){
-				if(el.Key != forbiddenTouch){
-					el.Value.transform.localPosition = Vector3.Lerp(el.Value.transform.localPosition, new Vector3(-20f, el.Value.transform.localPosition.y, el.Value.transform.localPosition.z), Time.deltaTime/speedSlide);
-					if(el.Value.transform.localPosition.x >= -20.01f){
-						el.Value.transform.localPosition = new Vector3(-20f, el.Value.transform.localPosition.y, el.Value.transform.localPosition.z);
-						toDelete.Add(el.Key);
+				}	
+				var toDelete = new List<string>();
+				foreach(var el in goToBack){
+					if(el.Key != forbiddenTouch){
+						el.Value.transform.localPosition = Vector3.Lerp(el.Value.transform.localPosition, new Vector3(-20f, el.Value.transform.localPosition.y, el.Value.transform.localPosition.z), Time.deltaTime/speedSlide);
+						if(el.Value.transform.localPosition.x >= -20.01f){
+							el.Value.transform.localPosition = new Vector3(-20f, el.Value.transform.localPosition.y, el.Value.transform.localPosition.z);
+							toDelete.Add(el.Key);
+						}
 					}
 				}
-			}
-			foreach(var del in toDelete){
-				goToBack.Remove(del);	
+				foreach(var del in toDelete){
+					goToBack.Remove(del);	
+				}
+				
+				if(alphaError > 0) alphaError -= Time.deltaTime/speedFadeError;
+			}else{
+				
+				if(alphaError < 1) alphaError += Time.deltaTime/speedFadeError;
+				if(Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Return)){
+					error = false;	
+				}
 			}
 		}
 	}
@@ -288,50 +338,62 @@ public class MainMenu : MonoBehaviour {
 	
 	
 	void UpdateSousMenu(){
-
-		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);	
-		RaycastHit hit;
-		
-		if(Physics.Raycast(ray, out hit))
-		{
+		if(!error){
+			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);	
+			RaycastHit hit;
 			
-			var theGo = hit.transform.gameObject;
-			if(theGo != null && theGo.tag == "SousMenuItem"){
-				if(theGo.name.Contains("Cube")){
-					//theGo.transform.localPosition = Vector3.Lerp(theGo.transform.localPosition, new Vector3(-28f, theGo.transform.localPosition.y, theGo.transform.localPosition.z), Time.deltaTime/speedSlide);
-					if(!goToBack.ContainsKey(theGo.transform.GetChild(0).name)) goToBack.Add(theGo.transform.GetChild(0).name, theGo);
-					forbiddenTouch = theGo.transform.GetChild(0).name;
-					
-				}else{
-					//theGo.transform.parent.localPosition = Vector3.Lerp(theGo.transform.parent.localPosition, new Vector3(-28f, theGo.transform.parent.localPosition.y, theGo.transform.parent.localPosition.z), Time.deltaTime/speedSlide);
-					if(!goToBack.ContainsKey(theGo.name)) goToBack.Add(theGo.name, theGo.transform.parent.gameObject);
-					forbiddenTouch = theGo.name;
-					
-				}
+			if(Physics.Raycast(ray, out hit))
+			{
 				
-				if(Input.GetMouseButtonDown(0)){
-					selection = forbiddenTouch;
+				var theGo = hit.transform.gameObject;
+				if(theGo != null && theGo.tag == "SousMenuItem"){
+					if(theGo.name.Contains("Cube")){
+						theGo.transform.localScale = Vector3.Lerp(theGo.transform.localScale, new Vector3(1.5f, 1.5f, 1.5f), Time.deltaTime/speedSlide);
+						if(!goToBack.ContainsKey(theGo.transform.GetChild(0).name)) goToBack.Add(theGo.transform.GetChild(0).name, theGo);
+						forbiddenTouch = theGo.transform.GetChild(0).name;
+						
+					}else{
+						theGo.transform.parent.localScale = Vector3.Lerp(theGo.transform.parent.localScale, new Vector3(1.5f, 1.5f, 1.5f), Time.deltaTime/speedSlide);
+						if(!goToBack.ContainsKey(theGo.name)) goToBack.Add(theGo.name, theGo.transform.parent.gameObject);
+						forbiddenTouch = theGo.name;
+						
+					}
+					
+					if(Input.GetMouseButtonDown(0)){
+						if(listerror.Contains(forbiddenTouch)){
+							error = true;	
+						}else{
+							selection = forbiddenTouch;
+						}
+						
+					}
+				}else{
+					forbiddenTouch = "";
 				}
 			}else{
 				forbiddenTouch = "";
-			}
-		}else{
-			forbiddenTouch = "";
-		}	
-		var toDelete = new List<string>();
-		foreach(var el in goToBack){
-			if(el.Key != forbiddenTouch){
-				//el.Value.transform.localPosition = Vector3.Lerp(el.Value.transform.localPosition, new Vector3(-20f, el.Value.transform.localPosition.y, el.Value.transform.localPosition.z), Time.deltaTime/speedSlide);
-				if(el.Value.transform.localPosition.x >= -20.01f){
-					//el.Value.transform.localPosition = new Vector3(-20f, el.Value.transform.localPosition.y, el.Value.transform.localPosition.z);
-					toDelete.Add(el.Key);
+			}	
+			var toDelete = new List<string>();
+			foreach(var el in goToBack){
+				if(el.Key != forbiddenTouch){
+					el.Value.transform.localScale = Vector3.Lerp(el.Value.transform.localScale, new Vector3(1f, 1f, 1f), Time.deltaTime/speedSlide);
+					if(el.Value.transform.localScale.x <= 1.01f){
+						el.Value.transform.localScale = new Vector3(1f, 1f, 1f);
+						toDelete.Add(el.Key);
+					}
 				}
 			}
+			foreach(var del in toDelete){
+				goToBack.Remove(del);	
+			}
+			if(alphaError > 0) alphaError -= Time.deltaTime/speedFadeError;
+		}else{
+			
+			if(alphaError < 1) alphaError += Time.deltaTime/speedFadeError;
+			if(Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Return)){
+				error = false;	
+			}
 		}
-		foreach(var del in toDelete){
-			goToBack.Remove(del);	
-		}
-		
 	}
 	
 	
@@ -349,7 +411,9 @@ public class MainMenu : MonoBehaviour {
 					Camera.main.transform.eulerAngles = rotationCameraSousChoixFree;
 					sousChoixEnPlace = true;
 					goToBack[forbiddenTouch].transform.localPosition = new Vector3(-20f, goToBack[forbiddenTouch].transform.localPosition.y, goToBack[forbiddenTouch].transform.localPosition.z);
+					goToBack.Clear();
 					forbiddenTouch = "";
+					DisplayLabel = true;
 				}	
 			}else{
 				UpdateSousMenu();
@@ -366,6 +430,8 @@ public class MainMenu : MonoBehaviour {
 				sousChoixEnPlace = false;
 				packFree.SetActiveRecursively(false);
 				this.updat = UpdateMainMenu;
+				DisplayLabel = false;
+				
 				
 				
 			}else{
@@ -375,20 +441,29 @@ public class MainMenu : MonoBehaviour {
 				
 				if(Mathf.Abs(Camera.main.transform.position.x) <= 1f){
 					UpdateMainMenu();
+					//DisplayLabel = true;
 				}else{
 					forbiddenTouch = "";
 					if(goToBack.Count > 0) goToBack.Clear();
 				}
 			}
 			
+		}else if(selection == "Solo" || selection == "LAN" || selection == "Double"){
+			for(int i=0; i<packFree.transform.GetChildCount();i++){
+				if(packFree.transform.GetChild(i).GetChild(0).name != selection){
+					packFree.transform.GetChild(i).transform.position -= new Vector3(0f, Time.deltaTime/speedTransistionSousChoix, 0f);
+				}
+			}
+			Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, new Vector3(Camera.main.transform.position.x, 60f, Camera.main.transform.position.z), Time.deltaTime/speedChoice);
+			audio.volume = 1f - (float)timeSelect/(float)timeFade;
+			timeSelect += Time.deltaTime;
 		}else if(!String.IsNullOrEmpty(selection)){
 			goToBack[selection].transform.position = Vector3.Lerp(goToBack[selection].transform.position, new Vector3(goToBack[selection].transform.position.x, 50f, goToBack[selection].transform.position.z), Time.deltaTime/speedChoice);
 			Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, new Vector3(Camera.main.transform.position.x, 60f, Camera.main.transform.position.z), Time.deltaTime/speedChoice);
 			
+			audio.volume = 1f - (float)timeSelect/(float)timeFade;
 			timeSelect += Time.deltaTime;
 		}
 		
 	}
 }
-
-//-57.2

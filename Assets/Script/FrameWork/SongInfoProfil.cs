@@ -2,7 +2,9 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
+[Serializable]
 public class SongInfoProfil{
 	
 	//ID
@@ -34,6 +36,9 @@ public class SongInfoProfil{
 				sid.level == this.level;	
 	}
 	
+	public SongInfoProfil Copy(){
+		return new SongInfoProfil(this.songName, this.subtitle, this.numberOfSteps, (Difficulty) this.difficulty, this.level);
+	}
 }
 
 

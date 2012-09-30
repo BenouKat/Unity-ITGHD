@@ -115,6 +115,12 @@ public class DataManager{
 	public bool clear;
 	public double firstArrow;
 	
+	
+	//Memory wheelsong
+	
+	public int mousePosition = -1;
+	public string packSelected = "";
+	
 	public static DataManager Instance{
 		get{
 			if(instance == null){ 
@@ -520,7 +526,7 @@ public class DataManager{
 	
 	public string giveLevelToLoad(string level){
 		switch(level.Trim().ToLower()){
-		case "free":
+		case "solo":
 			return "Free";
 		case "mainmenu":
 			return "MainMenu";

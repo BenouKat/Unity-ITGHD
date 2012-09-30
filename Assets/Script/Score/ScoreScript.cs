@@ -37,7 +37,7 @@ public class ScoreScript : MonoBehaviour {
 	public Rect posCombo;
 	public Rect posRetry;
 	public Rect posQuit;
-	
+	public Rect posRecord;
 	
 	//Graph
 	public GameObject graph;
@@ -69,6 +69,7 @@ public class ScoreScript : MonoBehaviour {
 	private int[] numberOfOthers;
 	private int maxCombo;
 	private string stringmod;
+	private int record;
 	
 	//Fade
 	private bool fadeToChartScene;
@@ -150,6 +151,9 @@ public class ScoreScript : MonoBehaviour {
 			dicTex.Add(((ScoreCount)i).ToString().ToUpper(), (Texture2D) Resources.Load(name));
 		}
 		
+		for(int i=0;i<4;i++){
+			dicTex.Add(i+"fRecord", (Texture2D) Resources.Load(i + "fRecord"));
+		}
 		
 		dicTex.Add("-", (Texture2D) Resources.Load("underNote"));
 		dicTex.Add("+", (Texture2D) Resources.Load("upperNote"));
@@ -187,6 +191,18 @@ public class ScoreScript : MonoBehaviour {
 		FlashCadre = 1f;
 		FlashGraph = 1f;
 		ProcessScore();
+		if(scoreIsLegit()){
+			ProfileManager.Instance.currentProfile.saveASong(DataManager.Instance.songSelected.sip, 
+				DataManager.Instance.scoreEarned, (double)DataManager.Instance.speedmodSelected, 
+				DataManager.Instance.fail);
+		}
+		ProfileManager.Instance.SaveProfile();
+	}
+	
+	
+	bool scoreIsLegit(){
+		return DataManager.Instance.hitJudgeSelected >= Judge.NORMAL && DataManager.Instance.scoreJudgeSelected >= Judge.NORMAL && DataManager.Instance.lifeJudgeSelected >= Judge.NORMAL
+			&& !DataManager.Instance.displaySelected[0] && !DataManager.Instance.displaySelected[1] && !DataManager.Instance.displaySelected[2] && !DataManager.Instance.displaySelected[3];
 	}
 	
 	// Update is called once per frame
@@ -359,6 +375,7 @@ public class ScoreScript : MonoBehaviour {
 		
 		GUI.DrawTexture(resizeRect(posScoringTitle), dicTex["ScoreTitle"]);
 		
+		
 		if(noteToDisplay != "MEDAL"){
 			if(noteToDisplay == "FAIL"){
 				posNote.x = specialFailPos.x;
@@ -371,6 +388,11 @@ public class ScoreScript : MonoBehaviour {
 		}
 		
 		
+		
+		if(record != -1){
+			GUI.color = new Color(1f, 1f, 1f, alphaCombo*alphaTransition);
+			GUI.DrawTexture(new Rect(posRecord.x*Screen.width, posRecord.y*Screen.height, posRecord.width*Screen.width, posRecord.height*Screen.height), dicTex[record + "fRecord"]);
+		}
 		GUI.color = new Color(1f, 1f, 1f, alphaTransition);
 		for(int i=0;i<5;i++){
 			if(i > 1 || (i == 0 && (float)(decoupeScore[0]) != 0f) || (i == 1 && (((float)(decoupeScore[0]) != 0f) || (float)(decoupeScore[1]) != 0f))) GUI.DrawTexture(resizeRectOfX(posScore, offsetScore, i), dicTex["S" + decoupeScore[i]]);
@@ -442,7 +464,11 @@ public class ScoreScript : MonoBehaviour {
 	#region process
 	void ProcessScore(){
 	
-		bannerMat.mainTexture = DataManager.Instance.songSelected.GetBanner();
+		if(DataManager.Instance.songSelected.banner != "noBanner"){
+			bannerMat.mainTexture = DataManager.Instance.songSelected.GetBanner();
+		}else{
+			bannerMat.mainTexture = (Texture2D) Resources.Load("Cublast");
+		}
 			
 		sens = 0;
 	
@@ -626,13 +652,13 @@ public class ScoreScript : MonoBehaviour {
 		var dur = DataManager.Instance.songSelected.duration;
 		
 		if(DataManager.Instance.firstEx == -1){
-			indexfe = 200;
+			indexfe = 199;
 		}
 		if(DataManager.Instance.firstGreat == -1){
-			indexfg = 200;	
+			indexfg = 199;	
 		}
 		if(DataManager.Instance.firstMisteak == -1){
-			indexfm = 200;	
+			indexfm = 199;	
 		}
 		for(int i=0; i<200; i++){
 			if(indexfe == -1 && DataManager.Instance.firstEx <= (dur/200f)*i){
@@ -663,7 +689,7 @@ public class ScoreScript : MonoBehaviour {
 			Destroy(graphFant.gameObject);	
 		}
 		
-		if(indexfe != indexfg && indexfe != 200){
+		if(indexfe != indexfg && indexfe != 199){
 			graphEx.SetVertexCount(indexfg - indexfe + 1);
 			//graphEx.SetColors(DataManager.Instance.precColor[1], DataManager.Instance.precColor[1]);
 			graphEx.materials.First().color = DataManager.Instance.precColor[1];
@@ -676,7 +702,7 @@ public class ScoreScript : MonoBehaviour {
 			Destroy(graphEx.gameObject);	
 		}
 		
-		if(indexfg != indexfm && indexfg != 200){
+		if(indexfg != indexfm && indexfg != 199){
 			graphGreat.SetVertexCount(indexfm - indexfg + 1);
 			//graphGreat.SetColors(DataManager.Instance.precColor[2], DataManager.Instance.precColor[2]);
 			graphGreat.materials.First().color = DataManager.Instance.precColor[2];
@@ -689,7 +715,7 @@ public class ScoreScript : MonoBehaviour {
 			Destroy(graphGreat.gameObject);	
 		}
 		
-		if(indexfm != 200){
+		if(indexfm != 199){
 			graphAll.SetVertexCount(200 - indexfm);
 			//graphAll.SetColors(new Color(0f, 0.3f, 0.1f, 1f), new Color(0f, 0.3f, 0.1f, 1f));
 			graphAll.materials.First().color = new Color(0.85f, 1f, 0.85f, 1f);
@@ -750,6 +776,10 @@ public class ScoreScript : MonoBehaviour {
 		camToRender.RenderToCubemap(cmToChange);
 		camToRender.gameObject.active = false;
 		
+		//Record
+		
+		record = ProfileManager.Instance.SearchPlaceOnSong(DataManager.Instance.songSelected.sip, DataManager.Instance.scoreEarned);
+		
 	}
 	#endregion
 	
@@ -763,8 +793,8 @@ public class ScoreScript : MonoBehaviour {
 		}
 		DataManager.Instance.skyboxIndexSelected = rand;
 			
-		DataManager.Instance.songSelected = LoadManager.Instance.FindSong("SongTest", "Hide and Seek")[Difficulty.EXPERT];
-		DataManager.Instance.scoreEarned = 100.00f;
+		DataManager.Instance.songSelected = LoadManager.Instance.FindSong("Digital Adventures", "Abracadabra")[Difficulty.EXPERT];
+		DataManager.Instance.scoreEarned = 98.00f;
 		
 		DataManager.Instance.precAverage = new List<double>();
 		DataManager.Instance.precAverage.Add(0.05);

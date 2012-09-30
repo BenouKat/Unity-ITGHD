@@ -398,6 +398,8 @@ public class OpenChart{
 					if(dl == "") fakeCreation(theNewsong);
 						//A mettre
 					//if(outputSongs.ContainsKey(theNewsong.difficulty))
+					theNewsong.sip = new SongInfoProfil(theNewsong.title, theNewsong.subtitle, 
+						theNewsong.numberOfSteps, theNewsong.difficulty, theNewsong.level);
 					outputSongs.Add(theNewsong.difficulty, theNewsong);
 				}
 			

@@ -65,8 +65,9 @@ public class LoadManager{
 					" / number step expert : " + songs[el.Key][lastDir(sp)[lengthsp - 1]][Difficulty.EXPERT].numberOfSteps);*/
 					
 			}
+			songs[el.Key].OrderBy(c => c.Key);
 		}
-		
+		songs.OrderBy(c => c.Key);
 		alreadyLoaded = true;
 	}
 	

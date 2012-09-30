@@ -27,6 +27,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	public ParticleSystem Explode1;
 	public ParticleSystem Explode2;
 	public ParticleSystem Explode3;
+	public List<GameObject> medals;
 	
 	//List And dictionary
 	private Dictionary<string, GameObject> packs;
@@ -105,6 +106,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	public Rect posInfo2;
 	public Rect posInfo3;
 	public Rect posInfo4;
+	public Rect posInfo5;
 	public Rect posMaxinten;
 	public Rect Jouer;
 	public Rect Option;
@@ -115,6 +117,12 @@ public class WheelSongMainScript : MonoBehaviour {
 	public float topGraphX;
 	public Rect BPMDisplay;
 	public Rect artistnstepDisplay;
+	private double score;
+	private double bestfriendscore;
+	private string bestnamefriendscore;
+	private bool isScoreFail;
+	public Rect posNote;
+	public Rect posSpecialNote;
 	
 	
 	//Declancheurs
@@ -224,6 +232,10 @@ public class WheelSongMainScript : MonoBehaviour {
 	
 	#endregion
 	// Use this for initialization
+	
+	
+	//test 
+	
 	void Start () {
 		numberPack = 0;
 		nextnumberPack = 0;
@@ -240,6 +252,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		PSDiff = new Dictionary<int, ParticleSystem>();
 		RayDiff = new Dictionary<int, GameObject>();
 		if(!LoadManager.Instance.alreadyLoaded) LoadManager.Instance.Loading();
+		
 		actualBanner = new Texture2D(256,512);
 		
 		tex = new Dictionary<string, Texture2D>();
@@ -261,6 +274,14 @@ public class WheelSongMainScript : MonoBehaviour {
 		tex.Add("Option8", (Texture2D) Resources.Load("Race"));
 		tex.Add("Option9", (Texture2D) Resources.Load("Death"));
 		tex.Add("Black", (Texture2D) Resources.Load("black"));
+		
+		tex.Add("Failed", (Texture2D) Resources.Load("Fail"));
+		tex.Add("BAD", (Texture2D) Resources.Load("NoteBAD"));
+		tex.Add("C", (Texture2D) Resources.Load("NoteC"));
+		tex.Add("B", (Texture2D) Resources.Load("NoteB"));
+		tex.Add("A", (Texture2D) Resources.Load("NoteA"));
+		tex.Add("S", (Texture2D) Resources.Load("NoteS"));
+		
 		
 		diffSelected.Add(Difficulty.BEGINNER, GameObject.Find("DifficultyB"));
 		diffSelected.Add(Difficulty.EASY, GameObject.Find("DifficultyEs"));
@@ -287,17 +308,39 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 		//To do : correct "KeyAlreadyAssign"
 		while(packs.Count() < 5){
+			var tempPos = new Dictionary<GameObject, float>();
+			var tempPack = new Dictionary<string, GameObject>();
+			var position = 0;
+			var thePackPosition = -1;
 			foreach(var el in LoadManager.Instance.ListSong().Keys){
 				var thego = (GameObject) Instantiate(miniCubePack, new Vector3(0f, 13f, 20f), miniCubePack.transform.rotation);
 				if(LoadManager.Instance.ListTexture().ContainsKey(el)) thego.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[el];
-				if(packs.ContainsKey(el)){ 
-					packs.Add(el + "(" + packs.Count + ")", thego);	
+				if(tempPack.ContainsKey(el)){ 
+					tempPack.Add(el + "(" + packs.Count + ")", thego);	
+					if(el + "(" + packs.Count + ")" == DataManager.Instance.packSelected) thePackPosition = position; 
 				}
 				else
 				{ 
-					packs.Add(el, thego); 
+					tempPack.Add(el, thego); 
+					if(el == DataManager.Instance.packSelected) thePackPosition = position;
 				}
-				cubesPos.Add(thego, 0f);
+				tempPos.Add(thego, 0f);
+				position++;
+			}
+			if(DataManager.Instance.packSelected != "" && thePackPosition != -1){
+				for(int i=thePackPosition;i<tempPos.Count;i++){
+					cubesPos.Add(tempPos.ElementAt(i).Key, tempPos.ElementAt(i).Value);
+					packs.Add(tempPack.ElementAt(i).Key, tempPack.ElementAt(i).Value);
+				}
+				for(int i=0;i<thePackPosition;i++){
+					cubesPos.Add(tempPos.ElementAt(i).Key, tempPos.ElementAt(i).Value);
+					packs.Add(tempPack.ElementAt(i).Key, tempPack.ElementAt(i).Value);
+				}
+			}else{
+				for(int i=0;i<tempPos.Count;i++){
+					cubesPos.Add(tempPos.ElementAt(i).Key, tempPos.ElementAt(i).Value);
+					packs.Add(tempPack.ElementAt(i).Key, tempPack.ElementAt(i).Value);
+				}
 			}
 		}
 		organiseCube();
@@ -316,7 +359,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		alphaBanner = 1f;
 		totalAlpha = 0f;
 		alphaBlack = 0f;
-		locked = false;
+		
 		alphaSongLaunch = new float[6];
 		for(int i=0;i<6; i++){ alphaSongLaunch[i] = 0f; }
 		alreadyRefresh = true;
@@ -327,25 +370,28 @@ public class WheelSongMainScript : MonoBehaviour {
 		OptionMode = false;
 		SongMode = false;
 		movinSong = false;
+		locked = false;
 		textButton = "Option";
 		matCache = cacheOption.renderer.material;
 		fadeAlphaOptionTitle = 1f;
 		stateLoading = new bool[9];
 		displaySelected = new bool[DataManager.Instance.aDisplay.Length];
 		for(int i=0;i<stateLoading.Length-1;i++) stateLoading[i] = false;
-		for(int j=0;j<DataManager.Instance.aDisplay.Length;j++) displaySelected[j] = false;
+		for(int j=0;j<DataManager.Instance.aDisplay.Length;j++) displaySelected[j] = DataManager.Instance.songSelected != null ? DataManager.Instance.displaySelected[j] : false;
 		
-		speedmodSelected = 2f;
-		rateSelected = 0f;
-		scoreJudgeSelected = Judge.NORMAL;
-		hitJudgeSelected = Judge.NORMAL;
-		lifeJudgeSelected = Judge.NORMAL;
-		skinSelected = 0;
-		raceSelected = 0;
-		deathSelected = 0;
 		
-		speedmodstring = "2.00";
-		ratestring = "00";
+		
+		speedmodSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.speedmodSelected : 2f;
+		rateSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.rateSelected : 0f;
+		scoreJudgeSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.scoreJudgeSelected : Judge.NORMAL;
+		hitJudgeSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.hitJudgeSelected : Judge.NORMAL;
+		lifeJudgeSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.lifeJudgeSelected : Judge.NORMAL;
+		skinSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.skinSelected : 0;
+		raceSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.raceSelected : 0;
+		deathSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.deathSelected :0;
+		
+		speedmodstring = speedmodSelected.ToString("0.00");
+		ratestring = rateSelected.ToString("00");
 		
 		alphaText = new float[stateLoading.Length];
 		isFading = new bool[stateLoading.Length];
@@ -368,10 +414,13 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 		alreadyFade = false;
 			
-		actualySelected = Difficulty.BEGINNER;
-		trulySelected = Difficulty.BEGINNER;
+		actualySelected =  DataManager.Instance.difficultySelected;
+		trulySelected = DataManager.Instance.difficultySelected;
 		onHoverDifficulty = Difficulty.NONE;
 		
+		if(DataManager.Instance.mousePosition != -1){
+			startnumber = DataManager.Instance.mousePosition;
+		}
 	}
 	
 	// Update is called once per frame
@@ -592,8 +641,24 @@ public class WheelSongMainScript : MonoBehaviour {
 			//Number of stops						    
 			GUI.Label(new Rect(posInfo4.x*Screen.width , (posInfo4.y + offsetInfo*1f)*Screen.height, posInfo4.width*Screen.width, posInfo4.height*Screen.height), songSelected[(Difficulty)actualySelected].stops.Count + " Stops", "infosong");
 		
-			
+			//Personnal best					
+			GUI.Label(new Rect(posInfo5.x*Screen.width , (posInfo5.y + offsetInfo*0f)*Screen.height, posInfo5.width*Screen.width, posInfo5.height*Screen.height), score == -1 ? "Never scored" : "Best : " + score.ToString("0.00") + "%" + (isScoreFail ? " (Fail)" : "") , "infosong");
+			//Friend best :					    
+			GUI.Label(new Rect(posInfo5.x*Screen.width , (posInfo5.y + offsetInfo*1f)*Screen.height, posInfo5.width*Screen.width, posInfo5.height*Screen.height), bestfriendscore == -1 ? "No friend scored" : "Record : " + bestfriendscore.ToString("0.00") + "%", "infosong");
+			//Friend name :					    
+			GUI.Label(new Rect(posInfo5.x*Screen.width , (posInfo5.y + offsetInfo*2f)*Screen.height, posInfo5.width*Screen.width, posInfo5.height*Screen.height), bestnamefriendscore == "-" ? "" : "Record owner : " + bestnamefriendscore, "infosong");
 		
+			if(score != -1 && score < 96f){
+				if(!isScoreFail){
+					GUI.DrawTexture(new Rect(posNote.x*Screen.width, posNote.y*Screen.height, posNote.width*Screen.width, posNote.height*Screen.height), 
+						tex[DataManager.Instance.giveNoteOfScore((float)score).Split(';')[1]]);
+			
+				}else{
+					GUI.DrawTexture(new Rect(posSpecialNote.x*Screen.width, posSpecialNote.y*Screen.height, posSpecialNote.width*Screen.width, posSpecialNote.height*Screen.height), 
+						tex["Failed"]);
+				}
+			}
+			
 		}
 		#endregion
 		
@@ -620,6 +685,8 @@ public class WheelSongMainScript : MonoBehaviour {
 				DataManager.Instance.raceSelected = raceSelected;
 				DataManager.Instance.displaySelected = displaySelected;
 				DataManager.Instance.deathSelected = deathSelected;
+				DataManager.Instance.packSelected = search.Trim().Length < 3 ? packs.ElementAt(numberPack).Key : "";
+				DataManager.Instance.mousePosition = search.Trim().Length < 3 ? startnumber : -1;
 				//A déplacer
 				//GetComponent<FadeManager>().FadeIn("chart");
 				
@@ -922,7 +989,7 @@ public class WheelSongMainScript : MonoBehaviour {
 							if(GUI.Button(new Rect((posItem[8].x - ecartForBack)*Screen.width, posItem[8].y*Screen.height, posItem[8].width*Screen.width, posItem[8].height*Screen.height), "", "LBackward")){
 								previousSelected = deathSelected;
 								if(deathSelected == 0){
-									deathSelected = DataManager.Instance.aDeath.Length - 1;
+									deathSelected = DataManager.Instance.aDeath.Length - 1; 
 								}else{
 									deathSelected--;
 								}
@@ -961,9 +1028,9 @@ public class WheelSongMainScript : MonoBehaviour {
 				GUI.color = new Color(1f, 1f, 1f, alphaSongLaunch[3]);	
 				GUI.Label(new Rect(posStepArtist.x*Screen.width, posStepArtist.y*Screen.height, posStepArtist.width*Screen.width, posStepArtist.height*Screen.height), "Stepchart : " + DataManager.Instance.songSelected.stepartist, "songlabel");
 				GUI.color = new Color(1f, 1f, 1f, alphaSongLaunch[4]);	
-				GUI.Label(new Rect(posBestScore.x*Screen.width, posBestScore.y*Screen.height, posBestScore.width*Screen.width, posBestScore.height*Screen.height), "Best Score : ", "SongInfoLittle");
+				GUI.Label(new Rect(posBestScore.x*Screen.width, posBestScore.y*Screen.height, posBestScore.width*Screen.width, posBestScore.height*Screen.height), score == -1 ? "No personnel score yet" : "Best Score : " + score.ToString("0.00") + "%" + (isScoreFail ? " (Fail)" : ""), "SongInfoLittle");
 				GUI.color = new Color(1f, 1f, 1f, alphaSongLaunch[5]);	
-				GUI.Label(new Rect(posTopProfileScore.x*Screen.width, posTopProfileScore.y*Screen.height, posTopProfileScore.width*Screen.width, posTopProfileScore.height*Screen.height), "Top Friend Score : ", "SongInfoLittle");
+				GUI.Label(new Rect(posTopProfileScore.x*Screen.width, posTopProfileScore.y*Screen.height, posTopProfileScore.width*Screen.width, posTopProfileScore.height*Screen.height), bestfriendscore == -1 ? "No other record" : "Top Friend Score : " + bestfriendscore.ToString("0.00") + "%" + " (" + bestnamefriendscore + ")" , "SongInfoLittle");
 				GUI.color = new Color(1f, 1f, 1f, alphaBlack);
 				GUI.DrawTexture(new Rect(0f, 0f, Screen.width+1, Screen.height+1), tex["Black"]);
 		}
@@ -991,6 +1058,9 @@ public class WheelSongMainScript : MonoBehaviour {
 			foreach(var eld in diffSelected){
 				if(eld.Key != actualySelected) eld.Value.transform.position = Vector3.Lerp(eld.Value.transform.position, new Vector3(5f, eld.Value.transform.position.y, eld.Value.transform.position.z), Time.deltaTime/speedMoveOption);
 			}
+			foreach(var m in medals){
+				m.transform.position = Vector3.Lerp(m.transform.position, new Vector3(30f, m.transform.position.y, m.transform.position.z),Time.deltaTime/speedMoveOption); 
+			}
 			camerapack.transform.position = Vector3.Lerp(camerapack.transform.position, new Vector3(25f, camerapack.transform.position.y, camerapack.transform.position.z), Time.deltaTime/speedMoveOption);
 			basePositionSeparator = Mathf.Lerp(basePositionSeparator, -50f, Time.deltaTime/speedMoveOption);
 			separator.SetPosition(0, new Vector3(basePositionSeparator, -20f, 20f));
@@ -1002,6 +1072,7 @@ public class WheelSongMainScript : MonoBehaviour {
 			diffSelected[actualySelected].transform.position = Vector3.Lerp(diffSelected[actualySelected].transform.position, new Vector3(-1.2f, 0.75f, 2f), Time.deltaTime/speedMoveOption);
 			plane.transform.position = Vector3.Lerp(plane.transform.position, new Vector3(0f, 12f, 20f), Time.deltaTime/speedMoveOption);
 			totalAlpha = Mathf.Lerp(totalAlpha, 1f, Time.deltaTime/speedMoveOption);
+			
 			if(Mathf.Abs(camerapack.transform.position.x - 25f) <= limiteMoveOption){
 				
 				foreach(var el in packs){
@@ -1010,7 +1081,9 @@ public class WheelSongMainScript : MonoBehaviour {
 				foreach(var eld in diffSelected){
 					if(eld.Key != actualySelected) eld.Value.transform.position = new Vector3(5f, eld.Value.transform.position.y, eld.Value.transform.position.z);
 				}
-				
+				foreach(var m in medals){
+					m.transform.position = new Vector3(30f, m.transform.position.y, m.transform.position.z); 
+				}
 				camerapack.transform.position = new Vector3(25f, camerapack.transform.position.y, camerapack.transform.position.z);
 				totalAlpha = 1f;
 				separator.SetPosition(0, new Vector3(-50f, -20f, 20f));
@@ -1033,6 +1106,9 @@ public class WheelSongMainScript : MonoBehaviour {
 				}	
 				foreach(var eld in diffSelected){
 					if(eld.Key != actualySelected) eld.Value.transform.position = Vector3.Lerp(eld.Value.transform.position, new Vector3(5f, eld.Value.transform.position.y, eld.Value.transform.position.z), Time.deltaTime/speedMoveSong);
+				}
+				foreach(var m in medals){
+					m.transform.position = Vector3.Lerp(m.transform.position, new Vector3(30f, m.transform.position.y, m.transform.position.z),Time.deltaTime/speedMoveSong); 
 				}
 				camerapack.transform.position = Vector3.Lerp(camerapack.transform.position, new Vector3(25f, camerapack.transform.position.y, camerapack.transform.position.z), Time.deltaTime/speedMoveSong);
 				basePositionSeparator = Mathf.Lerp(basePositionSeparator, -50f, Time.deltaTime/speedMoveSong);
@@ -1101,6 +1177,9 @@ public class WheelSongMainScript : MonoBehaviour {
 			foreach(var eld in diffSelected){
 				if(eld.Key != actualySelected) eld.Value.transform.position = Vector3.Lerp(eld.Value.transform.position, new Vector3(0.45f, eld.Value.transform.position.y, eld.Value.transform.position.z), Time.deltaTime/speedMoveOption);
 			}
+			foreach(var m in medals){
+				m.transform.position = Vector3.Lerp(m.transform.position, new Vector3(22f, m.transform.position.y, m.transform.position.z),Time.deltaTime/speedMoveOption); 
+			}
 			camerapack.transform.position = Vector3.Lerp(camerapack.transform.position, new Vector3(0f, camerapack.transform.position.y, camerapack.transform.position.z), Time.deltaTime/speedMoveOption);
 			basePositionSeparator = Mathf.Lerp(basePositionSeparator, -5.5f, Time.deltaTime/speedMoveOption);
 			separator.SetPosition(0, new Vector3(basePositionSeparator, -20f, 20f));
@@ -1128,7 +1207,9 @@ public class WheelSongMainScript : MonoBehaviour {
 				foreach(var eld in diffSelected){
 					if(eld.Key != actualySelected) eld.Value.transform.position = new Vector3(0.45f, eld.Value.transform.position.y, eld.Value.transform.position.z);
 				}
-				
+				foreach(var m in medals){
+					m.transform.position = new Vector3(22f, m.transform.position.y, m.transform.position.z); 
+				}
 				camerapack.transform.position = new Vector3(0f, camerapack.transform.position.y, camerapack.transform.position.z);
 				totalAlpha = 0f;
 				separator.SetPosition(0, new Vector3(-5.5f, -20f, 20f));
@@ -1292,6 +1373,7 @@ public class WheelSongMainScript : MonoBehaviour {
 							activeDiffPS(songSelected);
 							PSDiff[(int)actualySelected].gameObject.active = true;
 							displayGraph(songSelected);
+							verifyScore();
 							graph.enabled = true;
 							cubeSelected = papa.gameObject;
 							alreadyRefresh = false;
@@ -1321,6 +1403,7 @@ public class WheelSongMainScript : MonoBehaviour {
 								activeDiffPS(songSelected);
 								PSDiff[(int)actualySelected].gameObject.active = true;
 								displayGraph(songSelected);
+								verifyScore();
 								graph.enabled = true;
 								cubeSelected = papa.gameObject;
 								alreadyRefresh = false;
@@ -1380,6 +1463,7 @@ public class WheelSongMainScript : MonoBehaviour {
 						trulySelected = (Difficulty)int.Parse(theGo.name);
 						PSDiff[(int)actualySelected].gameObject.active = true;
 						displayGraph(songSelected);
+						verifyScore();
 					}
 				}else{
 					onHoverDifficulty = Difficulty.NONE;
@@ -1927,6 +2011,34 @@ public class WheelSongMainScript : MonoBehaviour {
 	
 	
 	#region util
+	
+	void verifyScore(){
+		var oldscore = score;
+		
+		var kv = ProfileManager.Instance.FindTheBestScore(songSelected[actualySelected].sip);
+		bestfriendscore = kv.Key;
+		bestnamefriendscore = kv.Value;
+		var mystats = ProfileManager.Instance.FindTheSongStat(songSelected[actualySelected].sip);
+		if(mystats != null){
+			score = mystats.score;
+			isScoreFail = mystats.fail;
+			speedmodstring = mystats.speedmodpref.ToString("0.00");
+			speedmodSelected = (float)mystats.speedmodpref;
+		}else{
+			score = -1;
+			isScoreFail = false;
+			speedmodstring = "2.00";
+			speedmodSelected = 2;
+		}
+		if(DataManager.Instance.giveNoteOfScore((float)score) != DataManager.Instance.giveNoteOfScore((float)oldscore) && oldscore >= 96f){
+			medals.FirstOrDefault(c => c.name == DataManager.Instance.giveNoteOfScore((float)oldscore).Split(';')[1]).SetActiveRecursively(false);
+		}
+		if(score >= 96f){
+			medals.FirstOrDefault(c => c.name == DataManager.Instance.giveNoteOfScore((float)score).Split(';')[1]).SetActiveRecursively(true);
+		}
+		
+	}
+	
 	int NextInt(int i, int recurs){
 		var res = 0;
 		if(i == (packs.Count - 1)){

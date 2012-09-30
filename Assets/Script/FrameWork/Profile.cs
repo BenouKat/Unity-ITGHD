@@ -3,10 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Runtime.Serialization;
-using System.Reflection;
 
 [Serializable]
 public class Profile{
@@ -64,59 +60,21 @@ public class Profile{
 		scoreOnSong.Add(test);
 	}
 	
-	public void SaveProfile () {
-
-		if(String.IsNullOrEmpty(idFile)){
-			idFile = name + "-" + DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString() + 
-				DateTime.Now.Day.ToString() + DateTime.Now.Hour.ToString() + DateTime.Now.Minute.ToString() + 
-					DateTime.Now.Second.ToString() + DateTime.Now.Millisecond.ToString();
-		}
-		if(!Directory.Exists(Application.dataPath + "/../Profiles/")){
-				Directory.CreateDirectory(Application.dataPath + "/../Profiles");
-		}
-		if(File.Exists(Application.dataPath + "/../Profiles/" + idFile + ".profile")){
-			File.Move(Application.dataPath + "/../Profiles/" + idFile + ".profile", Application.dataPath + "/../Profiles/" + idFile + ".oldSave");
-		}
-		
-		PlayerPrefs.SetString("idProfile", idFile);
-		
-		
-		Stream stream = File.Open(Application.dataPath + "/../Profiles/" + idFile + ".profile", FileMode.Create);
-		BinaryFormatter bformatter = new BinaryFormatter();
-	    bformatter.Binder = new VersionDeserializationBinder(); 
-		
-		try{
-			bformatter.Serialize(stream, this);
-			stream.Close();
-			
-			if(File.Exists(Application.dataPath + "/../Profiles/" + idFile + ".oldSave")){
-				File.Delete(Application.dataPath + "/../Profiles/" + idFile + ".oldSave");
+	public void saveASong(SongInfoProfil sip, float scoreEarned, double speedmodPref, bool fail){
+		SongInfoProfil thesip = sip.Copy();
+		thesip.score = scoreEarned;
+		thesip.speedmodpref = speedmodPref;
+		thesip.fail = fail;
+		if(scoreOnSong.Any(c => c.CompareId(thesip))){
+			var theold = scoreOnSong.FirstOrDefault(c => c.CompareId(thesip));
+			if(theold.score < scoreEarned){
+				scoreOnSong.Remove(theold);
+				scoreOnSong.Add(thesip);	
+			}else{
+				theold.speedmodpref = speedmodPref;
 			}
-		}catch{
-			
-			stream.Close();
-			File.Delete(Application.dataPath + "/../Profiles/" + idFile + ".profile");
-			if(File.Exists(Application.dataPath + "/../Profiles/" + idFile + ".oldSave")){
-				File.Move(Application.dataPath + "/../Profiles/" + idFile + ".oldSave", Application.dataPath + "/../Profiles/" + idFile + ".profile");
-			}
-		}
-		
-		
-	}
-	
-	public void LoadProfiles () {
-	
-		
-		foreach(var file in Directory.GetFiles(Application.dataPath + "/../Profiles").Where(c => c.Contains(".profile"))){
-			
-			Profile pr = new Profile ();
-			Stream stream = File.Open(file, FileMode.Open);
-			BinaryFormatter bformatter = new BinaryFormatter();
-			bformatter.Binder = new VersionDeserializationBinder(); 
-			pr = (Profile)bformatter.Deserialize(stream);
-			stream.Close();
-			
-			ProfileManager.Instance.profiles.Add(pr);
+		}else{
+			scoreOnSong.Add(thesip);	
 		}
 		
 	}
