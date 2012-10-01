@@ -30,20 +30,57 @@ public class ProfileManager{
 		profiles = new List<Profile>();
 	}
 	
-	public void CreateProfile(){
+	public void CreateTestProfile(){
 		//Test
 		var p1 = new Profile("BenouKat", "baba", "cadd@sdqsd.com");
 		profiles.Add(p1);
 		currentProfile = p1;	
+		SaveProfile();
+	}
+	
+	public void CreateBunchTestProfile(){
+		//Test
+		var p1 = new Profile("BenouKat", "baba", "cadd@sdqsd.com");
+		profiles.Add(p1);
+		currentProfile = p1;	
+		SaveProfile();
+		var p2 = new Profile("Tuhka", "baba", "cadd@sdqsd.com");
+		profiles.Add(p2);
+		currentProfile = p2;	
+		SaveProfile();
+		var p3 = new Profile("NayKid", "baba", "cadd@sdqsd.com");
+		profiles.Add(p3);
+		currentProfile = p3;	
+		SaveProfile();
+		var p4 = new Profile("Wister", "baba", "cadd@sdqsd.com");
+		profiles.Add(p4);
+		currentProfile = p4;	
+		SaveProfile();
+		var p5 = new Profile("Namida", "baba", "cadd@sdqsd.com");
+		profiles.Add(p5);
+		currentProfile = p5;	
+		SaveProfile();
+		var p6 = new Profile("Abababa a gogogo", "baba", "cadd@sdqsd.com");
+		profiles.Add(p6);
+		currentProfile = p6;	
+		SaveProfile();
 	}
 	
 	public bool verifyCurrentProfile(){
 		
 		if(PlayerPrefs.HasKey("idProfile")){
-			currentProfile = profiles.FirstOrDefault(c => c.idFile == PlayerPrefs.GetString("idProfile"));
-			return true;
+			if(profiles.FirstOrDefault(c => c.idFile == PlayerPrefs.GetString("idProfile")) != null){
+				currentProfile = profiles.FirstOrDefault(c => c.idFile == PlayerPrefs.GetString("idProfile"));
+				return false;
+			}
 		}
 		return false;
+	}
+	
+	public void setCurrentProfile(Profile p){
+		
+		currentProfile = p;
+		PlayerPrefs.SetString("idProfile", currentProfile.idFile);
 	}
 	
 	public bool SaveProfile () {

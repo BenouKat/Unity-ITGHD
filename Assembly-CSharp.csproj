@@ -37,10 +37,10 @@
     <Reference Include="System.XML" />
 	<Reference Include="System.Core" />
 	<Reference Include="UnityEngine">
-	  <HintPath>C:/Program Files/Unity35/Editor/Data/Managed/UnityEngine.dll</HintPath>
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEngine.dll</HintPath>
 	</Reference>
 	<Reference Include="UnityEditor">
-	  <HintPath>C:/Program Files/Unity35/Editor/Data/Managed/UnityEditor.dll</HintPath>
+	  <HintPath>C:/Program Files (x86)/Unity/Editor/Data/Managed/UnityEditor.dll</HintPath>
 	</Reference>
   </ItemGroup>
   <ItemGroup>
@@ -74,6 +74,7 @@
      <Compile Include="Assets\Script\Score\TurnMedal.cs" />
      <Compile Include="Assets\Script\Score\TurnSphere.cs" />
      <Compile Include="Assets\Script\SplashScreen\CubeZoneMovin.cs" />
+     <Compile Include="Assets\Script\SplashScreen\IntroScript.cs" />
      <Compile Include="Assets\Script\SplashScreen\TurnAnneau.cs" />
      <Compile Include="Assets\Script\SplashScreen\TurnBigCube.cs" />
      <Compile Include="Assets\Script\Wheel\WheelSongMainScript.cs" />

@@ -54,10 +54,6 @@ public class Profile{
 		password = pass;
 		email = mail;
 		scoreOnSong = new List<SongInfoProfil>();
-		
-		//test
-		var test = new SongInfoProfil("songname", "sub", 1002, Difficulty.EXPERT, 15);
-		scoreOnSong.Add(test);
 	}
 	
 	public void saveASong(SongInfoProfil sip, float scoreEarned, double speedmodPref, bool fail){

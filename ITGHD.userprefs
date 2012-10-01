@@ -1,20 +1,13 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\SplashScreen\CubeZoneMovin.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\SplashScreen\IntroScript.cs">
     <Files>
-      <File FileName="Assets\Script\Managers\ProfileManager.cs" Line="133" Column="1" />
-      <File FileName="Assets\Script\Score\ScoreScript.cs" Line="206" Column="3" />
-      <File FileName="Assets\Script\FrameWork\Profile.cs" Line="75" Column="5" />
-      <File FileName="Assets\Script\Wheel\WheelSongMainScript.cs" Line="246" Column="35" />
-      <File FileName="Assets\Script\FrameWork\Song.cs" Line="90" Column="2" />
-      <File FileName="Assets\Script\FrameWork\OpenChart.cs" Line="402" Column="74" />
-      <File FileName="Assets\Script\FrameWork\SongInfoProfil.cs" Line="7" Column="15" />
-      <File FileName="Assets\Script\Managers\DataManager.cs" Line="122" Column="33" />
-      <File FileName="Assets\Script\Managers\LoadManager.cs" Line="79" Column="1" />
-      <File FileName="Assets\Resources\Texts\texts.txt" Line="22" Column="8" />
-      <File FileName="Assets\Script\SplashScreen\TurnAnneau.cs" Line="14" Column="54" />
-      <File FileName="Assets\Script\SplashScreen\CubeZoneMovin.cs" Line="23" Column="32" />
-      <File FileName="Assets\Script\SplashScreen\TurnBigCube.cs" Line="14" Column="92" />
+      <File FileName="Assets\Script\SplashScreen\IntroScript.cs" Line="41" Column="2" />
+      <File FileName="Assets\Resources\Texts\texts.txt" Line="51" Column="2" />
+      <File FileName="Assets\Script\Managers\TextManager.cs" Line="24" Column="3" />
+      <File FileName="Assets\Script\MainMenu\MainMenu.cs" Line="99" Column="3" />
+      <File FileName="Assets\Script\Managers\ProfileManager.cs" Line="74" Column="17" />
+      <File FileName="Assets\Script\FrameWork\Profile.cs" Line="56" Column="44" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

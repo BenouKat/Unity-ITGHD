@@ -36,6 +36,23 @@ Les options seront accessibles à partir de la build b800.;
 Le mode LAN sera accessible à partir de la build b2000.;
 <Double>;
 Le mode Double sera accessible à partir de la version v1.1 du jeu.;
+[SplashScreen];
+<LOADING>;
+Loading songs...;
+<CONNECTING>;
+Connecting...;
+<CONNECTING_SUCCEED>;
+Welcome, USER_NAME;
+<CONNECTING_CHOOSE>;
+Identification failed. Profiles detected
+Please choose one;
+<CONNECTING_PASSWORD>;
+Please enter your password;
+<CONNECTING_PASSWORDFAIL>;
+Wrong password;
+<CONNECTING_FAIL>;
+Identification failed
+New user detected;
 [Config];
 <NumberBuild>;
 Version actuelle : build b400;
