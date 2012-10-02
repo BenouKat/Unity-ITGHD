@@ -53,6 +53,113 @@ Wrong password;
 <CONNECTING_FAIL>;
 Identification failed
 New user detected;
+<SPEECH_0>;
+Bienvenue dans l'espace du Cube;
+<SPEECH_1>;
+Le Cube est un véritable coeur communautaire ou vous
+pourrez intéragir avec d'autres membres déjà connectés.;
+<SPEECH_2>;
+Le Cube existe grâce la seule composante capable
+de s'harmoniser entre elle : Le sens du rythme.;
+<SPEECH_3>;
+C'est elle qui donne un sens à la communauté du Cube
+et à cet espace harmonique.;
+<SPEECH_4>;
+Ainsi, nous ne pouvons pas laisser entrer un nouvel
+utilisateur sans savoir si son sens du rythme peut
+enrichir cet espace.;
+<SPEECH_5>;
+Repondez à cette question avec votre sens du raisonable : 
+Avez-vous le sens du rythme ?;
+<QUESTION_1_ANSWER_1>;
+Je n'ai jamais joué à des jeux de rythme, ou extrêmement peu.;
+<QUESTION_1_ANSWER_2>;
+J'ai déjà joué à des jeux de rythme, sans insistance.;
+<QUESTION_1_ANSWER_3>;
+Je connais très bien les jeux de rythme, je suis plutôt doué.;
+<QUESTION_1_ANSWER_4>;
+J'ai une passion pour les jeux de rythme, je suis un accro.;
+<SPEECH_6>;
+Parfait.;
+<SPEECH_7>;
+L'espace harmonique du Cube est entretenu grâce à
+la materialisation de la musique sous une forme
+très basique.;
+<SPEECH_8>;
+Cette materialisation, couplée avec le sens du rythme
+des utilisateurs, libère l'énergie nécéssaire à une
+harmonie parfaite.;
+<SPEECH_9>;
+Cette énergie a été inspirée par d'autres espaces plus
+anciens, et aujourd'hui dans une voie d'extinction.;
+<SPEECH_10>;
+Repondez à cette question avec votre sens du raisonable :
+Avez vous déjà visité d'autres espaces comme celui ci ?;
+<QUESTION_2_ANSWER_1>;
+Je ne connais pas Stepmania, DDR ni ITG;
+<QUESTION_2_ANSWER_2>;
+J'ai déjà joué à Stepmania, DDR ou ITG, mais j'avais un niveau modeste;
+<QUESTION_2_ANSWER_3>;
+Je connais très bien Stepmania, DDR ou ITG, et j'avais un niveau proche de l'expert.
+<QUESTION_2_ANSWER_4>;
+Stepmania, DDR ou ITG n'ont pas de secret pour moi, je suis un grand expert.
+<SPEECH_11>;
+Parfait.;
+<SPEECH_12>;
+Au vu de vos réponses, votre profil sera crée de manière différentes
+afin de vous aiguiller pour profiter au maximum de l'espace harmonique du Cube;
+<SPEECH_RESULT_1_1>;
+Nous avons compris que le sens du rythme n'était pas encore
+quelque chose d'inné chez vous.;
+<SPEECH_RESULT_1_2>;
+C'est pourquoi nous vous avons bloqué l'accès à l'histoire de
+la communauté.;
+<SPEECH_RESULT_1_3>;
+Il vous faudra d'abord finir l'apprentissage sur les techniques basiques.;
+<SPEECH_RESULT_2_1>;
+Nous avons compris que le sens du rythme commençait doucement à s'eveiller chez vous.;
+<SPEECH_RESULT_2_2>;
+C'est pourquoi nous avons bloqué l'accès à l'histoire de la communauté,
+sauf si vous arrivez à prouver votre niveau dans un petit test.;
+<SPEECH_RESULT_2_3>;
+Il vous faudra d'abord finir l'apprentissage sur les techniques basiques autrement.;
+<SPEECH_RESULT_3_1>;
+Nous avons compris que le sens du rythme était déjà présent chez vous.;
+<SPEECH_RESULT_3_2>;
+C'est pourquoi nous avons simplement bloqué les challenges expert de l'histoire de la communauté.;
+<SPEECH_RESULT_3_3>;
+Il vous faudra d'abord finir l'histoire du Cube une première fois pour y accéder.;
+<SPEECH_RESULT_4_1>;
+Nous avons compris que le sens du rythme était déjà parfait chez vous.;
+<SPEECH_RESULT_4_2>;
+C'est pourquoi nous vous donnons libre accès à l'histoire de la communauté.;
+<SPEECH_RESULT_4_3>;
+Les challenges experts seront visibles dès la première visite.;
+<SPEECH_13>;
+Pour terminer, merci de rentrer votre nom d'utilisateur.
+Il sera visible par la communauté si vous décidez de vous connecter avec des amis :;
+<SPEECH_14>;
+Merci de rentrer votre mot de passe. Il ne vous sera jamais demandé, sauf si vous decidez
+de jouer avec votre profil sur un autre ordinateur que celui ci :;
+<SPEECH_15>;
+Merci de confirmer votre mot de passe :;
+<SPEECH_PASSWORDWRONG>;
+Les deux mots de passe ne correspondent pas. Merci de rééssayer.
+Rentrez votre mot de passe :;
+<SPEECH_16>;
+Merci. Votre profil a été crée.
+<SPEECH_17>;
+Si vous desirez jouer chez un ami avec votre profil, n'oubliez pas de vous connecter
+avec lui une fois pour échanger vos informations, ou récupérez votre fichier de profil
+dans le repertoire d'installation.;
+<SPEECH_18>;
+Pour un bon sens du rythme, il est important d'avoir un bon sens du challenge.;
+<SPEECH_19>;
+N'hésitez donc pas à vous connecter entre amis. A chaque connexion d'un ami, vos profils
+sont échangés, et vous aurez accès à toutes ses statistiques, même hors connexion, et
+vous procureront des nouveaux objectifs à atteindre.;
+<SPEECH_20>;
+Bienvenue dans l'espace harmonique du Cube, USER_NAME;
 [Config];
 <NumberBuild>;
 Version actuelle : build b400;

@@ -60,7 +60,7 @@ public class ProfileManager{
 		profiles.Add(p5);
 		currentProfile = p5;	
 		SaveProfile();
-		var p6 = new Profile("Abababa a gogogo", "baba", "cadd@sdqsd.com");
+		var p6 = new Profile("BLUI", "baba", "cadd@sdqsd.com");
 		profiles.Add(p6);
 		currentProfile = p6;	
 		SaveProfile();

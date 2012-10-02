@@ -23,6 +23,19 @@ public class IntroScript : MonoBehaviour {
 	public float offset;
 	public float speedLetters;
 	
+	
+	//blui
+	public GameObject cubeBlui;
+	public float speedRotation;
+	public float speedTranslation;
+	public float speedRotationRalenti;
+	public float speedTranslationRalenti;
+	public float speedRotationCamera;
+	public float speedRotationCameraAfterRalenti;
+	public float limitZRalenti;
+	public float limitZRespeed;
+	public float limitZReboost;
+	
 	public GUISkin skin;
 	private string labelToDisplay;
 	private int posLength;
@@ -139,6 +152,28 @@ public class IntroScript : MonoBehaviour {
 	
 	
 	void Update(){
+		if(ls == LOGIN_STATUT.VALID || ls == LOGIN_STATUT.INVALID){
+			if(cubeBlui.transform.position.z > limitZRalenti){
+				cubeBlui.transform.Rotate(new Vector3(Time.deltaTime*speedRotation, 0f , 0f));
+				cubeBlui.transform.position = new Vector3(cubeBlui.transform.position.x, cubeBlui.transform.position.y, cubeBlui.transform.position.z + Time.deltaTime*speedTranslation);
+				Camera.main.transform.Rotate(new Vector3(0f, Time.deltaTime*speedRotationCamera, 0f));
+			}else if(cubeBlui.transform.position.z <= limitZRespeed){
+				cubeBlui.transform.Rotate(new Vector3(Time.deltaTime*speedRotationRalenti, 0f , 0f));
+				cubeBlui.transform.position = new Vector3(cubeBlui.transform.position.x, cubeBlui.transform.position.y, cubeBlui.transform.position.z + Time.deltaTime*speedTranslationRalenti);
+				Camera.main.transform.Rotate(new Vector3(0f, Time.deltaTime*speedRotationCamera, 0f));
+			}else{
+				var distBase = Vector3.Distance(new Vector3(0f, 0f, limitZRespeed), new Vector3(0f, 0f, limitZReboost));
+				var distActual = Vector3.Distance(new Vector3(0f, 0f, cubeBlui.transform.position.z), new Vector3(0f, 0f, limitZRespeed));
+				var percent = distActual/distBase;
+				if(percent > 1f) percent = 1f;
+				var speedRotat = Vector3.Lerp(speedRotationRalenti, speedRotation, percent);
+				var speedTranslat = Vector3.Lerp(speedTranslationRalenti, speedTranslation, percent);
+				var speedmovecam = Vector3.Lerp(speedRotationCamera, speedRotationCameraAfterRalenti, percent);
+				cubeBlui.transform.Rotate(new Vector3(Time.deltaTime*speedRotat, 0f , 0f));
+				cubeBlui.transform.position = new Vector3(cubeBlui.transform.position.x, cubeBlui.transform.position.y, cubeBlui.transform.position.z + Time.deltaTime*speedTranslat);
+				Camera.main.transform.Rotate(new Vector3(0f, Time.deltaTime*speedmovecam, 0f));
+			}
+		}
 		
 	}
 	
@@ -157,6 +192,7 @@ public class IntroScript : MonoBehaviour {
 			yield return new WaitForSeconds(speedLetters);
 		}
 		if(lst != LOGIN_STATUT.NONE){
+			if(lst == LOGIN_STATUT.INVALID || lst == LOGIN_STATUT.VALID) yield return new WaitForSeconds(1f);
 			ls = lst;	
 		}
 	}
@@ -187,6 +223,7 @@ public class IntroScript : MonoBehaviour {
 				yield return new WaitForSeconds(speedLetters);
 				
 			}
+			yield return new WaitForSeconds(1f);
 			ls = LOGIN_STATUT.VALID;
 		}else if(ProfileManager.Instance.profiles.Count > 0){
 			labelToDisplay = TextManager.Instance.texts["SplashScreen"]["CONNECTING_CHOOSE"];
