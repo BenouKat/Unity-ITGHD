@@ -71,7 +71,7 @@ public class ProfileManager{
 		if(PlayerPrefs.HasKey("idProfile")){
 			if(profiles.FirstOrDefault(c => c.idFile == PlayerPrefs.GetString("idProfile")) != null){
 				currentProfile = profiles.FirstOrDefault(c => c.idFile == PlayerPrefs.GetString("idProfile"));
-				return false;
+				return true;
 			}
 		}
 		return false;

@@ -68,7 +68,8 @@ public class IntroScript : MonoBehaviour {
 	
 	void OnGUI(){
 		GUI.skin = skin;
-		GUI.Label(new Rect(labelConnecting.x*Screen.width, labelConnecting.y*Screen.height, labelConnecting.width*Screen.width, labelConnecting.height*Screen.height), labelToDisplay.Substring(0, posLength), "CenteredLabel");
+		
+		if(ls != LOGIN_STATUT.VALID && ls != LOGIN_STATUT.INVALID) GUI.Label(new Rect(labelConnecting.x*Screen.width, labelConnecting.y*Screen.height, labelConnecting.width*Screen.width, labelConnecting.height*Screen.height), labelToDisplay.Substring(0, posLength), "CenteredLabel");
 	
 		
 		if(ls == LOGIN_STATUT.PASSWORD){
@@ -153,12 +154,12 @@ public class IntroScript : MonoBehaviour {
 	
 	void Update(){
 		if(ls == LOGIN_STATUT.VALID || ls == LOGIN_STATUT.INVALID){
-			if(cubeBlui.transform.position.z > limitZRalenti){
-				cubeBlui.transform.Rotate(new Vector3(Time.deltaTime*speedRotation, 0f , 0f));
+			if(cubeBlui.transform.position.z < limitZRalenti){
+				cubeBlui.transform.Rotate(new Vector3(0f, 0f , Time.deltaTime*speedRotation));
 				cubeBlui.transform.position = new Vector3(cubeBlui.transform.position.x, cubeBlui.transform.position.y, cubeBlui.transform.position.z + Time.deltaTime*speedTranslation);
 				Camera.main.transform.Rotate(new Vector3(0f, Time.deltaTime*speedRotationCamera, 0f));
-			}else if(cubeBlui.transform.position.z <= limitZRespeed){
-				cubeBlui.transform.Rotate(new Vector3(Time.deltaTime*speedRotationRalenti, 0f , 0f));
+			}else if(cubeBlui.transform.position.z < limitZRespeed){
+				cubeBlui.transform.Rotate(new Vector3(0f, 0f , Time.deltaTime*speedRotationRalenti));
 				cubeBlui.transform.position = new Vector3(cubeBlui.transform.position.x, cubeBlui.transform.position.y, cubeBlui.transform.position.z + Time.deltaTime*speedTranslationRalenti);
 				Camera.main.transform.Rotate(new Vector3(0f, Time.deltaTime*speedRotationCamera, 0f));
 			}else{
@@ -166,10 +167,10 @@ public class IntroScript : MonoBehaviour {
 				var distActual = Vector3.Distance(new Vector3(0f, 0f, cubeBlui.transform.position.z), new Vector3(0f, 0f, limitZRespeed));
 				var percent = distActual/distBase;
 				if(percent > 1f) percent = 1f;
-				var speedRotat = Vector3.Lerp(speedRotationRalenti, speedRotation, percent);
-				var speedTranslat = Vector3.Lerp(speedTranslationRalenti, speedTranslation, percent);
-				var speedmovecam = Vector3.Lerp(speedRotationCamera, speedRotationCameraAfterRalenti, percent);
-				cubeBlui.transform.Rotate(new Vector3(Time.deltaTime*speedRotat, 0f , 0f));
+				var speedRotat = Mathf.Lerp(speedRotationRalenti, speedRotation, percent);
+				var speedTranslat = Mathf.Lerp(speedTranslationRalenti, speedTranslation, percent);
+				var speedmovecam = Mathf.Lerp(speedRotationCamera, speedRotationCameraAfterRalenti, percent);
+				cubeBlui.transform.Rotate(new Vector3(0f , 0f , Time.deltaTime*speedRotat));
 				cubeBlui.transform.position = new Vector3(cubeBlui.transform.position.x, cubeBlui.transform.position.y, cubeBlui.transform.position.z + Time.deltaTime*speedTranslat);
 				Camera.main.transform.Rotate(new Vector3(0f, Time.deltaTime*speedmovecam, 0f));
 			}
