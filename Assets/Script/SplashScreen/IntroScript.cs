@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 public class IntroScript : MonoBehaviour {
 
@@ -8,6 +10,15 @@ public class IntroScript : MonoBehaviour {
 		CHOOSE,
 		PASSWORD,
 		INVALID,
+		NONE
+	}
+	
+	enum INTRO_STATE{
+		QUESTION1,
+		QUESTION2,
+		USERNAME,
+		PASSWORD,
+		RETYPEPASSWORD,
 		NONE
 	}
 	//GUI
@@ -20,6 +31,42 @@ public class IntroScript : MonoBehaviour {
 	public Rect CreateNewButton;
 	public Rect BackButton;
 	public Rect TextAreaPassword;
+	
+	//Speech
+	public Rect labelSpeech;
+	public Rect labelAnswer;
+	public Rect TextFieldCreate;
+	private string speechToDisplay;
+	private int posSpeech;
+	public float speedSpeech;
+	private int answer1selected;
+	private bool answer1valid;
+	private int answer2selected;
+	private bool answer2valid;
+	private bool wrongPassword;
+	private INTRO_STATE stateIntro;
+	private float alphaAnswer;
+	public float speedAlphaAnswer;
+	private string username;
+	private string newpassword;
+	private string newpasswordagain;
+	private bool inputFired;
+
+	//Speech Question
+	public Vector3 LookRotation;
+	public float speedRotationCamQues;
+	public List<GameObject> cubesQuestion;
+	public float speedMonteCube;
+	private Color theBumpColor;
+	public float speedBump;
+	public float limitBump;
+	public GameObject redBloc;
+	public float speedRedBloc;
+	public ParticleSystem psExplode;
+	public float speedAlphaBloc;
+	public Camera camOrtho;
+	public GameObject positionner;
+	
 	public float offset;
 	public float speedLetters;
 	
@@ -35,6 +82,7 @@ public class IntroScript : MonoBehaviour {
 	public float limitZRalenti;
 	public float limitZRespeed;
 	public float limitZReboost;
+	public bool okforSpeech;
 	
 	public GUISkin skin;
 	private string labelToDisplay;
@@ -50,6 +98,7 @@ public class IntroScript : MonoBehaviour {
 	public float speedLettersInfo;
 	private string password;
 	
+	
 	private LOGIN_STATUT ls;
 	
 	void Start(){
@@ -63,6 +112,13 @@ public class IntroScript : MonoBehaviour {
 		startNumber = 0;
 		profileSelected = -1;
 		password = "";
+		okforSpeech = false;
+		wrongPassword = false;
+		stateIntro = INTRO_STATE.NONE;
+		answer1selected = -1;
+		answer2selected = -1;
+		alphaAnswer = 0f;
+		inputFired = false;
 	}
 	
 	
@@ -71,6 +127,7 @@ public class IntroScript : MonoBehaviour {
 		
 		if(ls != LOGIN_STATUT.VALID && ls != LOGIN_STATUT.INVALID) GUI.Label(new Rect(labelConnecting.x*Screen.width, labelConnecting.y*Screen.height, labelConnecting.width*Screen.width, labelConnecting.height*Screen.height), labelToDisplay.Substring(0, posLength), "CenteredLabel");
 	
+		
 		
 		if(ls == LOGIN_STATUT.PASSWORD){
 			
@@ -146,14 +203,50 @@ public class IntroScript : MonoBehaviour {
 			}
 		}
 		
+		if(ls == LOGIN_STATUT.VALID && okforSpeech){
+			GUI.Label(new Rect(labelSpeech.x*Screen.width, labelSpeech.y*Screen.height, labelSpeech.width*Screen.width, labelSpeech.height*Screen.height), speechToDisplay.Substring(0, posSpeech) , "CenteredBrightLabel");
 		
+			if(stateIntro == INTRO_STATE.QUESTION1){
+				if(answer1selected != -1){
+					GUI.color = new Color(1f, 1f, 1f, alphaAnswer);
+					GUI.Label(new Rect(labelAnswer.x*Screen.width, labelAnswer.y*Screen.height, labelAnswer.width*Screen.width, labelAnswer.height*Screen.height), 
+						TextManager.Instance.texts["SplashScreen"]["QUESTION_1_ANSWER_" + answer1selected], "CenteredBrightLabel");
+				}
+			}else if(stateIntro == INTRO_STATE.QUESTION2){
+				if(answer1selected != -1){
+					GUI.color = new Color(1f, 1f, 1f, alphaAnswer);
+					GUI.Label(new Rect(labelAnswer.x*Screen.width, labelAnswer.y*Screen.height, labelAnswer.width*Screen.width, labelAnswer.height*Screen.height), 
+						TextManager.Instance.texts["SplashScreen"]["QUESTION_2_ANSWER_" + answer1selected], "CenteredBrightLabel");
+				}
+			}else if(stateIntro == INTRO_STATE.USERNAME){
+				username = GUI.TextField(new Rect(TextFieldCreate.x*Screen.width, TextFieldCreate.y*Screen.height, TextFieldCreate.width*Screen.width, TextFieldCreate.y*Screen.height), username, "CenteredBrightLabel");
+				if(Event.current.isKey && Event.current.keyCode == KeyCode.Return){
+					stateIntro = INTRO_STATE.NONE;
+				}
+			}else if(stateIntro == INTRO_STATE.PASSWORD){
+				newpassword = GUI.PasswordField(new Rect(TextFieldCreate.x*Screen.width, TextFieldCreate.y*Screen.height, TextFieldCreate.width*Screen.width, TextFieldCreate.y*Screen.height), newpassword, '*', "CenteredBrightLabel");
+				if(Event.current.isKey && Event.current.keyCode == KeyCode.Return){
+					stateIntro = INTRO_STATE.NONE;
+				}
+			}else if(stateIntro == INTRO_STATE.RETYPEPASSWORD){
+				newpasswordagain = GUI.PasswordField(new Rect(TextFieldCreate.x*Screen.width, TextFieldCreate.y*Screen.height, TextFieldCreate.width*Screen.width, TextFieldCreate.y*Screen.height), newpasswordagain, '*', "CenteredBrightLabel");
+				if(Event.current.isKey && Event.current.keyCode == KeyCode.Return){
+					if(password != newpasswordagain){
+						wrongPassword = true;
+					}
+					stateIntro = INTRO_STATE.NONE;
+				}
+			}
+		}	
+			
+			
 		
 	
 	}
 	
 	
 	void Update(){
-		if(ls == LOGIN_STATUT.VALID || ls == LOGIN_STATUT.INVALID){
+		if((ls == LOGIN_STATUT.VALID || ls == LOGIN_STATUT.INVALID) && Camera.main.transform.eulerAngles.y > 0 && stateIntro != INTRO_STATE.QUESTION1 && stateIntro != INTRO_STATE.QUESTION2){
 			if(cubeBlui.transform.position.z < limitZRalenti){
 				cubeBlui.transform.Rotate(new Vector3(0f, 0f , Time.deltaTime*speedRotation));
 				cubeBlui.transform.position = new Vector3(cubeBlui.transform.position.x, cubeBlui.transform.position.y, cubeBlui.transform.position.z + Time.deltaTime*speedTranslation);
@@ -172,12 +265,272 @@ public class IntroScript : MonoBehaviour {
 				var speedmovecam = Mathf.Lerp(speedRotationCamera, speedRotationCameraAfterRalenti, percent);
 				cubeBlui.transform.Rotate(new Vector3(0f , 0f , Time.deltaTime*speedRotat));
 				cubeBlui.transform.position = new Vector3(cubeBlui.transform.position.x, cubeBlui.transform.position.y, cubeBlui.transform.position.z + Time.deltaTime*speedTranslat);
-				Camera.main.transform.Rotate(new Vector3(0f, Time.deltaTime*speedmovecam, 0f));
+				Camera.main.transform.Rotate(new Vector3(0f, Time.deltaTime*speedmovecam*(Camera.main.transform.eulerAngles.y > 30f ? 1f : Camera.main.transform.eulerAngles.y/35f), 0f));
+				if(Camera.main.transform.eulerAngles.y < 5f && !okforSpeech){
+					okforSpeech = true;
+					StartCoroutine(SpeechDisplay());
+				}
 			}
+		}
+		
+		
+		
+
+		
+		if(stateIntro == INTRO_STATE.QUESTION1){
+			if(!answer1valid){
+				if(Mathf.Abs(Camera.main.transform.eulerAngles.y - positionner.transform.eulerAngles.y) < 1f){
+					if(Mathf.Abs(cubesQuestion[0].transform.position.y - camOrtho.transform.position.y) < 0.1f){
+						Ray ray = camOrtho.ScreenPointToRay(Input.mousePosition);	
+						RaycastHit hit;
+					
+						//Faire un raycast
+						if(Physics.Raycast(ray, out hit))
+						{
+							var theGo = hit.transform.gameObject;
+							if(theGo != null && theGo.tag == "QuestionObject"){
+								//Faire clignoter le bloc dans le raycast et mettre à jour le answerselected
+								answer1selected = System.Convert.ToInt32(theGo.name);
+								if(alphaAnswer < 1f) alphaAnswer += speedAlphaAnswer;
+								if(Input.GetMouseButtonDown(0)){
+									answer1valid = true;
+									redBloc.transform.position = new Vector3(theGo.transform.position.x, theGo.transform.position.y - 5f, theGo.transform.position.z);
+									StartCoroutine(RedBlocQuestion1());
+								}
+							}else{
+								if(alphaAnswer > 0f) alphaAnswer -= speedAlphaAnswer;
+								answer1selected = -1;	
+							}
+						}else{
+							if(alphaAnswer > 0f) alphaAnswer -= speedAlphaAnswer;
+							answer1selected = -1;	
+						}
+						
+						if(Mathf.Abs(cubesQuestion[0].transform.position.y - camOrtho.transform.position.y) < 0.001f){
+							foreach(var cq in cubesQuestion){
+								//Faire venir les blocs
+								cq.transform.position = Vector3.Lerp(cq.transform.position, new Vector3(cq.transform.position.x, 0f, cq.transform.position.z), Time.deltaTime/speedMonteCube);
+							}	
+						}
+					}else{
+						foreach(var cq in cubesQuestion){
+							//Faire venir les blocs
+							cq.transform.position = Vector3.Lerp(cq.transform.position, new Vector3(cq.transform.position.x, 0f, cq.transform.position.z), Time.deltaTime/speedMonteCube);
+						}
+					}
+					
+					if(Mathf.Abs(Camera.main.transform.eulerAngles.y - positionner.transform.eulerAngles.y) < 0.001f){
+						Camera.main.transform.eulerAngles = Vector3.Lerp(Camera.main.transform.eulerAngles, positionner.transform.eulerAngles, Time.deltaTime/speedRotationCamQues);
+					}
+					
+				}else{
+					Camera.main.transform.eulerAngles = Vector3.Lerp(Camera.main.transform.eulerAngles, positionner.transform.eulerAngles, Time.deltaTime/speedRotationCamQues);
+				}
+				
+			}
+			
+			
+			
+			
+			foreach(var cb in cubesQuestion){
+				if(cb.name == answer1selected.ToString() || cb.renderer.material.color.r > limitBump){
+					cb.renderer.material.color = new Color(theBumpColor.r, theBumpColor.g, theBumpColor.b, cb.renderer.material.color.a);
+				}else{
+					cb.renderer.material.color = new Color(limitBump, limitBump, limitBump, cb.renderer.material.color.a);
+				}
+			}
+			
+			if(theBumpColor.r < limitBump){
+				theBumpColor = new Color(1f, 1f, 1f, 1f);
+			}else{
+				theBumpColor = new Color(theBumpColor.r - Time.deltaTime/speedBump, theBumpColor.g - Time.deltaTime/speedBump, theBumpColor.b - Time.deltaTime/speedBump, 1f);	
+			}
+			
+		}else if(stateIntro == INTRO_STATE.QUESTION2){
+			if(!answer2valid){
+				if(Mathf.Abs(Camera.main.transform.eulerAngles.y - positionner.transform.eulerAngles.y) < 1f){
+					if(Mathf.Abs(cubesQuestion[0].transform.position.y - camOrtho.transform.position.y) < 0.1f){
+						Ray ray = camOrtho.ScreenPointToRay(Input.mousePosition);	
+						RaycastHit hit;
+					
+						//Faire un raycast
+						if(Physics.Raycast(ray, out hit))
+						{
+							var theGo = hit.transform.gameObject;
+							if(theGo != null && theGo.tag == "QuestionObject"){
+								//Faire clignoter le bloc dans le raycast et mettre à jour le answerselected
+								answer2selected = System.Convert.ToInt32(theGo.name);
+								if(alphaAnswer < 1f) alphaAnswer += speedAlphaAnswer;
+								if(Input.GetMouseButtonDown(0)){
+									answer2valid = true;
+									redBloc.transform.position = new Vector3(theGo.transform.position.x, theGo.transform.position.y - 5f, theGo.transform.position.z);
+									StartCoroutine(RedBlocQuestion2());
+								}
+							}else{
+								if(alphaAnswer > 0f) alphaAnswer -= speedAlphaAnswer;
+								answer2selected = -1;	
+							}
+						}else{
+							if(alphaAnswer > 0f) alphaAnswer -= speedAlphaAnswer;
+							answer2selected = -1;	
+						}
+						
+						if(Mathf.Abs(cubesQuestion[0].transform.position.y - camOrtho.transform.position.y) < 0.001f){
+							foreach(var cq in cubesQuestion){
+								//Faire venir les blocs
+								cq.transform.position = Vector3.Lerp(cq.transform.position, new Vector3(cq.transform.position.x, 0f, cq.transform.position.z), Time.deltaTime/speedMonteCube);
+							}	
+						}
+					}else{
+						foreach(var cq in cubesQuestion){
+							//Faire venir les blocs
+							cq.transform.position = Vector3.Lerp(cq.transform.position, new Vector3(cq.transform.position.x, 0f, cq.transform.position.z), Time.deltaTime/speedMonteCube);
+						}
+					}
+					
+					if(Mathf.Abs(Camera.main.transform.eulerAngles.y - positionner.transform.eulerAngles.y) < 0.001f){
+						Camera.main.transform.eulerAngles = Vector3.Lerp(Camera.main.transform.eulerAngles, positionner.transform.eulerAngles, Time.deltaTime/speedRotationCamQues);
+					}
+					
+				}else{
+					Camera.main.transform.eulerAngles = Vector3.Lerp(Camera.main.transform.eulerAngles, positionner.transform.eulerAngles, Time.deltaTime/speedRotationCamQues);
+				}
+				
+			}
+			
+			
+			
+			
+			foreach(var cb in cubesQuestion){
+				if(cb.name == answer2selected.ToString() || cb.renderer.material.color.r > limitBump){
+					cb.renderer.material.color = new Color(theBumpColor.r, theBumpColor.g, theBumpColor.b, cb.renderer.material.color.a);
+				}else{
+					cb.renderer.material.color = new Color(limitBump, limitBump, limitBump, cb.renderer.material.color.a);
+				}
+			}
+			
+			if(theBumpColor.r < limitBump){
+				theBumpColor = new Color(1f, 1f, 1f, 1f);
+			}else{
+				theBumpColor = new Color(theBumpColor.r - Time.deltaTime/speedBump, theBumpColor.g - Time.deltaTime/speedBump, theBumpColor.b - Time.deltaTime/speedBump, 1f);	
+			}
+			
+		}
+		
+		
+		if(Input.GetKeyDown(KeyCode.Return)){
+			inputFired = true;	
+		}else{
+			inputFired = false;	
 		}
 		
 	}
 	
+	//A declarer
+	
+					
+	public int returnResultOfQuestion(){
+		switch(answer2selected){
+		case 1:
+			switch(answer1selected){
+			case 1:
+				return 1;
+			case 2:
+				return 1;
+			case 3:
+				return 2;
+			case 4:
+				return 3;
+			}
+			return -1;
+		case 2:
+			switch(answer1selected){
+			case 1:
+				return 1;
+			case 2:
+				return 2;
+			case 3:
+				return 2;
+			case 4:
+				return 3;
+			}
+			return -1;
+		case 3:
+			switch(answer1selected){
+			case 1:
+				return 2;
+			case 2:
+				return 3;
+			case 3:
+				return 3;
+			case 4:
+				return 4;
+			}
+			return -1;
+		case 4:
+			return 4;
+		}
+		return -1;
+	}	
+	
+	
+	IEnumerator RedBlocQuestion1(){
+		while(redBloc.transform.position.y < cubesQuestion[answer1selected - 1].transform.position.y){
+			redBloc.transform.position += new Vector3(0f, Time.deltaTime*speedRedBloc, 0f); //J'en étais là :D
+			yield return new WaitForEndOfFrame();
+		}
+		redBloc.transform.position = new Vector3(0f, -5f, 0f);
+		psExplode.transform.position = cubesQuestion[answer1selected - 1].transform.position;
+		psExplode.transform.position -= new Vector3(0f, 0f, 1f);
+		psExplode.Play();
+		while(cubesQuestion[0].renderer.material.color.a > 0){
+			foreach(var cb in cubesQuestion){
+				cb.renderer.material.color = new Color(cb.renderer.material.color.r, cb.renderer.material.color.g, cb.renderer.material.color.b, cb.renderer.material.color.a - Time.deltaTime/speedAlphaBloc);
+			}
+			yield return new WaitForEndOfFrame();	
+		}
+		
+		foreach(var cb in cubesQuestion){
+			cb.transform.position = new Vector3(cb.transform.position.x, -5f, cb.transform.position.z);
+			cb.renderer.material.color = new Color(1f, 1f, 1f, 1f);
+		}
+		
+		while(Camera.main.transform.eulerAngles.y > 0.1f && stateIntro != INTRO_STATE.QUESTION2){
+			Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(new Vector3(0f, 0f, 1f)), Time.deltaTime/speedRotationCamQues);
+			yield return new WaitForEndOfFrame();	
+		}
+		
+		stateIntro = INTRO_STATE.NONE;
+	}
+	
+	IEnumerator RedBlocQuestion2(){
+		while(redBloc.transform.position.y < cubesQuestion[answer2selected - 1].transform.position.y){
+			redBloc.transform.position += new Vector3(0f, Time.deltaTime*speedRedBloc, 0f);
+			yield return new WaitForEndOfFrame();
+		}
+		redBloc.transform.position = new Vector3(0f, -5f, 0f);
+		psExplode.transform.position = cubesQuestion[answer2selected - 1].transform.position;
+		psExplode.transform.position -= new Vector3(0f, 0f, 1f);
+		psExplode.Play();
+		while(cubesQuestion[0].renderer.material.color.a > 0){
+			foreach(var cb in cubesQuestion){
+				cb.renderer.material.color = new Color(cb.renderer.material.color.r, cb.renderer.material.color.g, cb.renderer.material.color.b, cb.renderer.material.color.a - Time.deltaTime/speedAlphaBloc);
+			}
+			yield return new WaitForEndOfFrame();	
+		}
+		
+		foreach(var cb in cubesQuestion){
+			cb.transform.position = new Vector3(cb.transform.position.x, -5f, cb.transform.position.z);
+			cb.renderer.material.color = new Color(1f, 1f, 1f, 1f);
+		}
+		
+		while(Camera.main.transform.eulerAngles.y > 0.1f){
+			Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(new Vector3(0f, 0f, 1f)), Time.deltaTime/speedRotationCamQues);
+			yield return new WaitForEndOfFrame();	
+		}
+		
+		stateIntro = INTRO_STATE.NONE;
+	}
 	
 	IEnumerator TextInfo(){
 		posLengthInfo = 0;
@@ -198,6 +551,114 @@ public class IntroScript : MonoBehaviour {
 		}
 	}
 	
+	IEnumerator SpeechDisplay(){
+		for(int i=0;i<=4;i++){
+			speechToDisplay = TextManager.Instance.texts["SplashScreen"]["SPEECH_" + i];
+			posSpeech = 0;
+			while(posSpeech < speechToDisplay.Length || !inputFired){
+				if(posSpeech < speechToDisplay.Length){
+					posSpeech++;
+					yield return new WaitForSeconds(speedSpeech);
+				}else{
+					yield return new WaitForEndOfFrame();
+					
+				}
+			}
+		}
+		
+		speechToDisplay = TextManager.Instance.texts["SplashScreen"]["SPEECH_5"];
+		posSpeech = 0;
+		while(posSpeech < speechToDisplay.Length){
+			posSpeech++;
+			yield return new WaitForSeconds(speedSpeech);
+		}
+		stateIntro = INTRO_STATE.QUESTION1;
+		
+		while(!answer1valid){
+			yield return new WaitForEndOfFrame();	
+		}
+		
+		for(int i=6;i<=9;i++){
+			speechToDisplay = TextManager.Instance.texts["SplashScreen"]["SPEECH_"+ i];
+			posSpeech = 0;
+			while(posSpeech < speechToDisplay.Length || !inputFired){
+				if(posSpeech < speechToDisplay.Length){
+					posSpeech++;
+					yield return new WaitForSeconds(speedSpeech);
+				}else{
+					yield return new WaitForEndOfFrame();
+				}
+			}
+		}
+		
+		speechToDisplay = TextManager.Instance.texts["SplashScreen"]["SPEECH_10"];
+		posSpeech = 0;
+		while(posSpeech < speechToDisplay.Length){
+			posSpeech++;
+			yield return new WaitForSeconds(speedSpeech);
+		}
+		
+		stateIntro = INTRO_STATE.QUESTION2;
+		while(!answer2valid){
+			yield return new WaitForEndOfFrame();	
+		}
+		
+		for(int i=11;i<=12;i++){
+			speechToDisplay = TextManager.Instance.texts["SplashScreen"]["SPEECH_" + i];
+			posSpeech = 0;
+			while(posSpeech < speechToDisplay.Length || !inputFired){
+				if(posSpeech < speechToDisplay.Length){
+					posSpeech++;
+					yield return new WaitForSeconds(speedSpeech);
+				}else{
+					yield return new WaitForEndOfFrame();
+				}
+			}
+		}
+		
+		for(int i=0;i<=3;i++){
+			speechToDisplay = TextManager.Instance.texts["SplashScreen"]["SPEECH_" + returnResultOfQuestion() + "_" + i];
+			posSpeech = 0;
+			while(posSpeech < speechToDisplay.Length || !inputFired){
+				if(posSpeech < speechToDisplay.Length){
+					posSpeech++;
+					yield return new WaitForSeconds(speedSpeech);
+				}else{
+					yield return new WaitForEndOfFrame();
+				}
+			}
+		}
+		
+		
+		for(int i=13;i<=19;i++){
+			yield return new WaitForEndOfFrame();
+			if(wrongPassword){
+				speechToDisplay = TextManager.Instance.texts["SplashScreen"]["SPEECH_PASSWORDWRONG"];
+				i = 14;
+			}else{
+				speechToDisplay = TextManager.Instance.texts["SplashScreen"]["SPEECH_" + i];
+			}
+			
+			posSpeech = 0;
+			var notChanged = false;
+			while(posSpeech < speechToDisplay.Length || !inputFired){
+				if(posSpeech < speechToDisplay.Length){
+					posSpeech++;
+					yield return new WaitForSeconds(speedSpeech);
+				}else{
+					if(!notChanged){
+						if(i == 13) stateIntro = INTRO_STATE.USERNAME;
+						if(i == 14) stateIntro = INTRO_STATE.PASSWORD;
+						if(i == 15) stateIntro = INTRO_STATE.RETYPEPASSWORD;	
+						notChanged = true;
+					}
+					yield return new WaitForEndOfFrame();
+				}
+			}
+		}
+		
+		
+	}
 	
 	IEnumerator TextLogin(){
 		yield return new WaitForFixedUpdate();
