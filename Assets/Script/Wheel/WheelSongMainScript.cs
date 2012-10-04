@@ -316,8 +316,8 @@ public class WheelSongMainScript : MonoBehaviour {
 				var thego = (GameObject) Instantiate(miniCubePack, new Vector3(0f, 13f, 20f), miniCubePack.transform.rotation);
 				if(LoadManager.Instance.ListTexture().ContainsKey(el)) thego.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[el];
 				if(tempPack.ContainsKey(el)){ 
-					tempPack.Add(el + "(" + packs.Count + ")", thego);	
-					if(el + "(" + packs.Count + ")" == DataManager.Instance.packSelected) thePackPosition = position; 
+					tempPack.Add(el + "(" + tempPack.Count + ")", thego);	
+					if(el + "(" + tempPack.Count + ")" == DataManager.Instance.packSelected) thePackPosition = position; 
 				}
 				else
 				{ 

@@ -12,7 +12,6 @@ public class Profile{
 	//General
 	public string name;
 	public string password;
-	public string email;
 	public string idFile;
 	
 	
@@ -48,11 +47,10 @@ public class Profile{
 		scoreOnSong = new List<SongInfoProfil>();
 	}
 	
-	public Profile (string id, string pass, string mail)
+	public Profile (string id, string pass)
 	{
 		name = id;
 		password = pass;
-		email = mail;
 		scoreOnSong = new List<SongInfoProfil>();
 	}
 	
