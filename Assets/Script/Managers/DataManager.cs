@@ -2,7 +2,8 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-
+using System;
+using System.IO;
 public class DataManager{
 
 	
@@ -220,6 +221,7 @@ public class DataManager{
 		SecondaryKeyCodeUp = KeyCode.UpArrow;
 		SecondaryKeyCodeRight = KeyCode.RightArrow;
 		
+		ReadTempConfigFile();
 		InitDicOption();
 		
 	}
@@ -281,6 +283,33 @@ public class DataManager{
 		aDeath[0] = "Immediatly";
 		aDeath[1] = "After 30 misses";
 		aDeath[2] = "Never";
+	}
+	
+	
+	public void ReadTempConfigFile(){
+		try{
+			StreamReader sr = new StreamReader(Application.dataPath + "/../Option/Option.ini");
+			var content = sr.ReadToEnd();
+			sr.Close();
+			
+			var contentTab = content.Split(';');
+			var gos = Convert.ToDouble(contentTab[0].Split('=')[1]);
+			globalOffsetSeconds += (float) gos;
+
+			KeyCodeLeft = (KeyCode) Enum.Parse(typeof(KeyCode), contentTab[1].Split('=')[1]);
+			KeyCodeDown = (KeyCode) Enum.Parse(typeof(KeyCode), contentTab[2].Split('=')[1]);
+			KeyCodeUp = (KeyCode) Enum.Parse(typeof(KeyCode), contentTab[3].Split('=')[1]);
+			KeyCodeRight = (KeyCode) Enum.Parse(typeof(KeyCode), contentTab[4].Split('=')[1]);
+			KeyCodeLeft = (KeyCode) Enum.Parse(typeof(KeyCode), contentTab[5].Split('=')[1]);
+			KeyCodeDown = (KeyCode) Enum.Parse(typeof(KeyCode), contentTab[6].Split('=')[1]);
+			KeyCodeUp = (KeyCode) Enum.Parse(typeof(KeyCode), contentTab[7].Split('=')[1]);
+			KeyCodeRight = (KeyCode) Enum.Parse(typeof(KeyCode), contentTab[8].Split('=')[1]);
+			
+			
+		}catch(Exception e){
+			Debug.Log(e.Message);
+		}
+	
 	}
 	
 	public void LoadScoreJudge(Judge j){

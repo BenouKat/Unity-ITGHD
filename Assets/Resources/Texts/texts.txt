@@ -149,15 +149,16 @@ Entrez un mot de passe :;
 <SPEECH_16>;
 Votre profil a été crée.;
 <SPEECH_17>;
-A FAIRE !!!!;
+Avant de vous connecter, sachez que le simple sens du rythme ne permet
+pas un rendement optimal au sein de l'espace, il peut être amélioré.;
 <SPEECH_18>;
-Pour un bon sens du rythme, il est important d'avoir un bon sens du challenge.;
+L'énergie dégagée peut être décuplée avec le sens du challenge.;
 <SPEECH_19>;
-N'hésitez donc pas à vous connecter entre amis. A chaque connexion d'un ami, vos profils
-sont échangés, et vous aurez accès à toutes ses statistiques, même hors connexion, et
-vous procureront des nouveaux objectifs à atteindre.;
+Si vous rencontrez d'autres amis dans l'espace harmonique, n'hésitez pas à vous connecter
+pour travailler ensemble mais aussi échanger vos données et ainsi vous procurer de
+nouveau objectifs à atteindre, même seul.;
 <SPEECH_20>;
-Bienvenue dans l'espace harmonique du Cube, USER_NAME;
+Bienvenue dans l'espace harmonique, USER_NAME;
 [Config];
 <NumberBuild>;
-Version actuelle : build b400;
+Version actuelle : build b500;

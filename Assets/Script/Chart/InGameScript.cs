@@ -8,19 +8,20 @@ public class InGameScript : MonoBehaviour {
 	
 	#region Declarations
 	//Game object song scene
-	public GameObject arrow;
+	private GameObject arrow;
+	public List<GameObject> typeArrow;
 	public GameObject freeze;
 	public GameObject mines;
 	public Camera MainCamera;
 	private Transform TMainCamera;
 	public GameObject Background;
 	public GameObject CameraBackground;
-	public GameObject arrowLeft;
-	public GameObject arrowRight;
-	public GameObject arrowDown;
-	public GameObject arrowUp;
-	public Material matArrowModel;
-	public GameObject particlePrec;
+	private GameObject arrowLeft;
+	private GameObject arrowRight;
+	private GameObject arrowDown;
+	private GameObject arrowUp;
+	public Material[] matSkinModel;
+	private Material matArrowModel;
 	public GameObject lifeBar;
 	public GameObject progressBar;
 	public GameObject progressBarEmpty;
@@ -58,10 +59,10 @@ public class InGameScript : MonoBehaviour {
 	private KeyCode KeyCodeDown;
 	private KeyCode KeyCodeLeft;
 	private KeyCode KeyCodeRight;
-	public KeyCode SecondaryKeyCodeUp;
-	public KeyCode SecondaryKeyCodeDown;
-	public KeyCode SecondaryKeyCodeLeft;
-	public KeyCode SecondaryKeyCodeRight;
+	private KeyCode SecondaryKeyCodeUp;
+	private KeyCode SecondaryKeyCodeDown;
+	private KeyCode SecondaryKeyCodeLeft;
+	private KeyCode SecondaryKeyCodeRight;
 	
 	//DISPLAY PREC
 	
@@ -245,6 +246,53 @@ public class InGameScript : MonoBehaviour {
 			rand--;	
 		}
 		
+		//Arrows
+		for(int i=0;i<4;i++){
+			if(i != DataManager.Instance.skinSelected){
+				var go = GameObject.Find("ArrowSkin" + i);
+				Destroy(go);
+				var go2 = GameObject.Find("ArrowModelSkin" + i);
+				Destroy(go2);
+			}
+		}
+		arrow = typeArrow.ElementAt(DataManager.Instance.skinSelected);
+		var modelskin = GameObject.Find("ArrowModelSkin" + DataManager.Instance.skinSelected);
+		modelskin.SetActiveRecursively(false);
+		arrowLeft = (GameObject) Instantiate(modelskin, new Vector3(0f, 0f, 2f), modelskin.transform.rotation);
+		if(DataManager.Instance.skinSelected == 3){
+			arrowLeft.transform.FindChild("RotationCenter").Rotate(0f, 0f, 90f);
+		}else if(DataManager.Instance.skinSelected != 0){
+			arrowLeft.transform.Rotate(0f, 0f, 90f);
+			arrowLeft.transform.FindChild("ParticulePrec").Rotate(0f, 0f, -90f);
+			arrowLeft.transform.FindChild("ParticulePrec").localPosition = new Vector3(-1f, 0f, 0f);
+		}
+		
+		arrowLeft.transform.parent = MainCamera.gameObject.transform;
+		arrowRight = (GameObject) Instantiate(modelskin, new Vector3(6f, 0f, 2f), modelskin.transform.rotation);
+		if(DataManager.Instance.skinSelected == 3){
+			arrowRight.transform.FindChild("RotationCenter").Rotate(0f, 0f, -90f);
+		}else if(DataManager.Instance.skinSelected == 1){
+			arrowRight.transform.Rotate(0f, 0f, -90f);
+			arrowRight.transform.FindChild("ParticulePrec").Rotate(0f, 0f, 90f);
+			arrowRight.transform.FindChild("ParticulePrec").localPosition = new Vector3(1f, 0f, 0f);
+		}
+		arrowRight.transform.parent = MainCamera.gameObject.transform;
+		arrowDown = (GameObject) Instantiate(modelskin, new Vector3(2f, 0f, 2f), modelskin.transform.rotation);
+		if(DataManager.Instance.skinSelected == 3){
+			arrowDown.transform.FindChild("RotationCenter").Rotate(0f, 0f, 180f);
+		}else if(DataManager.Instance.skinSelected == 1){
+			arrowDown.transform.Rotate(0f, 0f, 180f);
+			arrowDown.transform.FindChild("ParticulePrec").Rotate(0f, 0f, -180f);
+			arrowDown.transform.FindChild("ParticulePrec").localPosition = new Vector3(0f, 1f, 0f);
+		}
+		arrowDown.transform.parent = MainCamera.gameObject.transform;
+		arrowUp = (GameObject) Instantiate(modelskin, new Vector3(4f, 0f, 2f), modelskin.transform.rotation);
+		arrowUp.transform.parent = MainCamera.gameObject.transform;
+		
+		matArrowModel = matSkinModel[DataManager.Instance.skinSelected];
+
+		
+		
 		RenderSettings.skybox = DataManager.Instance.skyboxList.ElementAt(rand);
 		DataManager.Instance.skyboxIndexSelected = rand;
 		displayValue = DataManager.Instance.displaySelected;
@@ -280,10 +328,10 @@ public class InGameScript : MonoBehaviour {
 		
 		//Prepare the scene
 		foreach(var el in Enum.GetValues(typeof(PrecParticle))){
-			precLeft.Add( el.ToString(), (ParticleSystem) arrowLeft.transform.GetChild(0).gameObject.transform.FindChild(el.ToString()).particleSystem );
-			precDown.Add( el.ToString(), (ParticleSystem) arrowDown.transform.GetChild(0).gameObject.transform.FindChild(el.ToString()).particleSystem );
-			precRight.Add( el.ToString(), (ParticleSystem) arrowRight.transform.GetChild(0).gameObject.transform.FindChild(el.ToString()).particleSystem );
-			precUp.Add( el.ToString(), (ParticleSystem) arrowUp.transform.GetChild(0).gameObject.transform.FindChild(el.ToString()).particleSystem );
+			precLeft.Add( el.ToString(), (ParticleSystem) arrowLeft.transform.FindChild("ParticulePrec").gameObject.transform.FindChild(el.ToString()).particleSystem );
+			precDown.Add( el.ToString(), (ParticleSystem) arrowDown.transform.FindChild("ParticulePrec").gameObject.transform.FindChild(el.ToString()).particleSystem );
+			precRight.Add( el.ToString(), (ParticleSystem) arrowRight.transform.FindChild("ParticulePrec").gameObject.transform.FindChild(el.ToString()).particleSystem );
+			precUp.Add( el.ToString(), (ParticleSystem) arrowUp.transform.FindChild("ParticulePrec").gameObject.transform.FindChild(el.ToString()).particleSystem );
 		}
 		for(int i=0; i< particleComboCam.transform.GetChildCount(); i++){
 			clearcombo.Add(particleComboCam.transform.GetChild(i).name, particleComboCam.transform.GetChild(i).particleSystem);
@@ -2329,15 +2377,33 @@ public class InGameScript : MonoBehaviour {
 						
 						barr = true;
 						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
-						goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
+						if(DataManager.Instance.skinSelected == 1 || DataManager.Instance.skinSelected == 3){
+							for(int j=0; j<goArrow.transform.childCount;j++){
+								if(goArrow.transform.GetChild(j).name.Contains("Deco")){
+									goArrow.transform.GetChild(j).renderer.material.color = chooseColor(beat + 1, mesure.Count);	
+								}
+							}
+						}else{
+							goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
+						}
 						var theArrow = new Arrow(goArrow, ArrowType.NORMAL, timetotal);
 						
 						switch(i){
 						case 0:
+							if(DataManager.Instance.skinSelected == 1){
+								theArrow.goArrow.transform.Rotate(0f, 0f, 90f);
+							}else if(DataManager.Instance.skinSelected == 3){
+								theArrow.goArrow.transform.FindChild("RotationCenter").Rotate(0f, 0f, -90f);
+							}
 							theArrow.arrowPos = ArrowPosition.LEFT;
 							arrowLeftList.Add(theArrow);
 							break;
 						case 1:
+							if(DataManager.Instance.skinSelected == 1){
+								theArrow.goArrow.transform.Rotate(0f, 0f, 180f);
+							}else if(DataManager.Instance.skinSelected == 3){
+								theArrow.goArrow.transform.FindChild("RotationCenter").Rotate(0f, 0f, 180f);
+							}
 							theArrow.arrowPos = ArrowPosition.DOWN;
 							arrowDownList.Add(theArrow);
 							break;
@@ -2346,6 +2412,11 @@ public class InGameScript : MonoBehaviour {
 							arrowUpList.Add(theArrow);
 							break;
 						case 3:
+							if(DataManager.Instance.skinSelected == 1){
+								theArrow.goArrow.transform.Rotate(0f, 0f, -90f);
+							}else if(DataManager.Instance.skinSelected == 3){
+								theArrow.goArrow.transform.FindChild("RotationCenter").Rotate(0f, 0f, 90f);
+							}
 							theArrow.arrowPos = ArrowPosition.RIGHT;
 							arrowRightList.Add(theArrow);
 							break;
@@ -2357,15 +2428,33 @@ public class InGameScript : MonoBehaviour {
 					}else if(note[i] == '2'){
 						barr = true;
 						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
-						goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
+						if(DataManager.Instance.skinSelected == 1 || DataManager.Instance.skinSelected == 3){
+							for(int j=0; j<goArrow.transform.childCount;j++){
+								if(goArrow.transform.GetChild(j).name.Contains("Deco")){
+									goArrow.transform.GetChild(j).renderer.material.color = chooseColor(beat + 1, mesure.Count);	
+								}
+							}
+						}else{
+							goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
+						}
 						var theArrow = new Arrow(goArrow, ArrowType.FREEZE, timetotal);
 						ArrowFreezed[i] = theArrow;
 						switch(i){
 						case 0:
+							if(DataManager.Instance.skinSelected == 1){
+								theArrow.goArrow.transform.Rotate(0f, 0f, 90f);
+							}else if(DataManager.Instance.skinSelected == 3){
+								theArrow.goArrow.transform.FindChild("RotationCenter").Rotate(0f, 0f, -90f);
+							}
 							theArrow.arrowPos = ArrowPosition.LEFT;
 							arrowLeftList.Add(theArrow);
 							break;
 						case 1:
+							if(DataManager.Instance.skinSelected == 1){
+								theArrow.goArrow.transform.Rotate(0f, 0f, 180f);
+							}else if(DataManager.Instance.skinSelected == 3){
+								theArrow.goArrow.transform.FindChild("RotationCenter").Rotate(0f, 0f, 180f);
+							}
 							theArrow.arrowPos = ArrowPosition.DOWN;
 							arrowDownList.Add(theArrow);
 							break;
@@ -2374,6 +2463,11 @@ public class InGameScript : MonoBehaviour {
 							arrowUpList.Add(theArrow);
 							break;
 						case 3:
+							if(DataManager.Instance.skinSelected == 1){
+								theArrow.goArrow.transform.Rotate(0f, 0f, -90f);
+							}else if(DataManager.Instance.skinSelected == 3){
+								theArrow.goArrow.transform.FindChild("RotationCenter").Rotate(0f, 0f, 90f);
+							}
 							theArrow.arrowPos = ArrowPosition.RIGHT;
 							arrowRightList.Add(theArrow);
 							break;
@@ -2385,9 +2479,18 @@ public class InGameScript : MonoBehaviour {
 						barr = true;
 						var theArrow = ArrowFreezed[i];
 						if(ArrowFreezed[i] != null){
-							var goFreeze = (GameObject) Instantiate(freeze, new Vector3(i*2, (theArrow.goArrow.transform.position.y + ((-ypos - theArrow.goArrow.transform.position.y)/2f)) , 0.5f), freeze.transform.rotation);
+							var goFreeze = (GameObject) Instantiate(freeze, new Vector3(i*2, (theArrow.goArrow.transform.position.y + ((-ypos - theArrow.goArrow.transform.position.y)/2f)) , 1f), freeze.transform.rotation);
 							goFreeze.transform.localScale = new Vector3(1f, -((-ypos - theArrow.goArrow.transform.position.y)/2f), 0.1f);
-							goFreeze.transform.GetChild(0).renderer.material.color = theArrow.goArrow.renderer.material.color;
+							if(DataManager.Instance.skinSelected == 1 || DataManager.Instance.skinSelected == 3){
+							for(int j=0; j<theArrow.goArrow.transform.childCount;j++){
+								if(theArrow.goArrow.transform.GetChild(j).name.Contains("Deco")){
+									goFreeze.transform.GetChild(0).renderer.material.color = theArrow.goArrow.transform.GetChild(j).renderer.material.color;
+									j = theArrow.goArrow.transform.childCount;
+								}
+							}
+							}else{
+								goFreeze.transform.GetChild(0).renderer.material.color = theArrow.goArrow.renderer.material.color;
+							}
 							theArrow.setArrowFreeze(timetotal, new Vector3(i*2,-ypos, 0f), goFreeze, null);
 						}
 						
@@ -2396,15 +2499,33 @@ public class InGameScript : MonoBehaviour {
 					}else if(note[i] == '4'){
 						barr = true;
 						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
-						goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
+						if(DataManager.Instance.skinSelected == 1 || DataManager.Instance.skinSelected == 3){
+							for(int j=0; j<goArrow.transform.childCount;j++){
+								if(goArrow.transform.GetChild(j).name.Contains("Deco")){
+									goArrow.transform.GetChild(j).renderer.material.color = chooseColor(beat + 1, mesure.Count);	
+								}
+							}
+						}else{
+							goArrow.renderer.material.color = chooseColor(beat + 1, mesure.Count);
+						}
 						var theArrow = new Arrow(goArrow, ArrowType.ROLL, timetotal);
 						ArrowFreezed[i] = theArrow;
 						switch(i){
 						case 0:
+							if(DataManager.Instance.skinSelected == 1){
+								theArrow.goArrow.transform.Rotate(0f, 0f, 90f);
+							}else if(DataManager.Instance.skinSelected == 3){
+								theArrow.goArrow.transform.FindChild("RotationCenter").Rotate(0f, 0f, -90f);
+							}
 							theArrow.arrowPos = ArrowPosition.LEFT;
 							arrowLeftList.Add(theArrow);
 							break;
 						case 1:
+							if(DataManager.Instance.skinSelected == 1){
+								theArrow.goArrow.transform.Rotate(0f, 0f, 180f);
+							}else if(DataManager.Instance.skinSelected == 3){
+								theArrow.goArrow.transform.FindChild("RotationCenter").Rotate(0f, 0f, 180f);
+							}
 							theArrow.arrowPos = ArrowPosition.DOWN;
 							arrowDownList.Add(theArrow);
 							break;
@@ -2413,6 +2534,11 @@ public class InGameScript : MonoBehaviour {
 							arrowUpList.Add(theArrow);
 							break;
 						case 3:
+							if(DataManager.Instance.skinSelected == 1){
+								theArrow.goArrow.transform.Rotate(0f, 0f, -90f);
+							}else if(DataManager.Instance.skinSelected == 3){
+								theArrow.goArrow.transform.FindChild("RotationCenter").Rotate(0f, 0f, 90f);
+							}
 							theArrow.arrowPos = ArrowPosition.RIGHT;
 							arrowRightList.Add(theArrow);
 							break;

@@ -307,42 +307,42 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 		
 		//To do : correct "KeyAlreadyAssign"
-		while(packs.Count() < 5){
-			var tempPos = new Dictionary<GameObject, float>();
-			var tempPack = new Dictionary<string, GameObject>();
-			var position = 0;
-			var thePackPosition = -1;
-			foreach(var el in LoadManager.Instance.ListSong().Keys){
-				var thego = (GameObject) Instantiate(miniCubePack, new Vector3(0f, 13f, 20f), miniCubePack.transform.rotation);
-				if(LoadManager.Instance.ListTexture().ContainsKey(el)) thego.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[el];
-				if(tempPack.ContainsKey(el)){ 
-					tempPack.Add(el + "(" + tempPack.Count + ")", thego);	
-					if(el + "(" + tempPack.Count + ")" == DataManager.Instance.packSelected) thePackPosition = position; 
-				}
-				else
-				{ 
-					tempPack.Add(el, thego); 
-					if(el == DataManager.Instance.packSelected) thePackPosition = position;
-				}
-				tempPos.Add(thego, 0f);
-				position++;
+		var tempPos = new Dictionary<GameObject, float>();
+		var tempPack = new Dictionary<string, GameObject>();
+		var position = 0;
+		var thePackPosition = -1;
+		foreach(var el in LoadManager.Instance.ListSong().Keys){
+			var thego = (GameObject) Instantiate(miniCubePack, new Vector3(0f, 13f, 20f), miniCubePack.transform.rotation);
+			if(LoadManager.Instance.ListTexture().ContainsKey(el)) thego.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[el];
+			if(tempPack.ContainsKey(el)){ 
+				tempPack.Add(el + "(" + tempPack.Count + ")", thego);	
+				if(el + "(" + tempPack.Count + ")" == DataManager.Instance.packSelected) thePackPosition = position; 
 			}
-			if(DataManager.Instance.packSelected != "" && thePackPosition != -1){
-				for(int i=thePackPosition;i<tempPos.Count;i++){
-					cubesPos.Add(tempPos.ElementAt(i).Key, tempPos.ElementAt(i).Value);
-					packs.Add(tempPack.ElementAt(i).Key, tempPack.ElementAt(i).Value);
-				}
-				for(int i=0;i<thePackPosition;i++){
-					cubesPos.Add(tempPos.ElementAt(i).Key, tempPos.ElementAt(i).Value);
-					packs.Add(tempPack.ElementAt(i).Key, tempPack.ElementAt(i).Value);
-				}
-			}else{
-				for(int i=0;i<tempPos.Count;i++){
-					cubesPos.Add(tempPos.ElementAt(i).Key, tempPos.ElementAt(i).Value);
-					packs.Add(tempPack.ElementAt(i).Key, tempPack.ElementAt(i).Value);
-				}
+			else
+			{ 
+				tempPack.Add(el, thego); 
+				if(el == DataManager.Instance.packSelected) thePackPosition = position;
+			}
+			tempPos.Add(thego, 0f);
+			position++;
+		}
+
+		if(DataManager.Instance.packSelected != "" && thePackPosition != -1){
+			for(int i=thePackPosition;i<tempPos.Count;i++){
+				cubesPos.Add(tempPos.ElementAt(i).Key, tempPos.ElementAt(i).Value);
+				packs.Add(tempPack.ElementAt(i).Key, tempPack.ElementAt(i).Value);
+			}
+			for(int i=0;i<thePackPosition;i++){
+				cubesPos.Add(tempPos.ElementAt(i).Key, tempPos.ElementAt(i).Value);
+				packs.Add(tempPack.ElementAt(i).Key, tempPack.ElementAt(i).Value);
+			}
+		}else{
+			for(int i=0;i<tempPos.Count;i++){
+				cubesPos.Add(tempPos.ElementAt(i).Key, tempPos.ElementAt(i).Value);
+				packs.Add(tempPack.ElementAt(i).Key, tempPack.ElementAt(i).Value);
 			}
 		}
+		
 		organiseCube();
 		createCubeSong();
 		desactiveDiff();
@@ -418,9 +418,10 @@ public class WheelSongMainScript : MonoBehaviour {
 		trulySelected = DataManager.Instance.difficultySelected;
 		onHoverDifficulty = Difficulty.NONE;
 		
+		/*TO DO !!!
 		if(DataManager.Instance.mousePosition != -1){
 			startnumber = DataManager.Instance.mousePosition;
-		}
+		}*/
 	}
 	
 	// Update is called once per frame
@@ -1480,7 +1481,9 @@ public class WheelSongMainScript : MonoBehaviour {
 				locked = false;
 			}
 			
-			
+			if(Input.GetKeyDown(KeyCode.Escape) && !movinSong && !SongMode){
+				GetComponent<FadeManager>().FadeIn("mainmenu");
+			}
 			//Scrollwheel
 			if(Input.GetAxis("Mouse ScrollWheel") > 0 && startnumber > 0){
 				startnumber--;

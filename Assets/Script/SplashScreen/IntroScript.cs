@@ -33,6 +33,12 @@ public class IntroScript : MonoBehaviour {
 	public Rect BackButton;
 	public Rect TextAreaPassword;
 	
+	
+	//Cubes qui s'envolent
+	public List<GameObject> EnvolCube;
+	public List<float> angleStart;
+	public List<float> speedCube;
+	
 	//Speech
 	public Rect labelSpeech;
 	public Rect labelAnswer;
@@ -324,8 +330,27 @@ public class IntroScript : MonoBehaviour {
 						
 					}else{
 						
-						StartCoroutine(finishDisplay());
+						StartCoroutine(finishDisplay(true));
 						
+					}
+				}
+			}
+		}
+		
+		if(EnvolCube.Count > 0 && Camera.main.transform.eulerAngles.y < 45f){
+			for(int i=0;i<EnvolCube.Count;i++){
+				if(angleStart.ElementAt(i) > Camera.main.transform.eulerAngles.y){
+					if(EnvolCube.ElementAt(i).active == false){
+						EnvolCube.ElementAt(i).SetActiveRecursively(true);
+					}
+					EnvolCube.ElementAt(i).transform.position += EnvolCube.ElementAt(i).transform.forward*Time.deltaTime*speedCube.ElementAt(i);
+					if(EnvolCube.ElementAt(i).transform.position.z > 0){
+						EnvolCube.ElementAt(i).transform.GetChild(0).particleSystem.Stop();
+						EnvolCube.ElementAt(i).active = false;
+						EnvolCube.Remove(EnvolCube.ElementAt(i));
+						angleStart.Remove(angleStart.ElementAt(i));
+						speedCube.Remove(speedCube.ElementAt(i));
+						i--;
 					}
 				}
 			}
@@ -625,8 +650,9 @@ public class IntroScript : MonoBehaviour {
 	}
 	
 	
-	IEnumerator finishDisplay(){
+	IEnumerator finishDisplay(bool waiting){
 		
+		if(waiting) yield return new WaitForSeconds(1.5f);
 		psExplosionFinal.Play();
 		
 		bigCube.transform.localScale = new Vector3(30f, 30f, 30f);
@@ -796,7 +822,7 @@ public class IntroScript : MonoBehaviour {
 		speechToDisplay = "";
 		posSpeech = 0;
 		stateIntro = INTRO_STATE.FINISH;
-		StartCoroutine(finishDisplay());
+		StartCoroutine(finishDisplay(false));
 	}
 	
 	IEnumerator TextLogin(){
