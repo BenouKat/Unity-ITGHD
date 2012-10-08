@@ -25,6 +25,8 @@ public class DataManager{
 	
 	public Dictionary<Precision, double> PrecisionValues;
 	
+	//Debug
+	public String DEBUGPATH = "/";
 	
 	//RENDER
 	public List<Material> skyboxList;
@@ -288,7 +290,7 @@ public class DataManager{
 	
 	public void ReadTempConfigFile(){
 		try{
-			StreamReader sr = new StreamReader(Application.dataPath + "/../Option/Option.ini");
+			StreamReader sr = new StreamReader(Application.dataPath + DEBUGPATH + "Option/Option.ini");
 			var content = sr.ReadToEnd();
 			sr.Close();
 			
@@ -300,10 +302,10 @@ public class DataManager{
 			KeyCodeDown = (KeyCode) Enum.Parse(typeof(KeyCode), contentTab[2].Split('=')[1]);
 			KeyCodeUp = (KeyCode) Enum.Parse(typeof(KeyCode), contentTab[3].Split('=')[1]);
 			KeyCodeRight = (KeyCode) Enum.Parse(typeof(KeyCode), contentTab[4].Split('=')[1]);
-			KeyCodeLeft = (KeyCode) Enum.Parse(typeof(KeyCode), contentTab[5].Split('=')[1]);
-			KeyCodeDown = (KeyCode) Enum.Parse(typeof(KeyCode), contentTab[6].Split('=')[1]);
-			KeyCodeUp = (KeyCode) Enum.Parse(typeof(KeyCode), contentTab[7].Split('=')[1]);
-			KeyCodeRight = (KeyCode) Enum.Parse(typeof(KeyCode), contentTab[8].Split('=')[1]);
+			SecondaryKeyCodeLeft = (KeyCode) Enum.Parse(typeof(KeyCode), contentTab[5].Split('=')[1]);
+			SecondaryKeyCodeDown = (KeyCode) Enum.Parse(typeof(KeyCode), contentTab[6].Split('=')[1]);
+			SecondaryKeyCodeUp = (KeyCode) Enum.Parse(typeof(KeyCode), contentTab[7].Split('=')[1]);
+			SecondaryKeyCodeRight = (KeyCode) Enum.Parse(typeof(KeyCode), contentTab[8].Split('=')[1]);
 			
 			
 		}catch(Exception e){

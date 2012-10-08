@@ -12,7 +12,7 @@ Accède à tes accomplissements;
 <Option>;
 Règle les paramètres du jeu;
 <Quit>;
-Te deconnecte de Cublast;
+Te déconnecte de Cublast;
 <Solo>;
 Joue seul;
 <LAN>;
@@ -25,15 +25,15 @@ Retourne à l'entrée;
 <Story>;
 Le mode Story sera accessible à partir de la version v1.0 du jeu.;
 <Mods>;
-Le mode Mods sera accessible à partir de la build b4000.;
+Le mode Mods sera accessible à partir du build b4000.;
 <Learn>;
-Le tutorial sera accessible à partir de la build b3000.;
+Le tutorial sera accessible à partir du build b3000.;
 <Trophy>;
-Les achievements seront accessibles à partir de la build b7000.;
+Les achievements seront accessibles à partir du build b7000.;
 <Option>;
-Les options seront accessibles à partir de la build b800.;
+Les options seront accessibles à partir du build b800.;
 <LAN>;
-Le mode LAN sera accessible à partir de la build b2000.;
+Le mode LAN sera accessible à partir du build b2000.;
 <Double>;
 Le mode Double sera accessible à partir de la version v1.1 du jeu.;
 [SplashScreen];
@@ -44,7 +44,7 @@ Connecting...;
 <CONNECTING_SUCCEED>;
 Welcome, USER_NAME;
 <CONNECTING_CHOOSE>;
-Identification failed. Profiles detected
+Identification failed. Profiles detected.
 Please choose one;
 <CONNECTING_PASSWORD>;
 Please enter your password;
@@ -60,7 +60,7 @@ Vous venez de vous connecter pour la première
 fois sur l'espace harmonique;
 <SPEECH_2>;
 Aucune vérification de vos aptitudes à évoluer
-au sein de cet espace n'a été effectuée.;
+au sein de cet espace n'a encore été effectuée.;
 <SPEECH_3>;
 Pour évoluer, vous devez disposer d'une énergie harmonique suffisante.;
 <SPEECH_4>;
@@ -87,11 +87,11 @@ Cette forme simple, une fois alliée au sens du rythme des utilisateurs,
 dégage cette énergie et préserve cette harmonie.;
 <SPEECH_9>;
 La création de l'espace harmonique a été inspirée par d'autres espaces
-plus anciens, et aujourd'hui dans une voie d'extinction du à la faible
+plus anciens, et est aujourd'hui menacée d'extinction à cause de la faible
 activité des utilisateurs présents.;
 <SPEECH_10>;
-Repondez à cette question avec honnêteté et assurance :
-Avez vous déjà visité d'autres espaces comme celui ci ?;
+Répondez à cette question avec honnêteté et assurance :
+Avez-vous déjà visité d'autres espaces comme celui ci ?;
 <QUESTION_2_ANSWER_1>;
 Je ne connais pas Stepmania, DDR ni ITG;
 <QUESTION_2_ANSWER_2>;
@@ -101,13 +101,13 @@ mais j'avais un niveau modeste;
 Je connais très bien Stepmania, DDR ou ITG, 
 et j'avais un niveau proche de l'expert.;
 <QUESTION_2_ANSWER_4>;
-Stepmania, DDR ou ITG n'ont pas de secret pour moi, 
+Stepmania, DDR ou ITG n'ont aucun secret pour moi, 
 je suis un grand expert.;
 <SPEECH_11>;
 Parfait.;
 <SPEECH_12>;
 Se perdre dans l'espace harmonique est à tout prix ce que nous voulons éviter.
-C'est pourquoi vos réponses nous aide à ne pas vous demander l'impossible et
+C'est pourquoi vos réponses nous aident à ne pas vous demander l'impossible et
 créer de la frustration ou autre énergie négative.;
 <SPEECH_RESULT_1_1>;
 Nous avons compris que le sens du rythme n'était pas encore
@@ -116,14 +116,14 @@ quelque chose d'inné chez vous.;
 C'est pourquoi nous vous avons bloqué l'accès à l'histoire de
 la communauté.;
 <SPEECH_RESULT_1_3>;
-Il vous faudra d'abord finir l'apprentissage sur les techniques basiques.;
+Il vous faudra d'abord finir l'apprentissage des techniques basiques.;
 <SPEECH_RESULT_2_1>;
 Nous avons compris que le sens du rythme commençait doucement à s'eveiller chez vous.;
 <SPEECH_RESULT_2_2>;
 C'est pourquoi nous avons bloqué l'accès à l'histoire de la communauté,
 sauf si vous arrivez à prouver votre niveau dans un petit test.;
 <SPEECH_RESULT_2_3>;
-Il vous faudra d'abord finir l'apprentissage sur les techniques basiques autrement.;
+Il vous faudra d'abord finir l'apprentissage des techniques basiques autrement.;
 <SPEECH_RESULT_3_1>;
 Nous avons compris que le sens du rythme était déjà présent chez vous.;
 <SPEECH_RESULT_3_2>;
@@ -161,4 +161,4 @@ nouveau objectifs à atteindre, même seul.;
 Bienvenue dans l'espace harmonique, USER_NAME;
 [Config];
 <NumberBuild>;
-Version actuelle : build b500;
+Version actuelle : build b600;

@@ -62,17 +62,17 @@ public class ProfileManager{
 				DateTime.Now.Day.ToString() + DateTime.Now.Hour.ToString() + DateTime.Now.Minute.ToString() + 
 					DateTime.Now.Second.ToString() + DateTime.Now.Millisecond.ToString();
 		}
-		if(!Directory.Exists(Application.dataPath + "/../Profiles/")){
-				Directory.CreateDirectory(Application.dataPath + "/../Profiles");
+		if(!Directory.Exists(Application.dataPath + DataManager.Instance.DEBUGPATH + "Profiles/")){
+				Directory.CreateDirectory(Application.dataPath + DataManager.Instance.DEBUGPATH + "Profiles");
 		}
-		if(File.Exists(Application.dataPath + "/../Profiles/" + currentProfile.idFile + ".profile")){
-			File.Move(Application.dataPath + "/../Profiles/" + currentProfile.idFile + ".profile", Application.dataPath + "/../Profiles/" + currentProfile.idFile + ".oldSave");
+		if(File.Exists(Application.dataPath + DataManager.Instance.DEBUGPATH + "Profiles/" + currentProfile.idFile + ".profile")){
+			File.Move(Application.dataPath + DataManager.Instance.DEBUGPATH + "Profiles/" + currentProfile.idFile + ".profile", Application.dataPath + DataManager.Instance.DEBUGPATH + "Profiles/" + currentProfile.idFile + ".oldSave");
 		}
 		
 		PlayerPrefs.SetString("idProfile", currentProfile.idFile);
 		
 		
-		Stream stream = File.Open(Application.dataPath + "/../Profiles/" + currentProfile.idFile + ".profile", FileMode.Create);
+		Stream stream = File.Open(Application.dataPath + DataManager.Instance.DEBUGPATH + "Profiles/" + currentProfile.idFile + ".profile", FileMode.Create);
 		BinaryFormatter bformatter = new BinaryFormatter();
 	    bformatter.Binder = new VersionDeserializationBinder(); 
 		
@@ -80,15 +80,15 @@ public class ProfileManager{
 			bformatter.Serialize(stream, currentProfile);
 			stream.Close();
 			
-			if(File.Exists(Application.dataPath + "/../Profiles/" + currentProfile.idFile + ".oldSave")){
-				File.Delete(Application.dataPath + "/../Profiles/" + currentProfile.idFile + ".oldSave");
+			if(File.Exists(Application.dataPath + DataManager.Instance.DEBUGPATH + "Profiles/" + currentProfile.idFile + ".oldSave")){
+				File.Delete(Application.dataPath + DataManager.Instance.DEBUGPATH + "Profiles/" + currentProfile.idFile + ".oldSave");
 			}
 		}catch(Exception e){
 			
 			stream.Close();
-			File.Delete(Application.dataPath + "/../Profiles/" + currentProfile.idFile + ".profile");
-			if(File.Exists(Application.dataPath + "/../Profiles/" + currentProfile.idFile + ".oldSave")){
-				File.Move(Application.dataPath + "/../Profiles/" + currentProfile.idFile + ".oldSave", Application.dataPath + "/../Profiles/" + currentProfile.idFile + ".profile");
+			File.Delete(Application.dataPath + DataManager.Instance.DEBUGPATH + "Profiles/" + currentProfile.idFile + ".profile");
+			if(File.Exists(Application.dataPath + DataManager.Instance.DEBUGPATH + "Profiles/" + currentProfile.idFile + ".oldSave")){
+				File.Move(Application.dataPath + DataManager.Instance.DEBUGPATH + "Profiles/" + currentProfile.idFile + ".oldSave", Application.dataPath + DataManager.Instance.DEBUGPATH + "Profiles/" + currentProfile.idFile + ".profile");
 			}
 			Debug.Log(e.Message);
 			return false;
@@ -100,8 +100,8 @@ public class ProfileManager{
 	
 	public void LoadProfiles () {
 	
-		if(Directory.Exists(Application.dataPath + "/../Profiles")){
-			foreach(var file in Directory.GetFiles(Application.dataPath + "/../Profiles").Where(c => c.Contains(".profile"))){
+		if(Directory.Exists(Application.dataPath + DataManager.Instance.DEBUGPATH + "Profiles")){
+			foreach(var file in Directory.GetFiles(Application.dataPath + DataManager.Instance.DEBUGPATH + "Profiles").Where(c => c.Contains(".profile"))){
 				
 				Profile pr = new Profile ();
 				Stream stream = File.Open(file, FileMode.Open);

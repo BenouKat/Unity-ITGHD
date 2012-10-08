@@ -144,6 +144,7 @@ public class InGameScript : MonoBehaviour {
 	private int[] displaying; //score decoup
 	private int[] thetab; //combo decoup
 	public GUISkin skin;
+	public Rect infoSong;
 	
 	//DISPLAY
 	private Color bumpColor;
@@ -491,10 +492,16 @@ public class InGameScript : MonoBehaviour {
 	//only for FPS
 	void OnGUI(){
 		
+		GUI.skin = skin;
+		
 		//fake stuff
-		GUI.Label(new Rect(0.9f*Screen.width, 0.05f*Screen.height, 200f, 200f), fps.ToString());	
-			
+		GUI.Label(new Rect(0.9f*Screen.width, 0.05f*Screen.height, 200f, 200f), fps.ToString());		
 		//end fake stuff
+		GUI.color = new Color(0f, 0f, 0f, 1f);
+		GUI.Label(new Rect(infoSong.x*Screen.width + 1, infoSong.y*Screen.height + 1, infoSong.width*Screen.width, infoSong.height*Screen.height), thesong.title + "\n" + thesong.artist + "\n" + thesong.stepartist);
+		GUI.color = new Color(1f, 1f, 1f, 1f);
+		GUI.Label(new Rect(infoSong.x*Screen.width, infoSong.y*Screen.height, infoSong.width*Screen.width, infoSong.height*Screen.height), thesong.title + "\n" + thesong.artist + "\n" + thesong.stepartist);
+		
 		if(timeDisplayScore < limitDisplayScore && !clear){
 
 			GUI.color = new Color(1f, 1f, 1f, alpha);
@@ -530,7 +537,7 @@ public class InGameScript : MonoBehaviour {
 		
 		if(dead){
 			if(oneSecond > timeFailAppear){
-				GUI.skin = skin;
+				
 				GUI.color = new Color(1f, 1f, 1f, failalpha);
 				GUI.DrawTexture(new Rect(0f,0f, Screen.width*1.2f, Screen.height*1.2f), TextureBase["BLACK"]);
 				var ratiow = (float)posFail.width/(float)Mathf.Max (posFail.width, posFail.height);
@@ -2393,7 +2400,7 @@ public class InGameScript : MonoBehaviour {
 							if(DataManager.Instance.skinSelected == 1){
 								theArrow.goArrow.transform.Rotate(0f, 0f, 90f);
 							}else if(DataManager.Instance.skinSelected == 3){
-								theArrow.goArrow.transform.FindChild("RotationCenter").Rotate(0f, 0f, -90f);
+								theArrow.goArrow.transform.FindChild("RotationCenter").Rotate(0f, 0f, 90f);
 							}
 							theArrow.arrowPos = ArrowPosition.LEFT;
 							arrowLeftList.Add(theArrow);
@@ -2415,7 +2422,7 @@ public class InGameScript : MonoBehaviour {
 							if(DataManager.Instance.skinSelected == 1){
 								theArrow.goArrow.transform.Rotate(0f, 0f, -90f);
 							}else if(DataManager.Instance.skinSelected == 3){
-								theArrow.goArrow.transform.FindChild("RotationCenter").Rotate(0f, 0f, 90f);
+								theArrow.goArrow.transform.FindChild("RotationCenter").Rotate(0f, 0f, -90f);
 							}
 							theArrow.arrowPos = ArrowPosition.RIGHT;
 							arrowRightList.Add(theArrow);
@@ -2444,7 +2451,7 @@ public class InGameScript : MonoBehaviour {
 							if(DataManager.Instance.skinSelected == 1){
 								theArrow.goArrow.transform.Rotate(0f, 0f, 90f);
 							}else if(DataManager.Instance.skinSelected == 3){
-								theArrow.goArrow.transform.FindChild("RotationCenter").Rotate(0f, 0f, -90f);
+								theArrow.goArrow.transform.FindChild("RotationCenter").Rotate(0f, 0f, 90f);
 							}
 							theArrow.arrowPos = ArrowPosition.LEFT;
 							arrowLeftList.Add(theArrow);
@@ -2466,7 +2473,7 @@ public class InGameScript : MonoBehaviour {
 							if(DataManager.Instance.skinSelected == 1){
 								theArrow.goArrow.transform.Rotate(0f, 0f, -90f);
 							}else if(DataManager.Instance.skinSelected == 3){
-								theArrow.goArrow.transform.FindChild("RotationCenter").Rotate(0f, 0f, 90f);
+								theArrow.goArrow.transform.FindChild("RotationCenter").Rotate(0f, 0f, -90f);
 							}
 							theArrow.arrowPos = ArrowPosition.RIGHT;
 							arrowRightList.Add(theArrow);
@@ -2515,7 +2522,7 @@ public class InGameScript : MonoBehaviour {
 							if(DataManager.Instance.skinSelected == 1){
 								theArrow.goArrow.transform.Rotate(0f, 0f, 90f);
 							}else if(DataManager.Instance.skinSelected == 3){
-								theArrow.goArrow.transform.FindChild("RotationCenter").Rotate(0f, 0f, -90f);
+								theArrow.goArrow.transform.FindChild("RotationCenter").Rotate(0f, 0f, 90f);
 							}
 							theArrow.arrowPos = ArrowPosition.LEFT;
 							arrowLeftList.Add(theArrow);
@@ -2537,7 +2544,7 @@ public class InGameScript : MonoBehaviour {
 							if(DataManager.Instance.skinSelected == 1){
 								theArrow.goArrow.transform.Rotate(0f, 0f, -90f);
 							}else if(DataManager.Instance.skinSelected == 3){
-								theArrow.goArrow.transform.FindChild("RotationCenter").Rotate(0f, 0f, 90f);
+								theArrow.goArrow.transform.FindChild("RotationCenter").Rotate(0f, 0f, -90f);
 							}
 							theArrow.arrowPos = ArrowPosition.RIGHT;
 							arrowRightList.Add(theArrow);

@@ -1,19 +1,6 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Wheel\WheelSongMainScript.cs">
-    <Files>
-      <File FileName="Assets\Script\SplashScreen\IntroScript.cs" Line="826" Column="3" />
-      <File FileName="Assets\Resources\Texts\texts.txt" Line="156" Column="13" />
-      <File FileName="Assets\Script\Managers\TextManager.cs" Line="24" Column="1" />
-      <File FileName="Assets\Script\MainMenu\MainMenu.cs" Line="99" Column="3" />
-      <File FileName="Assets\Script\Managers\ProfileManager.cs" Line="39" Column="3" />
-      <File FileName="Assets\Script\FrameWork\Profile.cs" Line="53" Column="19" />
-      <File FileName="Assets\Script\Wheel\WheelSongMainScript.cs" Line="429" Column="19" />
-      <File FileName="Assets\Script\Chart\InGameScript.cs" Line="287" Column="4" />
-      <File FileName="Assets\Script\Chart\Arrow.cs" Line="27" Column="1" />
-      <File FileName="Assets\Script\Managers\DataManager.cs" Line="560" Column="17" />
-    </Files>
-  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace />
+  <MonoDevelop.Ide.Workbench />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

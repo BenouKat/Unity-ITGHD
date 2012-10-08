@@ -544,7 +544,11 @@ public class OpenChart{
 				
 				if((beat*8f)%(mesure.Count) == 0){
 					var newMax = numberStepBetweenTwoBeat/(timetotal - timestartMax);
-					listNumberStep.Add(timetotal, newMax);
+					if(!listNumberStep.ContainsKey(timetotal)){
+						listNumberStep.Add(timetotal, newMax);
+					}else{
+						listNumberStep.Add(timetotal + 0.00001, newMax);
+					}
 					if(maxStepPerSeconds < newMax){
 						maxStepPerSeconds = newMax;
 					}
