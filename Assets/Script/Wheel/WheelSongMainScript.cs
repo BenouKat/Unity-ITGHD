@@ -2030,8 +2030,8 @@ public class WheelSongMainScript : MonoBehaviour {
 		}else{
 			score = -1;
 			isScoreFail = false;
-			speedmodstring = "2.00";
-			speedmodSelected = 2;
+			speedmodstring = DataManager.Instance.songSelected != null ? DataManager.Instance.speedmodSelected.ToString("0.00") : "2.00";
+			speedmodSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.speedmodSelected.ToString("0.00") : 2f;
 		}
 		if(DataManager.Instance.giveNoteOfScore((float)score) != DataManager.Instance.giveNoteOfScore((float)oldscore) && oldscore >= 96f){
 			medals.FirstOrDefault(c => c.name == DataManager.Instance.giveNoteOfScore((float)oldscore).Split(';')[1]).SetActiveRecursively(false);

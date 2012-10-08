@@ -248,7 +248,7 @@ public class IntroScript : MonoBehaviour {
 						TextManager.Instance.texts["SplashScreen"]["QUESTION_2_ANSWER_" + answer2selected], "CenteredBrightLabel");
 				}
 			}else if(stateIntro == INTRO_STATE.USERNAME){
-				if(Event.current.isKey && Event.current.keyCode == KeyCode.Return){
+				if(Event.current.isKey && Event.current.keyCode == KeyCode.Return && !String.IsNullOrEmpty(username)){
 					stateIntro = INTRO_STATE.NONE;
 					specialInputFired = true;
 				}else{
@@ -256,10 +256,6 @@ public class IntroScript : MonoBehaviour {
 					username = GUI.TextField(new Rect(TextFieldCreate.x*Screen.width, TextFieldCreate.y*Screen.height, TextFieldCreate.width*Screen.width, TextFieldCreate.y*Screen.height), username, "CenteredBrightLabel");
 					GUI.FocusControl("user");	
 				}
-				
-				
-				
-				
 				
 			}else if(stateIntro == INTRO_STATE.PASSWORD){
 				if(Event.current.isKey && Event.current.keyCode == KeyCode.Return){
@@ -270,9 +266,6 @@ public class IntroScript : MonoBehaviour {
 					newpassword = GUI.PasswordField(new Rect(TextFieldCreate.x*Screen.width, TextFieldCreate.y*Screen.height, TextFieldCreate.width*Screen.width, TextFieldCreate.y*Screen.height), newpassword, '*', "CenteredBrightLabel");
 					GUI.FocusControl("newpassword");
 				}
-				
-				
-				
 				
 				
 			}else if(stateIntro == INTRO_STATE.RETYPEPASSWORD){
@@ -695,6 +688,7 @@ public class IntroScript : MonoBehaviour {
 			while(posSpeech < speechToDisplay.Length || !inputFired){
 				if(posSpeech < speechToDisplay.Length){
 					posSpeech++;
+					if(inputFired) posSpeech = speechToDisplay.Length;
 					yield return new WaitForSeconds(speedSpeech);
 				}else{
 					yield return new WaitForEndOfFrame();
@@ -707,6 +701,7 @@ public class IntroScript : MonoBehaviour {
 		posSpeech = 0;
 		while(posSpeech < speechToDisplay.Length){
 			posSpeech++;
+			if(inputFired) posSpeech = speechToDisplay.Length;
 			yield return new WaitForSeconds(speedSpeech);
 		}
 		stateIntro = INTRO_STATE.QUESTION1;
@@ -721,6 +716,7 @@ public class IntroScript : MonoBehaviour {
 			while(posSpeech < speechToDisplay.Length || !inputFired){
 				if(posSpeech < speechToDisplay.Length){
 					posSpeech++;
+					if(inputFired) posSpeech = speechToDisplay.Length;
 					yield return new WaitForSeconds(speedSpeech);
 				}else{
 					yield return new WaitForEndOfFrame();
@@ -732,6 +728,7 @@ public class IntroScript : MonoBehaviour {
 		posSpeech = 0;
 		while(posSpeech < speechToDisplay.Length){
 			posSpeech++;
+			if(inputFired) posSpeech = speechToDisplay.Length;
 			yield return new WaitForSeconds(speedSpeech);
 		}
 		
@@ -746,6 +743,7 @@ public class IntroScript : MonoBehaviour {
 			while(posSpeech < speechToDisplay.Length || !inputFired){
 				if(posSpeech < speechToDisplay.Length){
 					posSpeech++;
+					if(inputFired) posSpeech = speechToDisplay.Length;
 					yield return new WaitForSeconds(speedSpeech);
 				}else{
 					yield return new WaitForEndOfFrame();
@@ -759,6 +757,7 @@ public class IntroScript : MonoBehaviour {
 			while(posSpeech < speechToDisplay.Length || !inputFired){
 				if(posSpeech < speechToDisplay.Length){
 					posSpeech++;
+					if(inputFired) posSpeech = speechToDisplay.Length;
 					yield return new WaitForSeconds(speedSpeech);
 				}else{
 					yield return new WaitForEndOfFrame();
@@ -783,6 +782,7 @@ public class IntroScript : MonoBehaviour {
 			while(posSpeech < speechToDisplay.Length || !specialInputFired){
 				if(posSpeech < speechToDisplay.Length){
 					posSpeech++;
+					if(inputFired) posSpeech = speechToDisplay.Length;
 					yield return new WaitForSeconds(speedSpeech);
 				}else{
 					if(!notChanged){
@@ -812,6 +812,7 @@ public class IntroScript : MonoBehaviour {
 			while(posSpeech < speechToDisplay.Length || !inputFired){
 				if(posSpeech < speechToDisplay.Length){
 					posSpeech++;
+					if(inputFired) posSpeech = speechToDisplay.Length;
 					yield return new WaitForSeconds(speedSpeech);
 				}else{
 					yield return new WaitForEndOfFrame();

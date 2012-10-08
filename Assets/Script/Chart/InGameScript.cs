@@ -20,6 +20,7 @@ public class InGameScript : MonoBehaviour {
 	private GameObject arrowRight;
 	private GameObject arrowDown;
 	private GameObject arrowUp;
+	private Transform[] arrowTarget;
 	public Material[] matSkinModel;
 	private Material matArrowModel;
 	public GameObject lifeBar;
@@ -163,6 +164,11 @@ public class InGameScript : MonoBehaviour {
 	public float speedBumps;
 	
 	
+	//Input Bump
+	public float speedBumpInput;
+	private float scaleBase;
+	public float percentScaleInput;
+	
 	//PROGRESSBAR
 	private double firstArrow;
 	private double lastArrow;
@@ -214,6 +220,7 @@ public class InGameScript : MonoBehaviour {
 	public Rect fullComboPos;
 	private bool deadAndRetry;
 	private bool deadAndGiveUp;
+	private float timeGiveUp;
 	
 	//SONG
 	private AudioClip songLoaded;
@@ -290,6 +297,12 @@ public class InGameScript : MonoBehaviour {
 		arrowUp = (GameObject) Instantiate(modelskin, new Vector3(4f, 0f, 2f), modelskin.transform.rotation);
 		arrowUp.transform.parent = MainCamera.gameObject.transform;
 		
+		arrowTarget = new Transform[4];
+		arrowTarget[0] = arrowLeft.transform;
+		arrowTarget[1] = arrowDown.transform;
+		arrowTarget[2] = arrowUp.transform;
+		arrowTarget[3] = arrowRight.transform;
+		scaleBase = arrowTarget[0].localScale.x;
 		matArrowModel = matSkinModel[DataManager.Instance.skinSelected];
 
 		
@@ -317,7 +330,7 @@ public class InGameScript : MonoBehaviour {
 		timebpm = (double)0;
 		timechart = 0f;//-(float)thesong.offset;
 		timetotalchart = (double)0;
-		
+		MoveCameraBefore();
 		
 		arrowFrozen = new Dictionary<Arrow, float>();
 		
@@ -451,7 +464,7 @@ public class InGameScript : MonoBehaviour {
 		failalpha = 0f;
 		passalpha = 0f;
 		cacheFailed = true;
-		
+		timeGiveUp = 0f;
 		
 		
 		//Transformation display
@@ -689,7 +702,7 @@ public class InGameScript : MonoBehaviour {
 			}
 			
 			if(fail){
-				if((typeOfDeath != 2 && (typeOfDeath == 0 || comboMisses >= 30)) || thesong.duration < timetotalchart){
+				if((typeOfDeath != 2 && (typeOfDeath == 0 || comboMisses >= 30)) || thesong.duration < timetotalchart || timeGiveUp >= 1f){
 					dead = true;
 					audio.Stop ();
 					Background.GetComponent<MoveBackground>().enabled = false;
@@ -739,7 +752,7 @@ public class InGameScript : MonoBehaviour {
 			
 		}else{
 			oneSecond += Time.deltaTime;
-			
+			if(!dead) MoveCameraBefore();
 			if(dead){
 				if(oneSecond > timeFailAppear && !disappearFailok){
 					//zoomfail += Time.deltaTime/speedzoom;
@@ -786,6 +799,12 @@ public class InGameScript : MonoBehaviour {
 			matArrowModel.color = new Color(1f, 1f, 1f, 1f);
 			nextBump++;
 		}	
+		
+		for(int i=0; i<4; i++){
+			if(arrowTarget[i].transform.localScale.x < scaleBase){
+				arrowTarget[i].transform.localScale += new Vector3(Time.deltaTime*speedBumpInput, Time.deltaTime*speedBumpInput, Time.deltaTime*speedBumpInput);
+			}
+		}
 		
 	}
 	
@@ -881,6 +900,14 @@ public class InGameScript : MonoBehaviour {
 			el.goFreeze.transform.GetChild(0).transform.localScale = new Vector3((el.posEnding.y - pos.y)/(el.posEnding.y - el.posBegining.y), 1f, 0.1f);
 			el.changeColorFreeze(arrowFrozen[el], unfrozed);
 		}
+	}
+	
+	
+	void MoveCameraBefore(){
+	
+		var bps = thesong.getBPS(actualBPM);
+		var move = -((float)(bps*(-(1.5 - oneSecond)))*speedmod;
+		TMainCamera.position = new Vector3(3f, move - 5, -10f);
 	}
 	
 	
@@ -1040,6 +1067,7 @@ public class InGameScript : MonoBehaviour {
 	void VerifyKeysInput(){
 		
 		if((Input.GetKeyDown(KeyCodeLeft) || Input.GetKeyDown(SecondaryKeyCodeLeft) ) && (arrowLeftList.Any())){
+			arrowTarget[0].localScale = arrowTarget[0].localScale*percentScaleInput;
 			var ar = findNextLeftArrow();
 			double realprec = ar.time - (timetotalchart); //Retirer ou non le Time.deltaTime ?
 			double prec = Mathf.Abs((float)(realprec));
@@ -1200,6 +1228,7 @@ public class InGameScript : MonoBehaviour {
 		
 		
 		if((Input.GetKeyDown(KeyCodeDown)  || Input.GetKeyDown(SecondaryKeyCodeDown))  && (arrowDownList.Any())){
+			arrowTarget[1].localScale = arrowTarget[1].localScale*percentScaleInput;
 			var ar = findNextDownArrow();
 			
 			double realprec = ar.time - (timetotalchart);
@@ -1359,6 +1388,7 @@ public class InGameScript : MonoBehaviour {
 		
 		
 		if((Input.GetKeyDown(KeyCodeUp) || Input.GetKeyDown(SecondaryKeyCodeUp)) && (arrowUpList.Any())){
+			arrowTarget[2].localScale = arrowTarget[2].localScale*percentScaleInput;
 			var ar = findNextUpArrow();
 			double realprec = ar.time - (timetotalchart);
 			double prec = Mathf.Abs((float)(realprec));
@@ -1518,6 +1548,7 @@ public class InGameScript : MonoBehaviour {
 		
 		
 		if((Input.GetKeyDown(KeyCodeRight) || Input.GetKeyDown(SecondaryKeyCodeRight)) && (arrowRightList.Any())){
+			arrowTarget[3].localScale = arrowTarget[3].localScale*percentScaleInput;
 			var ar = findNextRightArrow();
 			double realprec = ar.time - (timetotalchart);
 			double prec = Mathf.Abs((float)(realprec));
@@ -1674,6 +1705,17 @@ public class InGameScript : MonoBehaviour {
 			}
 		}
 		
+		
+		if(Input.GetKey(KeyCode.Escape)){
+			timeGiveUp += Time.deltaTime;
+			if(timeGiveUp >= 1f){
+				fail = true;
+			}
+		}
+		
+		if(Input.GetKeyUp(KeyCode.Escape)){
+			timeGiveUp = 0f;
+		}
 	}
 	
 	
@@ -2638,84 +2680,86 @@ public class InGameScript : MonoBehaviour {
 		
 		switch(mesuretot){
 		case 4:	
-			return new Color(1f, 0f, 0f, 1f); //
+			return new Color(1f, 0f, 0f, 1f); //rouge
 		
 			
 		case 8:
 			if(posmesure%2 == 0){
-				return new Color(0f, 0f, 1f, 1f);
+				return new Color(0f, 0f, 1f, 1f); // bleu
 			}
-			return new Color(1f, 0f, 0f, 1f); //
+			return new Color(1f, 0f, 0f, 1f); //rouge
 			
 			
 		case 12:
 			if((posmesure-1)%3 == 0){
-				return new Color(1f, 0f, 0f, 1f); //
+				return new Color(1f, 0f, 0f, 1f); //rouge
 			}
-			return new Color(1f, 0f, 1f, 1f);
+			return new Color(1f, 0f, 1f, 1f); //violet
 			
 		case 16:
 			if((posmesure-1)%4 == 0){
-				return new Color(1f, 0f, 0f, 1f); //
+				return new Color(1f, 0f, 0f, 1f); //rouge
 			}else if((posmesure+1)%4 == 0){
-				return new Color(0f, 0f, 1f, 1f);
+				return new Color(0f, 0f, 1f, 1f); //bleu
 			}
-			return new Color(0f, 1f, 0f, 1f);
+			return new Color(0f, 1f, 0f, 1f); //vert
 		
 			
 		case 24:
 			if((posmesure+2)%6 == 0){
-				return new Color(0f, 0f, 1f, 1f);
+				return new Color(0f, 0f, 1f, 1f); //bleu
 			}else if((posmesure-1)%6 == 0){
-				return new Color(1f, 0f, 0f, 1f); //
+				return new Color(1f, 0f, 0f, 1f); //rouge
 			}
-			return new Color(1f, 0f, 1f, 1f);
+			return new Color(1f, 0f, 1f, 1f); //violet
 			
 			
 		case 32:
 			if((posmesure-1)%8 == 0){
-				return new Color(1f, 0f, 0f, 1f); //
+				return new Color(1f, 0f, 0f, 1f); //rouge
 			}else if((posmesure+3)%8 == 0){
-				return new Color(0f, 0f, 1f, 1f);
+				return new Color(0f, 0f, 1f, 1f); //bleu
 			}else if((posmesure+1)%4 == 0){
-				return new Color(0f, 1f, 0f, 1f);
+				return new Color(0f, 1f, 0f, 1f); //vert
 			}
-			return new Color(1f, 0.8f, 0f, 1f);
+			return new Color(1f, 0.8f, 0f, 1f); //jaune
 			
 		case 48:
 			if((posmesure+2)%6 == 0){
-				return new Color(0f, 1f, 0f, 1f);
+				return new Color(0f, 1f, 0f, 1f); //vert
 			}else if((posmesure-1)%12 == 0){
-				return new Color(1f, 0f, 0f, 1f); //
+				return new Color(1f, 0f, 0f, 1f); //rouge
 			}else if((posmesure+5)%12 == 0){
-				return new Color(0f, 0f, 1f, 1f);
+				return new Color(0f, 0f, 1f, 1f); //bleu
 			}
-			return new Color(1f, 0f, 1f, 1f);
+			return new Color(1f, 0f, 1f, 1f); // violet
 		
 			
 		case 64:
 			if((posmesure-1)%16 == 0){
-				return new Color(1f, 0f, 0f, 1f); //
+				return new Color(1f, 0f, 0f, 1f); //rouge
 			}else if((posmesure+7)%16 == 0){
-				return new Color(0f, 0f, 1f, 1f);
+				return new Color(0f, 0f, 1f, 1f); //bleu
 			}else if((posmesure+3)%8 == 0){
-				return new Color(0f, 1f, 0f, 1f);
+				return new Color(0f, 1f, 0f, 1f); //vert
 			}else if((posmesure+1)%4 == 0){
-				return new Color(1f, 0.8f, 0f, 1f);
+				return new Color(1f, 0.8f, 0f, 1f); //jaune
 			}
-			return new Color(0f, 1f, 0.8f, 1f);
+			return new Color(0f, 1f, 0.8f, 1f); //turquoise
 			
 		case 192:
 			if((posmesure-1)%48 == 0){
-				return new Color(1f, 0f, 0f, 1f); //
+				return new Color(1f, 0f, 0f, 1f); //rouge
 			}else if((posmesure+13)%48 == 0){
-				return new Color(0f, 0f, 1f, 1f);
+				return new Color(0f, 0f, 1f, 1f); //bleu
 			}else if((posmesure+11)%24 == 0){
-				return new Color(0f, 1f, 0f, 1f);
+				return new Color(0f, 1f, 0f, 1f); //vert
+			}else if((posmesure-1)%4 == 0){
+				return new Color(1f, 0f, 1f, 1f); //violet
 			}else if((posmesure+5)%12 == 0){
-				return new Color(1f, 0.8f, 0f, 1f);
+				return new Color(1f, 0.8f, 0f, 1f); //jaune
 			}
-			return new Color(0f, 1f, 0.8f, 1f);
+			return new Color(0f, 1f, 0.8f, 1f); //turquoise
 			
 		default:
 			return new Color(1f, 1f, 1f, 1f);

@@ -58,7 +58,7 @@ public class MineScript : MonoBehaviour {
 				igs.AddMineToScoreCombo();
 				igs.removeMineFromList(associatedArrow, state);
 				DestroyImmediate(arrowLeft);
-			}else  if(associatedArrow.time <= (igs.getTotalTimeChart() - (double)0.07)){
+			}else  if(associatedArrow.time <= (igs.getTotalTimeChart() - (double)0.02)){
 				missed = true;
 				igs.removeMineFromList(associatedArrow, state);
 			}
