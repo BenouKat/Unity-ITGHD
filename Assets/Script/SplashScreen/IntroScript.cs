@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 public class IntroScript : MonoBehaviour {
 
@@ -58,6 +59,7 @@ public class IntroScript : MonoBehaviour {
 	private string newpassword;
 	private string newpasswordagain;
 	private bool inputFired;
+	private bool inputPassTextFired;
 	private bool specialInputFired;
 	
 	//Speech Question
@@ -172,6 +174,7 @@ public class IntroScript : MonoBehaviour {
 					labelToDisplay = TextManager.Instance.texts["SplashScreen"]["CONNECTING_SUCCEED"].Replace("USER_NAME", ProfileManager.Instance.currentProfile.name);
 					posLength = 0;	
 					StartCoroutine(TextDisplay(LOGIN_STATUT.VALID));
+					stateIntro = INTRO_STATE.FINISH;
 				}else{
 					labelToDisplay = TextManager.Instance.texts["SplashScreen"]["CONNECTING_PASSWORDFAIL"];
 					posLength = 0;	
@@ -258,7 +261,7 @@ public class IntroScript : MonoBehaviour {
 				}
 				
 			}else if(stateIntro == INTRO_STATE.PASSWORD){
-				if(Event.current.isKey && Event.current.keyCode == KeyCode.Return){
+				if(Event.current.isKey && Event.current.keyCode == KeyCode.Return && !String.IsNullOrEmpty(newpassword)){
 					stateIntro = INTRO_STATE.NONE;
 					specialInputFired = true;
 				}else{
@@ -269,7 +272,7 @@ public class IntroScript : MonoBehaviour {
 				
 				
 			}else if(stateIntro == INTRO_STATE.RETYPEPASSWORD){
-				if(Event.current.isKey && Event.current.keyCode == KeyCode.Return){
+				if(Event.current.isKey && Event.current.keyCode == KeyCode.Return && !String.IsNullOrEmpty(newpasswordagain)){
 					if(newpassword != newpasswordagain){
 						wrongPassword = true;
 					}
@@ -502,6 +505,7 @@ public class IntroScript : MonoBehaviour {
 		
 		if(Input.GetKeyDown(KeyCode.Return)){
 			inputFired = true;	
+			inputPassTextFired = true;
 			if(stateIntro == INTRO_STATE.FINISH) enterPushedForFinish = true;
 		}else{
 			inputFired = false;	
@@ -688,9 +692,13 @@ public class IntroScript : MonoBehaviour {
 			while(posSpeech < speechToDisplay.Length || !inputFired){
 				if(posSpeech < speechToDisplay.Length){
 					posSpeech++;
-					if(inputFired) posSpeech = speechToDisplay.Length;
+					if(inputPassTextFired && posSpeech > 1){
+						posSpeech = speechToDisplay.Length;
+					}
+					inputPassTextFired = false;
 					yield return new WaitForSeconds(speedSpeech);
 				}else{
+					inputPassTextFired = false;
 					yield return new WaitForEndOfFrame();
 					
 				}
@@ -701,7 +709,10 @@ public class IntroScript : MonoBehaviour {
 		posSpeech = 0;
 		while(posSpeech < speechToDisplay.Length){
 			posSpeech++;
-			if(inputFired) posSpeech = speechToDisplay.Length;
+			if(inputPassTextFired && posSpeech > 1){
+				posSpeech = speechToDisplay.Length;
+			}
+			inputPassTextFired = false;
 			yield return new WaitForSeconds(speedSpeech);
 		}
 		stateIntro = INTRO_STATE.QUESTION1;
@@ -716,9 +727,13 @@ public class IntroScript : MonoBehaviour {
 			while(posSpeech < speechToDisplay.Length || !inputFired){
 				if(posSpeech < speechToDisplay.Length){
 					posSpeech++;
-					if(inputFired) posSpeech = speechToDisplay.Length;
+					if(inputPassTextFired && posSpeech > 1){
+						posSpeech = speechToDisplay.Length;
+					}
+					inputPassTextFired = false;
 					yield return new WaitForSeconds(speedSpeech);
 				}else{
+					inputPassTextFired = false;
 					yield return new WaitForEndOfFrame();
 				}
 			}
@@ -728,7 +743,10 @@ public class IntroScript : MonoBehaviour {
 		posSpeech = 0;
 		while(posSpeech < speechToDisplay.Length){
 			posSpeech++;
-			if(inputFired) posSpeech = speechToDisplay.Length;
+			if(inputPassTextFired && posSpeech > 1){
+				posSpeech = speechToDisplay.Length;
+			}
+			inputPassTextFired = false;
 			yield return new WaitForSeconds(speedSpeech);
 		}
 		
@@ -743,9 +761,13 @@ public class IntroScript : MonoBehaviour {
 			while(posSpeech < speechToDisplay.Length || !inputFired){
 				if(posSpeech < speechToDisplay.Length){
 					posSpeech++;
-					if(inputFired) posSpeech = speechToDisplay.Length;
+					if(inputPassTextFired && posSpeech > 1){
+						posSpeech = speechToDisplay.Length;
+					}
+					inputPassTextFired = false;
 					yield return new WaitForSeconds(speedSpeech);
 				}else{
+					inputPassTextFired = false;
 					yield return new WaitForEndOfFrame();
 				}
 			}
@@ -757,9 +779,13 @@ public class IntroScript : MonoBehaviour {
 			while(posSpeech < speechToDisplay.Length || !inputFired){
 				if(posSpeech < speechToDisplay.Length){
 					posSpeech++;
-					if(inputFired) posSpeech = speechToDisplay.Length;
+					if(inputPassTextFired && posSpeech > 1){
+						posSpeech = speechToDisplay.Length;
+					}
+					inputPassTextFired = false;
 					yield return new WaitForSeconds(speedSpeech);
 				}else{
+					inputPassTextFired = false;
 					yield return new WaitForEndOfFrame();
 				}
 			}
@@ -782,7 +808,6 @@ public class IntroScript : MonoBehaviour {
 			while(posSpeech < speechToDisplay.Length || !specialInputFired){
 				if(posSpeech < speechToDisplay.Length){
 					posSpeech++;
-					if(inputFired) posSpeech = speechToDisplay.Length;
 					yield return new WaitForSeconds(speedSpeech);
 				}else{
 					if(!notChanged){
@@ -812,9 +837,14 @@ public class IntroScript : MonoBehaviour {
 			while(posSpeech < speechToDisplay.Length || !inputFired){
 				if(posSpeech < speechToDisplay.Length){
 					posSpeech++;
-					if(inputFired) posSpeech = speechToDisplay.Length;
+					if(inputPassTextFired && posSpeech > 1){
+						posSpeech = speechToDisplay.Length;
+					}
+					inputPassTextFired = false;
 					yield return new WaitForSeconds(speedSpeech);
+					
 				}else{
+					inputPassTextFired = false;
 					yield return new WaitForEndOfFrame();
 				}
 			}
@@ -842,7 +872,6 @@ public class IntroScript : MonoBehaviour {
 		yield return new WaitForSeconds(1f);
 		ProfileManager.Instance.LoadProfiles();
 		var verif = ProfileManager.Instance.verifyCurrentProfile();
-		
 		if(verif){
 			labelToDisplay = TextManager.Instance.texts["SplashScreen"]["CONNECTING_SUCCEED"].Replace("USER_NAME", ProfileManager.Instance.currentProfile.name);
 			posLength = 0;

@@ -330,7 +330,7 @@ public class InGameScript : MonoBehaviour {
 		timebpm = (double)0;
 		timechart = 0f;//-(float)thesong.offset;
 		timetotalchart = (double)0;
-		MoveCameraBefore();
+		
 		
 		arrowFrozen = new Dictionary<Arrow, float>();
 		
@@ -356,6 +356,7 @@ public class InGameScript : MonoBehaviour {
 		lifeGraph = new Dictionary<double, double>();
 		
 		TMainCamera = MainCamera.transform;
+		MoveCameraBefore();
 		
 		//Textures
 		TextureBase = new Dictionary<string, Texture2D>();
@@ -560,11 +561,11 @@ public class InGameScript : MonoBehaviour {
 					(posFail.width + zwip*2 + ratiow*zoomfail)*Screen.width, (posFail.height - zwip*2 + ratioh*zoomfail)*Screen.height), TextureBase["FAIL"]);
 				if(failalpha >= 1f){
 					GUI.color = new Color(1f, 1f, 1f, buttonfailalpha);
-					if(GUI.Button(new Rect(posRetry.x*Screen.width, posRetry.y*Screen.height, posRetry.width*Screen.width, posRetry.height*Screen.height), "Retry") && !deadAndRetry && !deadAndGiveUp){
+					if(GUI.Button(new Rect(posRetry.x*Screen.width, posRetry.y*Screen.height, posRetry.width*Screen.width, posRetry.height*Screen.height), "Retry") && !deadAndRetry && !deadAndGiveUp && buttonfailalpha > 0.5f){
 							deadAndRetry = true;
 					}
 					
-					if(GUI.Button(new Rect(posGiveUp.x*Screen.width, posGiveUp.y*Screen.height, posGiveUp.width*Screen.width, posGiveUp.height*Screen.height), "Give up") && !deadAndRetry && !deadAndGiveUp){
+					if(GUI.Button(new Rect(posGiveUp.x*Screen.width, posGiveUp.y*Screen.height, posGiveUp.width*Screen.width, posGiveUp.height*Screen.height), "Give up") && !deadAndRetry && !deadAndGiveUp && buttonfailalpha > 0.5f){
 							deadAndGiveUp = true;
 					}
 				}
@@ -906,7 +907,7 @@ public class InGameScript : MonoBehaviour {
 	void MoveCameraBefore(){
 	
 		var bps = thesong.getBPS(actualBPM);
-		var move = -((float)(bps*(-(1.5 - oneSecond)))*speedmod;
+		var move = -((float)(bps*(-(1.5 - oneSecond - startTheSong)))*speedmod);
 		TMainCamera.position = new Vector3(3f, move - 5, -10f);
 	}
 	

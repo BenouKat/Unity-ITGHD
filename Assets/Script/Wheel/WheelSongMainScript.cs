@@ -192,7 +192,8 @@ public class WheelSongMainScript : MonoBehaviour {
 	private int deathSelected;
 	private string speedmodstring;
 	private string ratestring;
-	
+	private bool speedmodok;
+	private bool rateok;
 	
 	//Anim options
 	public float timeFadeOut;
@@ -371,6 +372,8 @@ public class WheelSongMainScript : MonoBehaviour {
 		SongMode = false;
 		movinSong = false;
 		locked = false;
+		speedmodok = true;
+		rateok = true;
 		textButton = "Option";
 		matCache = cacheOption.renderer.material;
 		fadeAlphaOptionTitle = 1f;
@@ -673,7 +676,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 			
 			//Jouer
-			if(GUI.Button(new Rect(Jouer.x*Screen.width, Jouer.y*Screen.height, Jouer.width*Screen.width, Jouer.height*Screen.height), "Play", "labelGo")){
+			if(GUI.Button(new Rect(Jouer.x*Screen.width, Jouer.y*Screen.height, Jouer.width*Screen.width, Jouer.height*Screen.height), "Play", "labelGo") && speedmodok && rateok){
 				
 				DataManager.Instance.songSelected =  songSelected[actualySelected];
 				DataManager.Instance.difficultySelected = actualySelected;
@@ -798,6 +801,7 @@ public class WheelSongMainScript : MonoBehaviour {
 								if(System.Double.TryParse(speedmodstring, out result)){
 									if(result >= (double)0.25 && result <= (double)15){
 										speedmodSelected = (float)result;
+										speedmodok = true;
 										var bpmdisplaying = songSelected.First().Value.bpmToDisplay;
 										if(bpmdisplaying.Contains("->")){
 											bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[0])*speedmodSelected).ToString("0") + "->" + (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[1])*speedmodSelected).ToString("0");
@@ -809,16 +813,19 @@ public class WheelSongMainScript : MonoBehaviour {
 										GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
 										GUI.Label(new Rect((posItemLabel[0].x + offsetSpeedRateX)*Screen.width, posItemLabel[0].y*Screen.height, posItemLabel[0].width*Screen.width, posItemLabel[0].height*Screen.height), "Speedmod must be between x0.25 and x15");
 										GUI.color = new Color(1f, 1f, 1f, 1f);
+										speedmodok = false;
 									}
 								}else{
 									GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
 									GUI.Label(new Rect((posItemLabel[0].x + offsetSpeedRateX)*Screen.width, posItemLabel[0].y*Screen.height, posItemLabel[0].width*Screen.width, posItemLabel[0].height*Screen.height), "Speedmod is not a valid value");
 									GUI.color = new Color(1f, 1f, 1f, 1f);
+									speedmodok = false;
 								}
 							}else{
 								GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
 								GUI.Label(new Rect((posItemLabel[0].x + offsetSpeedRateX)*Screen.width, posItemLabel[0].y*Screen.height, posItemLabel[0].width*Screen.width, posItemLabel[0].height*Screen.height), "Empty value");
 								GUI.color = new Color(1f, 1f, 1f, 1f);
+								speedmodok = false;
 							}
 						break;
 						case 1:
@@ -829,21 +836,25 @@ public class WheelSongMainScript : MonoBehaviour {
 								if(System.Int32.TryParse(ratestring, out rateresult)){
 									if(rateresult >= -90 && rateresult <= 100){
 										rateSelected = rateresult;
+										rateok = true;
 										GUI.Label(new Rect((posItemLabel[1].x + offsetSpeedRateX)*Screen.width, posItemLabel[1].y*Screen.height, posItemLabel[1].width*Screen.width, posItemLabel[1].height*Screen.height), "Rate : " + rateSelected.ToString("00") + "%");
 									}else{
 										GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
 										GUI.Label(new Rect((posItemLabel[1].x + offsetSpeedRateX)*Screen.width, posItemLabel[1].y*Screen.height, posItemLabel[1].width*Screen.width, posItemLabel[1].height*Screen.height), "Rate must be between -90% and +100%");
 										GUI.color = new Color(1f, 1f, 1f, 1f);
+										rateok = false;
 									}
 								}else{
 									GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
 									GUI.Label(new Rect((posItemLabel[1].x + offsetSpeedRateX)*Screen.width, posItemLabel[1].y*Screen.height, posItemLabel[1].width*Screen.width, posItemLabel[1].height*Screen.height), "Rate is not a valid value");
 									GUI.color = new Color(1f, 1f, 1f, 1f);
+									rateok = false;
 								}
 							}else{
 								GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
 								GUI.Label(new Rect((posItemLabel[1].x + offsetSpeedRateX)*Screen.width, posItemLabel[1].y*Screen.height, posItemLabel[1].width*Screen.width, posItemLabel[1].height*Screen.height), "Empty Value");
 								GUI.color = new Color(1f, 1f, 1f, 1f);
+								rateok = false;
 							}
 							
 						break;
@@ -1586,7 +1597,12 @@ public class WheelSongMainScript : MonoBehaviour {
 			#endregion
 			
 			
-			#region Audio
+			
+			
+			
+		}
+		
+		#region Audio
 			
 			if(songSelected != null && alreadyRefresh && mainThemeClip.volume > 0){
 					mainThemeClip.volume -= Time.deltaTime/speedAudioVolume;
@@ -1595,10 +1611,7 @@ public class WheelSongMainScript : MonoBehaviour {
 					mainThemeClip.volume += Time.deltaTime/speedAudioVolume;
 			}
 			
-			#endregion
-			
-			
-		}
+		#endregion
 		
 		#region option
 			
@@ -2031,7 +2044,7 @@ public class WheelSongMainScript : MonoBehaviour {
 			score = -1;
 			isScoreFail = false;
 			speedmodstring = DataManager.Instance.songSelected != null ? DataManager.Instance.speedmodSelected.ToString("0.00") : "2.00";
-			speedmodSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.speedmodSelected.ToString("0.00") : 2f;
+			speedmodSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.speedmodSelected : 2f;
 		}
 		if(DataManager.Instance.giveNoteOfScore((float)score) != DataManager.Instance.giveNoteOfScore((float)oldscore) && oldscore >= 96f){
 			medals.FirstOrDefault(c => c.name == DataManager.Instance.giveNoteOfScore((float)oldscore).Split(';')[1]).SetActiveRecursively(false);

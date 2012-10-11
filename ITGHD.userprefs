@@ -1,6 +1,14 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace />
-  <MonoDevelop.Ide.Workbench />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Managers\ProfileManager.cs">
+    <Files>
+      <File FileName="Assets\Script\Chart\InGameScript.cs" Line="568" Column="216" />
+      <File FileName="Assets\Script\SplashScreen\IntroScript.cs" Line="882" Column="5" />
+      <File FileName="Assets\Script\Wheel\WheelSongMainScript.cs" Line="1616" Column="17" />
+      <File FileName="Assets\Script\Managers\DataManager.cs" Line="29" Column="33" />
+      <File FileName="Assets\Script\Managers\ProfileManager.cs" Line="47" Column="5" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
