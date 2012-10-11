@@ -11,7 +11,8 @@ public class MineScript : MonoBehaviour {
 	public string state;
 	
 	private InGameScript igs;
-	private KeyCode associatedKeyCode;
+	private KeyCode associatedKeyCode1;
+	private KeyCode associatedKeyCode2;
 	public bool missed;
 	public bool valid;
 	public bool alreadyScored;
@@ -26,22 +27,26 @@ public class MineScript : MonoBehaviour {
 		switch((int)transform.position.x){
 			case 0:
 				state = "left";
-				associatedKeyCode = KeyCode.LeftArrow;
+				associatedKeyCode1 = DataManager.Instance.KeyCodeLeft;
+				associatedKeyCode2 = DataManager.Instance.SecondaryKeyCodeLeft;
 				this.pm = igs.StartParticleMineLeft;
 				break;
 			case 2:
 				state = "down";
-				associatedKeyCode = KeyCode.DownArrow;
+				associatedKeyCode1 = DataManager.Instance.KeyCodeDown;
+				associatedKeyCode2 = DataManager.Instance.SecondaryKeyCodeDown;
 				this.pm = igs.StartParticleMineDown;
 				break;
 			case 4:
 				state = "up";
-				associatedKeyCode = KeyCode.UpArrow;
+				associatedKeyCode1 = DataManager.Instance.KeyCodeUp;
+				associatedKeyCode2 = DataManager.Instance.SecondaryKeyCodeUp;
 				this.pm = igs.StartParticleMineUp;
 				break;
 			case 6:
 				state = "right";
-				associatedKeyCode = KeyCode.RightArrow;
+				associatedKeyCode1 = DataManager.Instance.KeyCodeRight;
+				associatedKeyCode2 = DataManager.Instance.SecondaryKeyCodeRight;
 				this.pm = igs.StartParticleMineRight;
 				break;
 		}
@@ -50,15 +55,14 @@ public class MineScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void LateUpdate () {
-		//MINE A CORRIGER !!
 		if(!missed){
-			if(associatedArrow.time <= igs.getTotalTimeChart() && Input.GetKey(associatedKeyCode)){
+			if(associatedArrow.time <= igs.getTotalTimeChart() && (Input.GetKey(associatedKeyCode1) || Input.GetKey(associatedKeyCode2))){
 				this.pm();
 				igs.GainScoreAndLife("MINE");
 				igs.AddMineToScoreCombo();
 				igs.removeMineFromList(associatedArrow, state);
 				DestroyImmediate(arrowLeft);
-			}else  if(associatedArrow.time <= (igs.getTotalTimeChart() - (double)0.02)){
+			}else  if(associatedArrow.time <= igs.getTotalTimeChart()){
 				missed = true;
 				igs.removeMineFromList(associatedArrow, state);
 			}

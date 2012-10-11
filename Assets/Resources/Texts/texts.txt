@@ -159,6 +159,11 @@ pour travailler ensemble mais aussi échanger vos données et ainsi vous procure
 nouveau objectifs à atteindre, même seul.;
 <SPEECH_20>;
 Bienvenue dans l'espace harmonique, USER_NAME;
+<PRESSENTER>;
+Appuyez sur Entrée pour continuer.;
+[Util];
+<SPEEDMOD_TEXT>;
+Changer le speedmod ?;
 [Config];
 <NumberBuild>;
 Version actuelle : build b600;

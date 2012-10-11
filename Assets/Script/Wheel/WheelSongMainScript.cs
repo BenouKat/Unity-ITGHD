@@ -435,7 +435,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 		GUI.color = new Color(1f, 1f, 1f, 1f - totalAlpha);
 		
-		if(!OptionMode && !SongMode){
+		if(!OptionMode && !SongMode && !movinSong){
 			#region packGUI
 			//Packs
 			if(search.Trim().Length < 3){

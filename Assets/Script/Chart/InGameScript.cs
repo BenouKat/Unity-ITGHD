@@ -146,6 +146,11 @@ public class InGameScript : MonoBehaviour {
 	private int[] thetab; //combo decoup
 	public GUISkin skin;
 	public Rect infoSong;
+	public Rect SpeedModTextAera;
+	public Rect SpeedModText;
+	public Rect SpeedModTextInfo;
+	private string speedmodstring;
+	private bool speedmodok;
 	
 	//DISPLAY
 	private Color bumpColor;
@@ -249,6 +254,8 @@ public class InGameScript : MonoBehaviour {
 		SecondaryKeyCodeUp = DataManager.Instance.SecondaryKeyCodeUp;
 		SecondaryKeyCodeLeft = DataManager.Instance.SecondaryKeyCodeLeft;
 		SecondaryKeyCodeRight = DataManager.Instance.SecondaryKeyCodeRight;
+		speedmodstring = DataManager.Instance.speedmodSelected.ToString("0.00");
+		speedmodok = true;
 		var rand = (int)(UnityEngine.Random.value*DataManager.Instance.skyboxList.Count);
 		if(rand == DataManager.Instance.skyboxList.Count){
 			rand--;	
@@ -561,12 +568,48 @@ public class InGameScript : MonoBehaviour {
 					(posFail.width + zwip*2 + ratiow*zoomfail)*Screen.width, (posFail.height - zwip*2 + ratioh*zoomfail)*Screen.height), TextureBase["FAIL"]);
 				if(failalpha >= 1f){
 					GUI.color = new Color(1f, 1f, 1f, buttonfailalpha);
-					if(GUI.Button(new Rect(posRetry.x*Screen.width, posRetry.y*Screen.height, posRetry.width*Screen.width, posRetry.height*Screen.height), "Retry") && !deadAndRetry && !deadAndGiveUp && buttonfailalpha > 0.5f){
+					if(GUI.Button(new Rect(posRetry.x*Screen.width, posRetry.y*Screen.height, posRetry.width*Screen.width, posRetry.height*Screen.height), "Retry") && !deadAndRetry && !deadAndGiveUp && buttonfailalpha > 0.5f && speedmodok){
 							deadAndRetry = true;
 					}
 					
 					if(GUI.Button(new Rect(posGiveUp.x*Screen.width, posGiveUp.y*Screen.height, posGiveUp.width*Screen.width, posGiveUp.height*Screen.height), "Give up") && !deadAndRetry && !deadAndGiveUp && buttonfailalpha > 0.5f){
 							deadAndGiveUp = true;
+					}
+					
+					GUI.color = new Color(0.7f, 0.7f, 0.7f, buttonfailalpha);
+					GUI.Label(new Rect(SpeedModText.x*Screen.width, SpeedModText.y*Screen.height, SpeedModText.width*Screen.width, SpeedModText.height*Screen.height), TextManager.Instance.texts["Util"]["SPEEDMOD_TEXT"]);
+					speedmodstring = GUI.TextArea (new Rect(SpeedModTextAera.x*Screen.width, SpeedModTextAera.y*Screen.height, SpeedModTextAera.width*Screen.width, SpeedModTextAera.height*Screen.height), speedmodstring.Trim(), 5);
+								
+					if(!String.IsNullOrEmpty(speedmodstring)){
+						double result;
+						if(System.Double.TryParse(speedmodstring, out result)){
+							if(result >= (double)0.25 && result <= (double)15){
+								speedmodSelected = (float)result;
+								speedmodok = true;
+								var bpmdisplaying = thesong.bpmToDisplay;
+								if(bpmdisplaying.Contains("->")){
+									bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[0])*speedmodSelected).ToString("0") + "->" + (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[1])*speedmodSelected).ToString("0");
+								}else{
+									bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying)*speedmodSelected).ToString("0");
+								}
+								GUI.Label(new Rect((SpeedModTextInfo.x + offsetSpeedRateX)*Screen.width, SpeedModTextInfo.y*Screen.height, SpeedModTextInfo.width*Screen.width, SpeedModTextInfo.height*Screen.height), "Speedmod : x" + speedmodSelected.ToString("0.00") + " (" + bpmdisplaying + " BPM)");
+							}else{
+								GUI.color = new Color(0.7f, 0.2f, 0.2f, 1f);
+								GUI.Label(new Rect((SpeedModTextInfo.x + offsetSpeedRateX)*Screen.width, SpeedModTextInfo.y*Screen.height, SpeedModTextInfo.width*Screen.width, SpeedModTextInfo.height*Screen.height), "Speedmod must be between x0.25 and x15");
+								GUI.color = new Color(1f, 1f, 1f, 1f);
+								speedmodok = false;
+							}
+						}else{
+							GUI.color = new Color(0.7f, 0.2f, 0.2f, 1f);
+							GUI.Label(new Rect((SpeedModTextInfo.x + offsetSpeedRateX)*Screen.width, SpeedModTextInfo.y*Screen.height, SpeedModTextInfo.width*Screen.width, SpeedModTextInfo.height*Screen.height), "Speedmod is not a valid value");
+							GUI.color = new Color(1f, 1f, 1f, 1f);
+							speedmodok = false;
+						}
+					}else{
+						GUI.color = new Color(0.7f, 0.2f, 0.2f, 1f);
+						GUI.Label(new Rect((SpeedModTextInfo.x + offsetSpeedRateX)*Screen.width, SpeedModTextInfo.y*Screen.height, SpeedModTextInfo.width*Screen.width, SpeedModTextInfo.height*Screen.height), "Empty value");
+						GUI.color = new Color(1f, 1f, 1f, 1f);
+						speedmodok = false;
 					}
 				}
 			}

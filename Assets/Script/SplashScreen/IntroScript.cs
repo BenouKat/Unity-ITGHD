@@ -33,6 +33,7 @@ public class IntroScript : MonoBehaviour {
 	public Rect CreateNewButton;
 	public Rect BackButton;
 	public Rect TextAreaPassword;
+	public Rect PressEnter;
 	
 	
 	//Cubes qui s'envolent
@@ -237,7 +238,9 @@ public class IntroScript : MonoBehaviour {
 		
 		if(ls == LOGIN_STATUT.INVALID && okforSpeech){
 			GUI.Label(new Rect(labelSpeech.x*Screen.width, labelSpeech.y*Screen.height, labelSpeech.width*Screen.width, labelSpeech.height*Screen.height), speechToDisplay.Substring(0, posSpeech) , "CenteredBrightLabel");
-		
+			GUI.color = new Color(0.3f, 0.3f, 0.3f, 1f);
+			GUI.Label(new Rect(PressEnter.x*Screen.width, PressEnter.y*Screen.height, PressEnter.width*Screen.width, PressEnter.height*Screen.height), TextManager.Instance.texts["SplashScreen"]["PRESSENTER"]);
+			GUI.color = new Color(1f, 1f, 1f, 1f);
 			if(stateIntro == INTRO_STATE.QUESTION1){
 				if(answer1selected != -1){
 					GUI.color = new Color(1f, 1f, 1f, alphaAnswer);
@@ -289,6 +292,12 @@ public class IntroScript : MonoBehaviour {
 			
 			
 		}	
+		
+		if(ls == LOGIN_STATUT.VALID){
+			GUI.color = new Color(0.3f, 0.3f, 0.3f, 1f);
+			GUI.Label(new Rect(PressEnter.x*Screen.width, PressEnter.y*Screen.height, PressEnter.width*Screen.width, PressEnter.height*Screen.height), TextManager.Instance.texts["SplashScreen"]["PRESSENTER"]);
+			GUI.color = new Color(1f, 1f, 1f, 1f);
+		}
 			
 			
 		GUI.color = new Color(1f, 1f, 1f, alphaBlank);
