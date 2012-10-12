@@ -56,6 +56,9 @@ public class DataManager{
 	
 	public int regenComboAfterMiss = 5;
 	
+	public bool BPMEntryMode;
+	
+	public int BPMChoiceMode;
 	
 	//INSTANCE
 	private static DataManager instance;
@@ -222,6 +225,9 @@ public class DataManager{
 		SecondaryKeyCodeDown = KeyCode.DownArrow;
 		SecondaryKeyCodeUp = KeyCode.UpArrow;
 		SecondaryKeyCodeRight = KeyCode.RightArrow;
+		
+		BPMChoiceMode = 0;
+		BPMEntryMode = false;
 		
 		ReadTempConfigFile();
 		InitDicOption();

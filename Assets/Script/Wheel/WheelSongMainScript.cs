@@ -177,6 +177,8 @@ public class WheelSongMainScript : MonoBehaviour {
 	public Rect[] posItem;
 	public Rect[] posItemLabel;
 	public Rect selectedImage;
+	public float offsetXDisplayBPMSwitch;
+	public float offsetXDisplayBPMValue;
 	public float offsetXDisplay;
 	public float borderXDisplay;
 	public float offsetSpeedRateX;
@@ -191,6 +193,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	private bool[] displaySelected;
 	private int deathSelected;
 	private string speedmodstring;
+	private string bpmstring;
 	private string ratestring;
 	private bool speedmodok;
 	private bool rateok;
@@ -385,6 +388,21 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 		
 		speedmodSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.speedmodSelected : 2f;
+		if(DataManager.Instance.songSelected != null){
+			double resultbpm;
+			if(System.Double.TryParse(speedmodSelected, out resultbpm)){
+				var bpmtotest = songSelected.First().Value.bpmToDisplay;
+				if(bpmtotest.Contains("->")){
+					bpmstring = (System.Convert.ToDouble(System.Convert.ToDouble(bpmtotest.Replace(">", "").Split('-')[DataManager.Instance.BPMChoiceMode])*speedmodSelected)).ToString("0");
+				}else{
+					bpmstring = (resultbpm/System.Convert.ToDouble(bpmtotest)*speedmodSelected).ToString("0");
+				}
+			}else{
+				bpmstring = "?";
+			}
+		}else{
+			bpmstring = "300";
+		}
 		rateSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.rateSelected : 0f;
 		scoreJudgeSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.scoreJudgeSelected : Judge.NORMAL;
 		hitJudgeSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.hitJudgeSelected : Judge.NORMAL;
@@ -394,6 +412,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		deathSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.deathSelected :0;
 		
 		speedmodstring = speedmodSelected.ToString("0.00");
+		
 		ratestring = rateSelected.ToString("00");
 		
 		alphaText = new float[stateLoading.Length];
@@ -793,9 +812,27 @@ public class WheelSongMainScript : MonoBehaviour {
 					GUI.DrawTexture(new Rect(posOptionTitle.x*Screen.width, (posOptionTitle.y + offsetYOption*i)*Screen.height, posOptionTitle.width*Screen.width, posOptionTitle.height*Screen.height), tex["Option" + (i+1)]);
 					switch(i){
 						case 0:
-							//speedmod
-							speedmodstring = GUI.TextArea (new Rect(posItem[0].x*Screen.width, posItem[0].y*Screen.height, posItem[0].width*Screen.width, posItem[0].height*Screen.height), speedmodstring.Trim(), 5);
-							
+							//speedmod offsetXDisplayBPMSwitch
+							if(!DataManager.Instance.BPMEntryMode){
+								speedmodstring = GUI.TextArea (new Rect(posItem[0].x*Screen.width, posItem[0].y*Screen.height, posItem[0].width*Screen.width, posItem[0].height*Screen.height), speedmodstring.Trim(), 5);
+							}else{
+								bpmstring = GUI.TextArea (new Rect(posItem[0].x*Screen.width, posItem[0].y*Screen.height, posItem[0].width*Screen.width, posItem[0].height*Screen.height), speedmodstring.Trim(), 5);
+								if(!String.IsNullOrEmpty(bpmstring)){
+									double resultbpm;
+									if(System.Double.TryParse(bpmstring, out resultbpm)){
+										var bpmtotest = songSelected.First().Value.bpmToDisplay;
+										if(bpmtotest.Contains("->")){
+											speedmodstring = (System.Convert.ToDouble(resultbpm/System.Convert.ToDouble(bpmtotest.Replace(">", "").Split('-')[DataManager.Instance.BPMChoiceMode]))).ToString("0.00");
+										}else{
+											speedmodstring = (resultbpm/System.Convert.ToDouble(bpmtotest)).ToString("0.00");
+										}
+									}else{
+										speedmodstring = "?";
+									}
+								}else{
+									speedmodstring = "";
+								}
+							}
 							if(!String.IsNullOrEmpty(speedmodstring)){
 								double result;
 								if(System.Double.TryParse(speedmodstring, out result)){
@@ -805,28 +842,45 @@ public class WheelSongMainScript : MonoBehaviour {
 										var bpmdisplaying = songSelected.First().Value.bpmToDisplay;
 										if(bpmdisplaying.Contains("->")){
 											bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[0])*speedmodSelected).ToString("0") + "->" + (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[1])*speedmodSelected).ToString("0");
+											if(!DataManager.Instance.BPMEntryMode) bpmstring = System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[DataManager.Instance.BPMChoiceMode])*speedmodSelected).ToString("0");
 										}else{
 											bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying)*speedmodSelected).ToString("0");
+											if(!DataManager.Instance.BPMEntryMode) bpmstring = (System.Convert.ToDouble(bpmdisplaying)*speedmodSelected).ToString("0");
 										}
+										
 										GUI.Label(new Rect((posItemLabel[0].x + offsetSpeedRateX)*Screen.width, posItemLabel[0].y*Screen.height, posItemLabel[0].width*Screen.width, posItemLabel[0].height*Screen.height), "Speedmod : x" + speedmodSelected.ToString("0.00") + " (" + bpmdisplaying + " BPM)");
 									}else{
 										GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
 										GUI.Label(new Rect((posItemLabel[0].x + offsetSpeedRateX)*Screen.width, posItemLabel[0].y*Screen.height, posItemLabel[0].width*Screen.width, posItemLabel[0].height*Screen.height), "Speedmod must be between x0.25 and x15");
 										GUI.color = new Color(1f, 1f, 1f, 1f);
 										speedmodok = false;
+										if(!DataManager.Instance.BPMEntryMode) bpmstring = "1";
 									}
 								}else{
 									GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
 									GUI.Label(new Rect((posItemLabel[0].x + offsetSpeedRateX)*Screen.width, posItemLabel[0].y*Screen.height, posItemLabel[0].width*Screen.width, posItemLabel[0].height*Screen.height), "Speedmod is not a valid value");
 									GUI.color = new Color(1f, 1f, 1f, 1f);
 									speedmodok = false;
+									if(!DataManager.Instance.BPMEntryMode) bpmstring = "?";
 								}
 							}else{
 								GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
 								GUI.Label(new Rect((posItemLabel[0].x + offsetSpeedRateX)*Screen.width, posItemLabel[0].y*Screen.height, posItemLabel[0].width*Screen.width, posItemLabel[0].height*Screen.height), "Empty value");
 								GUI.color = new Color(1f, 1f, 1f, 1f);
 								speedmodok = false;
+								if(!DataManager.Instance.BPMEntryMode) bpmstring = "";
 							}
+							
+							if(GUI.Button(new Rect((posItemLabel[0].x + offsetXDisplayBPMSwitch)*Screen.width, posItemLabel[0].y*Screen.height, posItemLabel[0].width*Screen.width, posItemLabel[0].height*Screen.height), DataManager.Instance.BPMEntryMode ? "By multip." : "by BPM")){
+								DataManager.Instance.BPMEntryMode = !DataManager.Instance.BPMEntryMode;
+							}
+							if(DataManager.Instance.BPMEntryMode && songSelected.First().Value.bpmToDisplay.Contains("->")){
+								if(GUI.Button(new Rect((posItemLabel[0].x + offsetXDisplayBPMValue)*Screen.width, posItemLabel[0].y*Screen.height, posItemLabel[0].width*Screen.width, posItemLabel[0].height*Screen.height), 	  DataManager.Instance.BPMChoiceMode == 0 ? "For higher" : "For lower")){
+									DataManager.Instance.BPMChoiceMode++;
+									if(DataManager.Instance.BPMChoiceMode == 2) DataManager.Instance.BPMChoiceMode = 0;
+								}
+							}
+							
 						break;
 						case 1:
 							//Rate
@@ -2040,11 +2094,46 @@ public class WheelSongMainScript : MonoBehaviour {
 			isScoreFail = mystats.fail;
 			speedmodstring = mystats.speedmodpref.ToString("0.00");
 			speedmodSelected = (float)mystats.speedmodpref;
+			var bpmtotest = songSelected.First().Value.bpmToDisplay;
+			if(bpmtotest.Contains("->")){
+				bpmstring = (System.Convert.ToDouble(System.Convert.ToDouble(bpmtotest.Replace(">", "").Split('-')[DataManager.Instance.BPMChoiceMode])*speedmodSelected)).ToString("0");
+			}else{
+				bpmstring = (resultbpm/System.Convert.ToDouble(bpmtotest)*speedmodSelected).ToString("0");
+			}
 		}else{
 			score = -1;
 			isScoreFail = false;
 			speedmodstring = DataManager.Instance.songSelected != null ? DataManager.Instance.speedmodSelected.ToString("0.00") : "2.00";
 			speedmodSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.speedmodSelected : 2f;
+			if(DataManager.Instance.BPMEntryMode){
+				double resultbpm;
+				if(System.Double.TryParse(bpmstring, out resultbpm)){
+					var bpmtotest = songSelected.First().Value.bpmToDisplay;
+					if(bpmtotest.Contains("->")){
+						speedmodstring = (resultbpm/System.Convert.ToDouble(bpmtotest.Replace(">", "").Split('-')[DataManager.Instance.BPMChoiceMode])).ToString("0.00");
+						speedmodSelected = (resultbpm/System.Convert.ToDouble(bpmtotest.Replace(">", "").Split('-')[DataManager.Instance.BPMChoiceMode]));
+					}else{
+						speedmodstring = (resultbpm/System.Convert.ToDouble(bpmtotest)*speedmodSelected).ToString("0.00");
+						speedmodSelected = (resultbpm/System.Convert.ToDouble(bpmtotest)*speedmodSelected);
+					}
+				}else{
+					speedmodstring = "?";
+				}
+				
+			}else{
+				double resultbpm;
+				if(System.Double.TryParse(speedmodSelected, out resultbpm)){
+					var bpmtotest = songSelected.First().Value.bpmToDisplay;
+					if(bpmtotest.Contains("->")){
+						bpmstring = (System.Convert.ToDouble(System.Convert.ToDouble(bpmtotest.Replace(">", "").Split('-')[DataManager.Instance.BPMChoiceMode])*resultbpm)).ToString("0");
+					}else{
+						bpmstring = (System.Convert.ToDouble(bpmtotest)*resultbpm).ToString("0");
+					}
+				}else{
+					bpmstring = "?";
+				}
+			}
+			
 		}
 		if(DataManager.Instance.giveNoteOfScore((float)score) != DataManager.Instance.giveNoteOfScore((float)oldscore) && oldscore >= 96f){
 			medals.FirstOrDefault(c => c.name == DataManager.Instance.giveNoteOfScore((float)oldscore).Split(';')[1]).SetActiveRecursively(false);
