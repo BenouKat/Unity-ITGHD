@@ -150,6 +150,7 @@ public class InGameScript : MonoBehaviour {
 	public Rect SpeedModText;
 	public Rect SpeedModTextInfo;
 	private string speedmodstring;
+	private float speedmodSelected;
 	private bool speedmodok;
 	
 	//DISPLAY
@@ -254,6 +255,7 @@ public class InGameScript : MonoBehaviour {
 		SecondaryKeyCodeUp = DataManager.Instance.SecondaryKeyCodeUp;
 		SecondaryKeyCodeLeft = DataManager.Instance.SecondaryKeyCodeLeft;
 		SecondaryKeyCodeRight = DataManager.Instance.SecondaryKeyCodeRight;
+		speedmodSelected = DataManager.Instance.speedmodSelected;
 		speedmodstring = DataManager.Instance.speedmodSelected.ToString("0.00");
 		speedmodok = true;
 		var rand = (int)(UnityEngine.Random.value*DataManager.Instance.skyboxList.Count);
@@ -592,22 +594,22 @@ public class InGameScript : MonoBehaviour {
 								}else{
 									bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying)*speedmodSelected).ToString("0");
 								}
-								GUI.Label(new Rect((SpeedModTextInfo.x + offsetSpeedRateX)*Screen.width, SpeedModTextInfo.y*Screen.height, SpeedModTextInfo.width*Screen.width, SpeedModTextInfo.height*Screen.height), "Speedmod : x" + speedmodSelected.ToString("0.00") + " (" + bpmdisplaying + " BPM)");
+								GUI.Label(new Rect((SpeedModTextInfo.x)*Screen.width, SpeedModTextInfo.y*Screen.height, SpeedModTextInfo.width*Screen.width, SpeedModTextInfo.height*Screen.height), "Speedmod : x" + speedmodSelected.ToString("0.00") + " (" + bpmdisplaying + " BPM)");
 							}else{
 								GUI.color = new Color(0.7f, 0.2f, 0.2f, 1f);
-								GUI.Label(new Rect((SpeedModTextInfo.x + offsetSpeedRateX)*Screen.width, SpeedModTextInfo.y*Screen.height, SpeedModTextInfo.width*Screen.width, SpeedModTextInfo.height*Screen.height), "Speedmod must be between x0.25 and x15");
+								GUI.Label(new Rect((SpeedModTextInfo.x)*Screen.width, SpeedModTextInfo.y*Screen.height, SpeedModTextInfo.width*Screen.width, SpeedModTextInfo.height*Screen.height), "Speedmod must be between x0.25 and x15");
 								GUI.color = new Color(1f, 1f, 1f, 1f);
 								speedmodok = false;
 							}
 						}else{
 							GUI.color = new Color(0.7f, 0.2f, 0.2f, 1f);
-							GUI.Label(new Rect((SpeedModTextInfo.x + offsetSpeedRateX)*Screen.width, SpeedModTextInfo.y*Screen.height, SpeedModTextInfo.width*Screen.width, SpeedModTextInfo.height*Screen.height), "Speedmod is not a valid value");
+							GUI.Label(new Rect((SpeedModTextInfo.x)*Screen.width, SpeedModTextInfo.y*Screen.height, SpeedModTextInfo.width*Screen.width, SpeedModTextInfo.height*Screen.height), "Speedmod is not a valid value");
 							GUI.color = new Color(1f, 1f, 1f, 1f);
 							speedmodok = false;
 						}
 					}else{
 						GUI.color = new Color(0.7f, 0.2f, 0.2f, 1f);
-						GUI.Label(new Rect((SpeedModTextInfo.x + offsetSpeedRateX)*Screen.width, SpeedModTextInfo.y*Screen.height, SpeedModTextInfo.width*Screen.width, SpeedModTextInfo.height*Screen.height), "Empty value");
+						GUI.Label(new Rect((SpeedModTextInfo.x)*Screen.width, SpeedModTextInfo.y*Screen.height, SpeedModTextInfo.width*Screen.width, SpeedModTextInfo.height*Screen.height), "Empty value");
 						GUI.color = new Color(1f, 1f, 1f, 1f);
 						speedmodok = false;
 					}
