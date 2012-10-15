@@ -226,7 +226,7 @@ public class DataManager{
 		SecondaryKeyCodeUp = KeyCode.UpArrow;
 		SecondaryKeyCodeRight = KeyCode.RightArrow;
 		
-		BPMChoiceMode = 0;
+		BPMChoiceMode = 1;
 		BPMEntryMode = false;
 		
 		ReadTempConfigFile();

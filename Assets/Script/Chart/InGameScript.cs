@@ -2796,7 +2796,7 @@ public class InGameScript : MonoBehaviour {
 		case 192:
 			if((posmesure-1)%48 == 0){
 				return new Color(1f, 0f, 0f, 1f); //rouge
-			}else if((posmesure+13)%48 == 0){
+			}else if((posmesure+23)%48 == 0){
 				return new Color(0f, 0f, 1f, 1f); //bleu
 			}else if((posmesure+11)%24 == 0){
 				return new Color(0f, 1f, 0f, 1f); //vert

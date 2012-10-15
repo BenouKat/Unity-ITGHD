@@ -256,7 +256,10 @@ public class WheelSongMainScript : MonoBehaviour {
 		diffActiveColor = new Dictionary<Difficulty, Color>();
 		PSDiff = new Dictionary<int, ParticleSystem>();
 		RayDiff = new Dictionary<int, GameObject>();
+		if(!LoadManager.Instance.alreadyLoaded) ProfileManager.Instance.CreateTestProfile();
+		if(!LoadManager.Instance.alreadyLoaded) TextManager.Instance.LoadTextFile();
 		if(!LoadManager.Instance.alreadyLoaded) LoadManager.Instance.Loading();
+		
 		
 		actualBanner = new Texture2D(256,512);
 		
@@ -387,18 +390,26 @@ public class WheelSongMainScript : MonoBehaviour {
 		for(int j=0;j<DataManager.Instance.aDisplay.Length;j++) displaySelected[j] = DataManager.Instance.songSelected != null ? DataManager.Instance.displaySelected[j] : false;
 		
 		
+		if(!String.IsNullOrEmpty(ProfileManager.Instance.currentProfile.lastSpeedmodUsed)){
+			speedmodstring = ProfileManager.Instance.currentProfile.lastSpeedmodUsed;
+			speedmodSelected = (float)System.Convert.ToDouble(ProfileManager.Instance.currentProfile.lastSpeedmodUsed);
+		}else{
+			speedmodSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.speedmodSelected : 2f;
+			speedmodstring = speedmodSelected.ToString("0.00");
+		}
 		
-		speedmodSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.speedmodSelected : 2f;
 		if(DataManager.Instance.songSelected != null){
-			var bpmtotest = songSelected.First().Value.bpmToDisplay;
+			var bpmtotest = DataManager.Instance.songSelected.bpmToDisplay;
 			if(bpmtotest.Contains("->")){
 				bpmstring = (System.Convert.ToDouble(System.Convert.ToDouble(bpmtotest.Replace(">", "").Split('-')[DataManager.Instance.BPMChoiceMode])*speedmodSelected)).ToString("0");
 			}else{
 				bpmstring = (System.Convert.ToDouble(bpmtotest)*speedmodSelected).ToString("0");
 			}
 		}else{
-			bpmstring = "300";
+			bpmstring = String.IsNullOrEmpty(ProfileManager.Instance.currentProfile.lastBPM) ? "300" : ProfileManager.Instance.currentProfile.lastBPM;
 		}
+		DataManager.Instance.BPMEntryMode = ProfileManager.Instance.currentProfile.inBPMMode;
+		
 		rateSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.rateSelected : 0f;
 		scoreJudgeSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.scoreJudgeSelected : Judge.NORMAL;
 		hitJudgeSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.hitJudgeSelected : Judge.NORMAL;
@@ -407,7 +418,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		raceSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.raceSelected : 0;
 		deathSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.deathSelected :0;
 		
-		speedmodstring = speedmodSelected.ToString("0.00");
+		
 		
 		ratestring = rateSelected.ToString("00");
 		
@@ -706,9 +717,12 @@ public class WheelSongMainScript : MonoBehaviour {
 				DataManager.Instance.deathSelected = deathSelected;
 				DataManager.Instance.packSelected = search.Trim().Length < 3 ? packs.ElementAt(numberPack).Key : "";
 				DataManager.Instance.mousePosition = search.Trim().Length < 3 ? startnumber : -1;
-				//A déplacer
-				//GetComponent<FadeManager>().FadeIn("chart");
 				
+				///Save prefs
+				ProfileManager.Instance.currentProfile.lastSpeedmodUsed = speedmodstring;
+				ProfileManager.Instance.currentProfile.lastBPM = bpmstring;
+				ProfileManager.Instance.currentProfile.inBPMMode = DataManager.Instance.BPMEntryMode;
+					
 				PSDiff[(int)actualySelected].gameObject.active = false;
 				for(int i=0;i<RayDiff.Count;i++){
 					RayDiff[i].active = false;	
@@ -837,11 +851,12 @@ public class WheelSongMainScript : MonoBehaviour {
 										speedmodok = true;
 										var bpmdisplaying = songSelected.First().Value.bpmToDisplay;
 										if(bpmdisplaying.Contains("->")){
-											bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[0])*speedmodSelected).ToString("0") + "->" + (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[1])*speedmodSelected).ToString("0");
 											if(!DataManager.Instance.BPMEntryMode) bpmstring = (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[DataManager.Instance.BPMChoiceMode])*speedmodSelected).ToString("0");
+											bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[0])*speedmodSelected).ToString("0") + "->" + (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[1])*speedmodSelected).ToString("0");
 										}else{
-											bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying)*speedmodSelected).ToString("0");
 											if(!DataManager.Instance.BPMEntryMode) bpmstring = (System.Convert.ToDouble(bpmdisplaying)*speedmodSelected).ToString("0");
+											bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying)*speedmodSelected).ToString("0");
+											
 										}
 										
 										GUI.Label(new Rect((posItemLabel[0].x + offsetSpeedRateX)*Screen.width, posItemLabel[0].y*Screen.height, posItemLabel[0].width*Screen.width, posItemLabel[0].height*Screen.height), "Speedmod : x" + speedmodSelected.ToString("0.00") + " (" + bpmdisplaying + " BPM)");

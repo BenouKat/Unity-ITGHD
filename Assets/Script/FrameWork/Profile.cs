@@ -25,6 +25,9 @@ public class Profile{
 	public KeyCode SecondaryKeyCodeDown;
 	public KeyCode SecondaryKeyCodeLeft;
 	public KeyCode SecondaryKeyCodeRight;
+	public string lastSpeedmodUsed;
+	public string lastBPM;
+	public bool inBPMMode;
 	public int numberOfSkinSelected;
 	public int speedmolette;
 	public bool padMode;
@@ -52,6 +55,9 @@ public class Profile{
 		name = id;
 		password = pass;
 		scoreOnSong = new List<SongInfoProfil>();
+		lastSpeedmodUsed = "";
+		lastBPM = "";
+		inBPMMode = false;
 	}
 	
 	public void saveASong(SongInfoProfil sip, float scoreEarned, double speedmodPref, bool fail){

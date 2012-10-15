@@ -166,4 +166,4 @@ Appuyez sur Entrée pour continuer.;
 Changer le speedmod ?;
 [Config];
 <NumberBuild>;
-Version actuelle : build b600;
+Version actuelle : build b605;
