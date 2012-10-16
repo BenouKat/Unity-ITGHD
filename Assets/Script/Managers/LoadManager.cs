@@ -38,6 +38,7 @@ public class LoadManager{
 			var path = Directory.GetFiles(el).FirstOrDefault(c => c.Contains(".png") || c.Contains(".jpg") || c.Contains(".jpeg"));
 			if(!String.IsNullOrEmpty(path)){
 				WWW www = new WWW("file://" + path);
+				Debug.Log(@path);
        			Texture2D texTmp = new Texture2D(256, 128);
 				while(!www.isDone){}
         		www.LoadImageIntoTexture(texTmp);
@@ -103,6 +104,23 @@ public class LoadManager{
 	
 	public Dictionary<string, Texture2D> ListTexture(){
 		return bannerPack;
+		
+	}
+	
+	
+	private void renameSharpFolder(){
+		string[] packpath = (string[]) Directory.GetDirectories(Application.dataPath + DataManager.Instance.DEBUGPATH + "Songs/");
+		for(int i=0; i< packpath.Length; i++){
+			if(packpath[i].Contains("#")){
+				Directory.Move(packpath[i], packpath[i].Replace("#", ""));
+			}
+			string[] songpath = Directory.GetDirectories(packpath[i]);
+			for(int j=0; j< songpath.Length; j++){
+				if(songpath[i].Contains("#")){
+					Directory.Move(songpath[i], songpath[i].Replace("#", ""));
+				}
+			}
+		}
 		
 	}
 }

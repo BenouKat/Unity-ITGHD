@@ -135,6 +135,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	private bool movinNormal;
 	private bool movinSong;
 	private bool SongMode;
+	private bool fadedOut;
 	
 	
 	//Move to option mode
@@ -146,6 +147,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	private Vector2 departOptionDiff;
 	private Vector2 moveOptionDiff;
 	public Vector2 arriveOptionDiff;
+	private bool animok;
 	
 	
 	//moveToSong
@@ -379,6 +381,8 @@ public class WheelSongMainScript : MonoBehaviour {
 		SongMode = false;
 		movinSong = false;
 		locked = false;
+		fadedOut = false;
+		animok = true;
 		speedmodok = true;
 		rateok = true;
 		textButton = "Option";
@@ -702,7 +706,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 			
 			//Jouer
-			if(GUI.Button(new Rect(Jouer.x*Screen.width, Jouer.y*Screen.height, Jouer.width*Screen.width, Jouer.height*Screen.height), "Play", "labelGo") && speedmodok && rateok){
+			if(GUI.Button(new Rect(Jouer.x*Screen.width, Jouer.y*Screen.height, Jouer.width*Screen.width, Jouer.height*Screen.height), "Play", "labelGo") && speedmodok && rateok && animok){
 				
 				DataManager.Instance.songSelected =  songSelected[actualySelected];
 				DataManager.Instance.difficultySelected = actualySelected;
@@ -757,7 +761,7 @@ public class WheelSongMainScript : MonoBehaviour {
 			}
 		
 			//Option
-			if(GUI.Button(new Rect(Option.x*Screen.width, Option.y*Screen.height, Option.width*Screen.width, Option.height*Screen.height), textButton, "labelGo") && !movinOption && !movinNormal){
+			if(GUI.Button(new Rect(Option.x*Screen.width, Option.y*Screen.height, Option.width*Screen.width, Option.height*Screen.height), textButton, "labelGo") && !movinOption && !movinNormal && animok){
 				if(textButton == "Option"){
 					PSDiff[(int)actualySelected].gameObject.active = false;
 					for(int i=0;i<RayDiff.Count;i++){
@@ -775,11 +779,12 @@ public class WheelSongMainScript : MonoBehaviour {
 					movinOption = true;
 					OptionMode = true;
 					textButton = "Back";
+					
 				}else{
 					StartCoroutine(endOptionFade());
 					
 				}
-				
+				animok = false;
 			}
 			
 		}
@@ -1557,8 +1562,14 @@ public class WheelSongMainScript : MonoBehaviour {
 				locked = false;
 			}
 			
-			if(Input.GetKeyDown(KeyCode.Escape) && !movinSong && !SongMode){
-				GetComponent<FadeManager>().FadeIn("mainmenu");
+			if(Input.GetKeyDown(KeyCode.Escape) && !movinSong && !SongMode && !fadedOut){
+				if(OptionMode && animok){
+					StartCoroutine(endOptionFade());
+					animok = false;
+				}else if(!OptionMode){
+					fadedOut = true;
+					GetComponent<FadeManager>().FadeIn("mainmenu");	
+				}
 			}
 			//Scrollwheel
 			if(Input.GetAxis("Mouse ScrollWheel") > 0 && startnumber > 0){
@@ -1735,7 +1746,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		}
 		cacheOption.active = false;
 		cacheOption.transform.position = posInit;
-		
+		animok = true;
 	}
 	
 	IEnumerator endOptionFade(){
@@ -1756,7 +1767,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		movinNormal = true;
 		cacheOption.active = false;
 		cacheOption.transform.position = posInit;
-		
+		animok = true;
 	}
 	
 	#endregion

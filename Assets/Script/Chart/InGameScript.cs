@@ -132,6 +132,7 @@ public class InGameScript : MonoBehaviour {
 	private Dictionary<string, ParticleSystem> precUp;
 	private Dictionary<string, ParticleSystem> precDown;
 	private Dictionary<string, ParticleSystem> clearcombo;
+	public ParticleSystem[] slowandfast; //0 slow 1 fast
 	
 	
 	
@@ -571,6 +572,7 @@ public class InGameScript : MonoBehaviour {
 				if(failalpha >= 1f){
 					GUI.color = new Color(1f, 1f, 1f, buttonfailalpha);
 					if(GUI.Button(new Rect(posRetry.x*Screen.width, posRetry.y*Screen.height, posRetry.width*Screen.width, posRetry.height*Screen.height), "Retry") && !deadAndRetry && !deadAndGiveUp && buttonfailalpha > 0.5f && speedmodok){
+							DataManager.Instance.speedmodSelected = speedmodSelected;
 							deadAndRetry = true;
 					}
 					
@@ -874,10 +876,14 @@ public class InGameScript : MonoBehaviour {
 		
 		if(stateSpeed > 0){
 			slow.renderer.material.color = new Color(1f, 0f, 0f, 0.5f);
+			if(!slowandfast[0].gameObject.active) slowandfast[0].gameObject.active = true;
+			slowandfast[0].Play();
 			stateSpeed = 0f;
 			changeColorSlow = true;
 		}else if(stateSpeed < 0){
 			fast.renderer.material.color = new Color(1f, 0f, 0f, 0.5f);
+			if(!slowandfast[1].gameObject.active) slowandfast[1].gameObject.active = true;
+			slowandfast[1].Play();
 			stateSpeed = 0f;
 			changeColorFast = true;
 		}
@@ -1754,7 +1760,7 @@ public class InGameScript : MonoBehaviour {
 		
 		if(Input.GetKey(KeyCode.Escape)){
 			timeGiveUp += Time.deltaTime;
-			if(timeGiveUp >= 1f){
+			if(timeGiveUp >= 1f && !clear){
 				fail = true;
 			}
 		}

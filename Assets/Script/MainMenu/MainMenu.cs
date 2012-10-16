@@ -33,10 +33,13 @@ public class MainMenu : MonoBehaviour {
 	//Fondu de caméra vers le menu
 	public float speedFadeMenu;
 	private bool inPlace;
+	private float timeBack;
+	public float timeBeforeBack;
 	
 	//Glissement d'object select
 	private Dictionary<string, GameObject> goToBack;
 	private string forbiddenTouch;
+	private string forbiddenTouchGUI;
 	public float speedSlide;
 	
 	//audio
@@ -96,7 +99,8 @@ public class MainMenu : MonoBehaviour {
 	void Start () {
 		
 		//Load
-		if(!LoadManager.Instance.alreadyLoaded) LoadManager.Instance.Loading();
+		if(!LoadManager.Instance.alreadyLoaded) TextManager.Instance.LoadTextFile();
+		//if(!LoadManager.Instance.alreadyLoaded) LoadManager.Instance.Loading();
 		//TextManager.Instance.LoadTextFile();
 		fm = gameObject.GetComponent<FadeManager>();
 		
@@ -123,6 +127,8 @@ public class MainMenu : MonoBehaviour {
 		DisplayLabel = false;
 		error = false;
 		alphaError = 0f;
+		timeBack = 0f;
+		forbiddenTouchGUI = "";
 	}
 	
 	void OnGUI(){
@@ -137,7 +143,7 @@ public class MainMenu : MonoBehaviour {
 			GUI.DrawTexture(new Rect(posPressStart.x*Screen.width, posPressStart.y*Screen.height, posPressStart.width*Screen.width, posPressStart.height*Screen.height), pressStart);
 		}
 		if(!String.IsNullOrEmpty(forbiddenTouch) && (this.updat != UpdateSwitchMode || DisplayLabel) && !error){
-			
+			forbiddenTouchGUI = forbiddenTouch;
 			if(alphaGUIImage <= 1f){
 				alphaGUIImage += Time.deltaTime/speedGUIImage;	
 			}
@@ -145,12 +151,22 @@ public class MainMenu : MonoBehaviour {
 			GUI.DrawTexture(new Rect(posGUIimage.x*Screen.width, posGUIimage.y*Screen.height, posGUIimage.width*Screen.width, posGUIimage.height*Screen.height), GUITextTexture);
 			
 			GUI.color = new Color(0f, 0f, 0f, alphaGUIImage);
-			GUI.Label(new Rect(posGUItext.x*Screen.width +1f, posGUItext.y*Screen.height+1f, posGUItext.width*Screen.width, posGUItext.height*Screen.height), TextManager.Instance.texts["MainMenu"][forbiddenTouch]);
+			GUI.Label(new Rect(posGUItext.x*Screen.width +1f, posGUItext.y*Screen.height+1f, posGUItext.width*Screen.width, posGUItext.height*Screen.height), TextManager.Instance.texts["MainMenu"][forbiddenTouchGUI]);
 			
 			GUI.color = new Color(1f, 1f, 1f, alphaGUIImage);
-			GUI.Label(new Rect(posGUItext.x*Screen.width, posGUItext.y*Screen.height, posGUItext.width*Screen.width, posGUItext.height*Screen.height), TextManager.Instance.texts["MainMenu"][forbiddenTouch]);
-		}else if(alphaGUIImage >= 0f){
+			GUI.Label(new Rect(posGUItext.x*Screen.width, posGUItext.y*Screen.height, posGUItext.width*Screen.width, posGUItext.height*Screen.height), TextManager.Instance.texts["MainMenu"][forbiddenTouchGUI]);
+		}else if(alphaGUIImage > 0f || !String.IsNullOrEmpty(forbiddenTouchGUI)){
+			
+			GUI.color = new Color(1f, 1f, 1f, alphaGUIImage);
+			GUI.DrawTexture(new Rect(posGUIimage.x*Screen.width, posGUIimage.y*Screen.height, posGUIimage.width*Screen.width, posGUIimage.height*Screen.height), GUITextTexture);
+			
+			GUI.color = new Color(0f, 0f, 0f, alphaGUIImage);
+			GUI.Label(new Rect(posGUItext.x*Screen.width +1f, posGUItext.y*Screen.height+1f, posGUItext.width*Screen.width, posGUItext.height*Screen.height), TextManager.Instance.texts["MainMenu"][forbiddenTouchGUI]);
+			
+			GUI.color = new Color(1f, 1f, 1f, alphaGUIImage);
+			GUI.Label(new Rect(posGUItext.x*Screen.width, posGUItext.y*Screen.height, posGUItext.width*Screen.width, posGUItext.height*Screen.height), TextManager.Instance.texts["MainMenu"][forbiddenTouchGUI]);
 			alphaGUIImage -= Time.deltaTime/speedGUIImage;	
+			if(alphaGUIImage <= 0) forbiddenTouchGUI = "";
 		}
 		
 		if(error){
@@ -277,16 +293,17 @@ public class MainMenu : MonoBehaviour {
 					
 					var theGo = hit.transform.gameObject;
 					if(theGo != null && theGo.tag == "MenuItem"){
+						
 						if(theGo.name.Contains("Cube")){
 							theGo.transform.localPosition = Vector3.Lerp(theGo.transform.localPosition, new Vector3(-28f, theGo.transform.localPosition.y, theGo.transform.localPosition.z), Time.deltaTime/speedSlide);
 							if(!goToBack.ContainsKey(theGo.transform.GetChild(0).name)) goToBack.Add(theGo.transform.GetChild(0).name, theGo);
 							forbiddenTouch = theGo.transform.GetChild(0).name;
-							Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(Vector3.Lerp(new Vector3(0f, 0f, 1f), (theGo.transform.position - Camera.main.transform.position), 0.002f)), 0.1f);
+							if(timeBack >= timeBeforeBack) Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(Vector3.Lerp(new Vector3(0f, 0f, 1f), (theGo.transform.position - Camera.main.transform.position), 0.002f)), 0.1f);
 						}else{
 							theGo.transform.parent.localPosition = Vector3.Lerp(theGo.transform.parent.localPosition, new Vector3(-28f, theGo.transform.parent.localPosition.y, theGo.transform.parent.localPosition.z), Time.deltaTime/speedSlide);
 							if(!goToBack.ContainsKey(theGo.name)) goToBack.Add(theGo.name, theGo.transform.parent.gameObject);
 							forbiddenTouch = theGo.name;
-							Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(Vector3.Lerp(new Vector3(0f, 0f, 1f), (theGo.transform.position - Camera.main.transform.position), 0.002f)), 0.1f);
+							if(timeBack >= timeBeforeBack) Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(Vector3.Lerp(new Vector3(0f, 0f, 1f), (theGo.transform.position - Camera.main.transform.position), 0.002f)), 0.1f);
 						}
 						
 						if(Input.GetMouseButtonDown(0)){
@@ -303,13 +320,18 @@ public class MainMenu : MonoBehaviour {
 							
 						}
 					}else{
+						timeBack = 0f;
 						forbiddenTouch = "";
 						Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(new Vector3(0f, 0f, 1f)), 0.1f);
 					}
 				}else{
+					timeBack = 0f;
 					forbiddenTouch = "";
 					Camera.main.transform.rotation = Quaternion.Slerp(Camera.main.transform.rotation, Quaternion.LookRotation(new Vector3(0f, 0f, 1f)), 0.1f);
 				}	
+				if(timeBack < timeBeforeBack){
+					timeBack += Time.deltaTime;	
+				}
 				var toDelete = new List<string>();
 				foreach(var el in goToBack){
 					if(el.Key != forbiddenTouch){
