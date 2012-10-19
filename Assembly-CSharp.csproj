@@ -69,6 +69,8 @@
      <Compile Include="Assets\Script\Managers\LoadManager.cs" />
      <Compile Include="Assets\Script\Managers\ProfileManager.cs" />
      <Compile Include="Assets\Script\Managers\TextManager.cs" />
+     <Compile Include="Assets\Script\OptionScreen\ColorGO.cs" />
+     <Compile Include="Assets\Script\OptionScreen\OptionScript.cs" />
      <Compile Include="Assets\Script\Score\BumpArrow.cs" />
      <Compile Include="Assets\Script\Score\ScoreScript.cs" />
      <Compile Include="Assets\Script\Score\TurnMedal.cs" />
