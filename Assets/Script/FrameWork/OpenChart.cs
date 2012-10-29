@@ -361,6 +361,7 @@ public class OpenChart{
 					var numberOfFreezes = 0;
 					var numberOfJump = 0;
 					var numberOfStepsWJ = 0;
+					var numberOfStepAbs = 0;
 					theNewsong.stepchart.Add(new List<string>());
 					for(int i = beginstepchart; !listLine.ElementAt(i).Contains(";"); i++){
 						if(listLine.ElementAt(i).Contains(",")){
@@ -376,14 +377,20 @@ public class OpenChart{
 							numberOfStepsWJ += listLine.ElementAt(i).Count(c => c == '1');
 							numberOfStepsWJ += listLine.ElementAt(i).Count(c => c == '2');
 							numberOfStepsWJ += listLine.ElementAt(i).Count(c => c == '4');
+							numberOfStepsAbs += listLine.ElementAt(i).Count(c => c == '1');
+							numberOfStepsAbs += listLine.ElementAt(i).Count(c => c == '2');
+							numberOfStepsAbs += listLine.ElementAt(i).Count(c => c == '4');
 							
 							var countmesure = listLine.ElementAt(i).Count(c => c == '1') + listLine.ElementAt(i).Count(c => c == '2') + listLine.ElementAt(i).Count(c => c == '4');
 							if(countmesure == 2){
 								numberOfStepsWJ -= countmesure;
+								numberOfStepsAbs -= countmesure - 1;
 								numberOfJump++;
 							}
 							if(countmesure >= 3){
 								numberOfStepsWJ -= countmesure;
+								numberOfStepsAbs -= countmesure - 1;
+								numberOfStepsAbs++;
 							}
 						}
 					}
@@ -394,6 +401,7 @@ public class OpenChart{
 					theNewsong.numberOfMines = numberOfMines;
 					theNewsong.numberOfJumps = numberOfJump;
 					theNewsong.numberOfStepsWithoutJumps = numberOfStepsWJ;
+					theNewsong.numberOfStepsAbsolute = numberOfStepAbs;
 					//A faire le mode double !
 					if(dl == "") fakeCreation(theNewsong);
 						//A mettre

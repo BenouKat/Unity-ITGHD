@@ -329,7 +329,7 @@ public class ScoreScript : MonoBehaviour {
 				if(!shadow) GUI.color = new Color(1f, 1f, 1f, 1f);
 				
 				GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posNotationRow1Tot, offsetPosNot, i), shadow), 
-					"(" + (((float)DataManager.Instance.scoreCount[((ScoreCount)i).ToString()] / (float)DataManager.Instance.songSelected.numberOfStepsWithoutJumps)*100f).ToString("0") + "%)");
+					"(" + (((float)DataManager.Instance.scoreCount[((ScoreCount)i).ToString()] / (float)DataManager.Instance.songSelected.numberOfStepsAbsolute)*100f).ToString("0") + "%)");
 			
 			}
 			
@@ -767,7 +767,7 @@ public class ScoreScript : MonoBehaviour {
 		//Medal
 		var indexMedal = -1;
 		if(DataManager.Instance.scoreEarned >= 96f){
-				indexMedal = (int)(DataManager.Instance.scoreEarned - 96);
+				indexMedal = (int)(DataManager.Instance.scoreEarned - 96f + 0.001f); //error value
 				if(indexMedal > 0) indexMedal -= 1;
 		}
 		if(indexMedal != -1){

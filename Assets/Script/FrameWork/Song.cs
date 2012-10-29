@@ -23,6 +23,7 @@ public class Song {
 	public int level;
 	public int numberOfSteps;
 	public int numberOfStepsWithoutJumps;
+	public int numberOfStepsAbsolute;
 	public int numberOfFreezes;
 	public int numberOfRolls;
 	public int numberOfMines;
