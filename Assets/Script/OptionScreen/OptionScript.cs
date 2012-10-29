@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 public class OptionScript : MonoBehaviour {
 	
@@ -11,9 +13,24 @@ public class OptionScript : MonoBehaviour {
 	private float loadColor;
 	public float speedColor;
 	public float speedColorFade;
+	
+	public Vector2 sizeLabelBG;
+	public Rect offsetLabelOption;
+	
+	public Dictionary<string, Texture2D> tex;
+	
 	// Use this for initialization
 	void Start () {
-		
+		tex = new Dictionary<string, Texture2D>();
+		tex.add("labelbg", Resources.Load("GUIBarMini"));
+	}
+	
+	void OnGUI(){
+		if(theSelected != null){
+			var pos2D = Camera.main.WorldToScreen(theSelected.transform.position);
+			GUI.DrawTexture(new Rect(pos2D.x, pos2D.y, sizeLabelBG.x*Screen.width, sizeLabelBG.y*Screen.height), tex["labelBG"]);
+			GUI.Label(new Rect(pos2D.x + offsetLabelOption.x*Screen.width, pos2D.y + offsetLabelOption.y*Screen.height, offsetLabelOption.width*Screen.width, offsetLabelOption.height*Screen.height), theSelected.name);
+		}
 	}
 	
 	// Update is called once per frame
