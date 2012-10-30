@@ -22,12 +22,12 @@ public class OptionScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		tex = new Dictionary<string, Texture2D>();
-		tex.add("labelbg", Resources.Load("GUIBarMini"));
+		tex.Add("labelbg", (Texture2D) Resources.Load("GUIBarMini"));
 	}
 	
 	void OnGUI(){
 		if(theSelected != null){
-			var pos2D = Camera.main.WorldToScreen(theSelected.transform.position);
+			var pos2D = Camera.main.WorldToScreenPoint(theSelected.transform.position);
 			GUI.DrawTexture(new Rect(pos2D.x, pos2D.y, sizeLabelBG.x*Screen.width, sizeLabelBG.y*Screen.height), tex["labelBG"]);
 			GUI.Label(new Rect(pos2D.x + offsetLabelOption.x*Screen.width, pos2D.y + offsetLabelOption.y*Screen.height, offsetLabelOption.width*Screen.width, offsetLabelOption.height*Screen.height), theSelected.name);
 		}

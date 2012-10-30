@@ -68,6 +68,16 @@ public class LoadManager{
 			}
 			songs[el.Key].OrderBy(c => c.Key);
 		}
+		
+		
+		//DEBUG
+		if(songs.Keys.Count < 5){
+			var cou = songs.Keys.Count + 1;
+			for(int i=0; i<5-cou; i++){
+				songs.Add("Empty folder " + i + 1, new Dictionary<string, Dictionary<Difficulty, Song>>());
+				bannerPack.Add("Empty folder " + i + 1, (Texture2D) Resources.Load("Cublast"));
+			}
+		}
 		songs.OrderBy(c => c.Key);
 		alreadyLoaded = true;
 	}

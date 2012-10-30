@@ -1,10 +1,14 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\OptionScreen\OptionScript.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Managers\DataManager.cs">
     <Files>
-      <File FileName="Assets\Script\OptionScreen\OptionScript.cs" Line="48" Column="83" />
+      <File FileName="Assets\Script\Managers\DataManager.cs" Line="55" Column="43" />
+      <File FileName="Assets\Script\FrameWork\OpenChart.cs" Line="404" Column="54" />
+      <File FileName="Assets\Script\OptionScreen\OptionScript.cs" Line="29" Column="22" />
       <File FileName="Assets\Script\MainMenu\MainMenu.cs" Line="287" Column="5" />
       <File FileName="Assets\Script\OptionScreen\ColorGO.cs" Line="8" Column="1" />
+      <File FileName="Assets\Script\Wheel\WheelSongMainScript.cs" Line="337" Column="15" />
+      <File FileName="Assets\Script\Managers\LoadManager.cs" Line="76" Column="31" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

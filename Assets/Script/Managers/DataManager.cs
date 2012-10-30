@@ -26,7 +26,7 @@ public class DataManager{
 	public Dictionary<Precision, double> PrecisionValues;
 	
 	//Debug
-	public String DEBUGPATH = "/../";
+	public String DEBUGPATH = "/";
 	
 	//RENDER
 	public List<Material> skyboxList;
@@ -52,7 +52,7 @@ public class DataManager{
 	public Color[] precColor;
 	
 	//SYSTEM
-	public float globalOffsetSeconds = -0.120f;
+	public float globalOffsetSeconds = -0.135f;
 	
 	public int regenComboAfterMiss = 5;
 	

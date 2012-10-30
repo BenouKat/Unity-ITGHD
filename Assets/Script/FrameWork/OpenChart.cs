@@ -361,7 +361,7 @@ public class OpenChart{
 					var numberOfFreezes = 0;
 					var numberOfJump = 0;
 					var numberOfStepsWJ = 0;
-					var numberOfStepAbs = 0;
+					var numberOfStepsAbs = 0;
 					theNewsong.stepchart.Add(new List<string>());
 					for(int i = beginstepchart; !listLine.ElementAt(i).Contains(";"); i++){
 						if(listLine.ElementAt(i).Contains(",")){
@@ -401,7 +401,7 @@ public class OpenChart{
 					theNewsong.numberOfMines = numberOfMines;
 					theNewsong.numberOfJumps = numberOfJump;
 					theNewsong.numberOfStepsWithoutJumps = numberOfStepsWJ;
-					theNewsong.numberOfStepsAbsolute = numberOfStepAbs;
+					theNewsong.numberOfStepsAbsolute = numberOfStepsAbs;
 					//A faire le mode double !
 					if(dl == "") fakeCreation(theNewsong);
 						//A mettre
