@@ -17,6 +17,9 @@ public class MineScript : MonoBehaviour {
 	public bool valid;
 	public bool alreadyScored;
 	
+	public AudioSource secondAudioSource;
+	public AudioClip explosionSound;
+	
 	private delegate void sMethod();
 	private sMethod pm;
 	
@@ -58,6 +61,7 @@ public class MineScript : MonoBehaviour {
 		if(!missed){
 			if(associatedArrow.time <= igs.getTotalTimeChart() && (Input.GetKey(associatedKeyCode1) || Input.GetKey(associatedKeyCode2))){
 				this.pm();
+				secondAudioSource.PlayOneShot(explosionSound);
 				igs.GainScoreAndLife("MINE");
 				igs.AddMineToScoreCombo();
 				igs.removeMineFromList(associatedArrow, state);

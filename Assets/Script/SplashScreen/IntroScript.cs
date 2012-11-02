@@ -116,6 +116,9 @@ public class IntroScript : MonoBehaviour {
 	//private float time;
 	
 	
+	//audio
+	public float speedAudioFade;
+	
 	//choosing profile
 	private int startNumber;
 	private int profileSelected;
@@ -151,6 +154,7 @@ public class IntroScript : MonoBehaviour {
 		speechToDisplay = "";
 		alphaBlank = 0f;
 		enterPushedForFinish = false;
+		audio.volume = 0f;
 	}
 	
 	
@@ -308,6 +312,10 @@ public class IntroScript : MonoBehaviour {
 	
 	void Update(){
 		if((ls == LOGIN_STATUT.VALID || ls == LOGIN_STATUT.INVALID) && Camera.main.transform.eulerAngles.y > 0 && stateIntro != INTRO_STATE.QUESTION1 && stateIntro != INTRO_STATE.QUESTION2){
+			if(!enterPushedForFinish && audio.volume < 1f){
+				audio.volume += speedAudioFade*Time.deltaTime;
+			}
+			
 			if(cubeBlui.transform.position.z < limitZRalenti){
 				cubeBlui.transform.Rotate(new Vector3(0f, 0f , Time.deltaTime*speedRotation));
 				cubeBlui.transform.position = new Vector3(cubeBlui.transform.position.x, cubeBlui.transform.position.y, cubeBlui.transform.position.z + Time.deltaTime*speedTranslation);
@@ -522,6 +530,7 @@ public class IntroScript : MonoBehaviour {
 		
 		if(enterPushedForFinish){
 			if(alphaBlank < 1f){
+				audio.volume -= Time.deltaTime*speedAlphaBlank;
 				alphaBlank += Time.deltaTime*speedAlphaBlank;
 			}else{
 				Application.LoadLevel("MainMenu");
@@ -682,6 +691,7 @@ public class IntroScript : MonoBehaviour {
 			Camera.main.transform.position -= new Vector3(0f, Camera.main.transform.position.y <= 0 ? 0 : Time.deltaTime*speedAlphaCamZoomY, -Time.deltaTime*speedAlphaCamZoom);
 			speedAlphaCamZoom += Time.deltaTime*speedZoomProgress;
 			if(Camera.main.transform.position.z > limitblank){
+				audio.volume -= Time.deltaTime*speedAlphaBlank;
 				alphaBlank += Time.deltaTime*speedAlphaBlank;
 			}	
 			yield return new WaitForEndOfFrame();

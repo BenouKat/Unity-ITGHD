@@ -229,8 +229,12 @@ public class InGameScript : MonoBehaviour {
 	private bool deadAndGiveUp;
 	private float timeGiveUp;
 	
-	//SONG
+	//SOUND
 	private AudioClip songLoaded;
+	public AudioClip failedSound;
+	public AudioClip comboSound;
+	public AudioSource secondAudioSource;
+	public AudioSource mainAudioSource;
 	//DEBUG
 	//private int iwashere;
 	#endregion
@@ -325,7 +329,7 @@ public class InGameScript : MonoBehaviour {
 		lastArrow = -10f;
 		thesong = DataManager.Instance.songSelected;
 		songLoaded = thesong.GetAudioClip();
-		audio.loop = false;
+		mainAudioSource.loop = false;
 		createTheChart(thesong);
 		Application.targetFrameRate = -1;
 		QualitySettings.vSyncCount = 0;
@@ -716,7 +720,7 @@ public class InGameScript : MonoBehaviour {
 			
 			if(firstUpdate){
 				if(startTheSong <= 0f){
-					audio.PlayOneShot(songLoaded);
+					mainAudioSource.PlayOneShot(songLoaded);
 					timechart += startTheSong; 
 					timetotalchart = timebpm + timechart + totaltimestop;
 					firstUpdate = false;
@@ -740,6 +744,7 @@ public class InGameScript : MonoBehaviour {
 					if(scoreCount["EXCELLENT"] == 0 && scoreCount["GREAT"] == 0) fullFantCombo = true;
 					if(scoreCount["GREAT"] == 0) fullExCombo = true;
 					fullCombo = true;
+					secondAudioSource.PlayOneShot(comboSound); 
 				}
 				oneSecond = 0f;
 				failalpha = 0f;
@@ -752,7 +757,11 @@ public class InGameScript : MonoBehaviour {
 			if(fail){
 				if((typeOfDeath != 2 && (typeOfDeath == 0 || comboMisses >= 30)) || thesong.duration < timetotalchart || timeGiveUp >= 1f){
 					dead = true;
-					audio.Stop ();
+					mainAudioSource.Stop ();
+					mainAudioSource.PlayOneShot(failedSound);
+					secondAudioSource.volume = 0f;
+					secondAudioSource.loop = true;
+					secondAudioSource.Play();
 					Background.GetComponent<MoveBackground>().enabled = false;
 					CameraBackground.GetComponent<MoveCameraBackground>().enabled = false;
 					matProgressBarFull.color = new Color(0.5f, 0.5f, 0.5f, 1f);
@@ -766,7 +775,7 @@ public class InGameScript : MonoBehaviour {
 			
 			if(clear){
 				oneSecond += Time.deltaTime;
-				if(audio.volume > 0) audio.volume -= Time.deltaTime/speedFadeAudio;
+				if(mainAudioSource.volume > 0) mainAudioSource.volume -= Time.deltaTime/speedFadeAudio;
 					
 				if(!appearFailok){
 					StartCoroutine(swipTexture(false, posClear.height, 0f));
@@ -804,6 +813,7 @@ public class InGameScript : MonoBehaviour {
 			if(dead){
 				if(oneSecond > timeFailAppear && !disappearFailok){
 					//zoomfail += Time.deltaTime/speedzoom;
+					secondAudioSource.volume += Time.deltaTime/speedAlphaFailFade;
 					if(failalpha < 1) failalpha += Time.deltaTime/speedAlphaFailFade;
 					if(failalpha >= 1 && buttonfailalpha < 1) buttonfailalpha += Time.deltaTime/speedbuttonfailalpha;
 					ClignFailed();
@@ -820,9 +830,10 @@ public class InGameScript : MonoBehaviour {
 				}
 				if(disappearFailok && oneSecond < (timeFailDisappear + 1f) && buttonfailalpha > 0){
 					buttonfailalpha -= Time.deltaTime/speedbuttonfailalpha;
+					secondAudioSource.volume -= Time.deltaTime/speedbuttonfailalpha;
 				}
 				if(disappearFailok && oneSecond > (timeFailDisappear + 1f) ){
-					
+					secondAudioSource.Stop();
 					SendDataToDatamanager();
 					if(deadAndRetry){
 						Application.LoadLevel("ChartScene");
