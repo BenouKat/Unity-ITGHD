@@ -4,6 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization;
+using System.Reflection;
+
 public class LoadManager{
 
 	private static LoadManager instance;
@@ -117,7 +121,7 @@ public class LoadManager{
 				//Debug.Log("new song : " + lastDir(sp)[lengthsp - 1]);
 				var dic = new Dictionary<Difficulty, Song>();
 				var sameSong = sss.getStore().Where(c => c.packName == el.Key && c.songFileName == lastDir(sp)[lengthsp - 1]);
-				if(sameSong.Count > 0){
+				if(sameSong.Count() > 0){
 					
 					foreach(var oneSong in sameSong){
 						var theUnpackedSong = new Song();
@@ -185,13 +189,13 @@ public class LoadManager{
 		
 			case Sort.STARTWITH:
 				if(previousList.Count == 0){
-					foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.First().Value.title.ToLower().StartWith(contains.ToLower())).Count() > 0)){
-						foreach(var song in packs.Value.Where(r => r.Value.First().Value.title.ToLower().StartWith(contains.ToLower()))){
+					foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.First().Value.title.ToLower().StartsWith(contains.ToLower())).Count() > 0)){
+						foreach(var song in packs.Value.Where(r => r.Value.First().Value.title.ToLower().StartsWith(contains.ToLower()))){
 							finalList.Add(song.Value.First().Value.title + "[" + packs.Key + "]", song.Value);
 						}
 					}
 				}else{
-					finalList = previousList.Where(r => r.Value.First().Value.title.ToLower().StartWith(contains.ToLower())).ToDictionary(v => v.Key, v => v.Value);
+					finalList = previousList.Where(r => r.Value.First().Value.title.ToLower().StartsWith(contains.ToLower())).ToDictionary(v => v.Key, v => v.Value);
 				}
 			break;
 			
@@ -222,18 +226,24 @@ public class LoadManager{
 			
 			//remplacer par des try parse
 			case Sort.DIFFICULTY:
-				foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.Count(s => s.Value.level == (int)contains) > 0).Count() > 0)){
-					foreach(var song in packs.Value.Where(r => r.Value.Count(s => s.Value.level == (int)contains) > 0)){
-						finalList.Add(song.Value.First().Value.title + "[" + packs.Key + "]", song.Value);
+				int dif = 0;
+				if(Int32.TryParse(contains, out dif)){
+					foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.Count(s => s.Value.level == dif) > 0).Count() > 0)){
+						foreach(var song in packs.Value.Where(r => r.Value.Count(s => s.Value.level == dif) > 0)){
+							finalList.Add(song.Value.First().Value.title + "[" + packs.Key + "]", song.Value);
+						}
 					}
 				}
 			break;
 			
 			//remplacer par des try parse
 			case Sort.BPM:
-				foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.First().Value.bpms.Where(e => e.Value == (int)contains) > 0).Count() > 0)){
-					foreach(var song in packs.Value.Where(r => r.Value.First().Value.bpms.Where(s => s.Value == (int)contains) > 0)){
-						finalList.Add(song.Value.First().Value.title + "[" + packs.Key + "]", song.Value);
+				int dif2 = 0;
+				if(Int32.TryParse(contains, out dif2)){
+					foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.First().Value.bpms.Where(e => e.Value == dif2).Count() > 0).Count() > 0)){
+						foreach(var song in packs.Value.Where(r => r.Value.First().Value.bpms.Where(s => s.Value == dif2).Count() > 0)){
+							finalList.Add(song.Value.First().Value.title + "[" + packs.Key + "]", song.Value);
+						}
 					}
 				}
 			break;
@@ -246,22 +256,18 @@ public class LoadManager{
 		switch(DataManager.Instance.sortMethod){
 			case Sort.NAME:
 				return search.Trim().Length >= 3;
-			break;
 			case Sort.STARTWITH:
 				return search.Trim().Length >= 1;
-			break;
 			case Sort.ARTIST:
 				return search.Trim().Length >= 3;
-			break;
 			case Sort.STEPARTIST:
 				return search.Trim().Length >= 3;
-			break;
 			case Sort.DIFFICULTY:
 				return search.Trim().Length >= 1;
-			break;
 			case Sort.BPM:
 				return search.Trim().Length >= 1;
-			break;
+			default:
+				return false;
 		}
 	}
 	
@@ -312,12 +318,13 @@ public class LoadManager{
 			stream.Close();
 			File.Delete(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache/" + "dataSong.cache");
 			sss.getStore().Clear();
-			delete sss;
+			
 			Debug.Log(e.Message);
 			return false;
 		}
 		sss.getStore().Clear();
-		delete sss;
+		sss = null;
+		GC.Collect();
 		return true;
 		
 		
@@ -326,7 +333,7 @@ public class LoadManager{
 	public void LoadCache () {
 	
 		if(File.Exists(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache" + "dataSong.cache")){
-			var file = Directory.GetFiles(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache").FirstOrDefault(c => c.Contains("dataSong.cache"))
+			var file = Directory.GetFiles(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache").FirstOrDefault(c => c.Contains("dataSong.cache"));
 			var sss = new SerializableSongStorage ();
 			Stream stream = File.Open(file, FileMode.Open);
 			BinaryFormatter bformatter = new BinaryFormatter();
@@ -336,7 +343,8 @@ public class LoadManager{
 			
 			LoadingFromCacheFile(sss);
 			sss.getStore().Clear();
-			delete sss;
+			sss = null;
+			GC.Collect();
 		}
 	}
 }

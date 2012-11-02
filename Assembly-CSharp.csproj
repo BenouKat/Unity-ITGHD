@@ -55,6 +55,8 @@
      <Compile Include="Assets\Script\Chart\MoveCameraBackground.cs" />
      <Compile Include="Assets\Script\FrameWork\OpenChart.cs" />
      <Compile Include="Assets\Script\FrameWork\Profile.cs" />
+     <Compile Include="Assets\Script\FrameWork\SerializableSong.cs" />
+     <Compile Include="Assets\Script\FrameWork\SerializableSongStorage.cs" />
      <Compile Include="Assets\Script\FrameWork\Song.cs" />
      <Compile Include="Assets\Script\FrameWork\SongInfoProfil.cs" />
      <Compile Include="Assets\Script\FrameWork\VersionDeserializationBinder.cs" />

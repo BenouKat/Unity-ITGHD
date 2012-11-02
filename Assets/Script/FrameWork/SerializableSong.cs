@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
+using System.Linq;
 
 [Serializable]
 public class SerializableSong {
@@ -36,7 +38,7 @@ public class SerializableSong {
 	private int numberOfJumps;
 	private int numberOfHands;
 	private double duration;
-	private float[] intensityGraph;
+	private double[] intensityGraph;
 	
 	private double stepPerSecondAverage;
 	private double stepPerSecondMaximum;
@@ -62,7 +64,7 @@ public class SerializableSong {
 		stopsKey = new List<double>();
 		stopsValue = new List<double>();
 		stepchart = new List<List<string>>();
-		intensityGraph = new float[100];
+		intensityGraph = new double[100];
 	}
 	
 	public void transfertLoad(Song s){
@@ -79,12 +81,12 @@ public class SerializableSong {
 		s.mesureSTOPS = this.mesureSTOPS;
 
 		s.bpms = new Dictionary<double, double>();
-		for(int i=0;i<this.bpmsKey.Count();i++){
+		for(int i=0;i<this.bpmsKey.Count;i++){
 			s.bpms.Add(this.bpmsKey[i], this.bpmsValue[i]);
 		}
 		
 		s.stops = new Dictionary<double, double>();
-		for(int i=0;i<this.stopsKey.Count();i++){
+		for(int i=0;i<this.stopsKey.Count;i++){
 			s.stops.Add(this.stopsKey[i], this.stopsValue[i]);
 		}
 		
@@ -132,12 +134,12 @@ public class SerializableSong {
 		this.stepartist = s.stepartist;
 		this.difficulty = s.difficulty;
 		
-		for(int i=0; i<s.bpms.Count(); i++){
+		for(int i=0; i<s.bpms.Count; i++){
 			this.bpmsKey.Add(s.bpms.ElementAt(i).Key);
 			this.bpmsValue.Add(s.bpms.ElementAt(i).Value);
 		}
 		
-		for(int i=0; i<s.stops.Count(); i++){
+		for(int i=0; i<s.stops.Count; i++){
 			this.stopsKey.Add(s.stops.ElementAt(i).Key);
 			this.stopsValue.Add(s.stops.ElementAt(i).Value);
 		}

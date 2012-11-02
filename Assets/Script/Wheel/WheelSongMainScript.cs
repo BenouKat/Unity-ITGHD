@@ -1967,7 +1967,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	void displayGraph(Dictionary<Difficulty, Song> so){
 		var thesong = so[actualySelected];
 		for(int i=0;i<100;i++){
-			var thepos = new Vector3(departGraphX + (topGraphX - departGraphX)*((float)i/100f), departGraphY + (topGraphY - departGraphY)*(thesong.intensityGraph[i]/(float)thesong.stepPerSecondMaximum), 2f);
+			var thepos = new Vector3(departGraphX + (topGraphX - departGraphX)*((float)i/100f), departGraphY + (topGraphY - departGraphY)*((float)thesong.intensityGraph[i]/(float)thesong.stepPerSecondMaximum), 2f);
 			graph.SetPosition(i, thepos);	
 		}
 			

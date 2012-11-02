@@ -30,7 +30,7 @@ public class Song {
 	public int numberOfJumps;
 	public int numberOfHands;
 	public double duration;
-	public float[] intensityGraph;
+	public double[] intensityGraph;
 	
 	public double stepPerSecondAverage;
 	public double stepPerSecondMaximum;

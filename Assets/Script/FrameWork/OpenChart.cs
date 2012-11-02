@@ -812,7 +812,7 @@ public class OpenChart{
 		
 		
 		//Old Graph
-		s.intensityGraph = new float[100];
+		s.intensityGraph = new double[100];
 		
 		/*
 		var theamountOfTime = s.duration/100f;
@@ -837,7 +837,7 @@ public class OpenChart{
 		}*/
 		
 		double thelastgoodvalue = 0;
-		var thecut = DataManager.Instance.songSelected.duration/(double)100;
+		var thecut = s.duration/(double)100;
 		
 		for(int i=0; i<100; i++){
 			if(i == 0){

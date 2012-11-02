@@ -1,14 +1,14 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Managers\DataManager.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\SplashScreen\IntroScript.cs">
     <Files>
-      <File FileName="Assets\Script\Managers\DataManager.cs" Line="55" Column="43" />
-      <File FileName="Assets\Script\FrameWork\OpenChart.cs" Line="404" Column="54" />
-      <File FileName="Assets\Script\OptionScreen\OptionScript.cs" Line="29" Column="22" />
-      <File FileName="Assets\Script\MainMenu\MainMenu.cs" Line="287" Column="5" />
-      <File FileName="Assets\Script\OptionScreen\ColorGO.cs" Line="8" Column="1" />
-      <File FileName="Assets\Script\Wheel\WheelSongMainScript.cs" Line="337" Column="15" />
-      <File FileName="Assets\Script\Managers\LoadManager.cs" Line="76" Column="31" />
+      <File FileName="Assets\Script\Managers\LoadManager.cs" Line="10" Column="1" />
+      <File FileName="Assets\Script\Managers\ProfileManager.cs" Line="6" Column="1" />
+      <File FileName="Assets\Script\OptionScreen\OptionScript.cs" Line="153" Column="30" />
+      <File FileName="Assets\Script\Wheel\WheelSongMainScript.cs" Line="1970" Column="138" />
+      <File FileName="Assets\Script\SplashScreen\IntroScript.cs" Line="316" Column="17" />
+      <File FileName="Assets\Script\Managers\DataManager.cs" Line="18" Column="12" />
+      <File FileName="Assets\Script\FrameWork\OpenChart.cs" Line="840" Column="17" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

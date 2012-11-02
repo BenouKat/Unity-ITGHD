@@ -190,7 +190,7 @@ public class MainMenu : MonoBehaviour {
 	//Wait avant de lancer le mainmenu
 	void UpdateWait(){
 		if(time >= 1f && !enterPushed){
-			(DataManager.Instance.alreadyPressStart) audioSMainTitle.Play();
+			if(!DataManager.Instance.alreadyPressStart) audioSMainTitle.Play();
 			this.updat = UpdateUp;
 		}else{
 			time += Time.deltaTime;	
@@ -212,7 +212,7 @@ public class MainMenu : MonoBehaviour {
 		}
 		
 		if(DataManager.Instance.alreadyPressStart && !enterPushed){
-			audioSMainMenu.time = Random.value*(audioSMainMenu.time/2);
+			audioSMainMenu.time = UnityEngine.Random.value*(audioSMainMenu.time/2);
 			audioSMainMenu.volume = 0;
 			audioSMainMenu.Play();
 			this.updat = UpdateMainMenu;

@@ -36,6 +36,9 @@ public class OptionScript : MonoBehaviour {
 	private StateOption optionMenuMode;
 	private string optionSelected;
 	
+	private float alphaFadeIn;
+	public float speedFadeIn;
+	
 	public Dictionary<string, Texture2D> tex;
 	
 	// Use this for initialization
@@ -64,7 +67,7 @@ public class OptionScript : MonoBehaviour {
 	}
 	
 	void OnGUIOptionSelect(){
-		GUI.Color = new Color(1f, 1f, 1f, alphaFadeIn);
+		GUI.color = new Color(1f, 1f, 1f, alphaFadeIn);
 		if(theSelected != null){
 			var pos2D = Camera.main.WorldToScreenPoint(theSelected.transform.position);
 			GUI.DrawTexture(new Rect(pos2D.x, pos2D.y, sizeLabelBG.x*Screen.width, sizeLabelBG.y*Screen.height), tex["labelBG"]);
@@ -73,7 +76,7 @@ public class OptionScript : MonoBehaviour {
 	}
 	
 	void OnGUIOptionFadeIn(){
-		GUI.Color = new Color(1f, 1f, 1f, 1 - alphaFadeIn);
+		GUI.color = new Color(1f, 1f, 1f, 1 - alphaFadeIn);
 		GUI.Label(new Rect(labelOption.x*Screen.width, labelOption.y*Screen.height, labelOption.width*Screen.width, labelOption.height*Screen.height), optionSelected);
 	}
 	
@@ -137,7 +140,7 @@ public class OptionScript : MonoBehaviour {
 			}
 			
 			
-			if(theSelected != null && Input.GetMouseDown(0)){
+			if(theSelected != null && Input.GetMouseButtonDown(0)){
 				if(theSelected.transform.GetChild(0).particleSystem.isPlaying) theSelected.transform.GetChild(0).particleSystem.Stop();
 				optionSelected = theSelected.name;
 				optionMenuMode = StateOption.CUBEFADEIN;
