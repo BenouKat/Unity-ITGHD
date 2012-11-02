@@ -51,6 +51,11 @@ public class DataManager{
 	
 	public Color[] precColor;
 	
+	
+	//MAIN MENU
+	
+	public bool alreadyPressStart;
+	
 	//SYSTEM
 	public float globalOffsetSeconds = -0.135f;
 	
@@ -228,6 +233,8 @@ public class DataManager{
 		
 		BPMChoiceMode = 1;
 		BPMEntryMode = false;
+		
+		alreadyPressStart = false;
 		
 		ReadTempConfigFile();
 		InitDicOption();

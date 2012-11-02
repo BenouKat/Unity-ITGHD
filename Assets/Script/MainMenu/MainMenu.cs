@@ -45,6 +45,7 @@ public class MainMenu : MonoBehaviour {
 	//audio
 	public AudioSource audioSMainTitle;
 	public AudioSource audioSMainMenu;
+	public float speedAudioUp;
 	
 	//Clignotement pressstart
 	public float speedPressStart;
@@ -185,7 +186,7 @@ public class MainMenu : MonoBehaviour {
 	//Wait avant de lancer le mainmenu
 	void UpdateWait(){
 		if(time >= 1f && !enterPushed){
-			audioSMainTitle.Play();
+			(DataManager.Instance.alreadyPressStart) audioSMainTitle.Play();
 			this.updat = UpdateUp;
 		}else{
 			time += Time.deltaTime;	
@@ -200,9 +201,18 @@ public class MainMenu : MonoBehaviour {
 				audioSMainMenu.Play();
 				this.updat = UpdateMainMenu;
 				enterPushed = true;
+				DataManager.Instance.alreadyPressStart = true;
 			}
 		}else{
 			time += Time.deltaTime;	
+		}
+		
+		if(DataManager.Instance.alreadyPressStart && !enterPushed){
+			audioSMainMenu.time = Random.value*(audioSMainMenu.time/2);
+			audioSMainMenu.volume = 0;
+			audioSMainMenu.Play();
+			this.updat = UpdateMainMenu;
+			enterPushed = true;
 		}
 		
 		if(timeSelect >= timeFade && !iFade){
@@ -213,7 +223,11 @@ public class MainMenu : MonoBehaviour {
 				iFade = true;
 			}
 			
+		}else if(enterPushed && timeSelect == 0f && audioSMainMenu.volume < 1){
+			audioSMainMenu.volume += speedAudioUp*Time.deltaTime;
 		}
+		
+		
 	}
 	
 	//Montée de caméra
@@ -477,13 +491,13 @@ public class MainMenu : MonoBehaviour {
 				}
 			}
 			Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, new Vector3(Camera.main.transform.position.x, 60f, Camera.main.transform.position.z), Time.deltaTime/speedChoice);
-			audio.volume = 1f - (float)timeSelect/(float)timeFade;
+			audioSMainMenu.volume = 1f - (float)timeSelect/(float)timeFade;
 			timeSelect += Time.deltaTime;
 		}else if(!String.IsNullOrEmpty(selection)){
 			goToBack[selection].transform.position = Vector3.Lerp(goToBack[selection].transform.position, new Vector3(goToBack[selection].transform.position.x, 50f, goToBack[selection].transform.position.z), Time.deltaTime/speedChoice);
 			Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, new Vector3(Camera.main.transform.position.x, 60f, Camera.main.transform.position.z), Time.deltaTime/speedChoice);
 			
-			audio.volume = 1f - (float)timeSelect/(float)timeFade;
+			audioSMainMenu.volume = 1f - (float)timeSelect/(float)timeFade;
 			timeSelect += Time.deltaTime;
 		}
 		
