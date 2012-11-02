@@ -192,6 +192,13 @@ public class ScoreScript : MonoBehaviour {
 		graphok = false;
 		FlashCadre = 1f;
 		FlashGraph = 1f;
+		
+		
+		/* Remove Bloom
+			Camera.main.GetComponent<Bloom>.enabled = DataManager.Instance.enableBlood;
+		*/
+		
+		
 		ProcessScore();
 		if(scoreIsLegit()){
 			ProfileManager.Instance.currentProfile.saveASong(DataManager.Instance.songSelected.sip, 

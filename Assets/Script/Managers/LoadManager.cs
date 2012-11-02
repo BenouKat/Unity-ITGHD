@@ -99,22 +99,106 @@ public class LoadManager{
 	public Dictionary<string, Dictionary<Difficulty, Song>> ListSong(Dictionary<string, Dictionary<Difficulty, Song>> previousList, string contains){
 		
 		var finalList = new Dictionary<string, Dictionary<Difficulty, Song>>();
-		if(previousList.Count == 0){
-			foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.First().Value.title.ToLower().Contains(contains.ToLower())).Count() > 0)){
-				foreach(var song in packs.Value.Where(r => r.Value.First().Value.title.ToLower().Contains(contains.ToLower()))){
-					finalList.Add(song.Value.First().Value.title + "[" + packs.Key + "]", song.Value);
-				}
-			}
-		}else{
-			finalList = previousList.Where(r => r.Value.First().Value.title.ToLower().Contains(contains.ToLower())).ToDictionary(v => v.Key, v => v.Value);
-		}
 		
+		switch(DataManager.Instance.sortMethod){
+		
+			case Sort.NAME:
+				if(previousList.Count == 0){
+					foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.First().Value.title.ToLower().Contains(contains.ToLower())).Count() > 0)){
+						foreach(var song in packs.Value.Where(r => r.Value.First().Value.title.ToLower().Contains(contains.ToLower()))){
+							finalList.Add(song.Value.First().Value.title + "[" + packs.Key + "]", song.Value);
+						}
+					}
+				}else{
+					finalList = previousList.Where(r => r.Value.First().Value.title.ToLower().Contains(contains.ToLower())).ToDictionary(v => v.Key, v => v.Value);
+				}
+			break;
+			
+		
+			case Sort.STARTWITH:
+				if(previousList.Count == 0){
+					foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.First().Value.title.ToLower().StartWith(contains.ToLower())).Count() > 0)){
+						foreach(var song in packs.Value.Where(r => r.Value.First().Value.title.ToLower().StartWith(contains.ToLower()))){
+							finalList.Add(song.Value.First().Value.title + "[" + packs.Key + "]", song.Value);
+						}
+					}
+				}else{
+					finalList = previousList.Where(r => r.Value.First().Value.title.ToLower().StartWith(contains.ToLower())).ToDictionary(v => v.Key, v => v.Value);
+				}
+			break;
+			
+			case Sort.ARTIST:
+				if(previousList.Count == 0){
+					foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.First().Value.artist.ToLower().Contains(contains.ToLower())).Count() > 0)){
+						foreach(var song in packs.Value.Where(r => r.Value.First().Value.artist.ToLower().Contains(contains.ToLower()))){
+							finalList.Add(song.Value.First().Value.title + "[" + packs.Key + "]", song.Value);
+						}
+					}
+				}else{
+					finalList = previousList.Where(r => r.Value.First().Value.artist.ToLower().Contains(contains.ToLower())).ToDictionary(v => v.Key, v => v.Value);
+				}
+			break;
+			
+			
+			case Sort.STEPARTIST:
+				if(previousList.Count == 0){
+					foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.First().Value.stepartist.ToLower().Contains(contains.ToLower())).Count() > 0)){
+						foreach(var song in packs.Value.Where(r => r.Value.First().Value.stepartist.ToLower().Contains(contains.ToLower()))){
+							finalList.Add(song.Value.First().Value.title + "[" + packs.Key + "]", song.Value);
+						}
+					}
+				}else{
+					finalList = previousList.Where(r => r.Value.First().Value.stepartist.ToLower().Contains(contains.ToLower())).ToDictionary(v => v.Key, v => v.Value);
+				}
+			break;
+			
+			//remplacer par des try parse
+			case Sort.DIFFICULTY:
+				foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.Count(s => s.Value.level == (int)contains) > 0).Count() > 0)){
+					foreach(var song in packs.Value.Where(r => r.Value.Count(s => s.Value.level == (int)contains) > 0)){
+						finalList.Add(song.Value.First().Value.title + "[" + packs.Key + "]", song.Value);
+					}
+				}
+			break;
+			
+			//remplacer par des try parse
+			case Sort.BPM:
+				foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.First().Value.bpms.Where(e => e.Value == (int)contains) > 0).Count() > 0)){
+					foreach(var song in packs.Value.Where(r => r.Value.First().Value.bpms.Where(s => s.Value == (int)contains) > 0)){
+						finalList.Add(song.Value.First().Value.title + "[" + packs.Key + "]", song.Value);
+					}
+				}
+			break;
+		
+		}
 		return finalList;
+	}
+	
+	public bool isAllowedToSearch(string search){
+		switch(DataManager.Instance.sortMethod){
+			case Sort.NAME:
+				return search.Trim().Length >= 3;
+			break;
+			case Sort.STARTWITH:
+				return search.Trim().Length >= 1;
+			break;
+			case Sort.ARTIST:
+				return search.Trim().Length >= 3;
+			break;
+			case Sort.STEPARTIST:
+				return search.Trim().Length >= 3;
+			break;
+			case Sort.DIFFICULTY:
+				return search.Trim().Length >= 1;
+			break;
+			case Sort.BPM:
+				return search.Trim().Length >= 1;
+			break;
+		}
 	}
 	
 	public Dictionary<string, Texture2D> ListTexture(){
 		return bannerPack;
-		
 	}
 	
 	

@@ -43,6 +43,7 @@ public class ProfileManager{
 		if(PlayerPrefs.HasKey("idProfile")){
 			if(profiles.FirstOrDefault(c => c.idFile == PlayerPrefs.GetString("idProfile")) != null){
 				currentProfile = profiles.FirstOrDefault(c => c.idFile == PlayerPrefs.GetString("idProfile"));
+				currentProfile.loadOptions();
 				return true;
 			}
 		}
@@ -52,6 +53,7 @@ public class ProfileManager{
 	public void setCurrentProfile(Profile p){
 		
 		currentProfile = p;
+		currentProfile.loadOptions();
 		PlayerPrefs.SetString("idProfile", currentProfile.idFile);
 	}
 	

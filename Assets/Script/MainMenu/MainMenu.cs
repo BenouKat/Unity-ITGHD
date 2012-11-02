@@ -130,6 +130,10 @@ public class MainMenu : MonoBehaviour {
 		alphaError = 0f;
 		timeBack = 0f;
 		forbiddenTouchGUI = "";
+		
+		/* Remove Bloom
+			Camera.main.GetComponent<Bloom>.enabled = DataManager.Instance.enableBlood;
+		*/
 	}
 	
 	void OnGUI(){

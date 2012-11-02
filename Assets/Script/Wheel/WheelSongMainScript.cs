@@ -468,7 +468,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		if(!OptionMode && !SongMode && !movinSong){
 			#region packGUI
 			//Packs
-			if(search.Trim().Length < 3){
+			if(!LoadManager.Instance.isAllowedToSearch(search)){
 				var decal = ((Screen.width - wd*Screen.width)/2);
 				if(movinBackward) GUI.Label(new Rect((xm10*2f + decalFadeM)*Screen.width + decal, y*Screen.height, wd*Screen.width, ht*Screen.height), packs.ElementAt(PrevInt(numberPack, 2)).Key);
 				if(!movinForward) GUI.Label(new Rect((xm10 + decalFadeM)*Screen.width + decal, y*Screen.height, wd*Screen.width, ht*Screen.height), packs.ElementAt(PrevInt(numberPack, 1)).Key);
@@ -518,7 +518,7 @@ public class WheelSongMainScript : MonoBehaviour {
 			#region songGUI
 			//SONGS
 			
-			var packOnRender = search.Trim().Length >= 3 ? songList : LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key];
+			var packOnRender = LoadManager.Instance.isAllowedToSearch(search) ? songList : LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key];
 			var thepos = -posLabel;
 			for(int i=0; i<packOnRender.Count; i++){
 				if(thepos >= 0f && thepos <= numberToDisplay){
@@ -548,7 +548,7 @@ public class WheelSongMainScript : MonoBehaviour {
 				search = GUI.TextArea(new Rect(SearchBarPos.x*Screen.width, SearchBarPos.y*Screen.height, SearchBarPos.width*Screen.width, SearchBarPos.height*Screen.height), search.Trim());
 				
 				if(search != searchOldValue){
-					if(!String.IsNullOrEmpty(search.Trim()) && search.Trim().Length >= 3){
+					if(!String.IsNullOrEmpty(search.Trim()) && LoadManager.Instance.isAllowedToSearch(search)){
 						songList = LoadManager.Instance.ListSong(songList, search.Trim());
 						if(particleOnPlay != null){
 							cubeSelected = null;
@@ -568,7 +568,7 @@ public class WheelSongMainScript : MonoBehaviour {
 						createCubeSong(songList);
 						activeCustomPack();
 						StartCoroutine(AnimSearchBar(false));
-					}else if(search.Trim().Length < 3 && searchOldValue.Trim().Length > search.Trim().Length){
+					}else if(!LoadManager.Instance.isAllowedToSearch(search) && searchOldValue.Trim().Length > search.Trim().Length){
 						songList.Clear();
 						if(particleOnPlay != null){
 							cubeSelected = null;
@@ -588,7 +588,7 @@ public class WheelSongMainScript : MonoBehaviour {
 						DestroyCustomCubeSong();
 						StartCoroutine(AnimSearchBar(true));
 					}
-					if(songList.Count == 0 && search.Trim().Length >= 3){
+					if(songList.Count == 0 && LoadManager.Instance.isAllowedToSearch(search)){
 						GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
 						GUI.Label(new Rect(posSonglist.x*Screen.width, posSonglist.y*Screen.height, posSonglist.width*Screen.width, posSonglist.height*Screen.height), "No entry", "songlabel");
 						GUI.color = new Color(1f, 1f, 1f, 1f);
@@ -719,8 +719,8 @@ public class WheelSongMainScript : MonoBehaviour {
 				DataManager.Instance.raceSelected = raceSelected;
 				DataManager.Instance.displaySelected = displaySelected;
 				DataManager.Instance.deathSelected = deathSelected;
-				DataManager.Instance.packSelected = search.Trim().Length < 3 ? packs.ElementAt(numberPack).Key : "";
-				DataManager.Instance.mousePosition = search.Trim().Length < 3 ? startnumber : -1;
+				DataManager.Instance.packSelected = !LoadManager.Instance.isAllowedToSearch(search) ? packs.ElementAt(numberPack).Key : "";
+				DataManager.Instance.mousePosition = !LoadManager.Instance.isAllowedToSearch(search) ? startnumber : -1;
 				
 				///Save prefs
 				ProfileManager.Instance.currentProfile.lastSpeedmodUsed = speedmodstring;
@@ -1424,9 +1424,9 @@ public class WheelSongMainScript : MonoBehaviour {
 		if(!movinNormal && !movinOption && !OptionMode){
 			
 			#region ListChanges
-			var packOnRender = search.Trim().Length >= 3 ? songList : LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key];
-			var linkOnRender = search.Trim().Length >= 3 ? customLinkCubeSong : LinkCubeSong;
-			var songCubeOnRender = search.Trim().Length >= 3 ? customSongCubePack : songCubePack;
+			var packOnRender = LoadManager.Instance.isAllowedToSearch(search) ? songList : LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key];
+			var linkOnRender = LoadManager.Instance.isAllowedToSearch(search) ? customLinkCubeSong : LinkCubeSong;
+			var songCubeOnRender = LoadManager.Instance.isAllowedToSearch(search) ? customSongCubePack : songCubePack;
 			#endregion
 			
 			#region Raycast

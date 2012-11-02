@@ -57,7 +57,7 @@ public class DataManager{
 	public bool alreadyPressStart;
 	
 	//SYSTEM
-	public float globalOffsetSeconds = -0.135f;
+	
 	
 	public int regenComboAfterMiss = 5;
 	
@@ -69,8 +69,32 @@ public class DataManager{
 	private static DataManager instance;
 	
 	
+	//GENERAL OPTION
 	
-	//OPTION
+	//General
+	public float globalOffsetSeconds = -0.135f;
+	public float userGOS;
+	public float mouseMolSpeed;
+	public bool dancepadMode;
+	public bool offsetDebugMode;
+	
+	//Profiles
+	public ProfileDownloadType PDT;
+	
+	//Audio
+	public float generalVolume;
+	
+	//Video
+	public bool enableBloom;
+	public bool enableDepthOfField;
+	
+	//Cache
+	public bool useTheCacheSystem;
+	
+	
+	//OPTION WHEEL
+	public Sort sortMethod;
+	
 	public Dictionary<Judge, string> dicScoreJudge;
 	public Dictionary<Judge, string> dicHitJudge;
 	public Dictionary<Judge, string> dicLifeJudge;
@@ -143,7 +167,7 @@ public class DataManager{
 	}
 	
 	
-	//
+	
 	
 	public void Init(){
 		ScoreWeightValues = new Dictionary<string, float>();
@@ -235,6 +259,8 @@ public class DataManager{
 		BPMEntryMode = false;
 		
 		alreadyPressStart = false;
+		
+		sortMethod = Sort.NAME;
 		
 		ReadTempConfigFile();
 		InitDicOption();

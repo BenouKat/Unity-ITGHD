@@ -810,8 +810,11 @@ public class OpenChart{
 		s.numberOfHands = numberOfHands;
 		
 		
+		
+		//Old Graph
 		s.intensityGraph = new float[100];
 		
+		/*
 		var theamountOfTime = s.duration/100f;
 		double thetotaltime = 0;
 		double themoy = 0;
@@ -831,7 +834,37 @@ public class OpenChart{
 				thecountmoy++;
 				thetotaltime = listNumberStep.ElementAt(i).Key;
 			}
+		}*/
+		
+		double thelastgoodvalue = 0;
+		var thecut = DataManager.Instance.songSelected.duration/(double)100;
+		
+		for(int i=0; i<100; i++){
+			if(i == 0){
+				s.intensityGraph[i] = 50;
+			}else{
+				if(listNumberStep.Where(c => c.Key <= thecut*i).Count() == 0){
+					s.intensityGraph[i] = thelastgoodvalue;
+				}else{
+					double moy = 0;
+					int numbermoy = 0;
+					List<double> keyToRemove = new List<double>();
+					foreach(var val in listNumberStep.Where(c => c.Key <= (thecut*i))){
+						moy += val.Value;
+						thelastgoodvalue = val.Value;
+						keyToRemove.Add(val.Key);
+						numbermoy++;
+					}
+					foreach(var rem in keyToRemove){
+						listNumberStep.Remove(rem);	
+					}
+					s.intensityGraph[i] = moy/(double)numbermoy;
+				}
+				
+			}
 		}
+		
+		
 	}
 	
 	

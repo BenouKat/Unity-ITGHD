@@ -25,6 +25,22 @@ public enum Judge{
 		EXPERT
 }
 
+public enum Sort{
+	NAME,
+	STARTWITH,
+	ARTIST,
+	STEPARTIST,
+	DIFFICULTY,
+	BPM
+}
+
+public enum ProfileDownloadType{
+	NEVER,
+	NOTMANY,
+	MANY,
+	ALL,
+}
+
 public enum ScoreCount{
 		FANTASTIC,
 		EXCELLENT,

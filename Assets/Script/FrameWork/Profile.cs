@@ -29,11 +29,26 @@ public class Profile{
 	public string lastBPM;
 	public bool inBPMMode;
 	public int numberOfSkinSelected;
-	public int speedmolette;
-	public bool padMode;
 	
-	//audio
-	//video
+	//general
+	public float userGOS;
+	public float mouseMolSpeed;
+	public bool dancepadMode;
+	public bool offsetDebugMode;
+	
+	//Profiles
+	public ProfileDownloadType PDT;
+	
+	//Audio
+	public float generalVolume;
+	
+	//Video
+	public bool enableBloom;
+	public bool enableDepthOfField;
+	public float antiAliasing;
+	
+	//Cache
+	public bool useTheCacheSystem;
 	
 	//Songs
 	public List<SongInfoProfil> scoreOnSong;
@@ -58,6 +73,16 @@ public class Profile{
 		lastSpeedmodUsed = "";
 		lastBPM = "";
 		inBPMMode = false;
+		userGOS = 0.0f;
+		mouseMolSpeed = 1f;
+		dancepadMode = false;
+		offsetDebugMode = false;
+		PDT =  ProfileDownloadType.ALL;
+		generalVolume = 1f;
+		enableBloom = true;
+		enableDepthOfField = true;
+		useTheCacheSystem = true;
+		loadOptions();
 	}
 	
 	public void saveASong(SongInfoProfil sip, float scoreEarned, double speedmodPref, bool fail){
@@ -77,6 +102,19 @@ public class Profile{
 			scoreOnSong.Add(thesip);	
 		}
 		
+	}
+	
+	public void loadOptions(){
+	
+		DataManager.Instance.userGOS = this.userGOS;
+		DataManager.Instance.mouseMolSpeed = this.mouseMolSpeed;
+		DataManager.Instance.dancepadMode = this.dancepadMode;
+		DataManager.Instance.offsetDebugMode = this.offsetDebugMode;
+		DataManager.Instance.PDT = this.PDT;
+		DataManager.Instance.generalVolume = this.generalVolume;
+		DataManager.Instance.enableBloom = this.enableBloom;
+		DataManager.Instance.enableDepthOfField = this.enableDepthOfField;
+		DataManager.Instance.useTheCacheSystem = this.useTheCacheSystem;
 	}
 	
 }
