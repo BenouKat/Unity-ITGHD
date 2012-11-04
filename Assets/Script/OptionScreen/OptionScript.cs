@@ -21,13 +21,20 @@ public class OptionScript : MonoBehaviour {
 	public GameObject bgScreen;
 	
 	public GameObject[] menuItem;
+	public GUISkin skin;
 	private Vector3[] Rotate;
 	public float speedScale;
 	private float loadColor;
 	public float speedColor;
 	public float speedColorFade;
 	
-	public Vector2 sizeLabelBG;
+	
+	private float lerpColorScreenFade;
+	public float speedFadeScreen;
+	public float speedColorScreenFade;
+	public Color colorBasicScreen = new Color(0f, 0.075f, 0.05f, 1f);
+	
+	public Rect sizeLabelBG;
 	public Rect offsetLabelOption;
 	
 	public Rect labelOption;
@@ -49,9 +56,10 @@ public class OptionScript : MonoBehaviour {
 		
 		optionMenuMode = StateOption.OPTIONSELECTION;
 		alphaFadeIn = 1f;
+		lerpColorScreenFade = 0f;
 	}
 	
-	void OnGui(){
+	void OnGUI(){
 		switch(optionMenuMode){
 			case StateOption.OPTIONSELECTION:
 				OnGUIOptionSelect();
@@ -63,21 +71,38 @@ public class OptionScript : MonoBehaviour {
 			case StateOption.SCREENFADEIN:
 				OnGUIOptionFadeIn();
 				break;
+			case StateOption.OPTION:
+				OnGUIOptionFadeIn();
+				OnGUIOption();
+				break;
 		}
 	}
 	
 	void OnGUIOptionSelect(){
+		GUI.skin = skin;
 		GUI.color = new Color(1f, 1f, 1f, alphaFadeIn);
 		if(theSelected != null){
 			var pos2D = Camera.main.WorldToScreenPoint(theSelected.transform.position);
-			GUI.DrawTexture(new Rect(pos2D.x, pos2D.y, sizeLabelBG.x*Screen.width, sizeLabelBG.y*Screen.height), tex["labelBG"]);
-			GUI.Label(new Rect(pos2D.x + offsetLabelOption.x*Screen.width, pos2D.y + offsetLabelOption.y*Screen.height, offsetLabelOption.width*Screen.width, offsetLabelOption.height*Screen.height), theSelected.name);
+			GUI.color = new Color(1f, 1f, 1f, 0.5f*alphaFadeIn*loadColor);
+			GUI.DrawTexture(new Rect(pos2D.x + (sizeLabelBG.x*Screen.width), Screen.height - pos2D.y + (sizeLabelBG.y*Screen.height), sizeLabelBG.width*Screen.width, sizeLabelBG.height*Screen.height), tex["labelbg"]);
+			GUI.color = new Color(0f, 0f, 0f, 1f*alphaFadeIn*loadColor);
+			GUI.Label(new Rect(pos2D.x + offsetLabelOption.x*Screen.width + 1, Screen.height - pos2D.y + offsetLabelOption.y*Screen.height + 1, offsetLabelOption.width*Screen.width, offsetLabelOption.height*Screen.height), theSelected.name);
+			GUI.color = new Color(theSelected.renderer.material.color.r, theSelected.renderer.material.color.g, theSelected.renderer.material.color.b, loadColor);
+			GUI.Label(new Rect(pos2D.x + offsetLabelOption.x*Screen.width, Screen.height - pos2D.y + offsetLabelOption.y*Screen.height, offsetLabelOption.width*Screen.width, offsetLabelOption.height*Screen.height), theSelected.name);
 		}
 	}
 	
 	void OnGUIOptionFadeIn(){
-		GUI.color = new Color(1f, 1f, 1f, 1 - alphaFadeIn);
+		GUI.skin = skin;
+		GUI.color = new Color(0f, 0f, 0f, 1 - alphaFadeIn);
+		GUI.Label(new Rect(labelOption.x*Screen.width + 1, labelOption.y*Screen.height + 1, labelOption.width*Screen.width, labelOption.height*Screen.height), optionSelected);
+		GUI.color = new Color(theSelected.renderer.material.color.r, theSelected.renderer.material.color.g, theSelected.renderer.material.color.b, 1 - alphaFadeIn);
 		GUI.Label(new Rect(labelOption.x*Screen.width, labelOption.y*Screen.height, labelOption.width*Screen.width, labelOption.height*Screen.height), optionSelected);
+	}
+	
+	
+	void OnGUIOption(){
+		
 	}
 	
 	// Update is called once per frame
@@ -91,6 +116,9 @@ public class OptionScript : MonoBehaviour {
 				UpdateCubeFadeIn();
 				break;
 			case StateOption.SCREENFADEIN:
+				UpdateScreenFadeIn();
+				break;
+			case StateOption.OPTION:
 				UpdateScreenFadeIn();
 				break;
 		}
@@ -152,7 +180,7 @@ public class OptionScript : MonoBehaviour {
 		for(int i = 0; i < menuItem.Length;i++){
 			alphaFadeIn -= speedFadeIn*Time.deltaTime;
 			menuItem[i].renderer.material.color = new Color(menuItem[i].renderer.material.color.r, menuItem[i].renderer.material.color.g, menuItem[i].renderer.material.color.b, alphaFadeIn);
-			cubeIcon.renderer.material.color = new Color(menuItem[i].renderer.material.color.r, menuItem[i].renderer.material.color.g, menuItem[i].renderer.material.color.b, 1 - alphaFadeIn);
+			cubeIcon.renderer.material.color = new Color(theSelected.renderer.material.color.r, theSelected.renderer.material.color.g, theSelected.renderer.material.color.b, 1 - alphaFadeIn);
 			if(alphaFadeIn <= 0){
 				optionMenuMode = StateOption.SCREENFADEIN;
 			}
@@ -160,7 +188,19 @@ public class OptionScript : MonoBehaviour {
 	}
 	
 	void UpdateScreenFadeIn(){
+		if(screen.transform.position.y <= 0.1f && bgScreen.renderer.material.color.a < 1f){
+			screen.transform.position = new Vector3(0f, 0f, 0f);
+			bgScreen.renderer.material.color = new Color(bgScreen.renderer.material.color.r*10f, bgScreen.renderer.material.color.g*10f, bgScreen.renderer.material.color.b*10f, 1f);
+			optionMenuMode = StateOption.OPTION;
 		
+		}else{
+			screen.transform.position = Vector3.Lerp(screen.transform.position, new Vector3(0f, 0f, 0f), speedFadeScreen*Time.deltaTime);
+		}
+		
+		if(bgScreen.renderer.material.color.a >= 1f && lerpColorScreenFade < 1f){
+			bgScreen.renderer.material.color = Color.Lerp(bgScreen.renderer.material.color , colorBasicScreen , lerpColorScreenFade);
+			lerpColorScreenFade += speedColorScreenFade*Time.deltaTime;
+		}
 	}
 	
 	
