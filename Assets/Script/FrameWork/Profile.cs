@@ -32,9 +32,10 @@ public class Profile{
 	
 	//general
 	public float userGOS;
-	public float mouseMolSpeed;
+	public int mouseMolSpeed;
 	public bool dancepadMode;
-	public bool offsetDebugMode;
+	public bool quickMode;
+	public bool useTheCacheSystem;
 	
 	//Profiles
 	public ProfileDownloadType PDT;
@@ -47,8 +48,6 @@ public class Profile{
 	public bool enableDepthOfField;
 	public float antiAliasing;
 	
-	//Cache
-	public bool useTheCacheSystem;
 	
 	//Songs
 	public List<SongInfoProfil> scoreOnSong;
@@ -74,14 +73,15 @@ public class Profile{
 		lastBPM = "";
 		inBPMMode = false;
 		userGOS = 0.0f;
-		mouseMolSpeed = 1f;
+		mouseMolSpeed = 1;
 		dancepadMode = false;
-		offsetDebugMode = false;
+		quickMode = false;
 		PDT =  ProfileDownloadType.ALL;
 		generalVolume = 1f;
 		enableBloom = true;
 		enableDepthOfField = true;
 		useTheCacheSystem = true;
+		antiAliasing = QualitySettings.antiAliasing;
 		loadOptions();
 	}
 	
@@ -109,11 +109,12 @@ public class Profile{
 		DataManager.Instance.userGOS = this.userGOS;
 		DataManager.Instance.mouseMolSpeed = this.mouseMolSpeed;
 		DataManager.Instance.dancepadMode = this.dancepadMode;
-		DataManager.Instance.offsetDebugMode = this.offsetDebugMode;
+		DataManager.Instance.quickMode = this.quickMode;
 		DataManager.Instance.PDT = this.PDT;
 		DataManager.Instance.generalVolume = this.generalVolume;
 		DataManager.Instance.enableBloom = this.enableBloom;
 		DataManager.Instance.enableDepthOfField = this.enableDepthOfField;
+		DataManager.Instance.antiAliasing = this.antiAliasing;
 		DataManager.Instance.useTheCacheSystem = this.useTheCacheSystem;
 	}
 	

@@ -19,35 +19,77 @@ public class OptionScript : MonoBehaviour {
 	public GameObject cubeIcon;
 	public GameObject screen;
 	public GameObject bgScreen;
-	
 	public GameObject[] menuItem;
 	public GUISkin skin;
+	
+	
 	private Vector3[] Rotate;
 	public float speedScale;
 	private float loadColor;
 	public float speedColor;
 	public float speedColorFade;
 	
-	
+	//Fade Option
 	private float lerpColorScreenFade;
 	public float speedFadeScreen;
 	public float speedColorScreenFade;
 	public Color colorBasicScreen = new Color(0f, 0.075f, 0.05f, 1f);
-	
-	public Rect sizeLabelBG;
-	public Rect offsetLabelOption;
-	
-	public Rect labelOption;
-	
-	
-	private StateOption optionMenuMode;
-	private string optionSelected;
-	
+	//Fade Cube
 	private float alphaFadeIn;
 	public float speedFadeIn;
 	
+	//Labels
+	public Rect sizeLabelBG;
+	public Rect offsetLabelOption;
+	public Rect labelOption;
+	
+	//states
+	private StateOption optionMenuMode;
+	private string optionSelected;
+	
+	//Option variable
+	//Audio
+	//General volume : Label + un textAera
+	
+	
+	//Video
+	//enableBloom : Label + coche
+	//enableDepthOfField : Label + coche
+	//antialiasing : 2 boutons right left + double label central
+	
+	//KeyMapping
+	//8 game objet + 8 label / button + un label général
+	
+	//General
+	public Rect posLabelOption;
+	public float offsetLabelYOption;
+	public Rect posTextFieldOption;
+	public Rect posButtonOption;
+	public Rect posButtonCache;
+	public Rect posButtonBack;
+	public Rect posButtonCancel;
+	public Rect posLabelListChoice;
+	public Vector2 sizeArrowButton;
+	public float offsetBetweenLabel;
+	
+	
+	private string GOS;
+	private string mouseSpeed;
+	private bool quickMode;
+	private bool padMode;
+	private bool cacheMode;
+	
+	//Network
+	//download data : : 2 boutons right left + double label central
+	private string[] networkValue;
+	private ProfileDownloadType PDT;
+	
+	
+	//textures
 	public Dictionary<string, Texture2D> tex;
 	
+	//texts
+	private Dictionary<string, string> textOption;
 	// Use this for initialization
 	void Start () {
 		
@@ -57,6 +99,19 @@ public class OptionScript : MonoBehaviour {
 		optionMenuMode = StateOption.OPTIONSELECTION;
 		alphaFadeIn = 1f;
 		lerpColorScreenFade = 0f;
+		textOption = TextManager.Instance.texts["Option"];
+		
+		GOS = DataManager.Instance.userGOS.ToString("0.000");
+		mouseSpeed = DataManager.Instance.mouseMolSpeed.ToString("0");
+		quickMode = DataManager.Instance.quickMode;
+		padMode = DataManager.Instance.dancepadMode;
+		cacheMode = DataManager.Instance.useTheCacheSystem;
+		PDT = DataManager.Instance.PDT;
+		
+		networkValue[ProfileDownloadType.NEVER] = "Ne jamais partager les profiles";
+		networkValue[ProfileDownloadType.NOTMANY] = "Ne pas stocker plus de 10 profiles";
+		networkValue[ProfileDownloadType.MANY] = "Ne pas stocker plus de 50 profiles";
+		networkValue[ProfileDownloadType.ALL] = "Stocker tous les profiles";
 	}
 	
 	void OnGUI(){
@@ -102,6 +157,87 @@ public class OptionScript : MonoBehaviour {
 	
 	
 	void OnGUIOption(){
+		switch(theSelected.name)
+		{
+			case "General":
+			//GOS
+			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["GENERAL_GOS"]);
+			GOS = GUI.TextField(new Rect(posTextFieldOption.x*Screen.width, posTextFieldOption.y*Screen.height, posTextFieldOption.width*Screen.width, posTextFieldOption.height*Screen.height), GOS, 5);
+		
+			//MouseSpeed
+			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height + offsetLabelYOption*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["GENERAL_MOUSESPEED"]);
+			mouseSpeed = GUI.TextField(new Rect(posTextFieldOption.x*Screen.width, posTextFieldOption.y*Screen.height + offsetLabelYOption*Screen.height, posTextFieldOption.width*Screen.width, posTextFieldOption.height*Screen.height), mouseSpeed, 1);
+		
+			//Quickmod
+			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height + offsetLabelYOption*2*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["GENERAL_QUICKMODE"]);
+			if(quickMode){
+				if(GUI.Button(new Rect(posButtonOption.x*Screen.width, posButtonOption.y*Screen.height + offsetLabelYOption*2*Screen.height, posButtonOption.width*Screen.width, posButtonOption.height*Screen.height), "", "GreenButton")){
+					quickMode = false;
+				}
+			}else{
+				if(GUI.Button(new Rect(posButtonOption.x*Screen.width, posButtonOption.y*Screen.height + offsetLabelYOption*2*Screen.height, posButtonOption.width*Screen.width, posButtonOption.height*Screen.height), "", "RedButton")){
+					quickMode = true;
+				}
+			}
+			
+			//Padmod
+			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height + offsetLabelYOption*3*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["GENERAL_PADMODE"]);
+			if(padMode){
+				if(GUI.Button(new Rect(posButtonOption.x*Screen.width, posButtonOption.y*Screen.height + offsetLabelYOption*3*Screen.height, posButtonOption.width*Screen.width, posButtonOption.height*Screen.height), "", "GreenButton")){
+					padMode = false;
+				}
+			}else{
+				if(GUI.Button(new Rect(posButtonOption.x*Screen.width, posButtonOption.y*Screen.height + offsetLabelYOption*3*Screen.height, posButtonOption.width*Screen.width, posButtonOption.height*Screen.height), "", "RedButton")){
+					padMode = true;
+				}
+			}
+			
+			//cache
+			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height + offsetLabelYOption*4*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["GENERAL_USECACHE"]);
+			if(cacheMode){
+				if(GUI.Button(new Rect(posButtonOption.x*Screen.width, posButtonOption.y*Screen.height + offsetLabelYOption*4*Screen.height, posButtonOption.width*Screen.width, posButtonOption.height*Screen.height), "", "GreenButton")){
+					cacheMode = false;
+				}
+			}else{
+				if(GUI.Button(new Rect(posButtonOption.x*Screen.width, posButtonOption.y*Screen.height + offsetLabelYOption*4*Screen.height, posButtonOption.width*Screen.width, posButtonOption.height*Screen.height), "", "RedButton")){
+					cacheMode = true;
+				}
+			}
+			
+			
+			if(GUI.Button(new Rect(posButtonCache.x*Screen.width, posButtonCache.y*Screen.height, posButtonCache.width*Screen.width, posButtonCache.height*Screen.height), textOption["GENERAL_RELOADCACHE"])){
+				LoadManager.Instance.SaveCache();
+			}
+				
+				
+			break;
+			
+			//Network
+			case "Network":
+			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width + offsetBetweenLabel*Screen.width, posLabelListChoice.y*Screen.height, sizeArrowButton.x*Screen.width, sizeArrowButton.y*Screen.height), "", "rightArrow")){
+				PDT++;
+				if(PDT > 3) PDT = 0;
+			}
+			
+			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width - offsetBetweenLabel*Screen.width, posLabelListChoice.y*Screen.height, sizeArrowButton.x*Screen.width, sizeArrowButton.y*Screen.height), "", "leftArrow")){
+				PDT--;
+				if(PDT < 0) PDT = 3;
+			}
+			
+			GUI.Label(new Rect(posLabelListChoice.x*Screen.width, posLabelListChoice.y*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), networkValue[PDT]);
+			
+			break;
+		}
+		
+		//Mettre un label d'aide
+		
+		if(GUI.Button(new Rect(posButtonBack.x*Screen.width, posButtonBack.y*Screen.height, posButtonBack.width*Screen.width, posButtonBack.height*Screen.height), "Save")){
+			//Accept
+		}
+		
+		if(GUI.Button(new Rect(posButtonCancel.x*Screen.width, posButtonCancel.y*Screen.height, posButtonCancel.width*Screen.width, posButtonCancel.height*Screen.height), "Cancel")){
+			//Cancel
+		}
 		
 	}
 	

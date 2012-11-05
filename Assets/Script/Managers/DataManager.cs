@@ -74,9 +74,10 @@ public class DataManager{
 	//General
 	public float globalOffsetSeconds = -0.135f;
 	public float userGOS;
-	public float mouseMolSpeed;
+	public int mouseMolSpeed;
 	public bool dancepadMode;
-	public bool offsetDebugMode;
+	public bool quickMode;
+	public bool useTheCacheSystem;
 	
 	//Profiles
 	public ProfileDownloadType PDT;
@@ -87,9 +88,7 @@ public class DataManager{
 	//Video
 	public bool enableBloom;
 	public bool enableDepthOfField;
-	
-	//Cache
-	public bool useTheCacheSystem;
+	public float antiAliasing;
 	
 	
 	//OPTION WHEEL
