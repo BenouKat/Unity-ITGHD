@@ -68,6 +68,19 @@ public class OptionScript : MonoBehaviour {
 	
 	//KeyMapping
 	//8 game objet + 8 label / button + un label général
+	/*
+	0 : Left 1
+	1 : Down 1
+	2 : Up 1
+	3 : Right 1
+	4 : Left 2
+	5 : Down 2
+	6 : Up 2
+	7 : Right 2
+	*/
+	public Rect[] labelMapping;
+	public Rect labelDialogMap;
+	public Rect labelConfirm;
 	
 	//General
 	public Rect posButtonCache;
