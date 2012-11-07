@@ -48,30 +48,29 @@ public class OptionScript : MonoBehaviour {
 	private string optionSelected;
 	
 	//Option variable
-	//Audio
-	//General volume : Label + un textAera
-	
-	
-	//Video
-	//enableBloom : Label + coche
-	//enableDepthOfField : Label + coche
-	//antialiasing : 2 boutons right left + double label central
-	
-	//KeyMapping
-	//8 game objet + 8 label / button + un label général
-	
-	//General
 	public Rect posLabelOption;
 	public float offsetLabelYOption;
 	public Rect posTextFieldOption;
 	public Rect posButtonOption;
-	public Rect posButtonCache;
 	public Rect posButtonBack;
 	public Rect posButtonCancel;
 	public Rect posLabelListChoice;
 	public Vector2 sizeArrowButton;
 	public float offsetBetweenLabel;
 	
+	//Audio
+	public string generalVolume;
+	
+	//Video
+	public bool enableBloom;
+	public bool enableDOF;
+	public int antialiasing;
+	
+	//KeyMapping
+	//8 game objet + 8 label / button + un label général
+	
+	//General
+	public Rect posButtonCache;
 	
 	private string GOS;
 	private string mouseSpeed;
@@ -80,7 +79,6 @@ public class OptionScript : MonoBehaviour {
 	private bool cacheMode;
 	
 	//Network
-	//download data : : 2 boutons right left + double label central
 	private string[] networkValue;
 	private ProfileDownloadType PDT;
 	
@@ -107,6 +105,12 @@ public class OptionScript : MonoBehaviour {
 		padMode = DataManager.Instance.dancepadMode;
 		cacheMode = DataManager.Instance.useTheCacheSystem;
 		PDT = DataManager.Instance.PDT;
+		
+		generalVolume = DataManager.Instance.generalVolume.ToString("0");
+		
+		enableBloom = DataManager.Instance.enableBloom;
+		enableDOF = DataManager.Instance.enableDepthOfField;
+		antialiasing = DataManager.Instance.antiAliasing;
 		
 		networkValue[ProfileDownloadType.NEVER] = "Ne jamais partager les profiles";
 		networkValue[ProfileDownloadType.NOTMANY] = "Ne pas stocker plus de 10 profiles";
@@ -159,6 +163,7 @@ public class OptionScript : MonoBehaviour {
 	void OnGUIOption(){
 		switch(theSelected.name)
 		{
+		//General
 			case "General":
 			//GOS
 			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["GENERAL_GOS"]);
@@ -212,7 +217,7 @@ public class OptionScript : MonoBehaviour {
 				
 			break;
 			
-			//Network
+		//Network
 			case "Network":
 			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width + offsetBetweenLabel*Screen.width, posLabelListChoice.y*Screen.height, sizeArrowButton.x*Screen.width, sizeArrowButton.y*Screen.height), "", "rightArrow")){
 				PDT++;
@@ -225,7 +230,52 @@ public class OptionScript : MonoBehaviour {
 			}
 			
 			GUI.Label(new Rect(posLabelListChoice.x*Screen.width, posLabelListChoice.y*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), networkValue[PDT]);
+			//Faire une anim ?
+			break;
 			
+			
+		//Audio
+			case "Audio":
+			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["AUDIO_GENERAL"]);
+			generalVolume = GUI.TextField(new Rect(posTextFieldOption.x*Screen.width, posTextFieldOption.y*Screen.height, posTextFieldOption.width*Screen.width, posTextFieldOption.height*Screen.height), generalVolume, 5);
+			break;
+			
+		//Video
+			case "Video":
+			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["VIDEO_BLOOM"]);
+			if(enableBloom){
+				if(GUI.Button(new Rect(posButtonOption.x*Screen.width, posButtonOption.y*Screen.height, posButtonOption.width*Screen.width, posButtonOption.height*Screen.height), "", "GreenButton")){
+					enableBloom = false;
+				}
+			}else{
+				if(GUI.Button(new Rect(posButtonOption.x*Screen.width, posButtonOption.y*Screen.height, posButtonOption.width*Screen.width, posButtonOption.height*Screen.height), "", "RedButton")){
+					enableBloom = true;
+				}
+			}
+			
+			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height + offsetLabelYOption*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["VIDEO_DOF"]);
+			if(enableDOF){
+				if(GUI.Button(new Rect(posButtonOption.x*Screen.width, posButtonOption.y*Screen.height + offsetLabelYOption*Screen.height, posButtonOption.width*Screen.width, posButtonOption.height*Screen.height), "", "GreenButton")){
+					enableDOF = false;
+				}
+			}else{
+				if(GUI.Button(new Rect(posButtonOption.x*Screen.width, posButtonOption.y*Screen.height + offsetLabelYOption*Screen.height, posButtonOption.width*Screen.width, posButtonOption.height*Screen.height), "", "RedButton")){
+					enableDOF = true;
+				}
+			}
+			
+			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width + offsetBetweenLabel*Screen.width, posLabelListChoice.y*Screen.height + offsetLabelYOption*2*Screen.height, sizeArrowButton.x*Screen.width, sizeArrowButton.y*Screen.height), "", "rightArrow")){
+				antiAliasing += 2;
+				if(antiAliasing > 8) antiAliasing = 0;
+			}
+			
+			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width - offsetBetweenLabel*Screen.width, posLabelListChoice.y*Screen.height + offsetLabelYOption*2*Screen.height, sizeArrowButton.x*Screen.width, sizeArrowButton.y*Screen.height), "", "leftArrow")){
+				antiAliasing -= 2;
+				if(antiAliasing < 0) antiAliasing = 8;
+			}
+			
+			GUI.Label(new Rect(posLabelListChoice.x*Screen.width, posLabelListChoice.y*Screen.height + offsetLabelYOption*2*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), "x" + antiAliasing);
+			//Faire une anim ?
 			break;
 		}
 		

@@ -46,7 +46,7 @@ public class Profile{
 	//Video
 	public bool enableBloom;
 	public bool enableDepthOfField;
-	public float antiAliasing;
+	public int antiAliasing;
 	
 	
 	//Songs
