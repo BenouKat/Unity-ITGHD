@@ -177,6 +177,8 @@ Mode tapis (Navigation sans souris);
 Utiliser le système de cache;
 <GENERAL_RELOADCACHE>;
 Mettre à jour le cache;
+<GENERAL_RELOADPROFILE>;
+Changer de profile;
 <AUDIO_GENERAL>;
 Volume général du jeu;
 <VIDEO_AA>;

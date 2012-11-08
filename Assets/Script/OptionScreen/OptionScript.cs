@@ -92,6 +92,7 @@ public class OptionScript : MonoBehaviour {
 	
 	//General
 	public Rect posButtonCache;
+	public Rect posButtonProfile;
 	
 	private string GOS;
 	private string mouseSpeed;
@@ -230,12 +231,18 @@ public class OptionScript : MonoBehaviour {
 				}
 			}
 			
-			
+			//reload cache
 			if(GUI.Button(new Rect(posButtonCache.x*Screen.width, posButtonCache.y*Screen.height, posButtonCache.width*Screen.width, posButtonCache.height*Screen.height), textOption["GENERAL_RELOADCACHE"])){
+				//Mettre un truc de confirmation
 				LoadManager.Instance.SaveCache();
 			}
 				
-				
+			//Changer profile
+			if(GUI.Button(new Rect(posButtonProfile.x*Screen.width, posButtonProfile.y*Screen.height, posButtonProfile.width*Screen.width, posButtonProfile.height*Screen.height), textOption["GENERAL_RELOADPROFILE"])){
+				//Mettre un truc de confirmation
+				PlayerPrefs.DeleteKey("idProfile");
+				Application.LoadLevel("SplashScreen");
+			}	
 			break;
 			
 		//Network

@@ -131,7 +131,7 @@ public class IntroScript : MonoBehaviour {
 	private LOGIN_STATUT ls;
 	
 	void Start(){
-		TextManager.Instance.LoadTextFile();
+		if(!LoadManager.Instance.alreadyLoaded) TextManager.Instance.LoadTextFile();
 		labelToDisplay = TextManager.Instance.texts["SplashScreen"]["LOADING"];
 		posLength = 0;
 		blank = (Texture2D) Resources.Load("blank");
@@ -881,7 +881,7 @@ public class IntroScript : MonoBehaviour {
 			posLength++;
 			yield return new WaitForSeconds(speedLetters);
 		}
-		LoadManager.Instance.Loading();
+		if(!LoadManager.Instance.alreadyLoaded) LoadManager.Instance.Loading();
 		labelToDisplay = TextManager.Instance.texts["SplashScreen"]["CONNECTING"];
 		posLength = 0;
 		while(posLength < labelToDisplay.Length){
@@ -889,7 +889,7 @@ public class IntroScript : MonoBehaviour {
 			yield return new WaitForSeconds(speedLetters);
 		}
 		yield return new WaitForSeconds(1f);
-		ProfileManager.Instance.LoadProfiles();
+		if(!ProfileManager.Instance.alreadyLoaded) ProfileManager.Instance.LoadProfiles();
 		var verif = ProfileManager.Instance.verifyCurrentProfile();
 		if(verif){
 			labelToDisplay = TextManager.Instance.texts["SplashScreen"]["CONNECTING_SUCCEED"].Replace("USER_NAME", ProfileManager.Instance.currentProfile.name);

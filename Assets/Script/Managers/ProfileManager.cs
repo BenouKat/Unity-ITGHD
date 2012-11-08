@@ -12,6 +12,8 @@ public class ProfileManager{
 	
 	private static ProfileManager instance;
 	
+	public bool alreadyLoaded;
+	
 	public static ProfileManager Instance{
 		get{
 			if(instance == null){ 
@@ -28,6 +30,7 @@ public class ProfileManager{
 	private ProfileManager ()
 	{
 		profiles = new List<Profile>();
+		alreadyLoaded = false;
 	}
 	
 	public void CreateTestProfile(){
@@ -101,7 +104,7 @@ public class ProfileManager{
 	}
 	
 	public void LoadProfiles () {
-	
+		
 		if(Directory.Exists(Application.dataPath + DataManager.Instance.DEBUGPATH + "Profiles")){
 			foreach(var file in Directory.GetFiles(Application.dataPath + DataManager.Instance.DEBUGPATH + "Profiles").Where(c => c.Contains(".profile"))){
 				
@@ -114,6 +117,7 @@ public class ProfileManager{
 				
 				ProfileManager.Instance.profiles.Add(pr);
 			}
+			alreadyLoaded = true;
 		}
 	}
 	
