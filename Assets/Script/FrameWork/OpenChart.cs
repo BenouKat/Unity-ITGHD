@@ -841,7 +841,7 @@ public class OpenChart{
 		
 		for(int i=0; i<100; i++){
 			if(i == 0){
-				s.intensityGraph[i] = 50;
+				s.intensityGraph[i] = 0;
 			}else{
 				if(listNumberStep.Where(c => c.Key <= thecut*i).Count() == 0){
 					s.intensityGraph[i] = thelastgoodvalue;

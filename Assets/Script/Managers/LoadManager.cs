@@ -42,7 +42,6 @@ public class LoadManager{
 			var path = Directory.GetFiles(el).FirstOrDefault(c => c.Contains(".png") || c.Contains(".jpg") || c.Contains(".jpeg"));
 			if(!String.IsNullOrEmpty(path)){
 				WWW www = new WWW("file://" + path);
-				Debug.Log(@path);
        			Texture2D texTmp = new Texture2D(256, 128);
 				while(!www.isDone){}
         		www.LoadImageIntoTexture(texTmp);
@@ -99,7 +98,6 @@ public class LoadManager{
 			var path = Directory.GetFiles(el).FirstOrDefault(c => c.Contains(".png") || c.Contains(".jpg") || c.Contains(".jpeg"));
 			if(!String.IsNullOrEmpty(path)){
 				WWW www = new WWW("file://" + path);
-				Debug.Log(@path);
        			Texture2D texTmp = new Texture2D(256, 128);
 				while(!www.isDone){}
         		www.LoadImageIntoTexture(texTmp);

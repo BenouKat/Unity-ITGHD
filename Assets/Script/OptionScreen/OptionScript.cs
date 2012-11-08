@@ -64,7 +64,7 @@ public class OptionScript : MonoBehaviour {
 	//Video
 	public bool enableBloom;
 	public bool enableDOF;
-	public int antialiasing;
+	public int antiAliasing;
 	
 	//KeyMapping
 	//8 game objet + 8 label / button + un label général
@@ -132,12 +132,13 @@ public class OptionScript : MonoBehaviour {
 		
 		enableBloom = DataManager.Instance.enableBloom;
 		enableDOF = DataManager.Instance.enableDepthOfField;
-		antialiasing = DataManager.Instance.antiAliasing;
+		antiAliasing = DataManager.Instance.antiAliasing;
 		
-		networkValue[ProfileDownloadType.NEVER] = "Ne jamais partager les profiles";
-		networkValue[ProfileDownloadType.NOTMANY] = "Ne pas stocker plus de 10 profiles";
-		networkValue[ProfileDownloadType.MANY] = "Ne pas stocker plus de 50 profiles";
-		networkValue[ProfileDownloadType.ALL] = "Stocker tous les profiles";
+		networkValue = new string[4];
+		networkValue[(int)ProfileDownloadType.NEVER] = "Ne jamais partager les profiles";
+		networkValue[(int)ProfileDownloadType.NOTMANY] = "Ne pas stocker plus de 10 profiles";
+		networkValue[(int)ProfileDownloadType.MANY] = "Ne pas stocker plus de 50 profiles";
+		networkValue[(int)ProfileDownloadType.ALL] = "Stocker tous les profiles";
 	}
 	
 	void OnGUI(){
@@ -251,15 +252,15 @@ public class OptionScript : MonoBehaviour {
 			
 			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width + offsetBetweenLabel*Screen.width, posLabelListChoice.y*Screen.height, sizeArrowButton.x*Screen.width, sizeArrowButton.y*Screen.height), "", "rightArrow")){
 				PDT++;
-				if(PDT > 3) PDT = 0;
+				if((int)PDT > 3) PDT = (ProfileDownloadType)0;
 			}
 			
 			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width - offsetBetweenLabel*Screen.width, posLabelListChoice.y*Screen.height, sizeArrowButton.x*Screen.width, sizeArrowButton.y*Screen.height), "", "leftArrow")){
 				PDT--;
-				if(PDT < 0) PDT = 3;
+				if((int)PDT < 0) PDT = (ProfileDownloadType)3;
 			}
 			
-			GUI.Label(new Rect(posLabelListChoice.x*Screen.width, posLabelListChoice.y*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), networkValue[PDT]);
+			GUI.Label(new Rect(posLabelListChoice.x*Screen.width, posLabelListChoice.y*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), networkValue[(int)PDT]);
 			//Faire une anim ?
 			break;
 			
@@ -318,7 +319,7 @@ public class OptionScript : MonoBehaviour {
 			for(int i=0; i<8; i++){
 				var supX = i < 4 ? i : i - 4;
 				var supY = i < 4 ? 0 : 1;
-				GUI.Label(new Rect(labelMapping.x*Screen.width + supX*offsetXlabelMapping*Screen.width, labelMapping.y*Screen.height + supY*offsetYlabelMapping*Screen.width, labelMapping.width*Screen.width, labelMapping.height*Screen.height), giveLabelForIndex(i) + giveCodeForIndex(i).ToString();
+				GUI.Label(new Rect(labelMapping.x*Screen.width + supX*offsetXlabelMapping*Screen.width, labelMapping.y*Screen.height + supY*offsetYlabelMapping*Screen.width, labelMapping.width*Screen.width, labelMapping.height*Screen.height), giveLabelForIndex(i) + giveCodeForIndex(i).ToString());
 			}
 			
 			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["MAPPING_CHOICE"]);
@@ -458,60 +459,45 @@ public class OptionScript : MonoBehaviour {
 		{
 			case 2:
 			return DataManager.Instance.KeyCodeUp;
-			break;
 			case 1:
 			return DataManager.Instance.KeyCodeDown;
-			break;
 			case 0:
 			return DataManager.Instance.KeyCodeLeft;
-			break;
 			case 3:
 			return DataManager.Instance.KeyCodeRight;
-			break;
 			case 6:
 			return DataManager.Instance.SecondaryKeyCodeUp;
-			break;
 			case 5:
 			return DataManager.Instance.SecondaryKeyCodeDown;
-			break;
 			case 4:
 			return DataManager.Instance.SecondaryKeyCodeLeft;
-			break;
 			case 7:
 			return DataManager.Instance.SecondaryKeyCodeRight;
-			break;
 		}
+		return KeyCode.None;
 	}
 	
 	string giveLabelForIndex(int i){
 		switch(i){
 			case 0:
 			return "Left : ";
-			break;
 			case 1:
 			return "Down : ";
-			break;
 			case 2:
 			return "Up : ";
-			break;
 			case 3:
 			return "Right : ";
-			break;
 			case 4:
 			return "Secondary Left : ";
-			break;
 			case 5:
 			return "Secondary Down : ";
-			break;
 			case 6:
 			return "Secondary Up : ";
-			break;
 			case 7:
 			return "Secondary Right : ";
-			break;
 			
 		}
-	
+		return "";
 	}
 	
 	
