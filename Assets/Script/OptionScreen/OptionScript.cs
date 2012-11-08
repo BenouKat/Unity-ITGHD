@@ -78,9 +78,17 @@ public class OptionScript : MonoBehaviour {
 	6 : Up 2
 	7 : Right 2
 	*/
-	public Rect[] labelMapping;
+	public Rect labelMapping;
+	public float offsetYlabelMapping;
+	public float offsetXlabelMapping;
 	public Rect labelDialogMap;
-	public Rect labelConfirm;
+	public float offsetDialogMap;
+	public Rect labelInfo;
+	public int choicePosition;
+	
+	public Transform[] form1;
+	public Transform[] form2;
+	public Transform[] form3;
 	
 	//General
 	public Rect posButtonCache;
@@ -232,6 +240,8 @@ public class OptionScript : MonoBehaviour {
 			
 		//Network
 			case "Network":
+			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["NETWORK_CHOICE"]);
+			
 			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width + offsetBetweenLabel*Screen.width, posLabelListChoice.y*Screen.height, sizeArrowButton.x*Screen.width, sizeArrowButton.y*Screen.height), "", "rightArrow")){
 				PDT++;
 				if(PDT > 3) PDT = 0;
@@ -266,6 +276,7 @@ public class OptionScript : MonoBehaviour {
 				}
 			}
 			
+			
 			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height + offsetLabelYOption*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["VIDEO_DOF"]);
 			if(enableDOF){
 				if(GUI.Button(new Rect(posButtonOption.x*Screen.width, posButtonOption.y*Screen.height + offsetLabelYOption*Screen.height, posButtonOption.width*Screen.width, posButtonOption.height*Screen.height), "", "GreenButton")){
@@ -277,6 +288,7 @@ public class OptionScript : MonoBehaviour {
 				}
 			}
 			
+			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["VIDEO_AA"]);
 			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width + offsetBetweenLabel*Screen.width, posLabelListChoice.y*Screen.height + offsetLabelYOption*2*Screen.height, sizeArrowButton.x*Screen.width, sizeArrowButton.y*Screen.height), "", "rightArrow")){
 				antiAliasing += 2;
 				if(antiAliasing > 8) antiAliasing = 0;
@@ -289,6 +301,36 @@ public class OptionScript : MonoBehaviour {
 			
 			GUI.Label(new Rect(posLabelListChoice.x*Screen.width, posLabelListChoice.y*Screen.height + offsetLabelYOption*2*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), "x" + antiAliasing);
 			//Faire une anim ?
+			break;
+			
+			
+		//Key Mapping
+			case "Key Mapping":
+			GUI.Label(new Rect(labelDialogMap.x*Screen.width, labelDialogMap.y*Screen.height, labelDialogMap.width*Screen.width, labelDialogMap.height*Screen.height), "Primary");
+			GUI.Label(new Rect(labelDialogMap.x*Screen.width, labelDialogMap.y*Screen.height, labelDialogMap.width*Screen.width, labelDialogMap.height*Screen.height), "Secondary");
+			for(int i=0; i<8; i++){
+				var supX = i < 4 ? i : i - 4;
+				var supY = i < 4 ? 0 : 1;
+				GUI.Label(new Rect(labelMapping.x*Screen.width + supX*offsetXlabelMapping*Screen.width, labelMapping.y*Screen.height + supY*offsetYlabelMapping*Screen.width, labelMapping.width*Screen.width, labelMapping.height*Screen.height), giveLabelForIndex(i) + giveCodeForIndex(i).ToString();
+			}
+			
+			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["MAPPING_CHOICE"]);
+			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width + offsetBetweenLabel*Screen.width, posLabelListChoice.y*Screen.height, sizeArrowButton.x*Screen.width, sizeArrowButton.y*Screen.height), "", "rightArrow")){
+				choicePosition += 1;
+				if(choicePosition > 2) choicePosition = 0;
+			}
+			
+			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width - offsetBetweenLabel*Screen.width, posLabelListChoice.y*Screen.height, sizeArrowButton.x*Screen.width, sizeArrowButton.y*Screen.height), "", "leftArrow")){
+				choicePosition -= 1;
+				if(choicePosition < 0) choicePosition = 2;
+			}
+			
+			GUI.Label(new Rect(posLabelListChoice.x*Screen.width, posLabelListChoice.y*Screen.height + offsetLabelYOption*2*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), choicePosition == 0 ? "KeyBoard" : choicePosition == 1 ? "Arcade Stick" : "DancePad");
+			
+			GUI.Label(new Rect(labelInfo.x*Screen.width, labelInfo.y*Screen.height, labelInfo.width*Screen.width, labelInfo.height*Screen.height), textOption["MAPPING_INFO"]);
+			
+			//Faire une anim ?
+			
 			break;
 		}
 		
@@ -400,6 +442,69 @@ public class OptionScript : MonoBehaviour {
 			bgScreen.renderer.material.color = Color.Lerp(bgScreen.renderer.material.color , colorBasicScreen , lerpColorScreenFade);
 			lerpColorScreenFade += speedColorScreenFade*Time.deltaTime;
 		}
+	}
+	
+	
+	
+	KeyCode giveCodeForIndex(int i){
+		switch(i)
+		{
+			case 2:
+			return DataManager.Instance.KeyCodeUp;
+			break;
+			case 1:
+			return DataManager.Instance.KeyCodeDown;
+			break;
+			case 0:
+			return DataManager.Instance.KeyCodeLeft;
+			break;
+			case 3:
+			return DataManager.Instance.KeyCodeRight;
+			break;
+			case 6:
+			return DataManager.Instance.SecondaryKeyCodeUp;
+			break;
+			case 5:
+			return DataManager.Instance.SecondaryKeyCodeDown;
+			break;
+			case 4:
+			return DataManager.Instance.SecondaryKeyCodeLeft;
+			break;
+			case 7:
+			return DataManager.Instance.SecondaryKeyCodeRight;
+			break;
+		}
+	}
+	
+	string giveLabelForIndex(int i){
+		switch(i){
+			case 0:
+			return "Left : ";
+			break;
+			case 1:
+			return "Down : ";
+			break;
+			case 2:
+			return "Up : ";
+			break;
+			case 3:
+			return "Right : ";
+			break;
+			case 4:
+			return "Secondary Left : ";
+			break;
+			case 5:
+			return "Secondary Down : ";
+			break;
+			case 6:
+			return "Secondary Up : ";
+			break;
+			case 7:
+			return "Secondary Right : ";
+			break;
+			
+		}
+	
 	}
 	
 	
