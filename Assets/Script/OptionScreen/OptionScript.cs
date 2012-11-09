@@ -16,6 +16,7 @@ public class OptionScript : MonoBehaviour {
 	
 	
 	private GameObject theSelected;
+	private GameObject theSelectedTouch;
 	public GameObject cubeIcon;
 	public GameObject screen;
 	public GameObject bgScreen;
@@ -29,6 +30,8 @@ public class OptionScript : MonoBehaviour {
 	private float loadColor;
 	public float speedColor;
 	public float speedColorFade;
+	
+	
 	
 	//Fade Option
 	private float lerpColorScreenFade;
@@ -88,9 +91,20 @@ public class OptionScript : MonoBehaviour {
 	public Rect labelInfo;
 	public int choicePosition;
 	
+	public GameObject[] formObject;
 	public Transform[] form1;
 	public Transform[] form2;
 	public Transform[] form3;
+	public float speedMovementMapping;
+	private bool inPosition;
+	
+	private float fadeColorMapping;
+	public float speedColorMapping;
+	
+	private float alphaBlackMapping;
+	public float speedFadeBlackMapping;
+	private int indexInputSelected;
+	private bool inInputEntryMode;
 	
 	//General
 	public Rect posButtonCache;
@@ -144,6 +158,10 @@ public class OptionScript : MonoBehaviour {
 		
 		fadeOut = false;
 		fm = gameObject.getComponent<FadeManager>();
+		inPosition = false;
+		fadeColorMapping = 0f;
+		alphaBlackMapping = 0f;
+		inInputEntryMode = false;
 	}
 	
 	void OnGUI(){
@@ -160,7 +178,15 @@ public class OptionScript : MonoBehaviour {
 				break;
 			case StateOption.OPTION:
 				OnGUIOptionFadeIn();
+				OnGUIOptionBlackLabel();
 				OnGUIOption();
+				break;
+			case StateOption.SCREENFADEOUT:
+				OnGUIOptionFadeIn();
+				break;
+			case StateOption.CUBEFADEOUT:
+				OnGUIOptionSelect();
+				OnGUIOptionFadeIn();
 				break;
 		}
 	}
@@ -185,6 +211,79 @@ public class OptionScript : MonoBehaviour {
 		GUI.Label(new Rect(labelOption.x*Screen.width + 1, labelOption.y*Screen.height + 1, labelOption.width*Screen.width, labelOption.height*Screen.height), optionSelected);
 		GUI.color = new Color(theSelected.renderer.material.color.r, theSelected.renderer.material.color.g, theSelected.renderer.material.color.b, 1 - alphaFadeIn);
 		GUI.Label(new Rect(labelOption.x*Screen.width, labelOption.y*Screen.height, labelOption.width*Screen.width, labelOption.height*Screen.height), optionSelected);
+	}
+	
+	void OnGUIOptionBlackLabel(){
+		switch(theSelected.name)
+		{
+			GUI.Color = (0f, 0f, 0f, 1f);
+			case "General":
+			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["GENERAL_GOS"]);		
+			//MouseSpeed
+			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1 + offsetLabelYOption*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["GENERAL_MOUSESPEED"]);
+		
+			//Quickmod
+			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1 + offsetLabelYOption*2*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["GENERAL_QUICKMODE"]);
+			//Padmod
+			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1 + offsetLabelYOption*3*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["GENERAL_PADMODE"]);
+			
+			//cache
+			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1 + offsetLabelYOption*4*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["GENERAL_USECACHE"]);
+
+			break;
+			
+		//Network
+			case "Network":
+			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["NETWORK_CHOICE"]);
+			
+			GUI.Label(new Rect(posLabelListChoice.x*Screen.width + 1, posLabelListChoice.y*Screen.height + 1, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), networkValue[(int)PDT]);
+			break;
+			
+			
+		//Audio
+			case "Audio":
+			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["AUDIO_GENERAL"]);
+			break;
+			
+		//Video
+			case "Video":
+			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["VIDEO_BLOOM"]);
+
+			
+			
+			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1 + offsetLabelYOption*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["VIDEO_DOF"]);
+
+			
+			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["VIDEO_AA"]);
+
+			
+			GUI.Label(new Rect(posLabelListChoice.x*Screen.width + 1, posLabelListChoice.y*Screen.height + 1 + offsetLabelYOption*2*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), "x" + antiAliasing);
+
+			break;
+			
+			
+		//Key Mapping
+			case "Key Mapping":
+			GUI.Label(new Rect(labelDialogMap.x*Screen.width + 1, labelDialogMap.y*Screen.height + 1, labelDialogMap.width*Screen.width, labelDialogMap.height*Screen.height), "Primary");
+			GUI.Label(new Rect(labelDialogMap.x*Screen.width + 1, labelDialogMap.y*Screen.height + 1, labelDialogMap.width*Screen.width, labelDialogMap.height*Screen.height), "Secondary");
+			for(int i=0; i<8; i++){
+				var supX = i < 4 ? i : i - 4;
+				var supY = i < 4 ? 0 : 1;
+				GUI.Label(new Rect(labelMapping.x*Screen.width + 1 + supX*offsetXlabelMapping*Screen.width, labelMapping.y*Screen.height + 1 + supY*offsetYlabelMapping*Screen.width, labelMapping.width*Screen.width, labelMapping.height*Screen.height), giveLabelForIndex(i) + giveCodeForIndex(i).ToString());
+			}
+			
+			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["MAPPING_CHOICE"]);
+
+			
+			GUI.Label(new Rect(posLabelListChoice.x*Screen.width + 1, posLabelListChoice.y*Screen.height + 1 + offsetLabelYOption*2*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), choicePosition == 0 ? "KeyBoard" : choicePosition == 1 ? "Arcade Stick" : "DancePad");
+			
+			GUI.Label(new Rect(labelInfo.x*Screen.width + 1, labelInfo.y*Screen.height + 1, labelInfo.width*Screen.width, labelInfo.height*Screen.height), inInputEntryMode ? textOption["MAPPING_INPUT"] : textOption["MAPPING_INFO"]);
+			
+			//Faire une anim ?
+			
+			break;
+		}
+	
 	}
 	
 	
@@ -324,23 +423,35 @@ public class OptionScript : MonoBehaviour {
 			for(int i=0; i<8; i++){
 				var supX = i < 4 ? i : i - 4;
 				var supY = i < 4 ? 0 : 1;
+				if(indexInputSelected == -1){
+					GUI.Color = new Color(1f, 1f, 1f, 1f);
+				}else if(indexInputSelected != i){
+					GUI.Color = new Color(1 - 0.6f*fadeColorMapping, 1 - 0.6f*fadeColorMapping, 1 - 0.6f*fadeColorMapping, 1f);
+				}
 				GUI.Label(new Rect(labelMapping.x*Screen.width + supX*offsetXlabelMapping*Screen.width, labelMapping.y*Screen.height + supY*offsetYlabelMapping*Screen.width, labelMapping.width*Screen.width, labelMapping.height*Screen.height), giveLabelForIndex(i) + giveCodeForIndex(i).ToString());
+				GUI.Color = new Color(1f, 1f, 1f, 1f);
 			}
 			
 			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["MAPPING_CHOICE"]);
-			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width + offsetBetweenLabel*Screen.width, posLabelListChoice.y*Screen.height, sizeArrowButton.x*Screen.width, sizeArrowButton.y*Screen.height), "", "rightArrow")){
+			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width + offsetBetweenLabel*Screen.width, posLabelListChoice.y*Screen.height, sizeArrowButton.x*Screen.width, sizeArrowButton.y*Screen.height), "", "rightArrow") && !inInputEntryMode){
 				choicePosition += 1;
 				if(choicePosition > 2) choicePosition = 0;
+				inPosition = false;
 			}
 			
-			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width - offsetBetweenLabel*Screen.width, posLabelListChoice.y*Screen.height, sizeArrowButton.x*Screen.width, sizeArrowButton.y*Screen.height), "", "leftArrow")){
+			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width - offsetBetweenLabel*Screen.width, posLabelListChoice.y*Screen.height, sizeArrowButton.x*Screen.width, sizeArrowButton.y*Screen.height), "", "leftArrow") && !inInputEntryMode){
 				choicePosition -= 1;
 				if(choicePosition < 0) choicePosition = 2;
+				inPosition = false;
 			}
 			
 			GUI.Label(new Rect(posLabelListChoice.x*Screen.width, posLabelListChoice.y*Screen.height + offsetLabelYOption*2*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), choicePosition == 0 ? "KeyBoard" : choicePosition == 1 ? "Arcade Stick" : "DancePad");
 			
-			GUI.Label(new Rect(labelInfo.x*Screen.width, labelInfo.y*Screen.height, labelInfo.width*Screen.width, labelInfo.height*Screen.height), textOption["MAPPING_INFO"]);
+			GUI.Color = new Color(1f, 1f, 1f, alphaBlackMapping);
+			GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), tex["black"]);
+			GUI.Color = new Color(1f, 1f, 1f, 1f);
+			
+			GUI.Label(new Rect(labelInfo.x*Screen.width, labelInfo.y*Screen.height, labelInfo.width*Screen.width, labelInfo.height*Screen.height), inInputEntryMode ? textOption["MAPPING_INPUT"] : textOption["MAPPING_INFO"]);
 			
 			//Faire une anim ?
 			
@@ -349,14 +460,25 @@ public class OptionScript : MonoBehaviour {
 		
 		//Mettre un label d'aide
 		
-		if(GUI.Button(new Rect(posButtonBack.x*Screen.width, posButtonBack.y*Screen.height, posButtonBack.width*Screen.width, posButtonBack.height*Screen.height), "Save")){
-			//Accept
-		}
+		if(!inInputEntryMode){
+			if(GUI.Button(new Rect(posButtonBack.x*Screen.width, posButtonBack.y*Screen.height, posButtonBack.width*Screen.width, posButtonBack.height*Screen.height), "Save")){
+				bgScreen.renderer.material.color = new Color(bgScreen.renderer.material.color.r*10f, bgScreen.renderer.material.color.g*10f, bgScreen.renderer.material.color.b*10f, 1f);
+				optionMenuMode = StateOption.SCREENFADEOUT;
+			}
+			
+			if(GUI.Button(new Rect(posButtonCancel.x*Screen.width, posButtonCancel.y*Screen.height, posButtonCancel.width*Screen.width, posButtonCancel.height*Screen.height), "Cancel")){
+				bgScreen.renderer.material.color = new Color(bgScreen.renderer.material.color.r*10f, bgScreen.renderer.material.color.g*10f, bgScreen.renderer.material.color.b*10f, 1f);
+				optionMenuMode = StateOption.SCREENFADEOUT;
+			}
+		}else{
+			if (Event.current.isKey)
+			{
+				saveCodeForIndex(indexInputSelected, Event.current.keyCode);
+				inInputEntryMode = false;
+				indexInputSelected = -1;
+			}
 		
-		if(GUI.Button(new Rect(posButtonCancel.x*Screen.width, posButtonCancel.y*Screen.height, posButtonCancel.width*Screen.width, posButtonCancel.height*Screen.height), "Cancel")){
-			//Cancel
 		}
-		
 	}
 	
 	// Update is called once per frame
@@ -372,8 +494,14 @@ public class OptionScript : MonoBehaviour {
 			case StateOption.SCREENFADEIN:
 				UpdateScreenFadeIn();
 				break;
+			case StateOption.SCREENFADEOUT:
+				UpdateScreenFadeOut();
+				break;
+			case StateOption.CUBEFADEOUT:
+				UpdateCubeFadeOut();
+				break;
 			case StateOption.OPTION:
-				UpdateScreenFadeIn();
+				UpdateMapping();
 				break;
 		}
 	}
@@ -452,7 +580,12 @@ public class OptionScript : MonoBehaviour {
 			screen.transform.position = new Vector3(0f, 0f, 0f);
 			bgScreen.renderer.material.color = new Color(bgScreen.renderer.material.color.r*10f, bgScreen.renderer.material.color.g*10f, bgScreen.renderer.material.color.b*10f, 1f);
 			optionMenuMode = StateOption.OPTION;
-		
+			
+			if(theSelected.name == "Network"){
+				foreach(var obj in formObject){
+					formObject.renderer.enabled = true;
+				}
+			}
 		}else{
 			screen.transform.position = Vector3.Lerp(screen.transform.position, new Vector3(0f, 0f, 0f), speedFadeScreen*Time.deltaTime);
 		}
@@ -461,6 +594,109 @@ public class OptionScript : MonoBehaviour {
 			bgScreen.renderer.material.color = Color.Lerp(bgScreen.renderer.material.color , colorBasicScreen , lerpColorScreenFade);
 			lerpColorScreenFade += speedColorScreenFade*Time.deltaTime;
 		}
+	}
+	
+	void UpdateScreenFadeOut(){
+		if(screen.transform.position.y > 19.9f && bgScreen.renderer.material.color.a > 0f){
+			screen.transform.position = new Vector3(0f, 20f, 0f);
+			optionMenuMode = StateOption.CUBEFADEOUT;
+			if(theSelected.name == "Network"){
+				foreach(var obj in formObject){
+					formObject.renderer.enabled = false;
+				}
+			}
+		}else{
+			screen.transform.position = Vector3.Lerp(screen.transform.position, new Vector3(0f, 20f, 0f), speedFadeScreen*Time.deltaTime);
+		}
+		
+		if(lerpColorScreenFade < 1f){
+			bgScreen.renderer.material.color = Color.Lerp(bgScreen.renderer.material.color , new Color(colorBasicScreen.r, colorBasicScreen.g, colorBasicScreen.b, 0f) , lerpColorScreenFade);
+			lerpColorScreenFade += speedColorScreenFade*Time.deltaTime;
+		}
+	}
+	
+	
+	void UpdateCubeFadeOut(){
+		for(int i = 0; i < menuItem.Length;i++){
+			alphaFadeIn += speedFadeIn*Time.deltaTime;
+			menuItem[i].renderer.material.color = new Color(menuItem[i].renderer.material.color.r, menuItem[i].renderer.material.color.g, menuItem[i].renderer.material.color.b, alphaFadeIn);
+			cubeIcon.renderer.material.color = new Color(theSelected.renderer.material.color.r, theSelected.renderer.material.color.g, theSelected.renderer.material.color.b, 1 - alphaFadeIn);
+			if(alphaFadeIn >= 1){
+				optionMenuMode = StateOption.OPTIONSELECTION;
+			}
+		}
+	}
+	
+	
+	void UpdateMapping(){
+	
+		if(theSelected.name == "Network"){
+			if(!inPosition){
+				var inPosition = true;
+				for(int i=0; i< formObject.Length; i++){
+					var targetedTransform = choicePosition == 0 ? form1[i] : choicePosition == 1 ? form2[i] : form3[i];
+					formObject[i].transform.position = Vector3.Lerp(formObject[i].transform.position, targetedTransform.position, speedMovementMapping*Time.deltaTime);
+					if(inPosition && Vector3.Distance(formObject[i].transform.position, targetedTransform.position) > 0.01f){
+						inPosition = false;
+					}
+				}
+			}
+		
+			if(!inInputEntryMode){
+				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);	
+				RaycastHit hit;
+						
+				if(Physics.Raycast(ray, out hit))
+				{
+					
+					var theGo = hit.transform.gameObject;
+					if(theGo != null && theGo.tag == "MainMenuItem"){
+						theSelectedTouch = theGo;
+						if(indexInputSelected == -1) indexInputSelected = System.Convert.ToInt32(theSelectedTouch.name.Replace("Key", ""));
+						if(fadeColorMapping < 1f){
+							foreach(var obj in formObject){
+								formObject.renderer.material.color = Color(formObject.renderer.material.color, new Color(0.2f, 0.2f, 0.2f, 1f), fadeColorMapping);
+							}
+							fadeColorMapping += speedColorMapping*Time.deltaTime;
+						}
+						
+					}else if(theSelectedTouch != null){
+						theSelectedTouch = null;
+						indexInputSelected = -1;
+						if(fadeColorMapping > 0f){
+							foreach(var obj in formObject){
+								formObject.renderer.material.color = Color(formObject.renderer.material.color, new Color(0.2f, 0.2f, 0.2f, 1f), fadeColorMapping);
+							}
+							fadeColorMapping -= speedColorMapping*Time.deltaTime;
+						}
+					}
+					
+				}else if(theSelectedTouch != null){
+					theSelectedTouch = null;
+					indexInputSelected = -1;
+					if(fadeColorMapping > 0f){
+						foreach(var obj in formObject){
+							formObject.renderer.material.color = Color(formObject.renderer.material.color, new Color(0.2f, 0.2f, 0.2f, 1f), fadeColorMapping);
+						}
+						fadeColorMapping -= speedColorMapping*Time.deltaTime;
+					}
+				}
+			
+			
+				if(theSelectedTouch != null && Input.GetMouseButtonDown(0)){
+					inInputEntryMode = true;
+				}
+			}
+			
+			if(inInputEntryMode && alphaBlackMapping < 0.8f){
+				alphaBlackMapping += speedFadeBlackMapping*Time.deltaTime;
+			}else if(!inInputEntryMode && alphaBlackMapping > 0f){
+				alphaBlackMapping -= speedFadeBlackMapping*Time.deltaTime;
+			}
+		
+		}
+	
+	
 	}
 	
 	
@@ -486,6 +722,31 @@ public class OptionScript : MonoBehaviour {
 			return DataManager.Instance.SecondaryKeyCodeRight;
 		}
 		return KeyCode.None;
+	}
+	
+	
+	void saveCodeForIndex(int i, KeyCode k){
+		switch(i)
+		{
+			case 2:
+			DataManager.Instance.KeyCodeUp = k;
+			case 1:
+			DataManager.Instance.KeyCodeDown = k;
+			case 0:
+			DataManager.Instance.KeyCodeLeft = k;
+			case 3:
+			DataManager.Instance.KeyCodeRight = k;
+			case 6:
+			DataManager.Instance.SecondaryKeyCodeUp = k;
+			case 5:
+			DataManager.Instance.SecondaryKeyCodeDown = k;
+			case 4:
+			DataManager.Instance.SecondaryKeyCodeLeft = k;
+			case 7:
+			DataManager.Instance.SecondaryKeyCodeRight = k;
+		}
+		
+		
 	}
 	
 	string giveLabelForIndex(int i){
