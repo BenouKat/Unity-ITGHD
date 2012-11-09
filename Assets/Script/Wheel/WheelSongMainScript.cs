@@ -55,6 +55,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	private float totalAlpha;
 	private string textButton;
 	private float timeFade;
+	private ErrorLabel error;
 	
 	//PackList
 	private int numberPack;
@@ -219,6 +220,8 @@ public class WheelSongMainScript : MonoBehaviour {
 	private Dictionary<string, Dictionary<Difficulty, Song>> songList;
 	private string search;
 	private string searchOldValue;
+	private Rect posSwitchSearch;
+	
 	//Tri
 	
 	
@@ -261,7 +264,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		if(!LoadManager.Instance.alreadyLoaded) ProfileManager.Instance.CreateTestProfile();
 		if(!LoadManager.Instance.alreadyLoaded) TextManager.Instance.LoadTextFile();
 		if(!LoadManager.Instance.alreadyLoaded) LoadManager.Instance.Loading();
-		
+		error = GetComponent<ErrorLabel>();
 		
 		actualBanner = new Texture2D(256,512);
 		
@@ -545,6 +548,13 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 			//Perte de focus ?
 			#region SearchBar
+				if(GUI.Button(new Rect(posSwitchSearch.x*Screen.width, posSwitchSearch.y*Screen.height, posSwitchSearch.width*Screen.width, posSwitchSearch.height*Screen.height), sortToString(DataManager.Instance.sortMethod), "labelGoLittle"){
+					DataManager.Instance.sortMethod++;
+					if((int)DataManager.Instance.sortMethod > (int)Sort.BPM){
+						DataManager.Instance.sortMethod = (Sort)0;
+					}
+					search = "";
+				}
 				search = GUI.TextArea(new Rect(SearchBarPos.x*Screen.width, SearchBarPos.y*Screen.height, SearchBarPos.width*Screen.width, SearchBarPos.height*Screen.height), search.Trim());
 				
 				if(search != searchOldValue){
@@ -568,6 +578,7 @@ public class WheelSongMainScript : MonoBehaviour {
 						createCubeSong(songList);
 						activeCustomPack();
 						StartCoroutine(AnimSearchBar(false));
+						error.displayError = !(DataManager.Instance.sortMethod >= Sort.DIFFICULTY && !Int32.TryParse(contains, out num));
 					}else if(!LoadManager.Instance.isAllowedToSearch(search) && searchOldValue.Trim().Length > search.Trim().Length){
 						songList.Clear();
 						if(particleOnPlay != null){
@@ -587,6 +598,7 @@ public class WheelSongMainScript : MonoBehaviour {
 						activePack(packs.ElementAt(nextnumberPack).Key);
 						DestroyCustomCubeSong();
 						StartCoroutine(AnimSearchBar(true));
+						error.displayError = false;
 					}
 					if(songList.Count == 0 && LoadManager.Instance.isAllowedToSearch(search)){
 						GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
@@ -1237,9 +1249,10 @@ public class WheelSongMainScript : MonoBehaviour {
 				}
 			}
 			
-			if(time > 3f){
+			if(time > 1f){
 				if(alphaBlack < 1){
 					alphaBlack += Time.deltaTime/speedAlphaBlack;	
+					audio.volume -= Time.deltaTime/speedAlphaBlack;	
 				}else{
 					Application.LoadLevel("ChartScene");
 				}
@@ -2191,6 +2204,27 @@ public class WheelSongMainScript : MonoBehaviour {
 		}else{
 			return res;
 		}
+	}
+	
+	
+	string sortToString(Sort s){
+		switch(s){
+			case Sort.NAME:
+				return "Name contain : ";
+			case Sort.STARTWITH:
+				return "Name start : ";
+			case Sort.ARTIST:
+				return "Artist : ";
+			case Sort.STEPARTIST:
+				return "Stepartist : ";
+			case Sort.DIFFICULTY:
+				return "Difficulty : ";
+			case Sort.BPM:
+				return "BPM";
+			default:
+				return false;
+		}
+	}
 	}
 	#endregion
 }

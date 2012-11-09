@@ -601,6 +601,8 @@ public class DataManager{
 			return "MainMenu";
 		case "chart":
 			return "ChartScene";
+		case "option":
+			return "OptionScreen";
 		default:
 			return "fail";
 		}

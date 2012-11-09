@@ -21,6 +21,7 @@ public class OptionScript : MonoBehaviour {
 	public GameObject bgScreen;
 	public GameObject[] menuItem;
 	public GUISkin skin;
+	private FadeManager fm;
 	
 	
 	private Vector3[] Rotate;
@@ -46,6 +47,7 @@ public class OptionScript : MonoBehaviour {
 	//states
 	private StateOption optionMenuMode;
 	private string optionSelected;
+	private bool fadeOut;
 	
 	//Option variable
 	public Rect posLabelOption;
@@ -139,6 +141,9 @@ public class OptionScript : MonoBehaviour {
 		networkValue[(int)ProfileDownloadType.NOTMANY] = "Ne pas stocker plus de 10 profiles";
 		networkValue[(int)ProfileDownloadType.MANY] = "Ne pas stocker plus de 50 profiles";
 		networkValue[(int)ProfileDownloadType.ALL] = "Stocker tous les profiles";
+		
+		fadeOut = false;
+		fm = gameObject.getComponent<FadeManager>();
 	}
 	
 	void OnGUI(){
@@ -417,10 +422,16 @@ public class OptionScript : MonoBehaviour {
 			}
 			
 			
-			if(theSelected != null && Input.GetMouseButtonDown(0)){
-				if(theSelected.transform.GetChild(0).particleSystem.isPlaying) theSelected.transform.GetChild(0).particleSystem.Stop();
-				optionSelected = theSelected.name;
-				optionMenuMode = StateOption.CUBEFADEIN;
+			if(theSelected != null && Input.GetMouseButtonDown(0) && !fadeOut){
+				if(theSelected.name == "Back"){
+					fadeOut = true;
+					fm.FadeIn("mainmenu");
+				}else{
+				
+					if(theSelected.transform.GetChild(0).particleSystem.isPlaying) theSelected.transform.GetChild(0).particleSystem.Stop();
+					optionSelected = theSelected.name;
+					optionMenuMode = StateOption.CUBEFADEIN;
+				}
 			}
 		
 	}

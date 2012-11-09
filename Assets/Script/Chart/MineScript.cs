@@ -61,6 +61,7 @@ public class MineScript : MonoBehaviour {
 		if(!missed){
 			if(associatedArrow.time <= igs.getTotalTimeChart() && (Input.GetKey(associatedKeyCode1) || Input.GetKey(associatedKeyCode2))){
 				this.pm();
+				secondAudioSource.Stop();
 				secondAudioSource.PlayOneShot(explosionSound);
 				igs.GainScoreAndLife("MINE");
 				igs.AddMineToScoreCombo();

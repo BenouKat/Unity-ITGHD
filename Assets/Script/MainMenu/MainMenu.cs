@@ -130,10 +130,6 @@ public class MainMenu : MonoBehaviour {
 		alphaError = 0f;
 		timeBack = 0f;
 		forbiddenTouchGUI = "";
-		
-		/* Remove Bloom
-			Camera.main.GetComponent<Bloom>.enabled = DataManager.Instance.enableBlood;
-		*/
 	}
 	
 	void OnGUI(){
@@ -459,6 +455,11 @@ public class MainMenu : MonoBehaviour {
 				UpdateSousMenu();
 			}
 			
+		}else if(selection == "Option"){
+			goToBack[selection].transform.position = Vector3.Lerp(goToBack[selection].transform.position, new Vector3(goToBack[selection].transform.position.x, 50f, goToBack[selection].transform.position.z), Time.deltaTime/speedChoice);
+			Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, new Vector3(Camera.main.transform.position.x, 60f, Camera.main.transform.position.z), Time.deltaTime/speedChoice);
+			audioSMainMenu.volume = 1f - (float)timeSelect/(float)timeFade;
+			timeSelect += Time.deltaTime;
 			
 		}else if(selection == "Back"){
 			

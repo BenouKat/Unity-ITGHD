@@ -514,12 +514,6 @@ public class InGameScript : MonoBehaviour {
 			fast.renderer.enabled = false;
 		}
 		
-		
-		//Bloom and DOF option
-		/*
-		CameraBackground.Camera.GetComponent<Bloom>.enabled = DataManager.Instance.enableBloom;
-		CameraBackground.Camera.GetComponent<DepthOfField34>.enabled = DataManager.Instance.enableBloom;
-		CameraLife.GetComponent<Bloom>.enabled = DataManager.Instance.enableBloom;*/
 	}
 	
 	
