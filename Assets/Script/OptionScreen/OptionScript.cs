@@ -157,7 +157,7 @@ public class OptionScript : MonoBehaviour {
 		networkValue[(int)ProfileDownloadType.ALL] = "Stocker tous les profiles";
 		
 		fadeOut = false;
-		fm = gameObject.getComponent<FadeManager>();
+		fm = gameObject.GetComponent<FadeManager>();
 		inPosition = false;
 		fadeColorMapping = 0f;
 		alphaBlackMapping = 0f;
@@ -214,9 +214,10 @@ public class OptionScript : MonoBehaviour {
 	}
 	
 	void OnGUIOptionBlackLabel(){
+		GUI.color = new Color(0f, 0f, 0f, 1f);
 		switch(theSelected.name)
 		{
-			GUI.Color = (0f, 0f, 0f, 1f);
+			
 			case "General":
 			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["GENERAL_GOS"]);		
 			//MouseSpeed
@@ -424,12 +425,12 @@ public class OptionScript : MonoBehaviour {
 				var supX = i < 4 ? i : i - 4;
 				var supY = i < 4 ? 0 : 1;
 				if(indexInputSelected == -1){
-					GUI.Color = new Color(1f, 1f, 1f, 1f);
+					GUI.color = new Color(1f, 1f, 1f, 1f);
 				}else if(indexInputSelected != i){
-					GUI.Color = new Color(1 - 0.6f*fadeColorMapping, 1 - 0.6f*fadeColorMapping, 1 - 0.6f*fadeColorMapping, 1f);
+					GUI.color = new Color(1 - 0.6f*fadeColorMapping, 1 - 0.6f*fadeColorMapping, 1 - 0.6f*fadeColorMapping, 1f);
 				}
 				GUI.Label(new Rect(labelMapping.x*Screen.width + supX*offsetXlabelMapping*Screen.width, labelMapping.y*Screen.height + supY*offsetYlabelMapping*Screen.width, labelMapping.width*Screen.width, labelMapping.height*Screen.height), giveLabelForIndex(i) + giveCodeForIndex(i).ToString());
-				GUI.Color = new Color(1f, 1f, 1f, 1f);
+				GUI.color = new Color(1f, 1f, 1f, 1f);
 			}
 			
 			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["MAPPING_CHOICE"]);
@@ -447,9 +448,9 @@ public class OptionScript : MonoBehaviour {
 			
 			GUI.Label(new Rect(posLabelListChoice.x*Screen.width, posLabelListChoice.y*Screen.height + offsetLabelYOption*2*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), choicePosition == 0 ? "KeyBoard" : choicePosition == 1 ? "Arcade Stick" : "DancePad");
 			
-			GUI.Color = new Color(1f, 1f, 1f, alphaBlackMapping);
+			GUI.color = new Color(1f, 1f, 1f, alphaBlackMapping);
 			GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), tex["black"]);
-			GUI.Color = new Color(1f, 1f, 1f, 1f);
+			GUI.color = new Color(1f, 1f, 1f, 1f);
 			
 			GUI.Label(new Rect(labelInfo.x*Screen.width, labelInfo.y*Screen.height, labelInfo.width*Screen.width, labelInfo.height*Screen.height), inInputEntryMode ? textOption["MAPPING_INPUT"] : textOption["MAPPING_INFO"]);
 			
@@ -583,7 +584,7 @@ public class OptionScript : MonoBehaviour {
 			
 			if(theSelected.name == "Network"){
 				foreach(var obj in formObject){
-					formObject.renderer.enabled = true;
+					((GameObject)obj).renderer.enabled = true;
 				}
 			}
 		}else{
@@ -602,7 +603,7 @@ public class OptionScript : MonoBehaviour {
 			optionMenuMode = StateOption.CUBEFADEOUT;
 			if(theSelected.name == "Network"){
 				foreach(var obj in formObject){
-					formObject.renderer.enabled = false;
+					((GameObject)obj).renderer.enabled = true;
 				}
 			}
 		}else{
@@ -632,7 +633,7 @@ public class OptionScript : MonoBehaviour {
 	
 		if(theSelected.name == "Network"){
 			if(!inPosition){
-				var inPosition = true;
+				inPosition = true;
 				for(int i=0; i< formObject.Length; i++){
 					var targetedTransform = choicePosition == 0 ? form1[i] : choicePosition == 1 ? form2[i] : form3[i];
 					formObject[i].transform.position = Vector3.Lerp(formObject[i].transform.position, targetedTransform.position, speedMovementMapping*Time.deltaTime);
@@ -655,7 +656,7 @@ public class OptionScript : MonoBehaviour {
 						if(indexInputSelected == -1) indexInputSelected = System.Convert.ToInt32(theSelectedTouch.name.Replace("Key", ""));
 						if(fadeColorMapping < 1f){
 							foreach(var obj in formObject){
-								formObject.renderer.material.color = Color(formObject.renderer.material.color, new Color(0.2f, 0.2f, 0.2f, 1f), fadeColorMapping);
+								((GameObject)obj).renderer.material.color = Color.Lerp(((GameObject)obj).renderer.material.color, new Color(0.2f, 0.2f, 0.2f, 1f), fadeColorMapping);
 							}
 							fadeColorMapping += speedColorMapping*Time.deltaTime;
 						}
@@ -665,7 +666,7 @@ public class OptionScript : MonoBehaviour {
 						indexInputSelected = -1;
 						if(fadeColorMapping > 0f){
 							foreach(var obj in formObject){
-								formObject.renderer.material.color = Color(formObject.renderer.material.color, new Color(0.2f, 0.2f, 0.2f, 1f), fadeColorMapping);
+								((GameObject)obj).renderer.material.color = Color.Lerp(((GameObject)obj).renderer.material.color, new Color(0.2f, 0.2f, 0.2f, 1f), fadeColorMapping);
 							}
 							fadeColorMapping -= speedColorMapping*Time.deltaTime;
 						}
@@ -676,7 +677,7 @@ public class OptionScript : MonoBehaviour {
 					indexInputSelected = -1;
 					if(fadeColorMapping > 0f){
 						foreach(var obj in formObject){
-							formObject.renderer.material.color = Color(formObject.renderer.material.color, new Color(0.2f, 0.2f, 0.2f, 1f), fadeColorMapping);
+							((GameObject)obj).renderer.material.color = Color.Lerp(((GameObject)obj).renderer.material.color, new Color(0.2f, 0.2f, 0.2f, 1f), fadeColorMapping);
 						}
 						fadeColorMapping -= speedColorMapping*Time.deltaTime;
 					}
@@ -730,20 +731,28 @@ public class OptionScript : MonoBehaviour {
 		{
 			case 2:
 			DataManager.Instance.KeyCodeUp = k;
+			break;
 			case 1:
 			DataManager.Instance.KeyCodeDown = k;
+			break;
 			case 0:
 			DataManager.Instance.KeyCodeLeft = k;
+			break;
 			case 3:
 			DataManager.Instance.KeyCodeRight = k;
+			break;
 			case 6:
 			DataManager.Instance.SecondaryKeyCodeUp = k;
+			break;
 			case 5:
 			DataManager.Instance.SecondaryKeyCodeDown = k;
+			break;
 			case 4:
 			DataManager.Instance.SecondaryKeyCodeLeft = k;
+			break;
 			case 7:
 			DataManager.Instance.SecondaryKeyCodeRight = k;
+			break;
 		}
 		
 		

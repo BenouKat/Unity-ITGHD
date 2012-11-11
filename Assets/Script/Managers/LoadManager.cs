@@ -238,8 +238,8 @@ public class LoadManager{
 			case Sort.BPM:
 				int dif2 = 0;
 				if(Int32.TryParse(contains, out dif2)){
-					foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.First().Value.bpms.Contains(dif2.ToString()).Count() > 0).Count() > 0)){
-						foreach(var song in packs.Value.Where(r => r.Value.First().Value.bpmToDisplay.Contains(dif2.ToString()).Count() > 0)){
+					foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.First().Value.bpmToDisplay.Contains(dif2.ToString())).Count() > 0)){
+						foreach(var song in packs.Value.Where(r => r.Value.First().Value.bpmToDisplay.Contains(dif2.ToString()))){
 							finalList.Add(song.Value.First().Value.title + "[" + packs.Key + "]", song.Value);
 						}
 					}

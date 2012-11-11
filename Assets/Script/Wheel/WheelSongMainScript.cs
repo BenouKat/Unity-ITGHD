@@ -548,7 +548,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 			//Perte de focus ?
 			#region SearchBar
-				if(GUI.Button(new Rect(posSwitchSearch.x*Screen.width, posSwitchSearch.y*Screen.height, posSwitchSearch.width*Screen.width, posSwitchSearch.height*Screen.height), sortToString(DataManager.Instance.sortMethod), "labelGoLittle"){
+				if(GUI.Button(new Rect(posSwitchSearch.x*Screen.width, posSwitchSearch.y*Screen.height, posSwitchSearch.width*Screen.width, posSwitchSearch.height*Screen.height), sortToString(DataManager.Instance.sortMethod), "labelGoLittle")){
 					DataManager.Instance.sortMethod++;
 					if((int)DataManager.Instance.sortMethod > (int)Sort.BPM){
 						DataManager.Instance.sortMethod = (Sort)0;
@@ -578,7 +578,8 @@ public class WheelSongMainScript : MonoBehaviour {
 						createCubeSong(songList);
 						activeCustomPack();
 						StartCoroutine(AnimSearchBar(false));
-						error.displayError = !(DataManager.Instance.sortMethod >= Sort.DIFFICULTY && !Int32.TryParse(contains, out num));
+						var	num = 0;
+						error.displayError = !(DataManager.Instance.sortMethod >= Sort.DIFFICULTY && !Int32.TryParse(search, out num));
 					}else if(!LoadManager.Instance.isAllowedToSearch(search) && searchOldValue.Trim().Length > search.Trim().Length){
 						songList.Clear();
 						if(particleOnPlay != null){
@@ -2222,9 +2223,8 @@ public class WheelSongMainScript : MonoBehaviour {
 			case Sort.BPM:
 				return "BPM";
 			default:
-				return false;
+				return "ERROR";
 		}
-	}
 	}
 	#endregion
 }

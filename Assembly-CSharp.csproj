@@ -69,6 +69,7 @@
      <Compile Include="Assets\Script\Managers\EnumManager.cs" />
      <Compile Include="Assets\Script\Managers\FadeManager.cs" />
      <Compile Include="Assets\Script\Managers\LoadManager.cs" />
+     <Compile Include="Assets\Script\Managers\OptionManager.cs" />
      <Compile Include="Assets\Script\Managers\ProfileManager.cs" />
      <Compile Include="Assets\Script\Managers\TextManager.cs" />
      <Compile Include="Assets\Script\OptionScreen\ColorGO.cs" />
@@ -81,6 +82,7 @@
      <Compile Include="Assets\Script\SplashScreen\IntroScript.cs" />
      <Compile Include="Assets\Script\SplashScreen\TurnAnneau.cs" />
      <Compile Include="Assets\Script\SplashScreen\TurnBigCube.cs" />
+     <Compile Include="Assets\Script\Wheel\ErrorLabel.cs" />
      <Compile Include="Assets\Script\Wheel\WheelSongMainScript.cs" />
      <None Include="Assets\Standard Assets\Projectors\Guidelines.txt" />
      <None Include="Assets\Standard Assets\Glass Refraction (Pro Only)\Sources\Shaders\Glass-Stained-BumpDistort.shader" />

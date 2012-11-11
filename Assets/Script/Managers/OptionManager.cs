@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using System.IO;
-public class OptionManager : MonoBeheviour {
+public class OptionManager : MonoBehaviour {
 
 	public Camera[] cameraForOption;
 	
