@@ -454,10 +454,9 @@ public class WheelSongMainScript : MonoBehaviour {
 		trulySelected = DataManager.Instance.difficultySelected;
 		onHoverDifficulty = Difficulty.NONE;
 		
-		/*TO DO !!!
 		if(DataManager.Instance.mousePosition != -1){
 			startnumber = DataManager.Instance.mousePosition;
-		}*/
+		}
 	}
 	
 	// Update is called once per frame
@@ -1587,11 +1586,17 @@ public class WheelSongMainScript : MonoBehaviour {
 			}
 			//Scrollwheel
 			if(Input.GetAxis("Mouse ScrollWheel") > 0 && startnumber > 0){
-				startnumber--;
-				
+				startnumber -= DataManager.Instance.mouseSpeed;
+				if(startnumber < 0) startnumber = 0;
 				
 			}else if(Input.GetAxis("Mouse ScrollWheel") < 0 && startnumber < (songCubeOnRender.Where(c => packs.ElementAt(nextnumberPack).Key == c.Value).Count() - numberToDisplay + 1)){
-				startnumber++;
+				var songcount = songCubeOnRender.Where(c => packs.ElementAt(nextnumberPack).Key == c.Value).Count() - numberToDisplay + 1;
+				if(startnumber < songcount){
+					startnumber += DataManager.Instance.mouseSpeed;
+					if(startnumber > songcount) startnumber = songcount;
+				}
+				
+				
 			}
 			
 			#endregion
@@ -1614,7 +1619,16 @@ public class WheelSongMainScript : MonoBehaviour {
 			//Move song list
 			if(oldpos > newpos){
 			
-				var cubeel2 = songCubeOnRender.FirstOrDefault(c => !c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y - 3f*numberToDisplay) && !(c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
+				foreach(var cubeel2 in songCubeOnRender.Where(c => !c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y - 3f*numberToDisplay) && !(c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value).Keys){
+					cubeel2.SetActiveRecursively(true);
+					if(cubeSelected == null || cubeSelected != cubeel2) cubeel2.transform.FindChild("Selection").gameObject.active = false;
+				}
+				
+				foreach(var cubeel in songCubeOnRender.Where(c => c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value).Keys){
+					cubeel.SetActiveRecursively(false);
+					cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, cubeBase.transform.position.y -3f, cubeBase.transform.position.z);
+				}
+				/*var cubeel2 = songCubeOnRender.FirstOrDefault(c => !c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y - 3f*numberToDisplay) && !(c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
 				if(cubeel2 != null) {
 					cubeel2.SetActiveRecursively(true);
 					if(cubeSelected == null || cubeSelected != cubeel2) cubeel2.transform.FindChild("Selection").gameObject.active = false;
@@ -1626,11 +1640,26 @@ public class WheelSongMainScript : MonoBehaviour {
 					cubeel.SetActiveRecursively(false);
 					cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, cubeBase.transform.position.y -3f, cubeBase.transform.position.z);
 				}
-				
+				*/
 				
 				
 			}else if(oldpos < newpos){
 				
+				foreach(var cubeel2 in songCubeOnRender.Where(c => c.Key.active && (c.Key.transform.position.y < camerapack.transform.position.y - 3f*numberToDisplay) && packs.ElementAt(nextnumberPack).Key == c.Value).Keys){
+
+					cubeel2.SetActiveRecursively(false);
+				
+				}
+				
+				foreach(var cubeel in songCubeOnRender.Where(c => !c.Key.active && (c.Key.transform.position.y < camerapack.transform.position.y + 5f) && (c.Key.transform.position.y > camerapack.transform.position.y - 3f*(numberToDisplay - 2)) && packs.ElementAt(nextnumberPack).Key == c.Value).Keys){
+
+					cubeel.SetActiveRecursively(true);
+					if(cubeSelected == null || cubeSelected != cubeel) cubeel.transform.FindChild("Selection").gameObject.active = false;
+					cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, cubeBase.transform.position.y +3f, cubeBase.transform.position.z);
+					
+				}
+				
+				/*
 				var cubeel2 = songCubeOnRender.FirstOrDefault(c => c.Key.active && (c.Key.transform.position.y < camerapack.transform.position.y - 3f*numberToDisplay) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
 				if(cubeel2 != null) {
 					cubeel2.SetActiveRecursively(false);
@@ -1641,7 +1670,7 @@ public class WheelSongMainScript : MonoBehaviour {
 					cubeel.SetActiveRecursively(true);
 					if(cubeSelected == null || cubeSelected != cubeel) cubeel.transform.FindChild("Selection").gameObject.active = false;
 					cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, cubeBase.transform.position.y +3f, cubeBase.transform.position.z);
-				}
+				}*/
 			}
 			
 			#endregion

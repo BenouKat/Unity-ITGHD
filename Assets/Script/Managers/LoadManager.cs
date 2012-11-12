@@ -137,6 +137,7 @@ public class LoadManager{
 					
 			}
 			songs[el.Key].OrderBy(c => c.Key);
+			alreadyLoaded = true;
 		}
 		
 		
@@ -328,7 +329,7 @@ public class LoadManager{
 		
 	}
 	
-	public void LoadCache () {
+	public bool LoadFromCache () {
 	
 		if(File.Exists(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache" + "dataSong.cache")){
 			var file = Directory.GetFiles(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache").FirstOrDefault(c => c.Contains("dataSong.cache"));
@@ -343,6 +344,8 @@ public class LoadManager{
 			sss.getStore().Clear();
 			sss = null;
 			GC.Collect();
+			return true;
 		}
+		return false;
 	}
 }

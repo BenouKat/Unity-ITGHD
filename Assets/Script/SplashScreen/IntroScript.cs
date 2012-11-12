@@ -881,7 +881,21 @@ public class IntroScript : MonoBehaviour {
 			posLength++;
 			yield return new WaitForSeconds(speedLetters);
 		}
-		if(!LoadManager.Instance.alreadyLoaded) LoadManager.Instance.Loading();
+		
+		if(!ProfileManager.Instance.alreadyLoaded) ProfileManager.Instance.LoadProfiles();
+		var verif = ProfileManager.Instance.verifyCurrentProfile();
+		if(verif) ProfileManager.Instance.currentProfile.loadOptions();
+		
+		if(verif && Datamanager.Instance.useTheCacheSystem){
+			if(!LoadManager.Instance.alreadyLoaded){
+				if(!LoadManager.Instance.LoadFromCache()){ //Si le cache est un echec
+					LoadManager.Instance.Loading();
+				}
+			}
+		}else{
+			if(!LoadManager.Instance.alreadyLoaded) LoadManager.Instance.Loading();
+		}
+		
 		labelToDisplay = TextManager.Instance.texts["SplashScreen"]["CONNECTING"];
 		posLength = 0;
 		while(posLength < labelToDisplay.Length){
@@ -889,8 +903,7 @@ public class IntroScript : MonoBehaviour {
 			yield return new WaitForSeconds(speedLetters);
 		}
 		yield return new WaitForSeconds(1f);
-		if(!ProfileManager.Instance.alreadyLoaded) ProfileManager.Instance.LoadProfiles();
-		var verif = ProfileManager.Instance.verifyCurrentProfile();
+		
 		if(verif){
 			labelToDisplay = TextManager.Instance.texts["SplashScreen"]["CONNECTING_SUCCEED"].Replace("USER_NAME", ProfileManager.Instance.currentProfile.name);
 			posLength = 0;

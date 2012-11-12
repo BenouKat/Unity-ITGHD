@@ -62,6 +62,8 @@ public class OptionScript : MonoBehaviour {
 	public Rect posLabelListChoice;
 	public Vector2 sizeArrowButton;
 	public float offsetBetweenLabel;
+	private string errorMessage;
+	public Rect posLabelHelp;
 	
 	//Audio
 	public string generalVolume;
@@ -144,7 +146,7 @@ public class OptionScript : MonoBehaviour {
 		cacheMode = DataManager.Instance.useTheCacheSystem;
 		PDT = DataManager.Instance.PDT;
 		
-		generalVolume = DataManager.Instance.generalVolume.ToString("0");
+		generalVolume = (DataManager.Instance.generalVolume * 100f).ToString("0");
 		
 		enableBloom = DataManager.Instance.enableBloom;
 		enableDOF = DataManager.Instance.enableDepthOfField;
@@ -162,6 +164,7 @@ public class OptionScript : MonoBehaviour {
 		fadeColorMapping = 0f;
 		alphaBlackMapping = 0f;
 		inInputEntryMode = false;
+		errorMessage = "";
 	}
 	
 	void OnGUI(){
@@ -283,6 +286,10 @@ public class OptionScript : MonoBehaviour {
 			//Faire une anim ?
 			
 			break;
+		}
+		
+		if(!String.isNullOrEmpty(errorMessage)){
+			GUI.Label(new Rect(posLabelHelp.x*Screen.width + 1, posLabelHelp.y*Screen.height + 1, posLabelHelp.width*Screen.width + 1, posLabelHelp.height*Screen.height + 1), errorMessage);
 		}
 	
 	}
@@ -460,16 +467,25 @@ public class OptionScript : MonoBehaviour {
 		}
 		
 		//Mettre un label d'aide
+		if(!String.isNullOrEmpty(errorMessage)){
+			GUI.Color = new Color(1f, 0.1f, 0.1f, 1f);
+			GUI.Label(new Rect(posLabelHelp.x*Screen.width, posLabelHelp.y*Screen.height, posLabelHelp.width*Screen.width, posLabelHelp.height*Screen.height), errorMessage);
+			GUI.Color = new Color(1f, 1f, 1f, 1f);
+		}
 		
 		if(!inInputEntryMode){
 			if(GUI.Button(new Rect(posButtonBack.x*Screen.width, posButtonBack.y*Screen.height, posButtonBack.width*Screen.width, posButtonBack.height*Screen.height), "Save")){
-				bgScreen.renderer.material.color = new Color(bgScreen.renderer.material.color.r*10f, bgScreen.renderer.material.color.g*10f, bgScreen.renderer.material.color.b*10f, 1f);
-				optionMenuMode = StateOption.SCREENFADEOUT;
+				if(verifValidData()){
+					bgScreen.renderer.material.color = new Color(bgScreen.renderer.material.color.r*10f, bgScreen.renderer.material.color.g*10f, bgScreen.renderer.material.color.b*10f, 1f);
+					optionMenuMode = StateOption.SCREENFADEOUT;
+					putInDataManager();
+				}
 			}
 			
 			if(GUI.Button(new Rect(posButtonCancel.x*Screen.width, posButtonCancel.y*Screen.height, posButtonCancel.width*Screen.width, posButtonCancel.height*Screen.height), "Cancel")){
 				bgScreen.renderer.material.color = new Color(bgScreen.renderer.material.color.r*10f, bgScreen.renderer.material.color.g*10f, bgScreen.renderer.material.color.b*10f, 1f);
 				optionMenuMode = StateOption.SCREENFADEOUT;
+				setByDataManager();
 			}
 		}else{
 			if (Event.current.isKey)
@@ -776,11 +792,88 @@ public class OptionScript : MonoBehaviour {
 			return "Secondary Up : ";
 			case 7:
 			return "Secondary Right : ";
-			
 		}
 		return "";
 	}
 	
+	
+	void putInDataManager()
+	{
+		DataManager.Instance.generalVolume = System.Convert.ToInt32(generalVolume)/100f;
+		DataManager.Instance.enableBlood = enableBloom;
+		DataManager.Instance.enableDepthOfField = enableDOF;
+		DataManager.Instance.antiAliasing = antiAliasing;
+		
+		DataManager.Instance.PDT = PDT;
+		DataManager.Instance.useTheCacheSystem = cacheMode;
+		DataManager.Instance.dancepadMode = padMode;
+		DataManager.Instance.quickMode = quickMode;
+		DataManager.Instance.mouseMolSpeed = System.Convert.ToInt32(mouseSpeed);
+		DataManager.Instance.userGOS = (float)System.Convert.ToDouble(GOS);
+		
+		AudioListener.volume = DataManager.Instance.generalVolume;
+		QualitySettings.antiAliasing = DataManager.Instance.antiAliasing;
+		
+		ProfileManager.Instance.currentProfile.saveOptions();
+	}
+	
+	void setByDataManager()
+	{
+		GOS = DataManager.Instance.userGOS.ToString("0.000");
+		mouseSpeed = DataManager.Instance.mouseMolSpeed.ToString("0");
+		quickMode = DataManager.Instance.quickMode;
+		padMode = DataManager.Instance.dancepadMode;
+		cacheMode = DataManager.Instance.useTheCacheSystem;
+		PDT = DataManager.Instance.PDT;
+		
+		generalVolume = (DataManager.Instance.generalVolume * 100f).ToString("0");
+		
+		enableBloom = DataManager.Instance.enableBloom;
+		enableDOF = DataManager.Instance.enableDepthOfField;
+		antiAliasing = DataManager.Instance.antiAliasing;
+	}
+	
+	
+	bool verifValidData(){
+		var output = 0;
+		var outputInt = 0;
+		if(!System.Double.TryParse(GOS, out output)){
+			errorMessage = "Global Offset : not a valid entry";
+			return false;
+		}
+		if(!System.Int32.TryParse(mouseSpeed, out outputInt)){
+			errorMessage = "Mouse speed : not a valid entry";
+			return false;
+		}else{
+			 if(outputInt <= 0){
+				errorMessage = "Mouse speed : Minimum value is 1";
+				return false;
+			}else if(outputInt > 5){
+				errorMessage = "Mouse speed : Maximum value is 5";
+				return false;
+			}
+		}
+		
+		if(!System.Double.TryParse(generalVolume, out output)){
+			errorMessage = "General Volume : not a valid entry";
+			return false;
+		}else{
+			if(output < 0){
+				errorMessage = "General Volume : Minimum value is 0";
+				return false;
+			}else if(output > 100){
+				errorMessage = "General Volume : Maximum value is 100";
+				return false;
+			}
+		}
+		
+		if(useTheCacheSystem && !File.Exists(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache" + "dataSong.cache")){
+			errorMessage = "'Use the cache system' is set to 'yes' but the cache is not generated.\nGenerate the cache before confirm.";
+			return false;
+		}
+		errorMessage = "";
+		return true;
+	}
 	
 	
 }

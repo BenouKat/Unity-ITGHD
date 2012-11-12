@@ -118,6 +118,20 @@ public class Profile{
 		DataManager.Instance.useTheCacheSystem = this.useTheCacheSystem;
 	}
 	
+	public void saveOptions(){
+	
+		this.userGOS = DataManager.Instance.userGOS;
+		this.mouseMolSpeed = DataManager.Instance.mouseMolSpeed;
+		this.dancepadMode = DataManager.Instance.dancepadMode;
+		this.quickMode = DataManager.Instance.quickMode;
+		this.PDT = DataManager.Instance.PDT;
+		this.generalVolume = DataManager.Instance.generalVolume;
+		this.enableBloom = DataManager.Instance.enableBloom;
+		this.enableDepthOfField = DataManager.Instance.enableDepthOfField;
+		this.antiAliasing = DataManager.Instance.antiAliasing;
+		this.useTheCacheSystem = DataManager.Instance.useTheCacheSystem;
+	}
+	
 }
 
 

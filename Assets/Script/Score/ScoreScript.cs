@@ -38,6 +38,7 @@ public class ScoreScript : MonoBehaviour {
 	public Rect posRetry;
 	public Rect posQuit;
 	public Rect posRecord;
+	public Rect posLegit;
 	
 	//Graph
 	public GameObject graph;
@@ -70,6 +71,7 @@ public class ScoreScript : MonoBehaviour {
 	private int maxCombo;
 	private string stringmod;
 	private int record;
+	private bool isScoreLegit;
 	
 	//Fade
 	private bool fadeToChartScene;
@@ -195,7 +197,8 @@ public class ScoreScript : MonoBehaviour {
 		
 		
 		ProcessScore();
-		if(scoreIsLegit()){
+		isScoreLegit = scoreIsLegit();
+		if(isScoreLegit){
 			ProfileManager.Instance.currentProfile.saveASong(DataManager.Instance.songSelected.sip, 
 				DataManager.Instance.scoreEarned, (double)DataManager.Instance.speedmodSelected, 
 				DataManager.Instance.fail);
@@ -360,6 +363,7 @@ public class ScoreScript : MonoBehaviour {
 		}
 		
 		if(!shadow) GUI.color = new Color(1f, 1f, 1f, alphaTransition);
+		if(isScoreLegit) GUI.Label(resizeRectGeneralOffset(posLegit, shadow), "Not legit !");
 		
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 0), shadow), "First ex or less : " + ((DataManager.Instance.firstEx == -1) ? "Never" : ((DataManager.Instance.firstEx/DataManager.Instance.songSelected.duration)*100f).ToString("0.00") + "%"));
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 1), shadow), "First great or less : " + ((DataManager.Instance.firstGreat == -1) ? "Never" : ((DataManager.Instance.firstGreat/DataManager.Instance.songSelected.duration)*100f).ToString("0.00") + "%"));

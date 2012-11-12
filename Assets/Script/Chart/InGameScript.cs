@@ -441,7 +441,7 @@ public class InGameScript : MonoBehaviour {
 		//changeBPM -= (float)(bps*thesong.offset)*speedmod;
 		firstUpdate = true;
 		oneSecond = 0f;
-		startTheSong = (float)thesong.offset + DataManager.Instance.globalOffsetSeconds;
+		startTheSong = (float)thesong.offset + DataManager.Instance.globalOffsetSeconds + DataManager.Instance.userGOS;
 		
 		
 		//bump
@@ -576,12 +576,12 @@ public class InGameScript : MonoBehaviour {
 					(posFail.width + zwip*2 + ratiow*zoomfail)*Screen.width, (posFail.height - zwip*2 + ratioh*zoomfail)*Screen.height), TextureBase["FAIL"]);
 				if(failalpha >= 1f){
 					GUI.color = new Color(1f, 1f, 1f, buttonfailalpha);
-					if(GUI.Button(new Rect(posRetry.x*Screen.width, posRetry.y*Screen.height, posRetry.width*Screen.width, posRetry.height*Screen.height), "Retry") && !deadAndRetry && !deadAndGiveUp && buttonfailalpha > 0.5f && speedmodok){
+					if(GUI.Button(new Rect(posRetry.x*Screen.width, posRetry.y*Screen.height, posRetry.width*Screen.width, posRetry.height*Screen.height), "Retry") && !deadAndRetry && !deadAndGiveUp && buttonfailalpha > 0.5f && speedmodok && GetComponent<DebugOffset>().validValue){
 							DataManager.Instance.speedmodSelected = speedmodSelected;
 							deadAndRetry = true;
 					}
 					
-					if(GUI.Button(new Rect(posGiveUp.x*Screen.width, posGiveUp.y*Screen.height, posGiveUp.width*Screen.width, posGiveUp.height*Screen.height), "Give up") && !deadAndRetry && !deadAndGiveUp && buttonfailalpha > 0.5f){
+					if(GUI.Button(new Rect(posGiveUp.x*Screen.width, posGiveUp.y*Screen.height, posGiveUp.width*Screen.width, posGiveUp.height*Screen.height), "Give up") && !deadAndRetry && !deadAndGiveUp && buttonfailalpha > 0.5f && GetComponent<DebugOffset>().validValue){
 							deadAndGiveUp = true;
 					}
 					
@@ -770,7 +770,7 @@ public class InGameScript : MonoBehaviour {
 					oneSecond = 0f;
 					alpha = 1f;
 					sensFantastic = true;
-					
+					GetComponent<DebugOffset>().enabled = true;
 				}
 			}
 			
