@@ -29,9 +29,9 @@ public class DebugOffset : MonoBehaviour {
 	public void OnGUI(){
 		if(display){
 			valueTextField = GUI.TextField(new Rect(posLabel.x*Screen.width, posLabel.y*Screen.height, posLabel.width*Screen.width, posLabel.height*Screen.height), valueTextField);
-			var value = 0;
-			if(System.Convert.ToDouble(valueTextField, value)){
-				DataManager.Instance.userGOS = (float)value;
+			double valued = 0;
+			if(Double.TryParse(valueTextField, out valued)){
+				DataManager.Instance.userGOS = (float)valued;
 			}else{
 				validValue = false;
 			}

@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System;
+using System.IO;
 
 public enum StateOption{
 	OPTIONSELECTION,
@@ -288,7 +290,7 @@ public class OptionScript : MonoBehaviour {
 			break;
 		}
 		
-		if(!String.isNullOrEmpty(errorMessage)){
+		if(!String.IsNullOrEmpty(errorMessage)){
 			GUI.Label(new Rect(posLabelHelp.x*Screen.width + 1, posLabelHelp.y*Screen.height + 1, posLabelHelp.width*Screen.width + 1, posLabelHelp.height*Screen.height + 1), errorMessage);
 		}
 	
@@ -467,10 +469,10 @@ public class OptionScript : MonoBehaviour {
 		}
 		
 		//Mettre un label d'aide
-		if(!String.isNullOrEmpty(errorMessage)){
-			GUI.Color = new Color(1f, 0.1f, 0.1f, 1f);
+		if(!String.IsNullOrEmpty(errorMessage)){
+			GUI.color = new Color(1f, 0.1f, 0.1f, 1f);
 			GUI.Label(new Rect(posLabelHelp.x*Screen.width, posLabelHelp.y*Screen.height, posLabelHelp.width*Screen.width, posLabelHelp.height*Screen.height), errorMessage);
-			GUI.Color = new Color(1f, 1f, 1f, 1f);
+			GUI.color = new Color(1f, 1f, 1f, 1f);
 		}
 		
 		if(!inInputEntryMode){
@@ -800,7 +802,7 @@ public class OptionScript : MonoBehaviour {
 	void putInDataManager()
 	{
 		DataManager.Instance.generalVolume = System.Convert.ToInt32(generalVolume)/100f;
-		DataManager.Instance.enableBlood = enableBloom;
+		DataManager.Instance.enableBloom = enableBloom;
 		DataManager.Instance.enableDepthOfField = enableDOF;
 		DataManager.Instance.antiAliasing = antiAliasing;
 		
@@ -835,7 +837,7 @@ public class OptionScript : MonoBehaviour {
 	
 	
 	bool verifValidData(){
-		var output = 0;
+		double output = 0;
 		var outputInt = 0;
 		if(!System.Double.TryParse(GOS, out output)){
 			errorMessage = "Global Offset : not a valid entry";
@@ -867,7 +869,7 @@ public class OptionScript : MonoBehaviour {
 			}
 		}
 		
-		if(useTheCacheSystem && !File.Exists(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache" + "dataSong.cache")){
+		if(cacheMode && !File.Exists(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache" + "dataSong.cache")){
 			errorMessage = "'Use the cache system' is set to 'yes' but the cache is not generated.\nGenerate the cache before confirm.";
 			return false;
 		}

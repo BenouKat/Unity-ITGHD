@@ -886,7 +886,7 @@ public class IntroScript : MonoBehaviour {
 		var verif = ProfileManager.Instance.verifyCurrentProfile();
 		if(verif) ProfileManager.Instance.currentProfile.loadOptions();
 		
-		if(verif && Datamanager.Instance.useTheCacheSystem){
+		if(verif && DataManager.Instance.useTheCacheSystem){
 			if(!LoadManager.Instance.alreadyLoaded){
 				if(!LoadManager.Instance.LoadFromCache()){ //Si le cache est un echec
 					LoadManager.Instance.Loading();
