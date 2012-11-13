@@ -261,6 +261,8 @@ public class DataManager{
 		
 		sortMethod = Sort.NAME;
 		
+		rateSelected = 0f;
+		
 		ReadTempConfigFile();
 		InitDicOption();
 		
@@ -607,5 +609,29 @@ public class DataManager{
 			return "fail";
 		}
 		
+	}
+	
+	public void removeRatedSong()
+	{
+		if(DataManager.Instance.rateSelected != 0f && DataManager.Instance.songSelected != null)
+		{
+			if(File.Exists(Path.GetDirectoryName(DataManager.Instance.songSelected.song) + "/OriginalSong.ogg"))
+			{
+				File.Delete(DataManager.Instance.songSelected.song); 
+				File.Move(Path.GetDirectoryName(DataManager.Instance.songSelected.song) + "/OriginalSong.ogg", DataManager.Instance.songSelected.song);
+			}
+			DataManager.Instance.rateSelected = 0f;
+		}
+	}
+	
+	
+	public void loadRatedSong()
+	{
+		if(DataManager.Instance.rateSelected != 0f)
+		{
+			Process rateConvertor = new Process();
+			rateConvertor.Start(Application.dataPath + "/RateConvertor/convertor.exe", DataManager.Instance.rateSelected + " " + Application.dataPath + " " + IntPtr.Size*8 + " " + DataManager.Instance.songSelected.song)
+			rateConvertor.WaitForExit();
+		}
 	}
 }

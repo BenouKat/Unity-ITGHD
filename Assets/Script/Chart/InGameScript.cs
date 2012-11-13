@@ -52,6 +52,7 @@ public class InGameScript : MonoBehaviour {
 	private double actualstop;
 	private float speedmod; //speedmod 
 	public float speedmodRate = 2f; //speedmod ajustation 
+	private float rateSelected;
 	
 	//Temps pour le lachement de freeze
 	public float unfrozed = 0.350f;
@@ -227,7 +228,6 @@ public class InGameScript : MonoBehaviour {
 	public Rect fullComboPos;
 	private bool deadAndRetry;
 	private bool deadAndGiveUp;
-	private float timeGiveUp;
 	
 	//SOUND
 	private AudioClip songLoaded;
@@ -245,6 +245,7 @@ public class InGameScript : MonoBehaviour {
 		
 		//Data from option
 		speedmod = DataManager.Instance.speedmodSelected*speedmodRate;
+		rateSelected = DataManager.Instance.rateSelected/100f;
 		DataManager.Instance.LoadScoreJudge(DataManager.Instance.scoreJudgeSelected);
 		DataManager.Instance.LoadHitJudge(DataManager.Instance.hitJudgeSelected);
 		DataManager.Instance.LoadLifeJudge(DataManager.Instance.lifeJudgeSelected);
@@ -443,7 +444,6 @@ public class InGameScript : MonoBehaviour {
 		oneSecond = 0f;
 		startTheSong = (float)thesong.offset + DataManager.Instance.globalOffsetSeconds + DataManager.Instance.userGOS;
 		
-		
 		//bump
 		nextBump = 0;
 		
@@ -479,7 +479,6 @@ public class InGameScript : MonoBehaviour {
 		failalpha = 0f;
 		passalpha = 0f;
 		cacheFailed = true;
-		timeGiveUp = 0f;
 		
 		
 		//Transformation display
@@ -516,6 +515,11 @@ public class InGameScript : MonoBehaviour {
 		
 	}
 	
+	
+	void OnApplicationQuit()
+	{
+		DataManager.Instance.removeRatedSong();
+	}
 	
 	
 	//only for FPS
@@ -756,7 +760,7 @@ public class InGameScript : MonoBehaviour {
 			}
 			
 			if(fail){
-				if((typeOfDeath != 2 && (typeOfDeath == 0 || comboMisses >= 30)) || thesong.duration < timetotalchart || timeGiveUp >= 1f){
+				if((typeOfDeath != 2 && (typeOfDeath == 0 || comboMisses >= 30)) || thesong.duration < timetotalchart){
 					dead = true;
 					mainAudioSource.Stop ();
 					mainAudioSource.PlayOneShot(failedSound);
@@ -1770,15 +1774,10 @@ public class InGameScript : MonoBehaviour {
 		}
 		
 		
-		if(Input.GetKey(KeyCode.Escape)){
-			timeGiveUp += Time.deltaTime;
-			if(timeGiveUp >= 1f && !clear){
-				fail = true;
+		if(Input.GetKeyDown(KeyCode.Escape) && thesong.duration*0.75f > timetotalchart){
+			if(!clear && !fail){
+				GetComponent<FadeManager>().FadeIn("solo");
 			}
-		}
-		
-		if(Input.GetKeyUp(KeyCode.Escape)){
-			timeGiveUp = 0f;
 		}
 	}
 	

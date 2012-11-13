@@ -56,6 +56,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	private string textButton;
 	private float timeFade;
 	private ErrorLabel error;
+	private Rect posLabelLoading;
 	
 	//PackList
 	private int numberPack;
@@ -137,6 +138,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	private bool movinSong;
 	private bool SongMode;
 	private bool fadedOut;
+	private bool displayLoading;
 	
 	
 	//Move to option mode
@@ -245,6 +247,11 @@ public class WheelSongMainScript : MonoBehaviour {
 	
 	
 	//test 
+	
+	void Awake()
+	{
+		DataManager.Instance.removeRatedSong();
+	}
 	
 	void Start () {
 		numberPack = 0;
@@ -385,9 +392,12 @@ public class WheelSongMainScript : MonoBehaviour {
 		movinSong = false;
 		locked = false;
 		fadedOut = false;
+		displayLoading = false;
+		
 		animok = true;
 		speedmodok = true;
 		rateok = true;
+		
 		textButton = "Option";
 		matCache = cacheOption.renderer.material;
 		fadeAlphaOptionTitle = 1f;
@@ -830,6 +840,8 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 		GUI.color = new Color(1f, 1f, 1f, 1f);
 		
+		
+		
 		#region OptionMode
 		
 		//Option
@@ -1127,6 +1139,13 @@ public class WheelSongMainScript : MonoBehaviour {
 				GUI.Label(new Rect(posTopProfileScore.x*Screen.width, posTopProfileScore.y*Screen.height, posTopProfileScore.width*Screen.width, posTopProfileScore.height*Screen.height), bestfriendscore == -1 ? "No other record" : "Top Friend Score : " + bestfriendscore.ToString("0.00") + "%" + " (" + bestnamefriendscore + ")" , "SongInfoLittle");
 				GUI.color = new Color(1f, 1f, 1f, alphaBlack);
 				GUI.DrawTexture(new Rect(0f, 0f, Screen.width+1, Screen.height+1), tex["Black"]);
+				
+				if(displayLoading)
+				{
+					GUI.color = new Color(1f, 1f, 1f, 1f);
+					GUI.Label(new Rect(posLabelLoading.x*Screen.width, posLabelLoading.y*Screen.height, posLabelLoading.width*Screen.width, posLabelLoading.height*Screen.height), "Generating rated song...", "infosong");
+				}
+				
 		}
 		
 		#endregion
@@ -1250,10 +1269,15 @@ public class WheelSongMainScript : MonoBehaviour {
 			}
 			
 			if(time > 1f){
-				if(alphaBlack < 1){
+				if(alphaBlack < 1f){
 					alphaBlack += Time.deltaTime/speedAlphaBlack;	
 					audio.volume -= Time.deltaTime/speedAlphaBlack;	
+					
+					if(alphaBlack >= 1f && DataManager.Instance.rateSelected != 0f){
+						displayLoading = true;
+					}
 				}else{
+					DataManager.Instance.loadRatedSong();
 					Application.LoadLevel("ChartScene");
 				}
 					

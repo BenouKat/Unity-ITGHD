@@ -207,6 +207,12 @@ public class ScoreScript : MonoBehaviour {
 	}
 	
 	
+	void OnApplicationQuit()
+	{
+		DataManager.Instance.removeRatedSong();
+	}
+	
+	
 	bool scoreIsLegit(){
 		return DataManager.Instance.hitJudgeSelected >= Judge.NORMAL && DataManager.Instance.scoreJudgeSelected >= Judge.NORMAL && DataManager.Instance.lifeJudgeSelected >= Judge.NORMAL
 			&& !DataManager.Instance.displaySelected[0] && !DataManager.Instance.displaySelected[1] && !DataManager.Instance.displaySelected[2] && !DataManager.Instance.displaySelected[3];
