@@ -68,12 +68,12 @@ public class OptionScript : MonoBehaviour {
 	public Rect posLabelHelp;
 	
 	//Audio
-	public string generalVolume;
+	private string generalVolume;
 	
 	//Video
-	public bool enableBloom;
-	public bool enableDOF;
-	public int antiAliasing;
+	private bool enableBloom;
+	private bool enableDOF;
+	private int antiAliasing;
 	
 	//KeyMapping
 	//8 game objet + 8 label / button + un label général
@@ -132,6 +132,9 @@ public class OptionScript : MonoBehaviour {
 	private Dictionary<string, string> textOption;
 	// Use this for initialization
 	void Start () {
+		
+		//test
+		TextManager.Instance.LoadTextFile();
 		
 		tex = new Dictionary<string, Texture2D>();
 		tex.Add("labelbg", (Texture2D) Resources.Load("GUIBarMini"));
@@ -204,18 +207,18 @@ public class OptionScript : MonoBehaviour {
 			GUI.color = new Color(1f, 1f, 1f, 0.5f*alphaFadeIn*loadColor);
 			GUI.DrawTexture(new Rect(pos2D.x + (sizeLabelBG.x*Screen.width), Screen.height - pos2D.y + (sizeLabelBG.y*Screen.height), sizeLabelBG.width*Screen.width, sizeLabelBG.height*Screen.height), tex["labelbg"]);
 			GUI.color = new Color(0f, 0f, 0f, 1f*alphaFadeIn*loadColor);
-			GUI.Label(new Rect(pos2D.x + offsetLabelOption.x*Screen.width + 1, Screen.height - pos2D.y + offsetLabelOption.y*Screen.height + 1, offsetLabelOption.width*Screen.width, offsetLabelOption.height*Screen.height), theSelected.name);
+			GUI.Label(new Rect(pos2D.x + offsetLabelOption.x*Screen.width + 1, Screen.height - pos2D.y + offsetLabelOption.y*Screen.height + 1, offsetLabelOption.width*Screen.width, offsetLabelOption.height*Screen.height), theSelected.name, "TitleLabel");
 			GUI.color = new Color(theSelected.renderer.material.color.r, theSelected.renderer.material.color.g, theSelected.renderer.material.color.b, loadColor);
-			GUI.Label(new Rect(pos2D.x + offsetLabelOption.x*Screen.width, Screen.height - pos2D.y + offsetLabelOption.y*Screen.height, offsetLabelOption.width*Screen.width, offsetLabelOption.height*Screen.height), theSelected.name);
+			GUI.Label(new Rect(pos2D.x + offsetLabelOption.x*Screen.width, Screen.height - pos2D.y + offsetLabelOption.y*Screen.height, offsetLabelOption.width*Screen.width, offsetLabelOption.height*Screen.height), theSelected.name, "TitleLabel");
 		}
 	}
 	
 	void OnGUIOptionFadeIn(){
 		GUI.skin = skin;
 		GUI.color = new Color(0f, 0f, 0f, 1 - alphaFadeIn);
-		GUI.Label(new Rect(labelOption.x*Screen.width + 1, labelOption.y*Screen.height + 1, labelOption.width*Screen.width, labelOption.height*Screen.height), optionSelected);
+		GUI.Label(new Rect(labelOption.x*Screen.width + 1, labelOption.y*Screen.height + 1, labelOption.width*Screen.width, labelOption.height*Screen.height), optionSelected, "TitleLabel");
 		GUI.color = new Color(theSelected.renderer.material.color.r, theSelected.renderer.material.color.g, theSelected.renderer.material.color.b, 1 - alphaFadeIn);
-		GUI.Label(new Rect(labelOption.x*Screen.width, labelOption.y*Screen.height, labelOption.width*Screen.width, labelOption.height*Screen.height), optionSelected);
+		GUI.Label(new Rect(labelOption.x*Screen.width, labelOption.y*Screen.height, labelOption.width*Screen.width, labelOption.height*Screen.height), optionSelected, "TitleLabel");
 	}
 	
 	void OnGUIOptionBlackLabel(){
@@ -298,6 +301,7 @@ public class OptionScript : MonoBehaviour {
 	
 	
 	void OnGUIOption(){
+		GUI.color = new Color(1f, 1f, 1f, 1f);
 		switch(theSelected.name)
 		{
 		//General
@@ -347,13 +351,13 @@ public class OptionScript : MonoBehaviour {
 			}
 			
 			//reload cache
-			if(GUI.Button(new Rect(posButtonCache.x*Screen.width, posButtonCache.y*Screen.height, posButtonCache.width*Screen.width, posButtonCache.height*Screen.height), textOption["GENERAL_RELOADCACHE"])){
+			if(GUI.Button(new Rect(posButtonCache.x*Screen.width, posButtonCache.y*Screen.height, posButtonCache.width*Screen.width, posButtonCache.height*Screen.height), textOption["GENERAL_RELOADCACHE"], "MenuButton")){
 				//Mettre un truc de confirmation
 				LoadManager.Instance.SaveCache();
 			}
 				
 			//Changer profile
-			if(GUI.Button(new Rect(posButtonProfile.x*Screen.width, posButtonProfile.y*Screen.height, posButtonProfile.width*Screen.width, posButtonProfile.height*Screen.height), textOption["GENERAL_RELOADPROFILE"])){
+			if(GUI.Button(new Rect(posButtonProfile.x*Screen.width, posButtonProfile.y*Screen.height, posButtonProfile.width*Screen.width, posButtonProfile.height*Screen.height), textOption["GENERAL_RELOADPROFILE"], "MenuButton")){
 				//Mettre un truc de confirmation
 				PlayerPrefs.DeleteKey("idProfile");
 				Application.LoadLevel("SplashScreen");
@@ -595,11 +599,10 @@ public class OptionScript : MonoBehaviour {
 	}
 	
 	void UpdateScreenFadeIn(){
-		if(screen.transform.position.y <= 0.1f && bgScreen.renderer.material.color.a < 1f){
+		if(screen.transform.position.y <= 0.1f){
 			screen.transform.position = new Vector3(0f, 0f, 0f);
-			bgScreen.renderer.material.color = new Color(bgScreen.renderer.material.color.r*10f, bgScreen.renderer.material.color.g*10f, bgScreen.renderer.material.color.b*10f, 1f);
+			bgScreen.renderer.material.color = new Color(bgScreen.renderer.material.color.r*15f, bgScreen.renderer.material.color.g*15f, bgScreen.renderer.material.color.b*15f, 1f);
 			optionMenuMode = StateOption.OPTION;
-			
 			if(theSelected.name == "Network"){
 				foreach(var obj in formObject){
 					((GameObject)obj).renderer.enabled = true;
@@ -609,10 +612,7 @@ public class OptionScript : MonoBehaviour {
 			screen.transform.position = Vector3.Lerp(screen.transform.position, new Vector3(0f, 0f, 0f), speedFadeScreen*Time.deltaTime);
 		}
 		
-		if(bgScreen.renderer.material.color.a >= 1f && lerpColorScreenFade < 1f){
-			bgScreen.renderer.material.color = Color.Lerp(bgScreen.renderer.material.color , colorBasicScreen , lerpColorScreenFade);
-			lerpColorScreenFade += speedColorScreenFade*Time.deltaTime;
-		}
+		
 	}
 	
 	void UpdateScreenFadeOut(){
@@ -713,6 +713,12 @@ public class OptionScript : MonoBehaviour {
 				alphaBlackMapping -= speedFadeBlackMapping*Time.deltaTime;
 			}
 		
+		}
+		
+		
+		if(lerpColorScreenFade < 1f){
+			bgScreen.renderer.material.color = Color.Lerp(bgScreen.renderer.material.color , colorBasicScreen , lerpColorScreenFade);
+			lerpColorScreenFade += speedColorScreenFade*Time.deltaTime;
 		}
 	
 	

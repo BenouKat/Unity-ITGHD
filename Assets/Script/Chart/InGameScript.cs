@@ -60,7 +60,7 @@ public class InGameScript : MonoBehaviour {
 	
 	
 	//CONST
-	private const Color blankColor = new Color(1f, 1f, 1f, 1f);
+	private Color blankColor = new Color(1f, 1f, 1f, 1f);
 	
 	//Temps pour le lachement de freeze
 	public float unfrozed = 0.350f;
@@ -337,7 +337,7 @@ public class InGameScript : MonoBehaviour {
 		
 		firstArrow = -10f;
 		lastArrow = -10f;
-		thesong = (rateSelected == 0f ? DataManager.Instance.songSelected : DataManager.Instance.songSelected.getRatedSong());
+		thesong = (rateSelected == 0f ? DataManager.Instance.songSelected : DataManager.Instance.songSelected.getRatedSong(rateSelected));
 		songLoaded = thesong.GetAudioClip();
 		mainAudioSource.loop = false;
 		createTheChart(thesong);

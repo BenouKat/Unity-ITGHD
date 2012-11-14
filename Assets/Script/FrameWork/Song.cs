@@ -69,6 +69,7 @@ public class Song {
 	
 	public Song getRatedSong(float rate){
 		var ratedSong = new Song();
+		
 		ratedSong.title = this.title;
 		ratedSong.subtitle = this.subtitle;
 		ratedSong.artist = this.artist;
@@ -113,6 +114,8 @@ public class Song {
 		ratedSong.song = this.song;
 
 		ratedSong.sip = this.sip;
+		
+		return ratedSong;
 	}
 	
 	/*

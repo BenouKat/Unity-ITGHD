@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using System.IO;
+using System.Diagnostics;
+
 public class DataManager{
 
 	
@@ -349,7 +351,7 @@ public class DataManager{
 			
 			
 		}catch(Exception e){
-			Debug.Log(e.Message);
+			UnityEngine.Debug.Log(e.Message);
 		}
 	
 	}
@@ -629,9 +631,9 @@ public class DataManager{
 	{
 		if(DataManager.Instance.rateSelected != 0f)
 		{
-			Process rateConvertor = new Process();
-			rateConvertor.Start(Application.dataPath + "/RateConvertor/convertor.exe", DataManager.Instance.rateSelected + " " + Application.dataPath + " " + IntPtr.Size*8 + " " + DataManager.Instance.songSelected.song)
+			Process rateConvertor = Process.Start(Application.dataPath + "/RateConvertor/convertor.exe", DataManager.Instance.rateSelected + " " + Application.dataPath + " " + IntPtr.Size*8 + " " + DataManager.Instance.songSelected.song);
 			rateConvertor.WaitForExit();
+			rateConvertor.Close();
 		}
 	}
 }
