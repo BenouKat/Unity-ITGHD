@@ -43,6 +43,10 @@ public class InGameScript : MonoBehaviour {
 	private float totaltimestop; //Temps total à être stoppé
 	private double timetotalchart; //Temps joué sur la totalité en live (timebpm + timechart)
 	private float changeBPM; //Position en y depuis un changement de bpm (nouvelle reference)
+	private double keybpms;
+	private double valuebpms;
+	private double keystops;
+	private double valuestops;
 	
 	private int nextSwitchBPM; //Prochain changement de bpm
 	private int nextSwitchStop;
@@ -53,6 +57,10 @@ public class InGameScript : MonoBehaviour {
 	private float speedmod; //speedmod 
 	public float speedmodRate = 2f; //speedmod ajustation 
 	private float rateSelected;
+	
+	
+	//CONST
+	private const Color blankColor = new Color(1f, 1f, 1f, 1f);
 	
 	//Temps pour le lachement de freeze
 	public float unfrozed = 0.350f;
@@ -258,6 +266,7 @@ public class InGameScript : MonoBehaviour {
 		KeyCodeLeft = DataManager.Instance.KeyCodeLeft;
 		KeyCodeRight = DataManager.Instance.KeyCodeRight;
 		SecondaryKeyCodeDown = DataManager.Instance.SecondaryKeyCodeDown;
+		SecondaryKeyCodeDown = DataManager.Instance.SecondaryKeyCodeDown;
 		SecondaryKeyCodeUp = DataManager.Instance.SecondaryKeyCodeUp;
 		SecondaryKeyCodeLeft = DataManager.Instance.SecondaryKeyCodeLeft;
 		SecondaryKeyCodeRight = DataManager.Instance.SecondaryKeyCodeRight;
@@ -328,7 +337,7 @@ public class InGameScript : MonoBehaviour {
 		
 		firstArrow = -10f;
 		lastArrow = -10f;
-		thesong = DataManager.Instance.songSelected;
+		thesong = (rateSelected == 0f ? DataManager.Instance.songSelected : DataManager.Instance.songSelected.getRatedSong());
 		songLoaded = thesong.GetAudioClip();
 		mainAudioSource.loop = false;
 		createTheChart(thesong);
@@ -442,6 +451,8 @@ public class InGameScript : MonoBehaviour {
 		//changeBPM -= (float)(bps*thesong.offset)*speedmod;
 		firstUpdate = true;
 		oneSecond = 0f;
+		
+		//A verifier ...
 		startTheSong = (float)thesong.offset + DataManager.Instance.globalOffsetSeconds + DataManager.Instance.userGOS;
 		
 		//bump
@@ -666,7 +677,7 @@ public class InGameScript : MonoBehaviour {
 			_timer = 0;
 		}
 		
-		if((oneSecond >= 1.5f && !dead) || clear){
+		if((!dead && oneSecond >= 1.5f) || clear){
 			//timetotal for this frame
 			
 			timetotalchart = timebpm + timechart + totaltimestop;
@@ -860,7 +871,7 @@ public class InGameScript : MonoBehaviour {
 	
 	void BumpsBPM(){
 		if(nextBump < Bumps.Count && Bumps[nextBump] <= timetotalchart){
-			matArrowModel.color = new Color(1f, 1f, 1f, 1f);
+			matArrowModel.color = blankColor;
 			nextBump++;
 		}	
 		
@@ -937,7 +948,7 @@ public class InGameScript : MonoBehaviour {
 				break;
 			}
 		}else if(!alreadytaged){
-			matProgressBar.color = new Color(1f, 1f, 1f, 1f);
+			matProgressBar.color = blankColor;
 			alreadytaged = true;
 		}
 	}
@@ -981,30 +992,36 @@ public class InGameScript : MonoBehaviour {
 	
 	void VerifyBPMnSTOP(){
 		//BPM change verify
-		if(nextSwitchBPM < thesong.bpms.Count && (thesong.bpms.ElementAt(nextSwitchBPM).Key <= timetotalchart)){
-			
-			//iwashere = 1;
-			var bps = thesong.getBPS(actualBPM);
-			changeBPM += -((float)(bps*(timechart - (float)(timetotalchart - thesong.bpms.ElementAt(nextSwitchBPM).Key))))*speedmod;
-			timebpm += (double)timechart - (timetotalchart - thesong.bpms.ElementAt(nextSwitchBPM).Key);
-			timechart = (float)(timetotalchart - thesong.bpms.ElementAt(nextSwitchBPM).Key);
-			actualBPM = thesong.bpms.ElementAt(nextSwitchBPM).Value;
-			nextSwitchBPM++;
+		if(nextSwitchBPM < thesong.bpms.Count){
+			keybpms = thesong.bpms.ElementAt(nextSwitchBPM).Key;
+			if(keybpms <= timetotalchart){
+				valuebpms = thesong.bpms.ElementAt(nextSwitchBPM).Value;
+				//iwashere = 1;
+				var bps = thesong.getBPS(actualBPM);
+				changeBPM += -((float)(bps*(timechart - (float)(timetotalchart - keybpms))))*speedmod;
+				timebpm += (double)timechart - (timetotalchart - keybpms);
+				timechart = (float)(timetotalchart - keybpms);
+				actualBPM = valuebpms;
+				nextSwitchBPM++;
+			}
 		}
-		
 		
 		//Stop verif
-		if(nextSwitchStop < thesong.stops.Count && (thesong.stops.ElementAt(nextSwitchStop).Key <= timetotalchart)){
-			//iwashere = 2;
-			timetotalchart = timebpm + timechart + totaltimestop;
-			timechart -= (float)timetotalchart - (float)thesong.stops.ElementAt(nextSwitchStop).Key;
-			timestop += (float)timetotalchart - (float)thesong.stops.ElementAt(nextSwitchStop).Key;
-			totaltimestop += (float)timetotalchart - (float)thesong.stops.ElementAt(nextSwitchStop).Key;
-			timetotalchart = timebpm + timechart + totaltimestop;
-			actualstop = thesong.stops.ElementAt(nextSwitchStop).Value;
-			nextSwitchStop++;
+		if(nextSwitchStop < thesong.stops.Count)
+		{
+			keystops = thesong.stops.ElementAt(nextSwitchStop).Key;
+			if(keystops <= timetotalchart){
+				//iwashere = 2;
+				valuestops = thesong.stops.ElementAt(nextSwitchStop).Value;
+				timetotalchart = timebpm + timechart + totaltimestop;
+				timechart -= (float)timetotalchart - (float)keystops;
+				timestop += (float)timetotalchart - (float)keystops;
+				totaltimestop += (float)timetotalchart - (float)keystops;
+				timetotalchart = timebpm + timechart + totaltimestop;
+				actualstop = valuestops;
+				nextSwitchStop++;
+			}
 		}
-		
 	}
 	
 	#endregion
@@ -2254,84 +2271,84 @@ public class InGameScript : MonoBehaviour {
 	
 	public Arrow findNextUpArrow(){
 
-		return arrowUpList.FirstOrDefault();
+		return arrowUpList.First();
 			
 	}
 	
 	public Arrow findNextDownArrow(){
 
-		return arrowDownList.FirstOrDefault();
+		return arrowDownList.First();
 			
 	}
 	
 	public Arrow findNextLeftArrow(){
 
-		return arrowLeftList.FirstOrDefault();
+		return arrowLeftList.First();
 			
 	}
 	
 	public Arrow findNextRightArrow(){
 
-		return arrowRightList.FirstOrDefault();
+		return arrowRightList.First();
 			
 	}
 	
 	public Arrow findNextUpMine(){
 
-		return mineUpList.FirstOrDefault();
+		return mineUpList.First();
 			
 	}
 	
 	public Arrow findNextDownMine(){
 
-		return mineDownList.FirstOrDefault();
+		return mineDownList.First();
 			
 	}
 	
 	public Arrow findNextLeftMine(){
 
-		return mineLeftList.FirstOrDefault();
+		return mineLeftList.First();
 			
 	}
 	
 	public Arrow findNextRightMine(){
 
-		return mineRightList.FirstOrDefault();
+		return mineRightList.First();
 			
 	}
 	//Remove key from arrow list
-	public void removeArrowFromList(Arrow ar, string state){
+	public void removeArrowFromList(Arrow ar, ArrowPosition state){
 		
 		switch(state){
-			case "left":
+			case ArrowPosition.LEFT:
 				arrowLeftList.Remove(ar);
 				break;
-			case "down":
+			case ArrowPosition.DOWN:
 				arrowDownList.Remove(ar);
 				break;
-			case "up":
+			case ArrowPosition.UP:
 				arrowUpList.Remove(ar);
 				break;
-			case "right":
+			case ArrowPosition.RIGHT:
 				arrowRightList.Remove(ar);
 				break;
 				
 		}
 	}
 	
-	public void removeMineFromList(Arrow ar, string state){
+	public void removeMineFromList(Arrow ar, ArrowPosition state){
 		
 		switch(state){
-			case "left":
+			case ArrowPosition.LEFT:
 				mineLeftList.Remove(ar);
 				break;
-			case "down":
+			case ArrowPosition.DOWN:
 				mineDownList.Remove(ar);
 				break;
-			case "up":
+			case ArrowPosition.UP:
 				mineUpList.Remove(ar);
 				break;
-			case "right":
+			case ArrowPosition.RIGHT:
 				mineRightList.Remove(ar);
 				break;
 				
@@ -2347,6 +2364,7 @@ public class InGameScript : MonoBehaviour {
 	
 	#region Chart creation
 	//Create the chart
+
 	void createTheChart(Song s){
 		
 		var ypos = 0f;
@@ -2439,7 +2457,8 @@ public class InGameScript : MonoBehaviour {
 				var previousnote = mesure.ElementAt(beat).Trim();
 				
 				
-				//Traitement
+				// Traitement
+				
 				if(displayValue[0]){ //No mine
 					previousnote = previousnote.Replace('M', '0');
 				}

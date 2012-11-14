@@ -5,7 +5,7 @@ public class ArrowScript : MonoBehaviour {
 	public GameObject Engine;
 	private Arrow associatedArrow;
 	
-	public string state;
+	public ArrowPosition state;
 	
 	private InGameScript igs;
 	public bool missed;
@@ -18,16 +18,16 @@ public class ArrowScript : MonoBehaviour {
 		
 		switch((int)transform.position.x){
 			case 0:
-				state = "left";
+				state = ArrowPosition.LEFT;
 				break;
 			case 2:
-				state = "down";
+				state = ArrowPosition.DOWN;
 				break;
 			case 4:
-				state = "up";
+				state = ArrowPosition.UP;
 				break;
 			case 6:
-				state = "right";
+				state = ArrowPosition.RIGHT;
 				break;
 		}
 		missed = false;

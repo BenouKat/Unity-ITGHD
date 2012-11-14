@@ -67,6 +67,54 @@ public class Song {
 		return song;
 	}
 	
+	public Song getRatedSong(float rate){
+		var ratedSong = new Song();
+		ratedSong.title = this.title;
+		ratedSong.subtitle = this.subtitle;
+		ratedSong.artist = this.artist;
+		ratedSong.banner = this.banner;
+		ratedSong.bpmToDisplay = this.bpmToDisplay;
+		ratedSong.background = this.background;
+		ratedSong.offset = this.offset/(1f + (rate/100f));
+		ratedSong.mesureBPMS = this.mesureBPMS;
+		ratedSong.mesureSTOPS = this.mesureSTOPS;
+		
+		ratedSong.bpms = new Dictionary<double, double>(); 
+		
+		foreach(var bpm in this.bpms){
+			ratedSong.bpms.Add(bpm.Key/(1f + (rate/100f)), bpm.Value/(1f + (rate/100f)));
+		}
+		
+		ratedSong.stops = new Dictionary<double, double>();
+		
+		foreach(var stop in this.stops){
+			ratedSong.stops.Add(stop.Key/(1f + (rate/100f)), stop.Value/(1f + (rate/100f)));
+		}
+		
+		ratedSong.stepartist = this.stepartist;
+		ratedSong.difficulty = this.difficulty;
+		ratedSong.level = this.level;
+		ratedSong.numberOfSteps = this.numberOfSteps;
+		ratedSong.numberOfStepsWithoutJumps = this.numberOfStepsWithoutJumps;
+		ratedSong.numberOfStepsAbsolute = this.numberOfStepsAbsolute;
+		ratedSong.numberOfFreezes = this.numberOfFreezes;
+		ratedSong.numberOfRolls = this.numberOfRolls;
+		ratedSong.numberOfMines = this.numberOfMines;
+		ratedSong.numberOfJumps = this.numberOfJumps;
+		ratedSong.numberOfHands = this.numberOfHands;
+		ratedSong.duration = this.duration/(1f + (rate/100f));
+
+		ratedSong.stepPerSecondAverage = this.stepPerSecondAverage;
+		ratedSong.stepPerSecondMaximum = this.stepPerSecondMaximum;
+		ratedSong.stepPerSecondStream = this.stepPerSecondStream;
+		ratedSong.longestStream = this.longestStream;
+		ratedSong.numberOfCross = this.numberOfCross;
+		ratedSong.numberOfFootswitch = this.numberOfFootswitch;
+		ratedSong.song = this.song;
+
+		ratedSong.sip = this.sip;
+	}
+	
 	/*
 	public AudioClip SetAudioClip(AudioClip ac){
 		var thewww = new WWW(song);

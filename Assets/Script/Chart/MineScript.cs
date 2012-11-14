@@ -8,7 +8,7 @@ public class MineScript : MonoBehaviour {
 	public GameObject Engine;
 	private Arrow associatedArrow;
 	
-	public string state;
+	public ArrowPosition state;
 	
 	private InGameScript igs;
 	private KeyCode associatedKeyCode1;
@@ -29,25 +29,25 @@ public class MineScript : MonoBehaviour {
 
 		switch((int)transform.position.x){
 			case 0:
-				state = "left";
+				state = ArrowPosition.LEFT;
 				associatedKeyCode1 = DataManager.Instance.KeyCodeLeft;
 				associatedKeyCode2 = DataManager.Instance.SecondaryKeyCodeLeft;
 				this.pm = igs.StartParticleMineLeft;
 				break;
 			case 2:
-				state = "down";
+				state = ArrowPosition.DOWN;
 				associatedKeyCode1 = DataManager.Instance.KeyCodeDown;
 				associatedKeyCode2 = DataManager.Instance.SecondaryKeyCodeDown;
 				this.pm = igs.StartParticleMineDown;
 				break;
 			case 4:
-				state = "up";
+				state = ArrowPosition.UP;
 				associatedKeyCode1 = DataManager.Instance.KeyCodeUp;
 				associatedKeyCode2 = DataManager.Instance.SecondaryKeyCodeUp;
 				this.pm = igs.StartParticleMineUp;
 				break;
 			case 6:
-				state = "right";
+				state = ArrowPosition.RIGHT;
 				associatedKeyCode1 = DataManager.Instance.KeyCodeRight;
 				associatedKeyCode2 = DataManager.Instance.SecondaryKeyCodeRight;
 				this.pm = igs.StartParticleMineRight;
