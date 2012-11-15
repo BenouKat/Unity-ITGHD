@@ -631,8 +631,8 @@ public class OptionScript : MonoBehaviour {
 		}
 		
 		if(lerpColorScreenFade < 1f){
-			bgScreen.renderer.material.color = Color.Lerp(bgScreen.renderer.material.color , new Color(colorBasicScreen.r, colorBasicScreen.g, colorBasicScreen.b, 0f) , lerpColorScreenFade);
 			lerpColorScreenFade += speedColorScreenFade*Time.deltaTime;
+			bgScreen.renderer.material.color = Color.Lerp(bgScreen.renderer.material.color , new Color(colorBasicScreen.r, colorBasicScreen.g, colorBasicScreen.b, 0f) , lerpColorScreenFade);
 		}
 	}
 	
@@ -643,6 +643,7 @@ public class OptionScript : MonoBehaviour {
 			menuItem[i].renderer.material.color = new Color(menuItem[i].renderer.material.color.r, menuItem[i].renderer.material.color.g, menuItem[i].renderer.material.color.b, alphaFadeIn);
 			cubeIcon.renderer.material.color = new Color(theSelected.renderer.material.color.r, theSelected.renderer.material.color.g, theSelected.renderer.material.color.b, 1 - alphaFadeIn);
 			if(alphaFadeIn >= 1){
+				lerpColorScreenFade = 0f;
 				optionMenuMode = StateOption.OPTIONSELECTION;
 			}
 		}
