@@ -5,11 +5,10 @@ using System.Text;
 using System.Diagnostics;
 using System.IO;
 
-namespace ParsingWordSearch
+namespace rateConvertor
 {
-    class ProgramTest
+    class Program
     {
-
         //Args :
         //0 : number rate
         //1 : Application Path
@@ -17,33 +16,37 @@ namespace ParsingWordSearch
         //3 : path to song
         static void Main(string[] args)
         {
-            
-            Process oggToWavProcess = Process.Start(args[1] + "\\RateConvertor\\x" + args[2] + "\\ffmpeg.exe", "-i " + args[3] + " " + Path.GetDirectoryName(args[3]) + "\\TempWav.wav");
-            oggToWavProcess.WaitForExit();
-            oggToWavProcess.Close();
+            ProcessStartInfo oggToWavProcess = new ProcessStartInfo(args[1] + "\\RateConvertor\\x" + args[2] + "\\ffmpeg.exe");
+            oggToWavProcess.Arguments = "-i " + args[3] + " " + Path.GetDirectoryName(args[3]) + "\\TempWav.wav";
+            oggToWavProcess.WindowStyle = ProcessWindowStyle.Hidden;
 
-            
+            Process myProcess = Process.Start(oggToWavProcess);
+            myProcess.WaitForExit();
+            myProcess.Close();
 
-            Process wavTransform = Process.Start(args[1] + "\\RateConvertor\\soundstretch.exe",
-                Path.GetDirectoryName(args[3]) + "\\TempWav.wav" + " " + Path.GetDirectoryName(args[3]) + "\\TempWavTransformed.wav" +
-                " " + "-rate=" + args[0]);
-            wavTransform.WaitForExit();
-            wavTransform.Close();
 
-	    File.Move(args[3], Path.GetDirectoryName(args[3]) + "\\OriginalSong.ogg");
 
-            Process wavToOggProcess = Process.Start(args[1] + "\\RateConvertor\\x" + args[2] + "\\ffmpeg.exe", "-i " +
-                Path.GetDirectoryName(args[3]) + "\\TempWavTransformed.wav" + " -acodec libvorbis " + args[3]);
-            wavToOggProcess.WaitForExit();
-            wavToOggProcess.Close();
+            ProcessStartInfo wavTransform = new ProcessStartInfo(args[1] + "\\RateConvertor\\soundstretch.exe");
+            wavTransform.Arguments = Path.GetDirectoryName(args[3]) + "\\TempWav.wav" + " " + Path.GetDirectoryName(args[3]) + "\\TempWavTransformed.wav" +
+                " " + "-rate=" + args[0];
+            wavTransform.WindowStyle = ProcessWindowStyle.Hidden;
+
+            myProcess = Process.Start(wavTransform);
+            myProcess.WaitForExit();
+            myProcess.Close();
+
+            File.Move(args[3], Path.GetDirectoryName(args[3]) + "\\OriginalSong.ogg");
+
+            ProcessStartInfo wavToOggProcess = new ProcessStartInfo(args[1] + "\\RateConvertor\\x" + args[2] + "\\ffmpeg.exe");
+            wavToOggProcess.Arguments = "-i " + Path.GetDirectoryName(args[3]) + "\\TempWavTransformed.wav" + " -acodec libvorbis " + args[3];
+            wavToOggProcess.WindowStyle = ProcessWindowStyle.Hidden;
+
+            myProcess = Process.Start(wavToOggProcess);
+            myProcess.WaitForExit();
+            myProcess.Close();
 
             File.Delete(Path.GetDirectoryName(args[3]) + "\\TempWav.wav");
             File.Delete(Path.GetDirectoryName(args[3]) + "\\TempWavTransformed.wav");
         }
     }
 }
-
-
-à faire :
-
-

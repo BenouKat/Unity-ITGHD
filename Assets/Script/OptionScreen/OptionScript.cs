@@ -482,14 +482,16 @@ public class OptionScript : MonoBehaviour {
 		if(!inInputEntryMode){
 			if(GUI.Button(new Rect(posButtonBack.x*Screen.width, posButtonBack.y*Screen.height, posButtonBack.width*Screen.width, posButtonBack.height*Screen.height), "Save")){
 				if(verifValidData()){
-					bgScreen.renderer.material.color = new Color(bgScreen.renderer.material.color.r*10f, bgScreen.renderer.material.color.g*10f, bgScreen.renderer.material.color.b*10f, 1f);
+					bgScreen.renderer.material.color = new Color(bgScreen.renderer.material.color.r*15f, bgScreen.renderer.material.color.g*15f, bgScreen.renderer.material.color.b*15f, 1f);
+					lerpColorScreenFade = 0f;
 					optionMenuMode = StateOption.SCREENFADEOUT;
 					putInDataManager();
 				}
 			}
 			
 			if(GUI.Button(new Rect(posButtonCancel.x*Screen.width, posButtonCancel.y*Screen.height, posButtonCancel.width*Screen.width, posButtonCancel.height*Screen.height), "Cancel")){
-				bgScreen.renderer.material.color = new Color(bgScreen.renderer.material.color.r*10f, bgScreen.renderer.material.color.g*10f, bgScreen.renderer.material.color.b*10f, 1f);
+				bgScreen.renderer.material.color = new Color(bgScreen.renderer.material.color.r*15f, bgScreen.renderer.material.color.g*15f, bgScreen.renderer.material.color.b*15f, 1f);
+				lerpColorScreenFade = 0f;
 				optionMenuMode = StateOption.SCREENFADEOUT;
 				setByDataManager();
 			}
@@ -616,7 +618,7 @@ public class OptionScript : MonoBehaviour {
 	}
 	
 	void UpdateScreenFadeOut(){
-		if(screen.transform.position.y > 19.9f && bgScreen.renderer.material.color.a > 0f){
+		if(screen.transform.position.y > 19.9f && bgScreen.renderer.material.color.a <= 0f){
 			screen.transform.position = new Vector3(0f, 20f, 0f);
 			optionMenuMode = StateOption.CUBEFADEOUT;
 			if(theSelected.name == "Network"){

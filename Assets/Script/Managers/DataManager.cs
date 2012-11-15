@@ -631,9 +631,12 @@ public class DataManager{
 	{
 		if(DataManager.Instance.rateSelected != 0f)
 		{
-			Process rateConvertor = Process.Start(Application.dataPath + "/RateConvertor/convertor.exe", DataManager.Instance.rateSelected + " " + Application.dataPath + " " + IntPtr.Size*8 + " " + DataManager.Instance.songSelected.song);
-			rateConvertor.WaitForExit();
-			rateConvertor.Close();
+			ProcessStartInfo  rateConvertor = new ProcessStartInfo(Application.dataPath + "/RateConvertor/rateConvertor.exe");
+			rateConvertor.Arguments = DataManager.Instance.rateSelected + " " + Application.dataPath + " " + IntPtr.Size*8 + " " + DataManager.Instance.songSelected.song);
+			rateConvertor.WindowStyle = ProcessWindowStyle.Hidden;
+			Process theProc = Process.Start(rateConvertor);
+			theProc.WaitForExit();
+			theProc.Close();
 		}
 	}
 }
