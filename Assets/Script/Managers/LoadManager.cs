@@ -137,7 +137,6 @@ public class LoadManager{
 					
 			}
 			songs[el.Key].OrderBy(c => c.Key);
-			alreadyLoaded = true;
 		}
 		
 		

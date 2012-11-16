@@ -194,6 +194,8 @@ Changer l'apperçu;
 <MAPPING_INFO>;
 Les touches secondaires ne sont PAS les touches du 2eme joueur, mais
 des inputs alternatif aux inputs primaires;
+<CONFIRM_DIALOG>;
+Merci de confirmer votre demande;
 [Config];
 <NumberBuild>;
 Version actuelle : build b617;

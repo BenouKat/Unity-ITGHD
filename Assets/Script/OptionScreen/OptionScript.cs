@@ -33,7 +33,10 @@ public class OptionScript : MonoBehaviour {
 	public float speedColor;
 	public float speedColorFade;
 	
-	
+	//Confirm Dialog
+	public Rect LabelConfirmDialog;
+	private bool confirmDialogActivated;
+	private string optionConfirm;
 	
 	//Fade Option
 	private float lerpColorScreenFade;
@@ -138,6 +141,7 @@ public class OptionScript : MonoBehaviour {
 		
 		tex = new Dictionary<string, Texture2D>();
 		tex.Add("labelbg", (Texture2D) Resources.Load("GUIBarMini"));
+		tex.Add("black", (Texture2D) Resources.Load("black"));
 		
 		optionMenuMode = StateOption.OPTIONSELECTION;
 		alphaFadeIn = 1f;
@@ -170,6 +174,8 @@ public class OptionScript : MonoBehaviour {
 		alphaBlackMapping = 0f;
 		inInputEntryMode = false;
 		errorMessage = "";
+		optionConfirm = "";
+		confirmDialogActivated = false;
 	}
 	
 	void OnGUI(){
@@ -296,6 +302,11 @@ public class OptionScript : MonoBehaviour {
 		if(!String.IsNullOrEmpty(errorMessage)){
 			GUI.Label(new Rect(posLabelHelp.x*Screen.width + 1, posLabelHelp.y*Screen.height + 1, posLabelHelp.width*Screen.width + 1, posLabelHelp.height*Screen.height + 1), errorMessage);
 		}
+		
+		if(!confirmDialogActivated)
+		{
+			GUI.Label(new Rect(LabelConfirmDialog.x*Screen.width, LabelConfirmDialog.y*Screen.height, LabelConfirmDialog.width*Screen.width, LabelConfirmDialog.height*Screen.height), textOption["CONFIRM_DIALOG"]);
+		}
 	
 	}
 	
@@ -352,15 +363,16 @@ public class OptionScript : MonoBehaviour {
 			
 			//reload cache
 			if(GUI.Button(new Rect(posButtonCache.x*Screen.width, posButtonCache.y*Screen.height, posButtonCache.width*Screen.width, posButtonCache.height*Screen.height), textOption["GENERAL_RELOADCACHE"], "MenuButton")){
-				//Mettre un truc de confirmation
-				LoadManager.Instance.SaveCache();
+				confirmDialogActivated = true;
+				optionConfirm = "cache";
+				
 			}
 				
 			//Changer profile
 			if(GUI.Button(new Rect(posButtonProfile.x*Screen.width, posButtonProfile.y*Screen.height, posButtonProfile.width*Screen.width, posButtonProfile.height*Screen.height), textOption["GENERAL_RELOADPROFILE"], "MenuButton")){
-				//Mettre un truc de confirmation
-				PlayerPrefs.DeleteKey("idProfile");
-				Application.LoadLevel("SplashScreen");
+				confirmDialogActivated = true;
+				optionConfirm = "profile";
+				
 			}	
 			break;
 			
@@ -472,7 +484,6 @@ public class OptionScript : MonoBehaviour {
 			break;
 		}
 		
-		//Mettre un label d'aide
 		if(!String.IsNullOrEmpty(errorMessage)){
 			GUI.color = new Color(1f, 0.1f, 0.1f, 1f);
 			GUI.Label(new Rect(posLabelHelp.x*Screen.width, posLabelHelp.y*Screen.height, posLabelHelp.width*Screen.width, posLabelHelp.height*Screen.height), errorMessage);
@@ -480,20 +491,44 @@ public class OptionScript : MonoBehaviour {
 		}
 		
 		if(!inInputEntryMode){
-			if(GUI.Button(new Rect(posButtonBack.x*Screen.width, posButtonBack.y*Screen.height, posButtonBack.width*Screen.width, posButtonBack.height*Screen.height), "Save")){
-				if(verifValidData()){
+			if(!confirmDialogActivated){
+			
+				if(GUI.Button(new Rect(posButtonBack.x*Screen.width, posButtonBack.y*Screen.height, posButtonBack.width*Screen.width, posButtonBack.height*Screen.height), "Save")){
+					if(verifValidData()){
+						bgScreen.renderer.material.color = new Color(bgScreen.renderer.material.color.r*15f, bgScreen.renderer.material.color.g*15f, bgScreen.renderer.material.color.b*15f, 1f);
+						lerpColorScreenFade = 0f;
+						optionMenuMode = StateOption.SCREENFADEOUT;
+						putInDataManager();
+					}
+				}
+				
+				if(GUI.Button(new Rect(posButtonCancel.x*Screen.width, posButtonCancel.y*Screen.height, posButtonCancel.width*Screen.width, posButtonCancel.height*Screen.height), "Cancel")){
 					bgScreen.renderer.material.color = new Color(bgScreen.renderer.material.color.r*15f, bgScreen.renderer.material.color.g*15f, bgScreen.renderer.material.color.b*15f, 1f);
 					lerpColorScreenFade = 0f;
 					optionMenuMode = StateOption.SCREENFADEOUT;
-					putInDataManager();
+					setByDataManager();
 				}
-			}
-			
-			if(GUI.Button(new Rect(posButtonCancel.x*Screen.width, posButtonCancel.y*Screen.height, posButtonCancel.width*Screen.width, posButtonCancel.height*Screen.height), "Cancel")){
-				bgScreen.renderer.material.color = new Color(bgScreen.renderer.material.color.r*15f, bgScreen.renderer.material.color.g*15f, bgScreen.renderer.material.color.b*15f, 1f);
-				lerpColorScreenFade = 0f;
-				optionMenuMode = StateOption.SCREENFADEOUT;
-				setByDataManager();
+			}else
+			{
+				GUI.Label(new Rect(LabelConfirmDialog.x*Screen.width, LabelConfirmDialog.y*Screen.height, LabelConfirmDialog.width*Screen.width, LabelConfirmDialog.height*Screen.height), textOption["CONFIRM_DIALOG"]);
+		
+				if(GUI.Button(new Rect(posButtonBack.x*Screen.width, posButtonBack.y*Screen.height, posButtonBack.width*Screen.width, posButtonBack.height*Screen.height), "Confirm")){
+					switch(optionConfirm)
+					{
+						case "cache":
+						LoadManager.Instance.SaveCache();
+						break;
+						case "profile":
+						PlayerPrefs.DeleteKey("idProfile");
+						Application.LoadLevel("SplashScreen");
+						break;
+					}
+					confirmDialogActivated = false;
+				}
+				
+				if(GUI.Button(new Rect(posButtonCancel.x*Screen.width, posButtonCancel.y*Screen.height, posButtonCancel.width*Screen.width, posButtonCancel.height*Screen.height), "Cancel")){
+					confirmDialogActivated = false;
+				}
 			}
 		}else{
 			if (Event.current.isKey)
