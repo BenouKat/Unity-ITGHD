@@ -222,7 +222,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	private Dictionary<string, Dictionary<Difficulty, Song>> songList;
 	private string search;
 	private string searchOldValue;
-	private Rect posSwitchSearch;
+	public Rect posSwitchSearch;
 	
 	//Tri
 	
@@ -588,7 +588,7 @@ public class WheelSongMainScript : MonoBehaviour {
 						activeCustomPack();
 						StartCoroutine(AnimSearchBar(false));
 						var	num = 0;
-						error.displayError = !(DataManager.Instance.sortMethod >= Sort.DIFFICULTY && !Int32.TryParse(search, out num));
+						error.displayError = (DataManager.Instance.sortMethod >= Sort.DIFFICULTY && !Int32.TryParse(search, out num));
 					}else if(!LoadManager.Instance.isAllowedToSearch(search) && searchOldValue.Trim().Length > search.Trim().Length){
 						songList.Clear();
 						if(particleOnPlay != null){
@@ -1271,7 +1271,7 @@ public class WheelSongMainScript : MonoBehaviour {
 			if(time > 1f){
 				if(alphaBlack < 1f){
 					alphaBlack += Time.deltaTime/speedAlphaBlack;	
-					audio.volume -= Time.deltaTime/speedAlphaBlack;	
+					songClip.volume -= Time.deltaTime/speedAlphaBlack;	
 					
 					if(alphaBlack >= 1f && DataManager.Instance.rateSelected != 0f){
 						displayLoading = true;

@@ -2137,6 +2137,7 @@ public class InGameScript : MonoBehaviour {
 		DataManager.Instance.scoreCount = scoreCount;
 		DataManager.Instance.fail = fail;
 		DataManager.Instance.firstArrow = firstArrow;
+		ProfileManager.Instance.currentProfile.updateGameTime(timetotalchart);
 	}
 	
 	IEnumerator swipTexture(bool reverse, float height, float wait){

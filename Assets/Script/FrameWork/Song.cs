@@ -10,7 +10,7 @@ public class Song {
 	public string artist;
 	public string banner;
 	public string bpmToDisplay;
-	public Texture2D background;
+	public string background;
 	public double offset;
 	public double samplestart;
 	public double samplelenght;
@@ -142,6 +142,30 @@ public class Song {
 	
 	public Texture2D GetBanner(){
 		WWW www = new WWW(banner);
+		while(!www.isDone){}
+		var tex = new Texture2D(256,256);
+		www.LoadImageIntoTexture(tex);
+		
+		www.Dispose();
+		return tex;
+	}
+	
+	public Texture2D GetBackground(Texture2D tex){
+		if(background != "noBanner"){
+			WWW www = new WWW(background);
+			while(!www.isDone){}
+			
+    		www.LoadImageIntoTexture(tex);
+			
+			www.Dispose();
+			return tex;
+			
+		}
+		return null;
+	}
+	
+	public Texture2D GetGetBackground(){
+		WWW www = new WWW(background);
 		while(!www.isDone){}
 		var tex = new Texture2D(256,256);
 		www.LoadImageIntoTexture(tex);

@@ -884,7 +884,10 @@ public class IntroScript : MonoBehaviour {
 		
 		if(!ProfileManager.Instance.alreadyLoaded) ProfileManager.Instance.LoadProfiles();
 		var verif = ProfileManager.Instance.verifyCurrentProfile();
-		if(verif) ProfileManager.Instance.currentProfile.loadOptions();
+		if(verif){
+			ProfileManager.Instance.currentProfile.loadOptions();
+			GameObject.Find("OptionManager").GetComponent<OptionManager>().reloadEffect();
+		}
 		
 		if(verif && DataManager.Instance.useTheCacheSystem){
 			if(!LoadManager.Instance.alreadyLoaded){

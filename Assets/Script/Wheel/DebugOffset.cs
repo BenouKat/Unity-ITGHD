@@ -14,6 +14,8 @@ public class DebugOffset : MonoBehaviour {
 	
 	public bool validValue;
 	
+	public GUISkin skin;
+	
 	public void Start(){
 		display = false;
 		valueTextField = DataManager.Instance.userGOS.ToString("0.000");
@@ -21,12 +23,13 @@ public class DebugOffset : MonoBehaviour {
 	}
 	
 	public void Update(){
-		if(Input.GetButtonDown("F1")){
+		if(Input.GetKeyDown(KeyCode.F1)){
 			display = !display;
 		}
 	}
 	
 	public void OnGUI(){
+		GUI.skin = skin;
 		if(display){
 			valueTextField = GUI.TextField(new Rect(posLabel.x*Screen.width, posLabel.y*Screen.height, posLabel.width*Screen.width, posLabel.height*Screen.height), valueTextField);
 			double valued = 0;

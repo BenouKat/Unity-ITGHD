@@ -16,7 +16,7 @@ public class SerializableSong {
 	private string artist;
 	private string banner;
 	private string bpmToDisplay;
-	private Texture2D background;
+	private string background;
 	private double offset;
 	private double samplestart;
 	private double samplelenght;

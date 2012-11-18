@@ -265,7 +265,14 @@ public class DataManager{
 		
 		rateSelected = 0f;
 		
-		ReadTempConfigFile();
+		if(ProfileManager.Instance.currentProfile == null){
+			generalVolume = 1f;
+			enableBloom = true;
+			enableDepthOfField = true;
+		}
+		
+		
+		//ReadTempConfigFile();
 		InitDicOption();
 		
 	}
@@ -329,7 +336,7 @@ public class DataManager{
 		aDeath[2] = "Never";
 	}
 	
-	
+	/*
 	public void ReadTempConfigFile(){
 		try{
 			StreamReader sr = new StreamReader(Application.dataPath + DEBUGPATH + "Option/Option.ini");
@@ -354,7 +361,7 @@ public class DataManager{
 			UnityEngine.Debug.Log(e.Message);
 		}
 	
-	}
+	}*/
 	
 	public void LoadScoreJudge(Judge j){
 		switch(j){

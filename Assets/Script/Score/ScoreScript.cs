@@ -203,6 +203,7 @@ public class ScoreScript : MonoBehaviour {
 				DataManager.Instance.scoreEarned, (double)DataManager.Instance.speedmodSelected, 
 				DataManager.Instance.fail);
 		}
+		ProfileManager.Instance.currentProfile.updateGameTime(DataManager.Instance.songSelected.duration);
 		ProfileManager.Instance.SaveProfile();
 	}
 	

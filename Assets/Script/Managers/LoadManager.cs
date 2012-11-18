@@ -87,7 +87,8 @@ public class LoadManager{
 	
 	
 	
-	public void LoadingFromCacheFile(SerializableSongStorage sss){
+	public int LoadingFromCacheFile(SerializableSongStorage sss){
+		var numberNotFound = 0;
 		bannerPack = new Dictionary<string, Texture2D>();
 		//string[] packpath = (string[]) Directory.GetDirectories(Application.dataPath + "/Songs/"); 	//RELEASE
 		string[] packpath = (string[]) Directory.GetDirectories(Application.dataPath + DataManager.Instance.DEBUGPATH + "Songs/");  	//DEBUG
@@ -115,19 +116,21 @@ public class LoadManager{
 			//string[] songpath = (string[]) Directory.GetDirectories(Application.dataPath + "/Songs/" + el.Key);		//RELEASE
 			string[] songpath = (string[]) Directory.GetDirectories(Application.dataPath + DataManager.Instance.DEBUGPATH + "Songs/" + el.Key);		//DEBUG
 			var lengthsp = lastDir ((string) songpath[0]).Count();
+			var packsss = sss.getStore().Where(c => c.packName == el.Key);
 			foreach(string sp in songpath){
 				//Debug.Log("new song : " + lastDir(sp)[lengthsp - 1]);
 				var dic = new Dictionary<Difficulty, Song>();
-				var sameSong = sss.getStore().Where(c => c.packName == el.Key && c.songFileName == lastDir(sp)[lengthsp - 1]);
+				var sameSong = packsss.Where(c => c.songFileName == lastDir(sp)[lengthsp - 1]);
 				if(sameSong.Count() > 0){
-					
 					foreach(var oneSong in sameSong){
 						var theUnpackedSong = new Song();
 						oneSong.transfertLoad(theUnpackedSong);
 						dic.Add(theUnpackedSong.difficulty, theUnpackedSong);
 					}
+					
 				}else{
 					dic = OpenChart.Instance.readChart(sp.Replace('\\', '/'));
+					numberNotFound++;
 				}
 				if(dic != null && dic.Count != 0) songs[el.Key].Add(lastDir(sp)[lengthsp - 1] , dic);
 				/*Debug.Log("Song : " + lastDir(sp)[lengthsp - 1] + 
@@ -136,6 +139,7 @@ public class LoadManager{
 					" / number step expert : " + songs[el.Key][lastDir(sp)[lengthsp - 1]][Difficulty.EXPERT].numberOfSteps);*/
 					
 			}
+			sss.getStore().RemoveAll(c => c.packName == el.Key);
 			songs[el.Key].OrderBy(c => c.Key);
 		}
 		
@@ -150,6 +154,7 @@ public class LoadManager{
 		}
 		songs.OrderBy(c => c.Key);
 		alreadyLoaded = true;
+		return numberNotFound;
 	}
 	
 	private string[] lastDir(string dir){
@@ -226,8 +231,8 @@ public class LoadManager{
 			case Sort.DIFFICULTY:
 				int dif = 0;
 				if(Int32.TryParse(contains, out dif)){
-					foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.Count(s => s.Value.level == dif) > 0).Count() > 0)){
-						foreach(var song in packs.Value.Where(r => r.Value.Count(s => s.Value.level == dif) > 0)){
+					foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.Count(s => s.Value.level == dif && s.Value.difficulty <= Difficulty.EDIT) > 0).Count() > 0)){
+						foreach(var song in packs.Value.Where(r => r.Value.Count(s => s.Value.level == dif && s.Value.difficulty <= Difficulty.EDIT) > 0)){
 							finalList.Add(song.Value.First().Value.title + "[" + packs.Key + "]", song.Value);
 						}
 					}
@@ -263,7 +268,7 @@ public class LoadManager{
 			case Sort.DIFFICULTY:
 				return search.Trim().Length >= 1;
 			case Sort.BPM:
-				return search.Trim().Length >= 1;
+				return search.Trim().Length >= 2;
 			default:
 				return false;
 		}
@@ -297,31 +302,49 @@ public class LoadManager{
 		if(!Directory.Exists(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache/")){
 				Directory.CreateDirectory(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache");
 		}
-		if(File.Exists(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache/" + "dataSong.cache")){
-			File.Delete(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache/" + "dataSong.cache");
+		var cacheFiles = (string[]) Directory.GetFiles(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache");
+		for(int i=0; i<cacheFiles.Length; i++){
+			File.Delete(cacheFiles[i]);	
 		}
-		
-		Stream stream = File.Open(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache/" + "dataSong.cache", FileMode.Create);
-		BinaryFormatter bformatter = new BinaryFormatter();
-	    bformatter.Binder = new VersionDeserializationBinder(); 
 		
 		var sss = new SerializableSongStorage();
 		sss.packTheStore();
-		try{
-			bformatter.Serialize(stream, sss);
-			stream.Close();
+		var decoupStore = sss.decoupSerial();
+		
+		for(int i=0; i<decoupStore.Count; i++){
+			Stream stream = File.Open(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache/" + "dataSong" + i + ".cache", FileMode.Create);
+			BinaryFormatter bformatter = new BinaryFormatter();
+		    bformatter.Binder = new VersionDeserializationBinder(); 
+			var minisss = new SerializableSongStorage();
+			minisss.store = decoupStore[i];
 			
-		}catch(Exception e){
-			
-			stream.Close();
-			File.Delete(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache/" + "dataSong.cache");
-			sss.getStore().Clear();
-			
-			Debug.Log(e.Message);
-			return false;
+			try{
+				bformatter.Serialize(stream, minisss);
+				stream.Close();
+				minisss = null;
+				
+			}catch(Exception e){
+				
+				stream.Close();
+				var cacheFilesDel = (string[]) Directory.GetFiles(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache");
+				for(int j=0; j<cacheFilesDel.Length; j++){
+					File.Delete(cacheFilesDel[j]);	
+				};
+				sss.destroy();
+				sss.getStore().Clear();
+				sss = null;
+				decoupStore.Clear();
+				decoupStore = null;
+				Debug.Log(e.Message);
+				return false;
+			}
 		}
+		
+		sss.destroy();
 		sss.getStore().Clear();
 		sss = null;
+		decoupStore.Clear();
+		decoupStore = null;
 		GC.Collect();
 		return true;
 		
@@ -330,21 +353,30 @@ public class LoadManager{
 	
 	public bool LoadFromCache () {
 	
-		if(File.Exists(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache" + "dataSong.cache")){
-			var file = Directory.GetFiles(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache").FirstOrDefault(c => c.Contains("dataSong.cache"));
+		if(Directory.Exists(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache/")){
+			var cacheFiles = (string[]) Directory.GetFiles(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache");
 			var sss = new SerializableSongStorage ();
-			Stream stream = File.Open(file, FileMode.Open);
-			BinaryFormatter bformatter = new BinaryFormatter();
-			bformatter.Binder = new VersionDeserializationBinder(); 
-			sss = (SerializableSongStorage)bformatter.Deserialize(stream);
-			stream.Close();
-			
-			LoadingFromCacheFile(sss);
+			Debug.Log(System.DateTime.Now.Second + ":" + System.DateTime.Now.Millisecond);
+			for(int i=0; i<cacheFiles.Length; i++){
+				var file = Directory.GetFiles(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache").FirstOrDefault(c => c.Contains("dataSong"+ i +".cache"));
+				var minisss = new SerializableSongStorage ();
+				Stream stream = File.Open(file, FileMode.Open);
+				BinaryFormatter bformatter = new BinaryFormatter();
+				bformatter.Binder = new VersionDeserializationBinder(); 
+				minisss = (SerializableSongStorage)bformatter.Deserialize(stream);
+				stream.Close();
+				sss.store.AddRange(minisss.store);
+				minisss = null;
+			}
+			Debug.Log(LoadingFromCacheFile(sss));
+			sss.destroy();
 			sss.getStore().Clear();
 			sss = null;
-			GC.Collect();
 			return true;
+			
 		}
+			
+		
 		return false;
 	}
 }

@@ -23,9 +23,11 @@ public class OptionScript : MonoBehaviour {
 	public GameObject screen;
 	public GameObject bgScreen;
 	public GameObject[] menuItem;
+	public Camera camMapping;
 	public GUISkin skin;
 	private FadeManager fm;
-	
+	private bool alreadyFaded;
+	private float timeBeforeFade;
 	
 	private Vector3[] Rotate;
 	public float speedScale;
@@ -65,7 +67,7 @@ public class OptionScript : MonoBehaviour {
 	public Rect posButtonBack;
 	public Rect posButtonCancel;
 	public Rect posLabelListChoice;
-	public Vector2 sizeArrowButton;
+	public Rect sizeArrowButton;
 	public float offsetBetweenLabel;
 	private string errorMessage;
 	public Rect posLabelHelp;
@@ -93,8 +95,8 @@ public class OptionScript : MonoBehaviour {
 	public Rect labelMapping;
 	public float offsetYlabelMapping;
 	public float offsetXlabelMapping;
-	public Rect labelDialogMap;
-	public float offsetDialogMap;
+	public Rect labelDialogMapPri;
+	public Rect labelDialogMapSec;
 	public Rect labelInfo;
 	public int choicePosition;
 	
@@ -102,9 +104,12 @@ public class OptionScript : MonoBehaviour {
 	public Transform[] form1;
 	public Transform[] form2;
 	public Transform[] form3;
+	public Vector2[] posLabelPrim;
+	public Vector2[] posLabelSec;
 	public float speedMovementMapping;
 	private bool inPosition;
 	
+	private float timeStillFade;
 	private float fadeColorMapping;
 	public float speedColorMapping;
 	
@@ -112,6 +117,8 @@ public class OptionScript : MonoBehaviour {
 	public float speedFadeBlackMapping;
 	private int indexInputSelected;
 	private bool inInputEntryMode;
+	
+	public GameObject KeyMapParentObject;
 	
 	//General
 	public Rect posButtonCache;
@@ -135,9 +142,6 @@ public class OptionScript : MonoBehaviour {
 	private Dictionary<string, string> textOption;
 	// Use this for initialization
 	void Start () {
-		
-		//test
-		TextManager.Instance.LoadTextFile();
 		
 		tex = new Dictionary<string, Texture2D>();
 		tex.Add("labelbg", (Texture2D) Resources.Load("GUIBarMini"));
@@ -170,12 +174,16 @@ public class OptionScript : MonoBehaviour {
 		fadeOut = false;
 		fm = gameObject.GetComponent<FadeManager>();
 		inPosition = false;
-		fadeColorMapping = 0f;
+		fadeColorMapping = 0f;	
 		alphaBlackMapping = 0f;
 		inInputEntryMode = false;
 		errorMessage = "";
 		optionConfirm = "";
 		confirmDialogActivated = false;
+		GetComponent<FadeManager>().FadeOut();
+		timeStillFade = 0f;
+		alreadyFaded = false;
+		timeBeforeFade = 0f;
 	}
 	
 	void OnGUI(){
@@ -251,7 +259,7 @@ public class OptionScript : MonoBehaviour {
 			case "Network":
 			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["NETWORK_CHOICE"]);
 			
-			GUI.Label(new Rect(posLabelListChoice.x*Screen.width + 1, posLabelListChoice.y*Screen.height + 1, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), networkValue[(int)PDT]);
+			GUI.Label(new Rect(posLabelListChoice.x*Screen.width + 1, posLabelListChoice.y*Screen.height + 1, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), networkValue[(int)PDT], "centeredLabel");
 			break;
 			
 			
@@ -272,25 +280,25 @@ public class OptionScript : MonoBehaviour {
 			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["VIDEO_AA"]);
 
 			
-			GUI.Label(new Rect(posLabelListChoice.x*Screen.width + 1, posLabelListChoice.y*Screen.height + 1 + offsetLabelYOption*2*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), "x" + antiAliasing);
+			GUI.Label(new Rect(posLabelListChoice.x*Screen.width + 1, posLabelListChoice.y*Screen.height + 1 + offsetLabelYOption*2*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), "x" + antiAliasing, "centeredLabel");
 
 			break;
 			
 			
 		//Key Mapping
 			case "Key Mapping":
-			GUI.Label(new Rect(labelDialogMap.x*Screen.width + 1, labelDialogMap.y*Screen.height + 1, labelDialogMap.width*Screen.width, labelDialogMap.height*Screen.height), "Primary");
-			GUI.Label(new Rect(labelDialogMap.x*Screen.width + 1, labelDialogMap.y*Screen.height + 1, labelDialogMap.width*Screen.width, labelDialogMap.height*Screen.height), "Secondary");
+			GUI.Label(new Rect(labelDialogMapPri.x*Screen.width + 1, labelDialogMapPri.y*Screen.height + 1, labelDialogMapPri.width*Screen.width, labelDialogMapPri.height*Screen.height), "Primary");
+			GUI.Label(new Rect(labelDialogMapSec.x*Screen.width + 1, labelDialogMapSec.y*Screen.height + 1, labelDialogMapSec.width*Screen.width, labelDialogMapSec.height*Screen.height), "Secondary");
 			for(int i=0; i<8; i++){
-				var supX = i < 4 ? i : i - 4;
-				var supY = i < 4 ? 0 : 1;
+				var supX = i < 4 ? 0 : 1;
+				var supY = i < 4 ? i : i - 4;
 				GUI.Label(new Rect(labelMapping.x*Screen.width + 1 + supX*offsetXlabelMapping*Screen.width, labelMapping.y*Screen.height + 1 + supY*offsetYlabelMapping*Screen.width, labelMapping.width*Screen.width, labelMapping.height*Screen.height), giveLabelForIndex(i) + giveCodeForIndex(i).ToString());
 			}
 			
 			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["MAPPING_CHOICE"]);
 
 			
-			GUI.Label(new Rect(posLabelListChoice.x*Screen.width + 1, posLabelListChoice.y*Screen.height + 1 + offsetLabelYOption*2*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), choicePosition == 0 ? "KeyBoard" : choicePosition == 1 ? "Arcade Stick" : "DancePad");
+			GUI.Label(new Rect(posLabelListChoice.x*Screen.width + 1, posLabelListChoice.y*Screen.height + 1, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), choicePosition == 0 ? "KeyBoard" : choicePosition == 1 ? "Arcade Stick" : "DancePad", "centeredLabel");
 			
 			GUI.Label(new Rect(labelInfo.x*Screen.width + 1, labelInfo.y*Screen.height + 1, labelInfo.width*Screen.width, labelInfo.height*Screen.height), inInputEntryMode ? textOption["MAPPING_INPUT"] : textOption["MAPPING_INFO"]);
 			
@@ -303,9 +311,9 @@ public class OptionScript : MonoBehaviour {
 			GUI.Label(new Rect(posLabelHelp.x*Screen.width + 1, posLabelHelp.y*Screen.height + 1, posLabelHelp.width*Screen.width + 1, posLabelHelp.height*Screen.height + 1), errorMessage);
 		}
 		
-		if(!confirmDialogActivated)
+		if(confirmDialogActivated)
 		{
-			GUI.Label(new Rect(LabelConfirmDialog.x*Screen.width, LabelConfirmDialog.y*Screen.height, LabelConfirmDialog.width*Screen.width, LabelConfirmDialog.height*Screen.height), textOption["CONFIRM_DIALOG"]);
+			GUI.Label(new Rect(LabelConfirmDialog.x*Screen.width + 1, LabelConfirmDialog.y*Screen.height + 1, LabelConfirmDialog.width*Screen.width, LabelConfirmDialog.height*Screen.height), textOption["CONFIRM_DIALOG"]);
 		}
 	
 	}
@@ -380,17 +388,17 @@ public class OptionScript : MonoBehaviour {
 			case "Network":
 			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["NETWORK_CHOICE"]);
 			
-			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width + offsetBetweenLabel*Screen.width, posLabelListChoice.y*Screen.height, sizeArrowButton.x*Screen.width, sizeArrowButton.y*Screen.height), "", "rightArrow")){
+			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width + offsetBetweenLabel*Screen.width + sizeArrowButton.x*Screen.width, posLabelListChoice.y*Screen.height + sizeArrowButton.y*Screen.height, sizeArrowButton.width*Screen.width, sizeArrowButton.height*Screen.height), "", "rightArrow")){
 				PDT++;
 				if((int)PDT > 3) PDT = (ProfileDownloadType)0;
 			}
 			
-			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width - offsetBetweenLabel*Screen.width, posLabelListChoice.y*Screen.height, sizeArrowButton.x*Screen.width, sizeArrowButton.y*Screen.height), "", "leftArrow")){
+			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width - offsetBetweenLabel*Screen.width + sizeArrowButton.x*Screen.width, posLabelListChoice.y*Screen.height + sizeArrowButton.y*Screen.height, sizeArrowButton.width*Screen.width, sizeArrowButton.height*Screen.height), "", "leftArrow")){
 				PDT--;
 				if((int)PDT < 0) PDT = (ProfileDownloadType)3;
 			}
 			
-			GUI.Label(new Rect(posLabelListChoice.x*Screen.width, posLabelListChoice.y*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), networkValue[(int)PDT]);
+			GUI.Label(new Rect(posLabelListChoice.x*Screen.width, posLabelListChoice.y*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), networkValue[(int)PDT], "centeredLabel");
 			//Faire une anim ?
 			break;
 			
@@ -426,52 +434,54 @@ public class OptionScript : MonoBehaviour {
 				}
 			}
 			
-			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["VIDEO_AA"]);
-			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width + offsetBetweenLabel*Screen.width, posLabelListChoice.y*Screen.height + offsetLabelYOption*2*Screen.height, sizeArrowButton.x*Screen.width, sizeArrowButton.y*Screen.height), "", "rightArrow")){
+			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height + offsetLabelYOption*2*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["VIDEO_AA"]);
+			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width + offsetBetweenLabel*Screen.width + sizeArrowButton.x*Screen.width, posLabelListChoice.y*Screen.height + offsetLabelYOption*2*Screen.height + sizeArrowButton.y*Screen.height, sizeArrowButton.width*Screen.width, sizeArrowButton.width*Screen.height), "", "rightArrow")){
 				antiAliasing += 2;
 				if(antiAliasing > 8) antiAliasing = 0;
+				if(antiAliasing == 6) antiAliasing = 8;
 			}
 			
-			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width - offsetBetweenLabel*Screen.width, posLabelListChoice.y*Screen.height + offsetLabelYOption*2*Screen.height, sizeArrowButton.x*Screen.width, sizeArrowButton.y*Screen.height), "", "leftArrow")){
+			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width - offsetBetweenLabel*Screen.width + sizeArrowButton.x*Screen.width, posLabelListChoice.y*Screen.height + offsetLabelYOption*2*Screen.height + sizeArrowButton.y*Screen.height, sizeArrowButton.width*Screen.width, sizeArrowButton.width*Screen.height), "", "leftArrow")){
 				antiAliasing -= 2;
 				if(antiAliasing < 0) antiAliasing = 8;
+				if(antiAliasing == 6) antiAliasing = 4;
 			}
 			
-			GUI.Label(new Rect(posLabelListChoice.x*Screen.width, posLabelListChoice.y*Screen.height + offsetLabelYOption*2*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), "x" + antiAliasing);
+			GUI.Label(new Rect(posLabelListChoice.x*Screen.width, posLabelListChoice.y*Screen.height + offsetLabelYOption*2*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), "x" + antiAliasing, "centeredLabel");
 			//Faire une anim ?
 			break;
 			
 			
 		//Key Mapping
 			case "Key Mapping":
-			GUI.Label(new Rect(labelDialogMap.x*Screen.width, labelDialogMap.y*Screen.height, labelDialogMap.width*Screen.width, labelDialogMap.height*Screen.height), "Primary");
-			GUI.Label(new Rect(labelDialogMap.x*Screen.width, labelDialogMap.y*Screen.height, labelDialogMap.width*Screen.width, labelDialogMap.height*Screen.height), "Secondary");
+			GUI.Label(new Rect(labelDialogMapPri.x*Screen.width, labelDialogMapPri.y*Screen.height, labelDialogMapPri.width*Screen.width, labelDialogMapPri.height*Screen.height), "Primary");
+			GUI.Label(new Rect(labelDialogMapSec.x*Screen.width, labelDialogMapSec.y*Screen.height, labelDialogMapSec.width*Screen.width, labelDialogMapSec.height*Screen.height), "Secondary");
 			for(int i=0; i<8; i++){
-				var supX = i < 4 ? i : i - 4;
-				var supY = i < 4 ? 0 : 1;
+				var supX = i < 4 ? 0 : 1;
+				var supY = i < 4 ? i : i - 4;
 				if(indexInputSelected == -1){
 					GUI.color = new Color(1f, 1f, 1f, 1f);
 				}else if(indexInputSelected != i){
-					GUI.color = new Color(1 - 0.6f*fadeColorMapping, 1 - 0.6f*fadeColorMapping, 1 - 0.6f*fadeColorMapping, 1f);
+					GUI.color = formObject[i].renderer.material.color;
 				}
 				GUI.Label(new Rect(labelMapping.x*Screen.width + supX*offsetXlabelMapping*Screen.width, labelMapping.y*Screen.height + supY*offsetYlabelMapping*Screen.width, labelMapping.width*Screen.width, labelMapping.height*Screen.height), giveLabelForIndex(i) + giveCodeForIndex(i).ToString());
 				GUI.color = new Color(1f, 1f, 1f, 1f);
 			}
 			
 			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["MAPPING_CHOICE"]);
-			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width + offsetBetweenLabel*Screen.width, posLabelListChoice.y*Screen.height, sizeArrowButton.x*Screen.width, sizeArrowButton.y*Screen.height), "", "rightArrow") && !inInputEntryMode){
+			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width + offsetBetweenLabel*Screen.width + sizeArrowButton.x*Screen.width, posLabelListChoice.y*Screen.height + sizeArrowButton.y*Screen.height, sizeArrowButton.width*Screen.width, sizeArrowButton.height*Screen.height), "", "rightArrow") && !inInputEntryMode){
 				choicePosition += 1;
 				if(choicePosition > 2) choicePosition = 0;
 				inPosition = false;
 			}
 			
-			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width - offsetBetweenLabel*Screen.width, posLabelListChoice.y*Screen.height, sizeArrowButton.x*Screen.width, sizeArrowButton.y*Screen.height), "", "leftArrow") && !inInputEntryMode){
+			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width - offsetBetweenLabel*Screen.width + sizeArrowButton.x*Screen.width, posLabelListChoice.y*Screen.height + sizeArrowButton.y*Screen.height, sizeArrowButton.width*Screen.width, sizeArrowButton.height*Screen.height), "", "leftArrow") && !inInputEntryMode){
 				choicePosition -= 1;
 				if(choicePosition < 0) choicePosition = 2;
 				inPosition = false;
 			}
 			
-			GUI.Label(new Rect(posLabelListChoice.x*Screen.width, posLabelListChoice.y*Screen.height + offsetLabelYOption*2*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), choicePosition == 0 ? "KeyBoard" : choicePosition == 1 ? "Arcade Stick" : "DancePad");
+			GUI.Label(new Rect(posLabelListChoice.x*Screen.width, posLabelListChoice.y*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), choicePosition == 0 ? "KeyBoard" : choicePosition == 1 ? "Arcade Stick" : "DancePad", "centeredLabel");
 			
 			GUI.color = new Color(1f, 1f, 1f, alphaBlackMapping);
 			GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), tex["black"]);
@@ -503,6 +513,7 @@ public class OptionScript : MonoBehaviour {
 				}
 				
 				if(GUI.Button(new Rect(posButtonCancel.x*Screen.width, posButtonCancel.y*Screen.height, posButtonCancel.width*Screen.width, posButtonCancel.height*Screen.height), "Cancel")){
+					errorMessage = "";
 					bgScreen.renderer.material.color = new Color(bgScreen.renderer.material.color.r*15f, bgScreen.renderer.material.color.g*15f, bgScreen.renderer.material.color.b*15f, 1f);
 					lerpColorScreenFade = 0f;
 					optionMenuMode = StateOption.SCREENFADEOUT;
@@ -564,6 +575,13 @@ public class OptionScript : MonoBehaviour {
 				UpdateMapping();
 				break;
 		}
+		
+		if(!alreadyFaded && timeBeforeFade > 0.4f){
+			GetComponent<FadeManager>().FadeOut();
+			alreadyFaded = true;
+		}else{
+			timeBeforeFade += Time.deltaTime;
+		}
 	}
 	
 	void UpdateOptionSelect () {
@@ -575,9 +593,9 @@ public class OptionScript : MonoBehaviour {
 			{
 				
 				var theGo = hit.transform.gameObject;
-				if(theGo != null){
+				if(theGo != null && theGo.tag != "MenuItem"){
 					theSelected = theGo;
-					if(!theSelected.transform.GetChild(0).particleSystem.isPlaying) theSelected.transform.GetChild(0).particleSystem.Play();
+					theSelected.transform.GetChild(0).particleSystem.Play();
 					theSelected.renderer.material.color = Color.Lerp(theSelected.renderer.material.color, theSelected.GetComponent<ColorGO>().myColor, loadColor);
 					theSelected.transform.localScale = Vector3.Lerp(theSelected.transform.localScale, new Vector3(1.4f, 1.4f, 1.4f), Time.deltaTime/speedScale);
 					if(loadColor < 1f) loadColor += Time.deltaTime*speedColor;
@@ -587,7 +605,7 @@ public class OptionScript : MonoBehaviour {
 					theSelected = null;
 				}
 				
-			}else if(theSelected != null){
+			}else if(theSelected != null ){
 				loadColor = 0f;
 				if(theSelected.transform.GetChild(0).particleSystem.isPlaying) theSelected.transform.GetChild(0).particleSystem.Stop();
 				theSelected = null;
@@ -640,10 +658,8 @@ public class OptionScript : MonoBehaviour {
 			screen.transform.position = new Vector3(0f, 0f, 0f);
 			bgScreen.renderer.material.color = new Color(bgScreen.renderer.material.color.r*15f, bgScreen.renderer.material.color.g*15f, bgScreen.renderer.material.color.b*15f, 1f);
 			optionMenuMode = StateOption.OPTION;
-			if(theSelected.name == "Network"){
-				foreach(var obj in formObject){
-					((GameObject)obj).renderer.enabled = true;
-				}
+			if(theSelected.name == "Key Mapping"){
+				KeyMapParentObject.SetActiveRecursively(true);
 			}
 		}else{
 			screen.transform.position = Vector3.Lerp(screen.transform.position, new Vector3(0f, 0f, 0f), speedFadeScreen*Time.deltaTime);
@@ -653,21 +669,21 @@ public class OptionScript : MonoBehaviour {
 	}
 	
 	void UpdateScreenFadeOut(){
-		if(screen.transform.position.y > 19.9f && bgScreen.renderer.material.color.a <= 0f){
+		if(screen.transform.position.y > 19.9f){
 			screen.transform.position = new Vector3(0f, 20f, 0f);
 			optionMenuMode = StateOption.CUBEFADEOUT;
-			if(theSelected.name == "Network"){
-				foreach(var obj in formObject){
-					((GameObject)obj).renderer.enabled = true;
-				}
-			}
-		}else{
+			
+		}else if(bgScreen.renderer.material.color.a <= 0f){
 			screen.transform.position = Vector3.Lerp(screen.transform.position, new Vector3(0f, 20f, 0f), speedFadeScreen*Time.deltaTime);
 		}
 		
 		if(lerpColorScreenFade < 1f){
 			lerpColorScreenFade += speedColorScreenFade*Time.deltaTime;
 			bgScreen.renderer.material.color = Color.Lerp(bgScreen.renderer.material.color , new Color(colorBasicScreen.r, colorBasicScreen.g, colorBasicScreen.b, 0f) , lerpColorScreenFade);
+		}
+		
+		if(theSelected.name == "Key Mapping" && KeyMapParentObject.active){
+			KeyMapParentObject.SetActiveRecursively(false);
 		}
 	}
 	
@@ -687,65 +703,89 @@ public class OptionScript : MonoBehaviour {
 	
 	void UpdateMapping(){
 	
-		if(theSelected.name == "Network"){
+		if(theSelected.name == "Key Mapping"){
 			if(!inPosition){
 				inPosition = true;
 				for(int i=0; i< formObject.Length; i++){
-					var targetedTransform = choicePosition == 0 ? form1[i] : choicePosition == 1 ? form2[i] : form3[i];
+					var targetedTransform = (choicePosition == 0 ? form1[i] : choicePosition == 1 ? form2[i] : form3[i]);
 					formObject[i].transform.position = Vector3.Lerp(formObject[i].transform.position, targetedTransform.position, speedMovementMapping*Time.deltaTime);
 					if(inPosition && Vector3.Distance(formObject[i].transform.position, targetedTransform.position) > 0.01f){
 						inPosition = false;
 					}
 				}
+				labelDialogMapPri.x = Mathf.Lerp (labelDialogMapPri.x, posLabelPrim[choicePosition].x, speedMovementMapping*Time.deltaTime);
+				labelDialogMapPri.y = Mathf.Lerp (labelDialogMapPri.y, posLabelPrim[choicePosition].y, speedMovementMapping*Time.deltaTime);
+				labelDialogMapSec.x = Mathf.Lerp (labelDialogMapSec.x, posLabelSec[choicePosition].x, speedMovementMapping*Time.deltaTime);
+				labelDialogMapSec.y = Mathf.Lerp (labelDialogMapSec.y, posLabelSec[choicePosition].y, speedMovementMapping*Time.deltaTime);
 			}
 		
 			if(!inInputEntryMode){
-				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);	
+				Ray ray = camMapping.ScreenPointToRay(Input.mousePosition);	
 				RaycastHit hit;
 						
 				if(Physics.Raycast(ray, out hit))
 				{
 					
 					var theGo = hit.transform.gameObject;
-					if(theGo != null && theGo.tag == "MainMenuItem"){
+					if(theGo != null && theGo.tag == "MenuItem"){
+						if(indexInputSelected == -1 || (theSelectedTouch != null && theSelectedTouch.name != theGo.name)){
+							fadeColorMapping = 0f;
+						}
 						theSelectedTouch = theGo;
-						if(indexInputSelected == -1) indexInputSelected = System.Convert.ToInt32(theSelectedTouch.name.Replace("Key", ""));
+						timeStillFade = 0f;
+						indexInputSelected = System.Convert.ToInt32(theSelectedTouch.name);
 						if(fadeColorMapping < 1f){
-							foreach(var obj in formObject){
-								((GameObject)obj).renderer.material.color = Color.Lerp(((GameObject)obj).renderer.material.color, new Color(0.2f, 0.2f, 0.2f, 1f), fadeColorMapping);
+							for(int i=0; i<formObject.Length; i++){
+								GameObject obj = formObject[i];
+								fadeColorMapping += speedColorMapping*Time.deltaTime;
+								if(obj.name != theSelectedTouch.name){
+									obj.renderer.material.color = Color.Lerp(obj.renderer.material.color, new Color(0.2f, 0.2f, 0.2f, 1f), fadeColorMapping);
+								}else{
+									obj.renderer.material.color = Color.Lerp(obj.renderer.material.color, new Color(1f, 1f, 1f, 1f), fadeColorMapping);
+								}
 							}
-							fadeColorMapping += speedColorMapping*Time.deltaTime;
+							
 						}
 						
-					}else if(theSelectedTouch != null){
-						theSelectedTouch = null;
-						indexInputSelected = -1;
-						if(fadeColorMapping > 0f){
-							foreach(var obj in formObject){
-								((GameObject)obj).renderer.material.color = Color.Lerp(((GameObject)obj).renderer.material.color, new Color(0.2f, 0.2f, 0.2f, 1f), fadeColorMapping);
-							}
-							fadeColorMapping -= speedColorMapping*Time.deltaTime;
+					}else if(timeStillFade > 0.1f){
+						if(indexInputSelected != -1){
+							fadeColorMapping = 0f;	
 						}
+						indexInputSelected = -1;
+						if(fadeColorMapping < 1f){
+							fadeColorMapping += speedColorMapping*Time.deltaTime;
+							foreach(var obj in formObject){
+								((GameObject)obj).renderer.material.color = Color.Lerp(((GameObject)obj).renderer.material.color, new Color(1f, 1f, 1f, 1f), fadeColorMapping);
+							}
+						}
+					
+					}else{
+						timeStillFade += Time.deltaTime;
 					}
 					
-				}else if(theSelectedTouch != null){
-					theSelectedTouch = null;
-					indexInputSelected = -1;
-					if(fadeColorMapping > 0f){
-						foreach(var obj in formObject){
-							((GameObject)obj).renderer.material.color = Color.Lerp(((GameObject)obj).renderer.material.color, new Color(0.2f, 0.2f, 0.2f, 1f), fadeColorMapping);
-						}
-						fadeColorMapping -= speedColorMapping*Time.deltaTime;
+				}else if(timeStillFade > 0.1f){
+					if(indexInputSelected != -1){
+						fadeColorMapping = 0f;	
 					}
+					indexInputSelected = -1;
+					if(fadeColorMapping < 1f){
+						fadeColorMapping += speedColorMapping*Time.deltaTime;
+						foreach(var obj in formObject){
+							((GameObject)obj).renderer.material.color = Color.Lerp(((GameObject)obj).renderer.material.color, new Color(1f, 1f, 1f, 1f), fadeColorMapping);
+						}
+					}
+				}else{
+					timeStillFade += Time.deltaTime;
 				}
 			
 			
-				if(theSelectedTouch != null && Input.GetMouseButtonDown(0)){
+				if(indexInputSelected != -1 && Input.GetMouseButtonDown(0)){
 					inInputEntryMode = true;
+					fadeColorMapping = 0f;
 				}
 			}
 			
-			if(inInputEntryMode && alphaBlackMapping < 0.8f){
+			if(inInputEntryMode && alphaBlackMapping < 0.9f){
 				alphaBlackMapping += speedFadeBlackMapping*Time.deltaTime;
 			}else if(!inInputEntryMode && alphaBlackMapping > 0f){
 				alphaBlackMapping -= speedFadeBlackMapping*Time.deltaTime;
@@ -861,6 +901,9 @@ public class OptionScript : MonoBehaviour {
 		QualitySettings.antiAliasing = DataManager.Instance.antiAliasing;
 		
 		ProfileManager.Instance.currentProfile.saveOptions();
+		ProfileManager.Instance.SaveProfile();
+		
+		GameObject.Find("OptionManager").GetComponent<OptionManager>().reloadEffect();
 	}
 	
 	void setByDataManager()
@@ -913,7 +956,7 @@ public class OptionScript : MonoBehaviour {
 			}
 		}
 		
-		if(cacheMode && !File.Exists(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache" + "dataSong.cache")){
+		if(cacheMode && Directory.GetFiles(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache").Where(c => c.Contains("dataSong")).Count() == 0){
 			errorMessage = "'Use the cache system' is set to 'yes' but the cache is not generated.\nGenerate the cache before confirm.";
 			return false;
 		}

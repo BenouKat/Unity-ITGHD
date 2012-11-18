@@ -84,7 +84,7 @@ public class MainMenu : MonoBehaviour {
 	
 	//Message d'erreur
 	private bool error;
-	private string listerror = "Story Mods Option Trophy Learn LAN Double";
+	private string listerror = "Story Mods Trophy Learn LAN Double";
 	public Rect posError;
 	public float offsetNumberBuild;
 	public float speedFadeError;
@@ -96,6 +96,7 @@ public class MainMenu : MonoBehaviour {
 	private bool iFade;
 	
 	public float timeFade;
+	private bool alreadyFaded;
 	// Use this for initialization
 	void Start () {
 		
@@ -130,6 +131,8 @@ public class MainMenu : MonoBehaviour {
 		alphaError = 0f;
 		timeBack = 0f;
 		forbiddenTouchGUI = "";
+		alreadyFaded = false;
+		if(DataManager.Instance.alreadyPressStart) fm.setStartFadeOn();
 	}
 	
 	void OnGUI(){
@@ -208,7 +211,7 @@ public class MainMenu : MonoBehaviour {
 		}
 		
 		if(DataManager.Instance.alreadyPressStart && !enterPushed){
-			audioSMainMenu.time = UnityEngine.Random.value*(audioSMainMenu.time/2);
+			audioSMainMenu.time = UnityEngine.Random.value*(audioSMainMenu.clip.length/2f);
 			audioSMainMenu.volume = 0;
 			audioSMainMenu.Play();
 			this.updat = UpdateMainMenu;
@@ -225,6 +228,10 @@ public class MainMenu : MonoBehaviour {
 			
 		}else if(enterPushed && timeSelect == 0f && audioSMainMenu.volume < 1){
 			audioSMainMenu.volume += speedAudioUp*Time.deltaTime;
+			if(!alreadyFaded && time > 0.5f){
+				fm.FadeOut();
+				alreadyFaded = true;
+			}
 		}
 		
 		

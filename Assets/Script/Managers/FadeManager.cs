@@ -72,4 +72,10 @@ public class FadeManager : MonoBehaviour {
 		fs = FadeState.FADEIN;
 		
 	}
+	
+	public void setStartFadeOn(){
+		startFeded = true;
+		fs = FadeState.DISPLAY;
+		posFadex = posxfinal;
+	}
 }

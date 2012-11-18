@@ -52,6 +52,9 @@ public class Profile{
 	//Songs
 	public List<SongInfoProfil> scoreOnSong;
 	
+	//Stat
+	public double gameTime;
+	
 	//Achivement
 	public int numberOfAchivement;
 	//list achievement : faire une string de 0 et de 1
@@ -80,8 +83,16 @@ public class Profile{
 		generalVolume = 1f;
 		enableBloom = true;
 		enableDepthOfField = true;
-		useTheCacheSystem = true;
+		useTheCacheSystem = false;
 		antiAliasing = QualitySettings.antiAliasing;
+		KeyCodeUp = KeyCode.UpArrow;
+		KeyCodeDown = KeyCode.DownArrow;
+		KeyCodeLeft = KeyCode.LeftArrow;
+		KeyCodeRight = KeyCode.RightArrow;
+		SecondaryKeyCodeUp = KeyCode.Z;
+		SecondaryKeyCodeDown = KeyCode.S;
+		SecondaryKeyCodeLeft = KeyCode.Q;
+		SecondaryKeyCodeRight = KeyCode.D;
 		loadOptions();
 	}
 	
@@ -104,6 +115,10 @@ public class Profile{
 		
 	}
 	
+	public void updateGameTime(double gt){
+		gameTime += gt;
+	}
+	
 	public void loadOptions(){
 	
 		DataManager.Instance.userGOS = this.userGOS;
@@ -116,6 +131,15 @@ public class Profile{
 		DataManager.Instance.enableDepthOfField = this.enableDepthOfField;
 		DataManager.Instance.antiAliasing = this.antiAliasing;
 		DataManager.Instance.useTheCacheSystem = this.useTheCacheSystem;
+		
+		DataManager.Instance.KeyCodeUp = this.KeyCodeUp;
+		DataManager.Instance.KeyCodeDown = this.KeyCodeDown;
+		DataManager.Instance.KeyCodeLeft = this.KeyCodeLeft;
+		DataManager.Instance.KeyCodeRight = this.KeyCodeRight;
+		DataManager.Instance.SecondaryKeyCodeUp = this.SecondaryKeyCodeUp;
+		DataManager.Instance.SecondaryKeyCodeDown = this.SecondaryKeyCodeDown;
+		DataManager.Instance.SecondaryKeyCodeLeft = this.SecondaryKeyCodeLeft;
+		DataManager.Instance.SecondaryKeyCodeRight = this.SecondaryKeyCodeRight;
 	}
 	
 	public void saveOptions(){
@@ -130,6 +154,15 @@ public class Profile{
 		this.enableDepthOfField = DataManager.Instance.enableDepthOfField;
 		this.antiAliasing = DataManager.Instance.antiAliasing;
 		this.useTheCacheSystem = DataManager.Instance.useTheCacheSystem;
+		
+		this.KeyCodeUp = DataManager.Instance.KeyCodeUp;
+		this.KeyCodeDown = DataManager.Instance.KeyCodeDown;
+		this.KeyCodeLeft = DataManager.Instance.KeyCodeLeft;
+		this.KeyCodeRight = DataManager.Instance.KeyCodeRight;
+		this.SecondaryKeyCodeUp = DataManager.Instance.SecondaryKeyCodeUp;
+		this.SecondaryKeyCodeDown = DataManager.Instance.SecondaryKeyCodeDown;
+		this.SecondaryKeyCodeLeft = DataManager.Instance.SecondaryKeyCodeLeft;
+		this.SecondaryKeyCodeRight = DataManager.Instance.SecondaryKeyCodeRight;
 	}
 	
 }

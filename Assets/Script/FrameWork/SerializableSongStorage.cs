@@ -30,6 +30,26 @@ public class SerializableSongStorage {
 		return store;
 	}
 	
+	public void destroy(){
+		for(int i=0; i<store.Count; i++){
+			store[i] = null; 	
+		}
+	}
+	
+	public List<List<SerializableSong>> decoupSerial(){
+		var decoup = new List<List<SerializableSong>>();
+		decoup.Add(new List<SerializableSong>());
+		var indexDecoup = 0;
+		for(int i=0; i<store.Count; i++){
+			if(i != 0 && i%500 == 0){
+				indexDecoup++;
+				decoup.Add(new List<SerializableSong>());
+			}
+			decoup[indexDecoup].Add(store[i]);
+		}
+		
+		return decoup;
+	}
 	
 	
 	
