@@ -180,7 +180,6 @@ public class OptionScript : MonoBehaviour {
 		errorMessage = "";
 		optionConfirm = "";
 		confirmDialogActivated = false;
-		GetComponent<FadeManager>().FadeOut();
 		timeStillFade = 0f;
 		alreadyFaded = false;
 		timeBeforeFade = 0f;
@@ -576,7 +575,7 @@ public class OptionScript : MonoBehaviour {
 				break;
 		}
 		
-		if(!alreadyFaded && timeBeforeFade > 0.4f){
+		if(!alreadyFaded && timeBeforeFade > 0.25f){
 			GetComponent<FadeManager>().FadeOut();
 			alreadyFaded = true;
 		}else{
@@ -630,6 +629,7 @@ public class OptionScript : MonoBehaviour {
 			
 			if(theSelected != null && Input.GetMouseButtonDown(0) && !fadeOut){
 				if(theSelected.name == "Back"){
+					ProfileManager.Instance.SaveProfile();
 					fadeOut = true;
 					fm.FadeIn("mainmenu");
 				}else{

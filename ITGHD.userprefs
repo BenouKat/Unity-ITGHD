@@ -1,13 +1,14 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Chart\InGameScript.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Wheel\DebugOffset.cs">
     <Files>
+      <File FileName="Assets\Script\Wheel\DebugOffset.cs" Line="33" Column="19" />
       <File FileName="Assets\Script\MainMenu\MainMenu.cs" Line="231" Column="34" />
       <File FileName="Assets\Script\Wheel\WheelSongMainScript.cs" Line="1272" Column="25" />
       <File FileName="Assets\Script\Wheel\ErrorLabel.cs" Line="24" Column="39" />
-      <File FileName="Assets\Script\Wheel\DebugOffset.cs" Line="31" Column="22" />
       <File FileName="Assets\Script\FrameWork\Song.cs" Line="13" Column="27" />
       <File FileName="Assets\Script\Chart\InGameScript.cs" Line="787" Column="27" />
+      <File FileName="Assets\Script\OptionScreen\OptionScript.cs" Line="631" Column="36" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

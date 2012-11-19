@@ -30,6 +30,7 @@ public class DebugOffset : MonoBehaviour {
 	
 	public void OnGUI(){
 		GUI.skin = skin;
+		GUI.depth = -100;
 		if(display){
 			valueTextField = GUI.TextField(new Rect(posLabel.x*Screen.width, posLabel.y*Screen.height, posLabel.width*Screen.width, posLabel.height*Screen.height), valueTextField);
 			double valued = 0;
