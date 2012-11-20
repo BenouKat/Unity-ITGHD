@@ -370,7 +370,7 @@ public class ScoreScript : MonoBehaviour {
 		}
 		
 		if(!shadow) GUI.color = new Color(1f, 1f, 1f, alphaTransition);
-		if(isScoreLegit) GUI.Label(resizeRectGeneralOffset(posLegit, shadow), "Not legit !");
+		if(isScoreLegit) GUI.Label(resizeRectGeneralOffset(resizeRect(posLegit), shadow), "Not legit !");
 		
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 0), shadow), "First ex or less : " + ((DataManager.Instance.firstEx == -1) ? "Never" : ((DataManager.Instance.firstEx/DataManager.Instance.songSelected.duration)*100f).ToString("0.00") + "%"));
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 1), shadow), "First great or less : " + ((DataManager.Instance.firstGreat == -1) ? "Never" : ((DataManager.Instance.firstGreat/DataManager.Instance.songSelected.duration)*100f).ToString("0.00") + "%"));

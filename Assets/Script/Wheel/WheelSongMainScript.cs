@@ -87,6 +87,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	public float speedCameraDefil;
 	private float posLabel;
 	public float offsetSubstitle;
+	private Vector3 basePosCubeBase;
 	
 	//Difficulty
 	public Rect posDifficulty;
@@ -223,9 +224,6 @@ public class WheelSongMainScript : MonoBehaviour {
 	private string search;
 	private string searchOldValue;
 	public Rect posSwitchSearch;
-	
-	//Tri
-	
 	
 	
 	//Keyboard support
@@ -467,6 +465,8 @@ public class WheelSongMainScript : MonoBehaviour {
 		if(DataManager.Instance.mousePosition != -1){
 			startnumber = DataManager.Instance.mousePosition;
 		}
+		
+		basePosCubeBase = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
 	}
 	
 	// Update is called once per frame
@@ -496,7 +496,7 @@ public class WheelSongMainScript : MonoBehaviour {
 					movinBackward = true;
 					startnumber = 0;
 					camerapack.transform.position = new Vector3(0f, 0f, 0f);
-					cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
+					cubeBase.transform.position = basePosCubeBase;
 				}
 				if(GUI.Button(new Rect(posBackward.x*Screen.width, posBackward.y*Screen.height + ecart*Screen.height, posBackward.width*Screen.width, posBackward.height*Screen.height),"","Backward") && !movinNormal && !movinOption){
 					nextnumberPack = PrevInt(numberPack, 3);
@@ -504,7 +504,7 @@ public class WheelSongMainScript : MonoBehaviour {
 					movinBackwardFast = true;
 					startnumber = 0;
 					camerapack.transform.position = new Vector3(0f, 0f, 0f);
-					cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
+					cubeBase.transform.position = basePosCubeBase;
 				}
 				
 				if(GUI.Button(new Rect(posForward.x*Screen.width, posForward.y*Screen.height, posForward.width*Screen.width, posForward.height*Screen.height),"","LForward") && !movinForward && !movinNormal && !movinOption)
@@ -514,7 +514,7 @@ public class WheelSongMainScript : MonoBehaviour {
 					movinForward = true;
 					startnumber = 0;
 					camerapack.transform.position = new Vector3(0f, 0f, 0f);
-					cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
+					cubeBase.transform.position = basePosCubeBase;
 				}
 				if(GUI.Button(new Rect(posForward.x*Screen.width, posForward.y*Screen.height + ecart*Screen.height, posForward.width*Screen.width, posForward.height*Screen.height),"","Forward") && !movinNormal && !movinOption){
 					nextnumberPack = NextInt(numberPack, 3);
@@ -522,7 +522,7 @@ public class WheelSongMainScript : MonoBehaviour {
 					movinForwardFast = true;
 					startnumber = 0;
 					camerapack.transform.position = new Vector3(0f, 0f, 0f);
-					cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
+					cubeBase.transform.position = basePosCubeBase;
 				}
 			}
 			#endregion
@@ -582,7 +582,7 @@ public class WheelSongMainScript : MonoBehaviour {
 						}
 						startnumber = 0;
 						camerapack.transform.position = new Vector3(0f, 0f, 0f);
-						cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
+						cubeBase.transform.position = basePosCubeBase;
 						desactivePack();
 						createCubeSong(songList);
 						activeCustomPack();
@@ -604,7 +604,7 @@ public class WheelSongMainScript : MonoBehaviour {
 						}
 						startnumber = 0;
 						camerapack.transform.position = new Vector3(0f, 0f, 0f);
-						cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
+						cubeBase.transform.position = basePosCubeBase;
 						activePack(packs.ElementAt(nextnumberPack).Key);
 						DestroyCustomCubeSong();
 						StartCoroutine(AnimSearchBar(true));
@@ -1651,7 +1651,7 @@ public class WheelSongMainScript : MonoBehaviour {
 				
 				foreach(var cubeel in songCubeOnRender.Where(c => c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value)){
 					cubeel.Key.SetActiveRecursively(false);
-					cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, cubeBase.transform.position.y -3f, cubeBase.transform.position.z);
+					cubeBase.transform.position = new Vector3(basePosCubeBase.x, basePosCubeBase.y + (3f*startnumber), basePosCubeBase.z);
 				}
 				/*var cubeel2 = songCubeOnRender.FirstOrDefault(c => !c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y - 3f*numberToDisplay) && !(c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
 				if(cubeel2 != null) {
@@ -1680,7 +1680,7 @@ public class WheelSongMainScript : MonoBehaviour {
 
 					cubeel.Key.SetActiveRecursively(true);
 					if(cubeSelected == null || cubeSelected != cubeel.Key) cubeel.Key.transform.FindChild("Selection").gameObject.active = false;
-					cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, cubeBase.transform.position.y +3f, cubeBase.transform.position.z);
+					cubeBase.transform.position = new Vector3(basePosCubeBase.x, basePosCubeBase.y + (3f*startnumber), basePosCubeBase.z);
 					
 				}
 				

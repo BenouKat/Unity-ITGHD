@@ -452,7 +452,6 @@ public class InGameScript : MonoBehaviour {
 		firstUpdate = true;
 		oneSecond = 0f;
 		
-		//A verifier ...
 		startTheSong = (float)thesong.offset + DataManager.Instance.globalOffsetSeconds + DataManager.Instance.userGOS;
 		
 		//bump

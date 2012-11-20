@@ -46,6 +46,7 @@ public class Profile{
 	//Video
 	public bool enableBloom;
 	public bool enableDepthOfField;
+	public bool onlyOnGame;
 	public int antiAliasing;
 	
 	
@@ -83,6 +84,7 @@ public class Profile{
 		generalVolume = 1f;
 		enableBloom = true;
 		enableDepthOfField = true;
+		onlyOnGame = true;
 		useTheCacheSystem = false;
 		antiAliasing = QualitySettings.antiAliasing;
 		KeyCodeUp = KeyCode.UpArrow;
@@ -129,6 +131,7 @@ public class Profile{
 		DataManager.Instance.generalVolume = this.generalVolume;
 		DataManager.Instance.enableBloom = this.enableBloom;
 		DataManager.Instance.enableDepthOfField = this.enableDepthOfField;
+		DataManager.Instance.onlyOnGame = this.onlyOnGame;
 		DataManager.Instance.antiAliasing = this.antiAliasing;
 		DataManager.Instance.useTheCacheSystem = this.useTheCacheSystem;
 		
@@ -152,6 +155,7 @@ public class Profile{
 		this.generalVolume = DataManager.Instance.generalVolume;
 		this.enableBloom = DataManager.Instance.enableBloom;
 		this.enableDepthOfField = DataManager.Instance.enableDepthOfField;
+		this.onlyOnGame = DataManager.Instance.onlyOnGame;
 		this.antiAliasing = DataManager.Instance.antiAliasing;
 		this.useTheCacheSystem = DataManager.Instance.useTheCacheSystem;
 		

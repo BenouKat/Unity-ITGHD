@@ -78,6 +78,7 @@ public class OptionScript : MonoBehaviour {
 	//Video
 	private bool enableBloom;
 	private bool enableDOF;
+	private bool onlyOnGame;
 	private int antiAliasing;
 	
 	//KeyMapping
@@ -164,6 +165,7 @@ public class OptionScript : MonoBehaviour {
 		enableBloom = DataManager.Instance.enableBloom;
 		enableDOF = DataManager.Instance.enableDepthOfField;
 		antiAliasing = DataManager.Instance.antiAliasing;
+		onlyOnGame = DataManager.Instance.onlyOnGame;
 		
 		networkValue = new string[4];
 		networkValue[(int)ProfileDownloadType.NEVER] = "Ne jamais partager les profiles";
@@ -275,11 +277,12 @@ public class OptionScript : MonoBehaviour {
 			
 			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1 + offsetLabelYOption*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["VIDEO_DOF"]);
 
+			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height + offsetLabelYOption*2*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["VIDEO_OOG"]);
 			
-			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["VIDEO_AA"]);
+			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + offsetLabelYOption*3*Screen.height + 1, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["VIDEO_AA"]);
 
 			
-			GUI.Label(new Rect(posLabelListChoice.x*Screen.width + 1, posLabelListChoice.y*Screen.height + 1 + offsetLabelYOption*2*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), "x" + antiAliasing, "centeredLabel");
+			GUI.Label(new Rect(posLabelListChoice.x*Screen.width + 1, posLabelListChoice.y*Screen.height + 1 + offsetLabelYOption*3*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), "x" + antiAliasing, "centeredLabel");
 
 			break;
 			
@@ -433,20 +436,31 @@ public class OptionScript : MonoBehaviour {
 				}
 			}
 			
-			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height + offsetLabelYOption*2*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["VIDEO_AA"]);
-			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width + offsetBetweenLabel*Screen.width + sizeArrowButton.x*Screen.width, posLabelListChoice.y*Screen.height + offsetLabelYOption*2*Screen.height + sizeArrowButton.y*Screen.height, sizeArrowButton.width*Screen.width, sizeArrowButton.width*Screen.height), "", "rightArrow")){
+			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height + offsetLabelYOption*2*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["VIDEO_OOG"]);
+			if(onlyOnGame){
+				if(GUI.Button(new Rect(posButtonOption.x*Screen.width, posButtonOption.y*Screen.height + offsetLabelYOption*2*Screen.height, posButtonOption.width*Screen.width, posButtonOption.height*Screen.height), "", "GreenButton")){
+					onlyOnGame = false;
+				}
+			}else{
+				if(GUI.Button(new Rect(posButtonOption.x*Screen.width, posButtonOption.y*Screen.height + offsetLabelYOption*2*Screen.height, posButtonOption.width*Screen.width, posButtonOption.height*Screen.height), "", "RedButton")){
+					onlyOnGame = true;
+				}
+			}
+			
+			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height + offsetLabelYOption*3*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["VIDEO_AA"]);
+			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width + offsetBetweenLabel*Screen.width + sizeArrowButton.x*Screen.width, posLabelListChoice.y*Screen.height + offsetLabelYOption*3*Screen.height + sizeArrowButton.y*Screen.height, sizeArrowButton.width*Screen.width, sizeArrowButton.width*Screen.height), "", "rightArrow")){
 				antiAliasing += 2;
 				if(antiAliasing > 8) antiAliasing = 0;
 				if(antiAliasing == 6) antiAliasing = 8;
 			}
 			
-			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width - offsetBetweenLabel*Screen.width + sizeArrowButton.x*Screen.width, posLabelListChoice.y*Screen.height + offsetLabelYOption*2*Screen.height + sizeArrowButton.y*Screen.height, sizeArrowButton.width*Screen.width, sizeArrowButton.width*Screen.height), "", "leftArrow")){
+			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width - offsetBetweenLabel*Screen.width + sizeArrowButton.x*Screen.width, posLabelListChoice.y*Screen.height + offsetLabelYOption*3*Screen.height + sizeArrowButton.y*Screen.height, sizeArrowButton.width*Screen.width, sizeArrowButton.width*Screen.height), "", "leftArrow")){
 				antiAliasing -= 2;
 				if(antiAliasing < 0) antiAliasing = 8;
 				if(antiAliasing == 6) antiAliasing = 4;
 			}
 			
-			GUI.Label(new Rect(posLabelListChoice.x*Screen.width, posLabelListChoice.y*Screen.height + offsetLabelYOption*2*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), "x" + antiAliasing, "centeredLabel");
+			GUI.Label(new Rect(posLabelListChoice.x*Screen.width, posLabelListChoice.y*Screen.height + offsetLabelYOption*3*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), "x" + antiAliasing, "centeredLabel");
 			//Faire une anim ?
 			break;
 			
@@ -896,6 +910,7 @@ public class OptionScript : MonoBehaviour {
 		DataManager.Instance.quickMode = quickMode;
 		DataManager.Instance.mouseMolSpeed = System.Convert.ToInt32(mouseSpeed);
 		DataManager.Instance.userGOS = (float)System.Convert.ToDouble(GOS);
+		DataManager.Instance.onlyOnGame = onlyOnGame;
 		
 		AudioListener.volume = DataManager.Instance.generalVolume;
 		QualitySettings.antiAliasing = DataManager.Instance.antiAliasing;
@@ -920,6 +935,7 @@ public class OptionScript : MonoBehaviour {
 		enableBloom = DataManager.Instance.enableBloom;
 		enableDOF = DataManager.Instance.enableDepthOfField;
 		antiAliasing = DataManager.Instance.antiAliasing;
+		onlyOnGame = DataManager.Instance.onlyOnGame;
 	}
 	
 	

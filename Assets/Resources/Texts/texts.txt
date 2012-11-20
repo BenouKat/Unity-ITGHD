@@ -185,6 +185,8 @@ Volume général du jeu;
 Anti aliasing;
 <VIDEO_BLOOM>;
 Activer ou désactiver la surbrillance (Bloom);
+<VIDEO_OOG>;
+Appliquer la desactivation des effets uniquement en jeu;
 <VIDEO_DOF>;
 Activer ou désactiver le flou de profondeur (Depth of Field);
 <NETWORK_CHOICE>;

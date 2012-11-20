@@ -13,10 +13,13 @@ public class OptionManager : MonoBehaviour {
 	public void Awake(){
 		
 		if(ProfileManager.Instance.currentProfile != null){
-			foreach(var cam in cameraForOption){
-
-				if(cam.GetComponent<BloomAndLensFlares>() != null) cam.GetComponent<BloomAndLensFlares>().enabled = DataManager.Instance.enableBloom;
-				if(cam.GetComponent<DepthOfField34>() != null) cam.GetComponent<DepthOfField34>().enabled = DataManager.Instance.enableDepthOfField;
+			
+			if(!DataManager.Instance.onlyInGame || (DataManager.Instance.onlyInGame && Application.loadedLevelName == "ChartScene")){
+				foreach(var cam in cameraForOption){
+					
+					if(cam.GetComponent<BloomAndLensFlares>() != null) cam.GetComponent<BloomAndLensFlares>().enabled = DataManager.Instance.enableBloom;
+					if(cam.GetComponent<DepthOfField34>() != null) cam.GetComponent<DepthOfField34>().enabled = DataManager.Instance.enableDepthOfField;
+				}
 			}
 			
 			AudioListener.volume = DataManager.Instance.generalVolume;
@@ -31,9 +34,8 @@ public class OptionManager : MonoBehaviour {
 	public void reloadEffect()
 	{
 		foreach(var cam in cameraForOption){
-
-			if(cam.GetComponent<BloomAndLensFlares>() != null) cam.GetComponent<BloomAndLensFlares>().enabled = DataManager.Instance.enableBloom;
-			if(cam.GetComponent<DepthOfField34>() != null) cam.GetComponent<DepthOfField34>().enabled = DataManager.Instance.enableDepthOfField;
+			if(cam.GetComponent<BloomAndLensFlares>() != null) cam.GetComponent<BloomAndLensFlares>().enabled = DataManager.Instance.enableBloom || DataManager.Instance.onlyOnGame;
+			if(cam.GetComponent<DepthOfField34>() != null) cam.GetComponent<DepthOfField34>().enabled = DataManager.Instance.enableDepthOfField || DataManager.Instance.onlyOnGame;
 		}
 		
 		AudioListener.volume = DataManager.Instance.generalVolume;

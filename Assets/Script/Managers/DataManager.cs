@@ -90,6 +90,7 @@ public class DataManager{
 	//Video
 	public bool enableBloom;
 	public bool enableDepthOfField;
+	public bool onlyOnGame;
 	public int antiAliasing;
 	
 	
