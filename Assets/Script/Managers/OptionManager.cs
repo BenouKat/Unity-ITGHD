@@ -14,7 +14,7 @@ public class OptionManager : MonoBehaviour {
 		
 		if(ProfileManager.Instance.currentProfile != null){
 			
-			if(!DataManager.Instance.onlyInGame || (DataManager.Instance.onlyInGame && Application.loadedLevelName == "ChartScene")){
+			if(!DataManager.Instance.onlyOnGame || (DataManager.Instance.onlyOnGame && Application.loadedLevelName == "ChartScene")){
 				foreach(var cam in cameraForOption){
 					
 					if(cam.GetComponent<BloomAndLensFlares>() != null) cam.GetComponent<BloomAndLensFlares>().enabled = DataManager.Instance.enableBloom;

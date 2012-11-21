@@ -5,8 +5,8 @@ public class TimeBar : MonoBehaviour {
 	
 	public GameObject hitBar;
 	public Transform cursorTimeObject;
-	private Material hitBarMaterial;
-	private Material cubeHitBarMaterial;
+	public Material hitBarMaterial;
+	public Material cubeHitBarMaterial;
 	
 	public float ecartWithBeginY;
 	public float endY;
@@ -18,11 +18,11 @@ public class TimeBar : MonoBehaviour {
 	private Color white = new Color(1f, 1f, 1f, 1f);
 	private float lerpColor;
 	
-	public ParticuleSystem psFFC;
-	public ParticuleSystem psFEC;
-	public ParticuleSystem psBigCombo;
-	public ParticuleSystem psLowCombo;
-	public ParticuleSystem psBadCombo;
+	public ParticleSystem psFFC;
+	public ParticleSystem psFEC;
+	public ParticleSystem psBigCombo;
+	public ParticleSystem psLowCombo;
+	public ParticleSystem psBadCombo;
 	
 	void Start () {
 		lerpColor = 1f;
@@ -52,7 +52,7 @@ public class TimeBar : MonoBehaviour {
 		timeEnd = end;
 	}
 	
-	public void updateTimeBar(double timetotal){
+	public void updateTimeBar(float timetotal){
 		if(timetotal >= timeBegin){
 			cursorTimeObject.position = new Vector3(cursorTimeObject.position.x, endY - ecartWithBeginY*((timetotal - timeBegin)/timeEnd), cursorTimeObject.position.z);
 		}
