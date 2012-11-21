@@ -204,8 +204,10 @@ public class LifeBar : MonoBehaviour {
 		objectivLife = newlife;
 		if(newlife >= 100f && !psMaxLife.isPlaying){
 			psLifeUp.Stop(); 
+			if(!psMaxLife.gameObject.active) psMaxLife.gameObject.active = true;
 			psMaxLife.Play();
 		}else if(newlife > realLife && newlife > 25f && !psLifeUp.isPlaying && newlife > (thelostlife + 10f)){
+			if(!psLifeUp.gameObject.active) psLifeUp.gameObject.active = true;
 			psLifeUp.Play();
 		}else if(newlife < realLife){
 			psLifeUp.Stop();
@@ -214,6 +216,7 @@ public class LifeBar : MonoBehaviour {
 		}
 		
 		if(newlife <= 25f && !psLowSocle.isPlaying){
+			if(!psLowLife.gameObject.active) psLowLife.gameObject.active = true;
 			psLowLife.Play();
 		}else if(newlife > 25f && psLowSocle.isPlaying){
 			psLowLife.Stop();
