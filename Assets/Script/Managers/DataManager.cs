@@ -625,10 +625,10 @@ public class DataManager{
 	{
 		if(DataManager.Instance.rateSelected != 0f && DataManager.Instance.songSelected != null)
 		{
-			if(File.Exists(Path.GetDirectoryName(DataManager.Instance.songSelected.song) + "/OriginalSong.ogg"))
+			if(File.Exists(Path.GetDirectoryName(DataManager.Instance.songSelected.song.Replace("file://", "")) + "/OriginalSong.ogg"))
 			{
-				File.Delete(DataManager.Instance.songSelected.song); 
-				File.Move(Path.GetDirectoryName(DataManager.Instance.songSelected.song) + "/OriginalSong.ogg", DataManager.Instance.songSelected.song);
+				File.Delete(DataManager.Instance.songSelected.song.Replace("file://", "")); 
+				File.Move(Path.GetDirectoryName(DataManager.Instance.songSelected.song.Replace("file://", "")) + "/OriginalSong.ogg", DataManager.Instance.songSelected.song.Replace("file://", ""));
 			}
 			DataManager.Instance.rateSelected = 0f;
 		}
@@ -639,8 +639,8 @@ public class DataManager{
 	{
 		if(DataManager.Instance.rateSelected != 0f)
 		{
-			ProcessStartInfo  rateConvertor = new ProcessStartInfo(Application.dataPath + "/RateConvertor/rateConvertor.exe");
-			rateConvertor.Arguments = DataManager.Instance.rateSelected + " " + Application.dataPath + " " + IntPtr.Size*8 + " " + DataManager.Instance.songSelected.song;
+			ProcessStartInfo  rateConvertor = new ProcessStartInfo(Application.dataPath + DEBUGPATH + "/RateConvertor/rateConvertor.exe");
+			rateConvertor.Arguments = DataManager.Instance.rateSelected + " " + Application.dataPath.Replace(" ", "%SPACE%") + DEBUGPATH + " " + IntPtr.Size*8 + " " + DataManager.Instance.songSelected.song.Replace("file://", "").Replace(" ", "%SPACE%");
 			rateConvertor.WindowStyle = ProcessWindowStyle.Hidden;
 			Process theProc = Process.Start(rateConvertor);
 			theProc.WaitForExit();

@@ -83,13 +83,13 @@ public class Song {
 		ratedSong.bpms = new Dictionary<double, double>(); 
 		
 		foreach(var bpm in this.bpms){
-			ratedSong.bpms.Add(bpm.Key/(1f + (rate/100f)), bpm.Value/(1f + (rate/100f)));
+			ratedSong.bpms.Add(bpm.Key/(1f + (rate/100f)), bpm.Value*(1f + (rate/100f)));
 		}
 		
 		ratedSong.stops = new Dictionary<double, double>();
 		
 		foreach(var stop in this.stops){
-			ratedSong.stops.Add(stop.Key/(1f + (rate/100f)), stop.Value/(1f + (rate/100f)));
+			ratedSong.stops.Add(stop.Key/(1f + (rate/100f)), stop.Value*(1f + (rate/100f)));
 		}
 		
 		ratedSong.stepartist = this.stepartist;
@@ -114,6 +114,8 @@ public class Song {
 		ratedSong.song = this.song;
 
 		ratedSong.sip = this.sip;
+		
+		ratedSong.stepchart = this.stepchart;
 		
 		return ratedSong;
 	}

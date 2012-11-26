@@ -56,7 +56,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	private string textButton;
 	private float timeFade;
 	private ErrorLabel error;
-	private Rect posLabelLoading;
+	public Rect posLabelLoading;
 	
 	//PackList
 	private int numberPack;

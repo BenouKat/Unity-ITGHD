@@ -23,10 +23,14 @@ public class TimeBar : MonoBehaviour {
 	public ParticleSystem psBigCombo;
 	public ParticleSystem psLowCombo;
 	public ParticleSystem psBadCombo;
+	public ParticleSystem psCrashCombo;
+	
+	private bool activeCombo;
 	
 	void Start () {
 		lerpColor = 1f;
 		psLowCombo.Play();
+		activeCombo = true;
 	}
 	
 	// Update is called once per frame
@@ -67,24 +71,33 @@ public class TimeBar : MonoBehaviour {
 			}else if(ct == ComboType.FULLEXCELLENT){
 				if(!psFEC.gameObject.active) psFEC.gameObject.active = true;
 				psFEC.Play();
+				if(psFFC.isPlaying) psFFC.Stop();
 			}else{
 				if(!psBigCombo.gameObject.active) psBigCombo.gameObject.active = true;
+				if(psFFC.isPlaying) psFFC.Stop();
+				if(psFEC.isPlaying) psFEC.Stop();
 				psBigCombo.Play();
 			}
 		}else if(combo >= 40 && psBadCombo.isPlaying){
 			if(!psLowCombo.gameObject.active) psLowCombo.gameObject.active = true;
 			psBadCombo.Stop();
 			psLowCombo.Play();
+			activeCombo = true;
 		}
 	}
 	
 	public void breakPS(){
-		psFFC.Stop();
-		psFEC.Stop();
-		psBigCombo.Stop();
-		psLowCombo.Stop();
-		if(!psBadCombo.gameObject.active) psBadCombo.gameObject.active = true;
-		psBadCombo.Play();
+		if(activeCombo){
+			activeCombo = false;
+			psFFC.Stop();
+			psFEC.Stop();
+			psBigCombo.Stop();
+			psLowCombo.Stop();
+			if(!psBadCombo.gameObject.active) psBadCombo.gameObject.active = true;
+			psBadCombo.Play();
+			if(!psCrashCombo.gameObject.active) psCrashCombo.gameObject.active = true;
+			psCrashCombo.Play();
+		}
 	}
 	
 	

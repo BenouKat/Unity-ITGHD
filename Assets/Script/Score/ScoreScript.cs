@@ -215,7 +215,7 @@ public class ScoreScript : MonoBehaviour {
 	
 	
 	bool scoreIsLegit(){
-		return DataManager.Instance.hitJudgeSelected >= Judge.NORMAL && DataManager.Instance.scoreJudgeSelected >= Judge.NORMAL && DataManager.Instance.lifeJudgeSelected >= Judge.NORMAL
+		return DataManager.Instance.rateSelected >= 0 && DataManager.Instance.hitJudgeSelected >= Judge.NORMAL && DataManager.Instance.scoreJudgeSelected >= Judge.NORMAL && DataManager.Instance.lifeJudgeSelected >= Judge.NORMAL
 			&& !DataManager.Instance.displaySelected[0] && !DataManager.Instance.displaySelected[1] && !DataManager.Instance.displaySelected[2] && !DataManager.Instance.displaySelected[3];
 	}
 	
@@ -370,7 +370,7 @@ public class ScoreScript : MonoBehaviour {
 		}
 		
 		if(!shadow) GUI.color = new Color(1f, 1f, 1f, alphaTransition);
-		if(isScoreLegit) GUI.Label(resizeRectGeneralOffset(resizeRect(posLegit), shadow), "Not legit !");
+		if(!isScoreLegit) GUI.Label(resizeRectGeneralOffset(resizeRect(posLegit), shadow), "Not legit !");
 		
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 0), shadow), "First ex or less : " + ((DataManager.Instance.firstEx == -1) ? "Never" : ((DataManager.Instance.firstEx/DataManager.Instance.songSelected.duration)*100f).ToString("0.00") + "%"));
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 1), shadow), "First great or less : " + ((DataManager.Instance.firstGreat == -1) ? "Never" : ((DataManager.Instance.firstGreat/DataManager.Instance.songSelected.duration)*100f).ToString("0.00") + "%"));
@@ -541,6 +541,7 @@ public class ScoreScript : MonoBehaviour {
 		//Mods
 		stringmod = "";
 		stringmod += "x" + DataManager.Instance.speedmodSelected + ", ";
+		if(DataManager.Instance.rateSelected != 0f) stringmod += "rate " + DataManager.Instance.rateSelected + "%, ";
 		if(DataManager.Instance.hitJudgeSelected != Judge.NORMAL) stringmod += DataManager.Instance.dicHitJudge[DataManager.Instance.hitJudgeSelected] + ", ";
 		if(DataManager.Instance.lifeJudgeSelected != Judge.NORMAL) stringmod += DataManager.Instance.dicLifeJudge[DataManager.Instance.lifeJudgeSelected] + ", ";
 		if(DataManager.Instance.scoreJudgeSelected != Judge.NORMAL) stringmod += DataManager.Instance.dicScoreJudge[DataManager.Instance.scoreJudgeSelected] + ", ";

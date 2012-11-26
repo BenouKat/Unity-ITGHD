@@ -24,15 +24,15 @@ public class InGameScript : MonoBehaviour {
 	public Material[] matSkinModel;
 	private Material matArrowModel;
 	public GameObject lifeBar;
+	public GameObject timeBar;
 	public GameObject progressBar;
 	public GameObject progressBarEmpty;
 	public GameObject slow;
 	public GameObject fast;
-	private Material matProgressBar;
-	private Material matProgressBarFull;
 	public Camera particleComboCam;
 	
 	private LifeBar theLifeBar;
+	private TimeBar theTimeBar;
 	
 	private Song thesong;
 	
@@ -196,8 +196,8 @@ public class InGameScript : MonoBehaviour {
 	private ComboType ct;
 	public float speedCombofade;
 	private float colorCombo;
+	private Color theColorCombo;
 	private int signCombo = -1;
-	private bool alreadytaged = true;
 	private int comboMisses;
 	private float alphaCombo;
 	public float speedAlphaCombo;
@@ -253,7 +253,7 @@ public class InGameScript : MonoBehaviour {
 		
 		//Data from option
 		speedmod = DataManager.Instance.speedmodSelected*speedmodRate;
-		rateSelected = DataManager.Instance.rateSelected/100f;
+		rateSelected = DataManager.Instance.rateSelected;
 		DataManager.Instance.LoadScoreJudge(DataManager.Instance.scoreJudgeSelected);
 		DataManager.Instance.LoadHitJudge(DataManager.Instance.hitJudgeSelected);
 		DataManager.Instance.LoadLifeJudge(DataManager.Instance.lifeJudgeSelected);
@@ -445,7 +445,11 @@ public class InGameScript : MonoBehaviour {
 		firstMisteak = -1;
 		
 		theLifeBar = lifeBar.GetComponent<LifeBar>();
+		theTimeBar = timeBar.GetComponent<TimeBar>();
 		
+		//TimeBar
+		
+		theTimeBar.setDuration((float)firstArrow, (float)lastArrow);
 		
 		//var bps = thesong.getBPS(actualBPM);
 		//changeBPM -= (float)(bps*thesong.offset)*speedmod;
@@ -459,8 +463,6 @@ public class InGameScript : MonoBehaviour {
 		
 		//combo
 		ct = ComboType.FULLFANTASTIC;
-		matProgressBar = progressBarEmpty.renderer.material;
-		matProgressBarFull = progressBar.renderer.material;
 		colorCombo = 1f;
 		comboMisses = 0;
 		alphaCombo = 0.5f;
@@ -536,7 +538,7 @@ public class InGameScript : MonoBehaviour {
 	void OnGUI(){
 		
 		GUI.skin = skin;
-		
+		GUI.depth = 2;
 		//fake stuff
 		GUI.Label(new Rect(0.9f*Screen.width, 0.05f*Screen.height, 200f, 200f), fps.ToString());		
 		//end fake stuff
@@ -567,7 +569,7 @@ public class InGameScript : MonoBehaviour {
 		if(!displayValue[8]){
 			if(combo >= 5f){
 				//var czoom = zoom/4f;
-				var col = matProgressBar.color;
+				var col = theColorCombo;
 				GUI.color = new Color(col.r , col.g, col.b, alphaCombo);
 				for(int i=0; i<thetab.Length; i++){
 					GUI.DrawTexture(new Rect((posCombo.x + ((ecartCombo*(thetab.Length-(i+1))/2f) -ecartCombo*((float)i/2f)))*Screen.width, 
@@ -779,7 +781,6 @@ public class InGameScript : MonoBehaviour {
 					secondAudioSource.Play();
 					Background.GetComponent<MoveBackground>().enabled = false;
 					CameraBackground.GetComponent<MoveCameraBackground>().enabled = false;
-					matProgressBarFull.color = new Color(0.5f, 0.5f, 0.5f, 1f);
 					TMainCamera.GetComponent<GrayscaleEffect>().enabled = true;
 					oneSecond = 0f;
 					alpha = 1f;
@@ -806,10 +807,11 @@ public class InGameScript : MonoBehaviour {
 					appearFailok = true;
 					
 				}
-				if(oneSecond > timeClearDisappear - 1){
-					passalpha -= Time.deltaTime;
+				if(oneSecond > timeClearDisappear){
+					
 				}
 				if(oneSecond > timeClearDisappear){
+					if(passalpha > 0) passalpha -= Time.deltaTime;
 					if(failalpha >= 1){
 							SendDataToDatamanager();
 							Application.LoadLevel("ScoreScene");
@@ -893,11 +895,14 @@ public class InGameScript : MonoBehaviour {
 			var m = 0.5f*Time.deltaTime/speedBumps;
 			matArrowModel.color -= new Color(m,m,m, 0f);
 		}
+		
+		/*
 		if(timetotalchart >= firstArrow && timetotalchart < lastArrow){
 			var div = (float)((timetotalchart - firstArrow)/(lastArrow - firstArrow));
 			progressBar.transform.localPosition = new Vector3(progressBar.transform.localPosition.x, - (10f - 10f*div), 8f);
 			progressBar.transform.localScale = new Vector3(progressBar.transform.localScale.x, 10f*div, 1f);
-		}
+		}*/
+		theTimeBar.updateTimeBar((float)timetotalchart);
 		
 		
 		if(stateSpeed > 0){
@@ -935,20 +940,14 @@ public class InGameScript : MonoBehaviour {
 				
 				if((colorCombo <= 0.3f && signCombo == -1) || (colorCombo >= 1f && signCombo == 1) ){ signCombo *= -1; }
 				colorCombo += signCombo*Time.deltaTime/speedCombofade;
-				
-				matProgressBar.color = new Color(1f, 1f, colorCombo, 1f);
-				alreadytaged = false;
+				theColorCombo = new Color(1f, 1f, colorCombo, 1f);
 				break;
 			case ComboType.FULLFANTASTIC:
 				if((colorCombo <= 0.3f && signCombo == -1) || (colorCombo >= 1f && signCombo == 1) ){ signCombo *= -1; }
 				colorCombo += signCombo*Time.deltaTime/speedCombofade;
-				matProgressBar.color = new Color(colorCombo, 1f, 1f, 1f);
-				alreadytaged = false;
+				theColorCombo = new Color(colorCombo, 1f, 1f, 1f);
 				break;
 			}
-		}else if(!alreadytaged){
-			matProgressBar.color = blankColor;
-			alreadytaged = true;
 		}
 	}
 	
@@ -2041,6 +2040,8 @@ public class InGameScript : MonoBehaviour {
 			}
 		}
 		thetab = comboDecoupe();
+		theTimeBar.updatePS(ct, combo);
+		theTimeBar.HitBar(prec);
 		if(isFullExComboRace && ct == ComboType.FULLCOMBO){
 			//Debug.Log("Fail at FEC race");
 			fail = true;
@@ -2085,7 +2086,7 @@ public class InGameScript : MonoBehaviour {
 	}
 	*/
 	public void ComboStop(bool miss){
-		
+		theTimeBar.breakPS();
 		if(!timeCombo.ContainsKey(timetotalchart)) timeCombo.Add(timetotalchart, combo);
 		combo = 0;	
 		if(ct != ComboType.NONE){

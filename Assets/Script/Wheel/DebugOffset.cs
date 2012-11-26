@@ -16,26 +16,27 @@ public class DebugOffset : MonoBehaviour {
 	
 	public GUISkin skin;
 	
-	public void Start(){
+	void Start(){
 		display = false;
 		valueTextField = DataManager.Instance.userGOS.ToString("0.000");
 		validValue = true;
 	}
 	
-	public void Update(){
+	void Update(){
 		if(Input.GetKeyDown(KeyCode.F1)){
 			display = !display;
 		}
 	}
 	
-	public void OnGUI(){
+	void OnGUI(){
 		GUI.skin = skin;
-		GUI.depth = -100;
+		GUI.depth = 0;
 		if(display){
 			valueTextField = GUI.TextField(new Rect(posLabel.x*Screen.width, posLabel.y*Screen.height, posLabel.width*Screen.width, posLabel.height*Screen.height), valueTextField);
 			double valued = 0;
 			if(Double.TryParse(valueTextField, out valued)){
 				DataManager.Instance.userGOS = (float)valued;
+				validValue = true;
 			}else{
 				validValue = false;
 			}
