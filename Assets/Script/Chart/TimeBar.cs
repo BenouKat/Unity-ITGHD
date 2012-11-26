@@ -78,7 +78,7 @@ public class TimeBar : MonoBehaviour {
 				if(psFEC.isPlaying) psFEC.Stop();
 				psBigCombo.Play();
 			}
-		}else if(combo >= 40 && !activeCombo){
+		}else if(combo >= 25 && !activeCombo){
 			if(!psLowCombo.gameObject.active) psLowCombo.gameObject.active = true;
 			psBadCombo.Stop();
 			psLowCombo.Play();
