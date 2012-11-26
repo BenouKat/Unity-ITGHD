@@ -25,8 +25,6 @@ public class InGameScript : MonoBehaviour {
 	private Material matArrowModel;
 	public GameObject lifeBar;
 	public GameObject timeBar;
-	public GameObject progressBar;
-	public GameObject progressBarEmpty;
 	public GameObject slow;
 	public GameObject fast;
 	public Camera particleComboCam;
@@ -519,8 +517,15 @@ public class InGameScript : MonoBehaviour {
 			for(int i=0;i<lifeBar.transform.childCount; i++){
 				lifeBar.transform.GetChild(i).renderer.enabled = false;	
 			}
-			progressBar.renderer.enabled = false;
-			progressBarEmpty.renderer.enabled = false;
+			for(int i=0;i<timeBar.transform.childCount; i++){
+				timeBar.transform.GetChild(i).renderer.enabled = false;	
+			}
+			for(int i=0;i<fast.transform.childCount; i++){
+				fast.transform.GetChild(i).renderer.enabled = false;	
+			}
+			for(int i=0;i<slow.transform.childCount; i++){
+				slow.transform.GetChild(i).renderer.enabled = false;	
+			}
 			slow.renderer.enabled = false;
 			fast.renderer.enabled = false;
 		}

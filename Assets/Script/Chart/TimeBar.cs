@@ -9,7 +9,7 @@ public class TimeBar : MonoBehaviour {
 	public Material cubeHitBarMaterial;
 	
 	public float ecartWithBeginY;
-	public float endY;
+	public float beginY;
 	
 	private float timeBegin;
 	private float timeEnd;
@@ -58,7 +58,7 @@ public class TimeBar : MonoBehaviour {
 	
 	public void updateTimeBar(float timetotal){
 		if(timetotal >= timeBegin){
-			cursorTimeObject.position = new Vector3(cursorTimeObject.position.x, endY - ecartWithBeginY*((timetotal - timeBegin)/timeEnd), cursorTimeObject.position.z);
+			cursorTimeObject.position = new Vector3(cursorTimeObject.position.x, beginY + ecartWithBeginY*((timetotal - timeBegin)/timeEnd), cursorTimeObject.position.z);
 		}
 	}
 	
@@ -78,7 +78,7 @@ public class TimeBar : MonoBehaviour {
 				if(psFEC.isPlaying) psFEC.Stop();
 				psBigCombo.Play();
 			}
-		}else if(combo >= 40 && psBadCombo.isPlaying){
+		}else if(combo >= 40 && !activeCombo){
 			if(!psLowCombo.gameObject.active) psLowCombo.gameObject.active = true;
 			psBadCombo.Stop();
 			psLowCombo.Play();

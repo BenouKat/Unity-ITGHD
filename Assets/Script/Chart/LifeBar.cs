@@ -222,10 +222,10 @@ public class LifeBar : MonoBehaviour {
 			realLife = Mathf.Lerp(realLife, objectivLife, thelerp);
 			if(Mathf.Abs(realLife - objectivLife) < limit) realLife = objectivLife;
 		}
-		/*
+		
 		for(int i=0; i<matCube.Length; i++){
 			matCube[i].SetFloat("_Shininess", lowBrillance + Mathf.PingPong((Time.time*speedBrillance) + decals[i], maxBrillance - lowBrillance));
-		}*/
+		}
 	}
 	
 	
