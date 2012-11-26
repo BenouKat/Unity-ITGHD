@@ -195,6 +195,7 @@ public class InGameScript : MonoBehaviour {
 	public float speedCombofade;
 	private float colorCombo;
 	private Color theColorCombo;
+	private bool alreadytaged = true;
 	private int signCombo = -1;
 	private int comboMisses;
 	private float alphaCombo;
@@ -464,6 +465,7 @@ public class InGameScript : MonoBehaviour {
 		colorCombo = 1f;
 		comboMisses = 0;
 		alphaCombo = 0.5f;
+		theColorCombo = blankColor;
 		//GUI
 		/*wd = posPercent.width*128;
 		hg = posPercent.height*1024;
@@ -946,13 +948,18 @@ public class InGameScript : MonoBehaviour {
 				if((colorCombo <= 0.3f && signCombo == -1) || (colorCombo >= 1f && signCombo == 1) ){ signCombo *= -1; }
 				colorCombo += signCombo*Time.deltaTime/speedCombofade;
 				theColorCombo = new Color(1f, 1f, colorCombo, 1f);
+				alreadytaged = false;
 				break;
 			case ComboType.FULLFANTASTIC:
 				if((colorCombo <= 0.3f && signCombo == -1) || (colorCombo >= 1f && signCombo == 1) ){ signCombo *= -1; }
 				colorCombo += signCombo*Time.deltaTime/speedCombofade;
 				theColorCombo = new Color(colorCombo, 1f, 1f, 1f);
+				alreadytaged = false;
 				break;
 			}
+		}else if(!alreadytaged){
+			theColorCombo = blankColor;
+			alreadytaged = true;
 		}
 	}
 	

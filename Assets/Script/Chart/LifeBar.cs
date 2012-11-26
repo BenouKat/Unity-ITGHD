@@ -237,7 +237,7 @@ public class LifeBar : MonoBehaviour {
 			if(!psMaxLife.gameObject.active) psMaxLife.gameObject.active = true;
 			psMaxLife.Play();
 			lifeMaxPlayin = true;
-		}else if(newlife > realLife && newlife > 25f && !lifeUpPlayin && newlife > (thelostlife + 10f)){
+		}else if(newlife > realLife && newlife > 25f && !lifeUpPlayin && !lifeMaxPlayin && newlife > (thelostlife + 10f)){
 			if(!psLifeUp.gameObject.active) psLifeUp.gameObject.active = true;
 			psLifeUp.Play();
 			lifeUpPlayin = true;

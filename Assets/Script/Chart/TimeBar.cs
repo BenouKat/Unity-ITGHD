@@ -4,9 +4,12 @@ using System.Collections;
 public class TimeBar : MonoBehaviour {
 	
 	public GameObject hitBar;
+	public GameObject hitBar2;
+	public GameObject cubeHitBar;
 	public Transform cursorTimeObject;
-	public Material hitBarMaterial;
-	public Material cubeHitBarMaterial;
+	private Material hitBarMaterial;
+	private Material hitBar2Material;
+	private Material cubeHitBarMaterial;
 	
 	public float ecartWithBeginY;
 	public float beginY;
@@ -14,9 +17,10 @@ public class TimeBar : MonoBehaviour {
 	private float timeBegin;
 	private float timeEnd;
 	
-	private Color black = new Color(0f, 0f, 0f, 1f);
+	private Color black = new Color(0.4f, 0.4f, 0.4f, 1f);
 	private Color white = new Color(1f, 1f, 1f, 1f);
 	private float lerpColor;
+	public float speedLerpColor;
 	
 	public ParticleSystem psFFC;
 	public ParticleSystem psFEC;
@@ -31,14 +35,19 @@ public class TimeBar : MonoBehaviour {
 		lerpColor = 1f;
 		psLowCombo.Play();
 		activeCombo = true;
+		hitBarMaterial = hitBar.renderer.material;
+		hitBar2Material = hitBar2.renderer.material;
+		cubeHitBarMaterial = cubeHitBar.renderer.material;
 	}
 	
 	// Update is called once per frame
 	void FixedUpdate () {
 		
 		if(lerpColor < 1f){
+			lerpColor += Time.deltaTime*speedLerpColor;
 			hitBarMaterial.color = Color.Lerp(hitBarMaterial.color, black, lerpColor);
-			cubeHitBarMaterial.color =  Color.Lerp(hitBarMaterial.color, white, lerpColor);
+			hitBar2Material.color = Color.Lerp(hitBar2Material.color, black, lerpColor);
+			cubeHitBarMaterial.color =  Color.Lerp(cubeHitBarMaterial.color, white, lerpColor);
 		}
 		
 		
@@ -47,6 +56,7 @@ public class TimeBar : MonoBehaviour {
 	
 	public void HitBar(Precision prec){
 		hitBarMaterial.color = DataManager.Instance.precColor[(int)prec];
+		hitBar2Material.color = DataManager.Instance.precColor[(int)prec];
 		cubeHitBarMaterial.color = DataManager.Instance.precColor[(int)prec];
 		lerpColor = 0f;
 	}
@@ -58,25 +68,25 @@ public class TimeBar : MonoBehaviour {
 	
 	public void updateTimeBar(float timetotal){
 		if(timetotal >= timeBegin){
-			cursorTimeObject.position = new Vector3(cursorTimeObject.position.x, beginY + ecartWithBeginY*((timetotal - timeBegin)/timeEnd), cursorTimeObject.position.z);
+			cursorTimeObject.position = new Vector3(cursorTimeObject.position.x, beginY + ecartWithBeginY*((timetotal - timeBegin)/(timeEnd - timeBegin)), cursorTimeObject.position.z);
 		}
 	}
 	
 	public void updatePS(ComboType ct, int combo){
-		if(combo >= 100 && psLowCombo.isPlaying){
-			psLowCombo.Stop();
+		if(combo >= 100){
+			if(psLowCombo.isPlaying) psLowCombo.Stop();
 			if(ct == ComboType.FULLFANTASTIC){
 				if(!psFFC.gameObject.active) psFFC.gameObject.active = true;
-				psFFC.Play();
+				if(!psFFC.isPlaying) psFFC.Play();
 			}else if(ct == ComboType.FULLEXCELLENT){
 				if(!psFEC.gameObject.active) psFEC.gameObject.active = true;
-				psFEC.Play();
+				if(!psFEC.isPlaying) psFEC.Play();
 				if(psFFC.isPlaying) psFFC.Stop();
 			}else{
 				if(!psBigCombo.gameObject.active) psBigCombo.gameObject.active = true;
 				if(psFFC.isPlaying) psFFC.Stop();
 				if(psFEC.isPlaying) psFEC.Stop();
-				psBigCombo.Play();
+				if(!psBigCombo.isPlaying) psBigCombo.Play();
 			}
 		}else if(combo >= 25 && !activeCombo){
 			if(!psLowCombo.gameObject.active) psLowCombo.gameObject.active = true;
