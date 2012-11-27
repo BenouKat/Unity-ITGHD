@@ -882,37 +882,27 @@ public class OptionScript : MonoBehaviour {
 		
 	}
 	
-	void resetCodeForPrimary(KeyCode kc, oldKeyCode okc){
-		switch(kc){
-			case DataManager.Instance.KeyCodeUp:
-				DataManager.Instance.KeyCodeUp = okc;
-				break;
-			case DataManager.Instance.KeyCodeDown:
-				DataManager.Instance.KeyCodeDown = okc;
-				break;
-			case DataManager.Instance.KeyCodeLeft:
-				DataManager.Instance.KeyCodeLeft = okc;
-				break;
-			case DataManager.Instance.KeyCodeRight:
-				DataManager.Instance.KeyCodeRight = okc;
-				break;
+	void resetCodeForPrimary(KeyCode kc, KeyCode okc){
+		if(kc == DataManager.Instance.KeyCodeUp){
+			DataManager.Instance.KeyCodeUp = okc;
+		}else if(kc == DataManager.Instance.KeyCodeDown){
+			DataManager.Instance.KeyCodeDown = okc;
+		}else if(kc == DataManager.Instance.KeyCodeLeft){
+			DataManager.Instance.KeyCodeLeft = okc;
+		}else if(kc == DataManager.Instance.KeyCodeRight){
+			DataManager.Instance.KeyCodeRight = okc;
 		}
 	}
 	
-	void resetCodeForSecondary(KeyCode kc, oldKeyCode okc){
-		switch(kc){
-			case DataManager.Instance.SecondaryKeyCodeUp:
-				DataManager.Instance.SecondaryKeyCodeUp = okc;
-				break;
-			case DataManager.Instance.SecondaryKeyCodeDown:
-				DataManager.Instance.SecondaryKeyCodeDown = okc;
-				break;
-			case DataManager.Instance.SecondaryKeyCodeLeft:
-				DataManager.Instance.SecondaryKeyCodeLeft = okc;
-				break;
-			case DataManager.Instance.SecondaryKeyCodeRight:
-				DataManager.Instance.SecondaryKeyCodeRight = okc;
-				break;
+	void resetCodeForSecondary(KeyCode kc, KeyCode okc){
+		if(kc == DataManager.Instance.SecondaryKeyCodeUp){
+			DataManager.Instance.SecondaryKeyCodeUp = okc;
+		}else if(kc == DataManager.Instance.SecondaryKeyCodeDown){
+			DataManager.Instance.SecondaryKeyCodeDown = okc;
+		}else if(kc == DataManager.Instance.SecondaryKeyCodeLeft){
+			DataManager.Instance.SecondaryKeyCodeLeft = okc;
+		}else if(kc == DataManager.Instance.SecondaryKeyCodeRight){
+			DataManager.Instance.SecondaryKeyCodeRight = okc;
 		}
 	}
 	
