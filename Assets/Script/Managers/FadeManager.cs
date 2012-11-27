@@ -26,6 +26,8 @@ public class FadeManager : MonoBehaviour {
 			posFadex = posxfinal;
 		}
 		
+		if(DataManager.Instance.quickMode) speedFade = 0.01f;
+		
 	}
 	
 	

@@ -846,32 +846,74 @@ public class OptionScript : MonoBehaviour {
 		switch(i)
 		{
 			case 2:
+			resetCodeForPrimary(k, DataManager.Instance.KeyCodeUp);
 			DataManager.Instance.KeyCodeUp = k;
 			break;
 			case 1:
+			resetCodeForPrimary(k, DataManager.Instance.KeyCodeDown);
 			DataManager.Instance.KeyCodeDown = k;
 			break;
 			case 0:
+			resetCodeForPrimary(k, DataManager.Instance.KeyCodeLeft);
 			DataManager.Instance.KeyCodeLeft = k;
 			break;
 			case 3:
+			resetCodeForPrimary(k, DataManager.Instance.KeyCodeRight);
 			DataManager.Instance.KeyCodeRight = k;
 			break;
 			case 6:
+			resetCodeForSecondary(k, DataManager.Instance.SecondaryKeyCodeUp);
 			DataManager.Instance.SecondaryKeyCodeUp = k;
 			break;
 			case 5:
+			resetCodeForSecondary(k, DataManager.Instance.SecondaryKeyCodeDown);
 			DataManager.Instance.SecondaryKeyCodeDown = k;
 			break;
 			case 4:
+			resetCodeForSecondary(k, DataManager.Instance.SecondaryKeyCodeLeft);
 			DataManager.Instance.SecondaryKeyCodeLeft = k;
 			break;
 			case 7:
+			resetCodeForSecondary(k, DataManager.Instance.SecondaryKeyCodeRight);
 			DataManager.Instance.SecondaryKeyCodeRight = k;
 			break;
 		}
 		
 		
+	}
+	
+	void resetCodeForPrimary(KeyCode kc, oldKeyCode okc){
+		switch(kc){
+			case DataManager.Instance.KeyCodeUp:
+				DataManager.Instance.KeyCodeUp = okc;
+				break;
+			case DataManager.Instance.KeyCodeDown:
+				DataManager.Instance.KeyCodeDown = okc;
+				break;
+			case DataManager.Instance.KeyCodeLeft:
+				DataManager.Instance.KeyCodeLeft = okc;
+				break;
+			case DataManager.Instance.KeyCodeRight:
+				DataManager.Instance.KeyCodeRight = okc;
+				break;
+		}
+	}
+	
+	void resetCodeForSecondary(KeyCode kc, oldKeyCode okc){
+		switch(kc){
+			case DataManager.Instance.SecondaryKeyCodeUp:
+				DataManager.Instance.SecondaryKeyCodeUp = okc;
+				break;
+			case DataManager.Instance.SecondaryKeyCodeDown:
+				DataManager.Instance.SecondaryKeyCodeDown = okc;
+				break;
+			case DataManager.Instance.SecondaryKeyCodeLeft:
+				DataManager.Instance.SecondaryKeyCodeLeft = okc;
+				break;
+			case DataManager.Instance.SecondaryKeyCodeRight:
+				DataManager.Instance.SecondaryKeyCodeRight = okc;
+				break;
+		}
 	}
 	
 	string giveLabelForIndex(int i){

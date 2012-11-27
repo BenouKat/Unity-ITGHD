@@ -467,6 +467,17 @@ public class WheelSongMainScript : MonoBehaviour {
 		}
 		
 		basePosCubeBase = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
+		cubeBase.transform.position = basePosCubeBase;
+		
+		
+		//quickMode
+		if(DataManager.Instance.quickMode){
+			speedMoveOption = 0.01f;
+			speedMoveSong = 0.01f;
+			speedAlphaSongLaunch = 0.1f;
+			speedAlphaBlack = 0.1f;
+			timeOption = 0.02f;
+		}
 	}
 	
 	// Update is called once per frame
@@ -779,7 +790,6 @@ public class WheelSongMainScript : MonoBehaviour {
 				songClip.clip = launchSong;
 				songClip.loop = false;
 				songClip.Play();
-				
 			}
 		
 			//Option
