@@ -2285,7 +2285,7 @@ public class WheelSongMainScript : MonoBehaviour {
 			case Sort.DIFFICULTY:
 				return "Difficulty : ";
 			case Sort.BPM:
-				return "BPM";
+				return "BPM : ";
 			default:
 				return "ERROR";
 		}

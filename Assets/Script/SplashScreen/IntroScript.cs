@@ -877,9 +877,14 @@ public class IntroScript : MonoBehaviour {
 	
 	IEnumerator TextLogin(){
 		yield return new WaitForFixedUpdate();
+		if(LoadManager.Instance.isSongFolderEmpty()) labelToDisplay = "No songs detected. Add songs and retry.";
 		while(posLength < labelToDisplay.Length){
 			posLength++;
 			yield return new WaitForSeconds(speedLetters);
+		}
+		if(LoadManager.Instance.isSongFolderEmpty()){
+			yield return new WaitForSeconds(2f);
+			Application.Quit();
 		}
 		
 		if(!ProfileManager.Instance.alreadyLoaded) ProfileManager.Instance.LoadProfiles();

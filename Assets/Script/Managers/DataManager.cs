@@ -640,7 +640,7 @@ public class DataManager{
 		if(DataManager.Instance.rateSelected != 0f)
 		{
 			ProcessStartInfo  rateConvertor = new ProcessStartInfo(Application.dataPath + DEBUGPATH + "/RateConvertor/rateConvertor.exe");
-			rateConvertor.Arguments = DataManager.Instance.rateSelected + " " + Application.dataPath.Replace(" ", "%SPACE%") + DEBUGPATH + " " + IntPtr.Size*8 + " " + DataManager.Instance.songSelected.song.Replace("file://", "").Replace(" ", "%SPACE%");
+			rateConvertor.Arguments = DataManager.Instance.rateSelected + " \"" + Application.dataPath + DEBUGPATH + "\" " + IntPtr.Size*8 + " \"" + DataManager.Instance.songSelected.song.Replace("file://", "") + "\"";
 			rateConvertor.WindowStyle = ProcessWindowStyle.Hidden;
 			Process theProc = Process.Start(rateConvertor);
 			theProc.WaitForExit();

@@ -157,6 +157,10 @@ public class LoadManager{
 		return numberNotFound;
 	}
 	
+	public bool isSongFolderEmpty(){
+		return Directory.GetDirectories(Application.dataPath + DataManager.Instance.DEBUGPATH + "Songs/").Length == 0;
+	}
+	
 	private string[] lastDir(string dir){
 		return dir.Replace('\\', '/').Split ('/');
 	}
