@@ -2,9 +2,9 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Chart\LifeBar.cs">
     <Files>
+      <File FileName="Assets\Script\Chart\LifeBar.cs" Line="100" Column="4" />
       <File FileName="Assets\Script\Chart\TimeBar.cs" Line="88" Column="38" />
-      <File FileName="Assets\Script\Chart\LifeBar.cs" Line="251" Column="3" />
-      <File FileName="Assets\Script\Chart\InGameScript.cs" Line="468" Column="30" />
+      <File FileName="Assets\Script\Chart\InGameScript.cs" Line="438" Column="14" />
       <File FileName="Assets\Script\Managers\DataManager.cs" Line="637" Column="2" />
       <File FileName="Assets\Script\Wheel\WheelSongMainScript.cs" Line="1" Column="30" />
       <File FileName="Assets\Script\FrameWork\Song.cs" Line="98" Column="48" />

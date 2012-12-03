@@ -35,14 +35,13 @@ public class LifeBar : MonoBehaviour {
 		decals = new float[lifebar.Length];
 		
 		realLife = 40f;
-		objectivLife = 50f;
+		objectivLife = 100f;
 		numberStep = (75f/(float)(lifebar.Length - 1));
-		Debug.Log(numberStep);
 		var index = realLife <= 25 ? 0 : ((int)((realLife - 25f)/numberStep) + 1);
 		
 		for(int i=0; i<lifebar.Length; i++){
 			matCube[i] = lifebar[i].renderer.material;
-			decals[i] = 1f - ((float)i/(float)lifebar.Length - 1f);
+			decals[i] = maxBrillance - ((float)i/(float)lifebar.Length - 1f)*maxBrillance;
 			if(i < index){
 				lifebar[i].transform.localScale = baseScale[i];
 			}else if(i > index){
@@ -104,7 +103,7 @@ public class LifeBar : MonoBehaviour {
 		}
 		
 		for(int i=0; i<matCube.Length; i++){
-			matCube[i].SetFloat("_Shininess", lowBrillance + Mathf.PingPong((Time.time*speedBrillance) + decals[i], maxBrillance - lowBrillance));
+			matCube[i].SetFloat("_Shininess", lowBrillance + Mathf.PingPong((Time.time*speedBrillance) + decals[i], maxBrillance - lowBrillance) + 0.001f);
 		}
 	}
 	
