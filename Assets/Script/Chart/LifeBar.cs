@@ -35,7 +35,7 @@ public class LifeBar : MonoBehaviour {
 		decals = new float[lifebar.Length];
 		
 		realLife = 40f;
-		objectivLife = 100f;
+		objectivLife = 50f;
 		numberStep = (75f/(float)(lifebar.Length - 1));
 		var index = realLife <= 25 ? 0 : ((int)((realLife - 25f)/numberStep) + 1);
 		

@@ -89,7 +89,7 @@ public class Song {
 		ratedSong.stops = new Dictionary<double, double>();
 		
 		foreach(var stop in this.stops){
-			ratedSong.stops.Add(stop.Key/(1f + (rate/100f)), stop.Value*(1f + (rate/100f)));
+			ratedSong.stops.Add(stop.Key/(1f + (rate/100f)), stop.Value/(1f + (rate/100f)));
 		}
 		
 		ratedSong.stepartist = this.stepartist;

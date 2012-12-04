@@ -517,7 +517,14 @@ public class InGameScript : MonoBehaviour {
 		//No UI
 		if(displayValue[8]){
 			for(int i=0;i<lifeBar.transform.childCount; i++){
-				lifeBar.transform.GetChild(i).renderer.enabled = false;	
+				if(lifeBar.transform.GetChild(i).childCount > 0){
+					for(int j=0;j<lifeBar.transform.GetChild(i).childCount; j++){
+						lifeBar.transform.GetChild(i).GetChild(j).renderer.enabled = false;	
+					}
+				}else{
+					lifeBar.transform.GetChild(i).renderer.enabled = false;	
+				}
+				
 			}
 			for(int i=0;i<timeBar.transform.childCount; i++){
 				timeBar.transform.GetChild(i).renderer.enabled = false;	
@@ -620,9 +627,9 @@ public class InGameScript : MonoBehaviour {
 								speedmodok = true;
 								var bpmdisplaying = thesong.bpmToDisplay;
 								if(bpmdisplaying.Contains("->")){
-									bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[0])*speedmodSelected).ToString("0") + "->" + (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[1])*speedmodSelected).ToString("0");
+									bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[0])*speedmodSelected*(1f + (rateSelected/100f))).ToString("0") + "->" + (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[1])*speedmodSelected*(1f + (rateSelected/100f))).ToString("0");
 								}else{
-									bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying)*speedmodSelected).ToString("0");
+									bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying)*speedmodSelected*(1f + (rateSelected/100f))).ToString("0");
 								}
 								GUI.Label(new Rect((SpeedModTextInfo.x)*Screen.width, SpeedModTextInfo.y*Screen.height, SpeedModTextInfo.width*Screen.width, SpeedModTextInfo.height*Screen.height), "Speedmod : x" + speedmodSelected.ToString("0.00") + " (" + bpmdisplaying + " BPM)");
 							}else{
@@ -782,6 +789,7 @@ public class InGameScript : MonoBehaviour {
 				if((typeOfDeath != 2 && (typeOfDeath == 0 || comboMisses >= 30)) || thesong.duration < timetotalchart){
 					dead = true;
 					mainAudioSource.Stop ();
+					mainAudioSource.volume = 1f;
 					mainAudioSource.PlayOneShot(failedSound);
 					secondAudioSource.volume = 0f;
 					secondAudioSource.loop = true;
