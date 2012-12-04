@@ -16,13 +16,19 @@ namespace rateConvertor
         //3 : path to song
         static void Main(string[] args)
         {
-	    var rate = args[0];
-	    var appPath = args[1].Replace("%SPACE%", " ");
-	    var bitSys = args[2];
-	    var songPath = args[3].Replace("%SPACE%", " ");
+            var rate = args[0];
+            var appPath = "\"" + args[1];
+            var bitSys = args[2];
+            var songPathVerbatim = args[3];
+            var songPath = "\"" + args[3] + "\"";
+            var parentSongPathVerbatim = Path.GetDirectoryName(args[3]);
+            var parentSongPath = "\"" + Path.GetDirectoryName(args[3]);
 
-            ProcessStartInfo oggToWavProcess = new ProcessStartInfo(appPath + "\\RateConvertor\\x" + bitSys + "\\ffmpeg.exe");
-            oggToWavProcess.Arguments = "-i " + songPath + " " + Path.GetDirectoryName(songPath) + "\\TempWav.wav";
+           // Console.Out.WriteLine("Begin oggToWavProcess : " + appPath + "\\RateConvertor\\x" + bitSys + "\\ffmpeg.exe\"");
+            //Console.Out.WriteLine("-i " + songPath + " " + parentSongPath + "\\TempWav.wav\"");
+
+            ProcessStartInfo oggToWavProcess = new ProcessStartInfo(appPath + "\\RateConvertor\\x" + bitSys + "\\ffmpeg.exe\"");
+            oggToWavProcess.Arguments = "-i " + songPath + " " + parentSongPath + "\\TempWav.wav\"";
             oggToWavProcess.WindowStyle = ProcessWindowStyle.Hidden;
 
             Process myProcess = Process.Start(oggToWavProcess);
@@ -30,9 +36,12 @@ namespace rateConvertor
             myProcess.Close();
 
 
+           // Console.Out.WriteLine("Begin wav transform : " + appPath + "\\RateConvertor\\soundstretch.exe\"");
+            //Console.Out.WriteLine(parentSongPath + "\\TempWav.wav\"" + " " + parentSongPath + "\\TempWavTransformed.wav\"" +
+             //   " " + "-rate=" + rate);
 
-            ProcessStartInfo wavTransform = new ProcessStartInfo(appPath + "\\RateConvertor\\soundstretch.exe");
-            wavTransform.Arguments = Path.GetDirectoryName(songPath) + "\\TempWav.wav" + " " + Path.GetDirectoryName(songPath) + "\\TempWavTransformed.wav" +
+            ProcessStartInfo wavTransform = new ProcessStartInfo(appPath + "\\RateConvertor\\soundstretch.exe\"");
+            wavTransform.Arguments = parentSongPath + "\\TempWav.wav\"" + " " + parentSongPath + "\\TempWavTransformed.wav\"" +
                 " " + "-rate=" + rate;
             wavTransform.WindowStyle = ProcessWindowStyle.Hidden;
 
@@ -40,18 +49,21 @@ namespace rateConvertor
             myProcess.WaitForExit();
             myProcess.Close();
 
-            File.Move(songPath, Path.GetDirectoryName(songPath) + "\\OriginalSong.ogg");
+            File.Move(songPathVerbatim, parentSongPathVerbatim + "\\OriginalSong.ogg");
 
-            ProcessStartInfo wavToOggProcess = new ProcessStartInfo(appPath + "\\RateConvertor\\x" + bitSys + "\\ffmpeg.exe");
-            wavToOggProcess.Arguments = "-i " + Path.GetDirectoryName(songPath) + "\\TempWavTransformed.wav" + " -acodec libvorbis " + songPath;
+            //Console.Out.WriteLine("Begin wav transform : " + appPath + "\\RateConvertor\\x" + bitSys + "\\ffmpeg.exe\"");
+            //Console.Out.WriteLine("-i " + parentSongPath + "\\TempWavTransformed.wav\"" + " -acodec libvorbis " + songPath);
+
+            ProcessStartInfo wavToOggProcess = new ProcessStartInfo(appPath + "\\RateConvertor\\x" + bitSys + "\\ffmpeg.exe\"");
+            wavToOggProcess.Arguments = "-i " + parentSongPath + "\\TempWavTransformed.wav\"" + " -acodec libvorbis " + songPath;
             wavToOggProcess.WindowStyle = ProcessWindowStyle.Hidden;
 
             myProcess = Process.Start(wavToOggProcess);
             myProcess.WaitForExit();
             myProcess.Close();
 
-            File.Delete(Path.GetDirectoryName(songPath) + "\\TempWav.wav");
-            File.Delete(Path.GetDirectoryName(songPath) + "\\TempWavTransformed.wav");
+            File.Delete(parentSongPathVerbatim + "\\TempWav.wav");
+            File.Delete(parentSongPathVerbatim + "\\TempWavTransformed.wav");
         }
     }
 }

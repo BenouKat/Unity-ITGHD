@@ -1661,7 +1661,7 @@ public class WheelSongMainScript : MonoBehaviour {
 				
 				foreach(var cubeel in songCubeOnRender.Where(c => c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value)){
 					cubeel.Key.SetActiveRecursively(false);
-					cubeBase.transform.position = new Vector3(basePosCubeBase.x, basePosCubeBase.y + (3f*startnumber), basePosCubeBase.z);
+					cubeBase.transform.position = new Vector3(basePosCubeBase.x, basePosCubeBase.y - (3f*startnumber), basePosCubeBase.z);
 				}
 				/*var cubeel2 = songCubeOnRender.FirstOrDefault(c => !c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y - 3f*numberToDisplay) && !(c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
 				if(cubeel2 != null) {
@@ -1690,7 +1690,7 @@ public class WheelSongMainScript : MonoBehaviour {
 
 					cubeel.Key.SetActiveRecursively(true);
 					if(cubeSelected == null || cubeSelected != cubeel.Key) cubeel.Key.transform.FindChild("Selection").gameObject.active = false;
-					cubeBase.transform.position = new Vector3(basePosCubeBase.x, basePosCubeBase.y + (3f*startnumber), basePosCubeBase.z);
+					cubeBase.transform.position = new Vector3(basePosCubeBase.x, basePosCubeBase.y - (3f*startnumber), basePosCubeBase.z);
 					
 				}
 				
