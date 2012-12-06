@@ -81,7 +81,6 @@ public class LoadManager{
 				bannerPack.Add("Empty folder " + (i + 1), (Texture2D) Resources.Load("Cublast"));
 			}
 		}
-		songs.OrderBy(c => c.Key);
 		alreadyLoaded = true;
 	}
 	
@@ -152,7 +151,6 @@ public class LoadManager{
 				bannerPack.Add("Empty folder " + (i + 1), (Texture2D) Resources.Load("Cublast"));
 			}
 		}
-		songs.OrderBy(c => c.Key);
 		alreadyLoaded = true;
 		return numberNotFound;
 	}

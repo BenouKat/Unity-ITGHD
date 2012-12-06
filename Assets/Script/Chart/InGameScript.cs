@@ -1264,6 +1264,7 @@ public class InGameScript : MonoBehaviour {
 					precAverage.Add(realprec);
 					var ttp = timeToPrec(prec);
 					scoreCount[ttp.ToString()] += 1 ;
+					if(arrowFrozen.Count() >= 2) scoreCount["HANDS"] += 1 ;
 					GainCombo(1, ttp);
 					arrowLeftList.Remove(ar);
 					StartParticleLeft(ttp);
@@ -1425,6 +1426,7 @@ public class InGameScript : MonoBehaviour {
 					precAverage.Add(realprec);
 					var ttp = timeToPrec(prec);
 					scoreCount[ttp.ToString()] += 1;
+					if(arrowFrozen.Count() >= 2) scoreCount["HANDS"] += 1 ;
 					GainCombo(1, ttp);
 					arrowDownList.Remove(ar);
 					StartParticleDown(ttp);
@@ -1584,6 +1586,7 @@ public class InGameScript : MonoBehaviour {
 					precAverage.Add(realprec);
 					var ttp = timeToPrec(prec);
 					scoreCount[ttp.ToString()] += 1;
+					if(arrowFrozen.Count() >= 2) scoreCount["HANDS"] += 1 ;
 					GainCombo(1, ttp);
 					arrowUpList.Remove(ar);
 					StartParticleUp(ttp);
@@ -1744,6 +1747,7 @@ public class InGameScript : MonoBehaviour {
 					precAverage.Add(realprec);
 					var ttp = timeToPrec(prec);
 					scoreCount[ttp.ToString()] += 1;
+					if(arrowFrozen.Count() >= 2) scoreCount["HANDS"] += 1 ;
 					GainCombo(1, ttp);
 					arrowRightList.Remove(ar);
 					StartParticleRight(ttp);

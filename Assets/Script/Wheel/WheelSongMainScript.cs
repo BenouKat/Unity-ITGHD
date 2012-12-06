@@ -84,6 +84,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	private GameObject particleOnPlay;
 	public int numberToDisplay;
 	private int startnumber;
+	private int currentstartnumber;
 	public float speedCameraDefil;
 	private float posLabel;
 	public float offsetSubstitle;
@@ -255,6 +256,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		numberPack = 0;
 		nextnumberPack = 0;
 		startnumber = 0;
+		currentstartnumber = 0;
 		timeFade = 0f;
 		packs = new Dictionary<string, GameObject>();
 		cubesPos = new Dictionary<GameObject, float>();
@@ -464,6 +466,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 		if(DataManager.Instance.mousePosition != -1){
 			startnumber = DataManager.Instance.mousePosition;
+			currentstartnumber = startnumber;
 		}
 		
 		basePosCubeBase = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
@@ -506,6 +509,7 @@ public class WheelSongMainScript : MonoBehaviour {
 					activePack(packs.ElementAt(nextnumberPack).Key);
 					movinBackward = true;
 					startnumber = 0;
+					currentstartnumber = 0;
 					camerapack.transform.position = new Vector3(0f, 0f, 0f);
 					cubeBase.transform.position = basePosCubeBase;
 				}
@@ -514,6 +518,7 @@ public class WheelSongMainScript : MonoBehaviour {
 					activePack(packs.ElementAt(nextnumberPack).Key);
 					movinBackwardFast = true;
 					startnumber = 0;
+					currentstartnumber = 0;
 					camerapack.transform.position = new Vector3(0f, 0f, 0f);
 					cubeBase.transform.position = basePosCubeBase;
 				}
@@ -524,6 +529,7 @@ public class WheelSongMainScript : MonoBehaviour {
 					activePack(packs.ElementAt(nextnumberPack).Key);
 					movinForward = true;
 					startnumber = 0;
+					currentstartnumber = 0;
 					camerapack.transform.position = new Vector3(0f, 0f, 0f);
 					cubeBase.transform.position = basePosCubeBase;
 				}
@@ -592,6 +598,7 @@ public class WheelSongMainScript : MonoBehaviour {
 							locked = false;
 						}
 						startnumber = 0;
+						currentstartnumber = 0;
 						camerapack.transform.position = new Vector3(0f, 0f, 0f);
 						cubeBase.transform.position = basePosCubeBase;
 						desactivePack();
@@ -614,6 +621,7 @@ public class WheelSongMainScript : MonoBehaviour {
 							locked = false;
 						}
 						startnumber = 0;
+						currentstartnumber = 0;
 						camerapack.transform.position = new Vector3(0f, 0f, 0f);
 						cubeBase.transform.position = basePosCubeBase;
 						activePack(packs.ElementAt(nextnumberPack).Key);
@@ -754,6 +762,7 @@ public class WheelSongMainScript : MonoBehaviour {
 				DataManager.Instance.deathSelected = deathSelected;
 				DataManager.Instance.packSelected = !LoadManager.Instance.isAllowedToSearch(search) ? packs.ElementAt(numberPack).Key : "";
 				DataManager.Instance.mousePosition = !LoadManager.Instance.isAllowedToSearch(search) ? startnumber : -1;
+				currentstartnumber = startnumber;
 				
 				///Save prefs
 				ProfileManager.Instance.currentProfile.lastSpeedmodUsed = speedmodstring;
@@ -1653,15 +1662,21 @@ public class WheelSongMainScript : MonoBehaviour {
 			//Move song list
 			if(oldpos > newpos){
 			
-				
+				var checkForStep = false;
 				foreach(var cubeel2 in songCubeOnRender.Where(c => !c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y - 3f*numberToDisplay) && !(c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value)){
 					cubeel2.Key.SetActiveRecursively(true);
 					if(cubeSelected == null || cubeSelected != cubeel2.Key) cubeel2.Key.transform.FindChild("Selection").gameObject.active = false;
+					checkForStep = true;
+				}
+				
+				if(checkForStep && currentstartnumber > startnumber)
+				{
+					currentstartnumber--;
 				}
 				
 				foreach(var cubeel in songCubeOnRender.Where(c => c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value)){
 					cubeel.Key.SetActiveRecursively(false);
-					cubeBase.transform.position = new Vector3(basePosCubeBase.x, basePosCubeBase.y - (3f*startnumber), basePosCubeBase.z);
+					cubeBase.transform.position = new Vector3(basePosCubeBase.x, basePosCubeBase.y - (3f*currentstartnumber), basePosCubeBase.z);
 				}
 				/*var cubeel2 = songCubeOnRender.FirstOrDefault(c => !c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y - 3f*numberToDisplay) && !(c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
 				if(cubeel2 != null) {
@@ -1680,17 +1695,23 @@ public class WheelSongMainScript : MonoBehaviour {
 				
 			}else if(oldpos < newpos){
 				
+				var checkForStep = false;
 				foreach(var cubeel2 in songCubeOnRender.Where(c => c.Key.active && (c.Key.transform.position.y < camerapack.transform.position.y - 3f*numberToDisplay) && packs.ElementAt(nextnumberPack).Key == c.Value)){
 
 					cubeel2.Key.SetActiveRecursively(false);
+					checkForStep = true;
+				}
 				
+				if(checkForStep && currentstartnumber < startnumber)
+				{
+					currentstartnumber++;
 				}
 				
 				foreach(var cubeel in songCubeOnRender.Where(c => !c.Key.active && (c.Key.transform.position.y < camerapack.transform.position.y + 5f) && (c.Key.transform.position.y > camerapack.transform.position.y - 3f*(numberToDisplay - 2)) && packs.ElementAt(nextnumberPack).Key == c.Value)){
 
 					cubeel.Key.SetActiveRecursively(true);
 					if(cubeSelected == null || cubeSelected != cubeel.Key) cubeel.Key.transform.FindChild("Selection").gameObject.active = false;
-					cubeBase.transform.position = new Vector3(basePosCubeBase.x, basePosCubeBase.y - (3f*startnumber), basePosCubeBase.z);
+					cubeBase.transform.position = new Vector3(basePosCubeBase.x, basePosCubeBase.y - (3f*currentstartnumber), basePosCubeBase.z);
 					
 				}
 				
