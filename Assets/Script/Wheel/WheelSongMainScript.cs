@@ -1153,9 +1153,9 @@ public class WheelSongMainScript : MonoBehaviour {
 				GUI.color = new Color(1f, 1f, 1f, alphaSongLaunch[3]);	
 				GUI.Label(new Rect(posStepArtist.x*Screen.width, posStepArtist.y*Screen.height, posStepArtist.width*Screen.width, posStepArtist.height*Screen.height), "Stepchart : " + DataManager.Instance.songSelected.stepartist, "songlabel");
 				GUI.color = new Color(1f, 1f, 1f, alphaSongLaunch[4]);	
-				GUI.Label(new Rect(posBestScore.x*Screen.width, posBestScore.y*Screen.height, posBestScore.width*Screen.width, posBestScore.height*Screen.height), score == -1 ? "No personnel score yet" : "Best Score : " + score.ToString("0.00") + "%" + (isScoreFail ? " (Fail)" : ""), "SongInfoLittle");
+				GUI.Label(new Rect(posBestScore.x*Screen.width, posBestScore.y*Screen.height, posBestScore.width*Screen.width, posBestScore.height*Screen.height), score == -1 ? "First try" : "Best Score : " + score.ToString("0.00") + "%" + (isScoreFail ? " (Fail)" : ""), "SongInfoLittle");
 				GUI.color = new Color(1f, 1f, 1f, alphaSongLaunch[5]);	
-				GUI.Label(new Rect(posTopProfileScore.x*Screen.width, posTopProfileScore.y*Screen.height, posTopProfileScore.width*Screen.width, posTopProfileScore.height*Screen.height), bestfriendscore == -1 ? "No other record" : "Top Friend Score : " + bestfriendscore.ToString("0.00") + "%" + " (" + bestnamefriendscore + ")" , "SongInfoLittle");
+				GUI.Label(new Rect(posTopProfileScore.x*Screen.width, posTopProfileScore.y*Screen.height, posTopProfileScore.width*Screen.width, posTopProfileScore.height*Screen.height), bestfriendscore == -1 ? "No Friends Score Entry" : "Friends Top Score : " + bestfriendscore.ToString("0.00") + "%" + " (" + bestnamefriendscore + ")" , "SongInfoLittle");
 				GUI.color = new Color(1f, 1f, 1f, alphaBlack);
 				GUI.DrawTexture(new Rect(0f, 0f, Screen.width+1, Screen.height+1), tex["Black"]);
 				

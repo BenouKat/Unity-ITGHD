@@ -138,7 +138,7 @@ public class ProfileManager{
 			}
 		}
 		
-		if(others > 0) name += "\n(and " + others + " more)";
+		if(others > 0) name += "\n(and " + others + ")";
 		return new KeyValuePair<double, string>(score, name);
 		
 	}
