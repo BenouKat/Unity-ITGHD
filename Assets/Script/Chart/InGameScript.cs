@@ -408,7 +408,7 @@ public class InGameScript : MonoBehaviour {
 		TextureBase.Add("FEC", (Texture2D) Resources.Load("FEC"));
 		TextureBase.Add("FFC", (Texture2D) Resources.Load("FFC"));
 		TextureBase.Add("PERFECT", (Texture2D) Resources.Load("Perfect"));
-		TextureBase.Add("DIFFICULTY", (Texture2D) Resources.Load(Enum.GetName(typeof(Difficulty), (thesong.difficulty));
+		TextureBase.Add("DIFFICULTY", (Texture2D) Resources.Load(Enum.GetName(typeof(Difficulty), (thesong.difficulty)).ToLower()));
 		
 		//stuff
 		scoreToDisplay = Precision.NONE;
@@ -500,9 +500,9 @@ public class InGameScript : MonoBehaviour {
 		
 		//GUI
 		
-		infoToDisplay = "Title : " + thesong.title + "\n" + "Artist : " + thesong.artist + "\n" + "Stepartist : " + thesong.stepartist + "\n";
+		infoToDisplay = thesong.title + "\n" + thesong.artist + "\n"  + thesong.stepartist + "\n\n";
 		
-		var mystat = ProfileManager.Instance.FindTheSongStat(songSelected[actualySelected].sip)
+		var mystat = ProfileManager.Instance.FindTheSongStat(thesong.sip);
 		if(mystat != null)
 		{
 			if(mystat.fail)
@@ -515,7 +515,7 @@ public class InGameScript : MonoBehaviour {
 			infoToDisplay += "First try\n";
 		}
 		
-		var kv = ProfileManager.Instance.FindTheBestScore(songSelected[actualySelected].sip);
+		var kv = ProfileManager.Instance.FindTheBestScore(thesong.sip);
 		if(kv.Key != -1)
 		{	
 			infoToDisplay += "Friends best :" + kv.Key.ToString("0.00") + "%" + "\n";
@@ -589,14 +589,14 @@ public class InGameScript : MonoBehaviour {
 		//fake stuff
 		GUI.Label(new Rect(0.9f*Screen.width, 0.05f*Screen.height, 200f, 200f), fps.ToString());		
 		//end fake stuff
-		GUI.DrawTexture(new Rect(infoDifficulty.x*Screen.width, infoDifficulty.y*Screen.height, infoDifficulty.width*Screen.width, infoDifficulty.height*height), TextureBase["DIFFICULTY"]);
+		GUI.DrawTexture(new Rect(infoDifficulty.x*Screen.width, infoDifficulty.y*Screen.height, infoDifficulty.width*Screen.width, infoDifficulty.height*Screen.height), TextureBase["DIFFICULTY"]);
 		
 		GUI.color = new Color(0f, 0f, 0f, 1f);
-		GUI.Label(new Rect(infoLevelDifficulty.x*Screen.width, infoLevelDifficulty.y*Screen.height, infoLevelDifficulty.width*Screen.width, infoLevelDifficulty.height*height), levelToDisplay, "infoDiff");
-		GUI.Label(new Rect(infoSong.x*Screen.width, infoSong.y*Screen.height, infoSong.width*Screen.width, infoSong.height*Screen.height), infoToDisplay , "infoSong");
+		GUI.Label(new Rect(infoLevelDifficulty.x*Screen.width + 1, infoLevelDifficulty.y*Screen.height + 1, infoLevelDifficulty.width*Screen.width, infoLevelDifficulty.height*Screen.height), levelToDisplay.ToString(), "infoDiff");
+		GUI.Label(new Rect(infoSong.x*Screen.width + 1, infoSong.y*Screen.height + 1, infoSong.width*Screen.width, infoSong.height*Screen.height), infoToDisplay , "infoSong");
 		
-		GUI.color = DataManager.Instance.diffColor[thesong.difficulty];
-		GUI.Label(new Rect(infoLevelDifficulty.x*Screen.width, infoLevelDifficulty.y*Screen.height, infoLevelDifficulty.width*Screen.width, infoLevelDifficulty.height*height), levelToDisplay, "infoDiff");
+		GUI.color = DataManager.Instance.diffColor[(int)thesong.difficulty];
+		GUI.Label(new Rect(infoLevelDifficulty.x*Screen.width, infoLevelDifficulty.y*Screen.height, infoLevelDifficulty.width*Screen.width, infoLevelDifficulty.height*Screen.height), levelToDisplay.ToString(), "infoDiff");
 		
 		GUI.color = new Color(1f, 1f, 1f, 1f);
 		GUI.Label(new Rect(infoSong.x*Screen.width, infoSong.y*Screen.height, infoSong.width*Screen.width, infoSong.height*Screen.height), infoToDisplay , "infoSong");
