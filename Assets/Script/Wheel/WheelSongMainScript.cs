@@ -1566,6 +1566,10 @@ public class WheelSongMainScript : MonoBehaviour {
 						PSDiff[(int)actualySelected].gameObject.active = false;
 						desactiveDiff();
 						particleOnPlay.active = false;
+						foreach(var med in medals)
+						{
+							if(med.active) med.SetActiveRecursively(false);
+						}
 					}
 				}
 				
@@ -1581,6 +1585,10 @@ public class WheelSongMainScript : MonoBehaviour {
 					graph.enabled = false;
 					desactiveDiff();
 					particleOnPlay.active = false;
+					foreach(var med in medals)
+					{
+						if(med.active) med.SetActiveRecursively(false);
+					}
 				}
 			}
 			

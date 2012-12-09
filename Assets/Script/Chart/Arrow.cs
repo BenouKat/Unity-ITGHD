@@ -17,6 +17,7 @@ public class Arrow {
 	
 	public bool alreadyValid;
 	public bool imJump;
+	public bool imHand;
 	
 	public List<Arrow> neighboors;
 	
@@ -24,6 +25,7 @@ public class Arrow {
 	public Arrow(GameObject go, ArrowType at, double passedTime){
 		alreadyValid = false;
 		imJump = false;
+		imHand = false;
 		if(at != ArrowType.MINE){go.GetComponent<ArrowScript>().setArrowAssociated(this);}
 		else{ go.GetComponent<MineScript>().setArrowAssociated(this); }
 		goArrow = go;

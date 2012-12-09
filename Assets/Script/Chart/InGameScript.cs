@@ -1286,7 +1286,8 @@ public class InGameScript : MonoBehaviour {
 						var ttp = timeToPrec(prec);
 						GainScoreAndLife(ttp.ToString());
 						scoreCount[ttp.ToString()] += 1;
-						scoreCount[ar.neighboors.Count > 2 ? "HANDS" : "JUMPS"] += 1;
+						scoreCount[ar.imHand ? "HANDS" : "JUMPS"] += 1;
+						if(ar.imHand && ar.neighboors.Count == 2) scoreCount["JUMPS"] += 1;
 						displayPrec(prec);
 						GainCombo(ar.neighboors.Count, ttp);
 					}
@@ -1304,7 +1305,7 @@ public class InGameScript : MonoBehaviour {
 					precAverage.Add(realprec);
 					var ttp = timeToPrec(prec);
 					scoreCount[ttp.ToString()] += 1 ;
-					if(arrowFrozen.Count() >= 2) scoreCount["HANDS"] += 1 ;
+					if(ar.imHand) scoreCount["HANDS"] += 1 ;
 					GainCombo(1, ttp);
 					arrowLeftList.Remove(ar);
 					StartParticleLeft(ttp);
@@ -1448,7 +1449,8 @@ public class InGameScript : MonoBehaviour {
 						var ttp = timeToPrec(prec);
 						scoreCount[ttp.ToString()] += 1;
 						GainCombo(ar.neighboors.Count, ttp);
-						scoreCount[ar.neighboors.Count > 2 ? "HANDS" : "JUMPS"] += 1;
+						scoreCount[ar.imHand ? "HANDS" : "JUMPS"] += 1;
+						if(ar.imHand && ar.neighboors.Count == 2) scoreCount["JUMPS"] += 1;
 						GainScoreAndLife(ttp.ToString());
 						displayPrec(prec);
 					}
@@ -1466,7 +1468,7 @@ public class InGameScript : MonoBehaviour {
 					precAverage.Add(realprec);
 					var ttp = timeToPrec(prec);
 					scoreCount[ttp.ToString()] += 1;
-					if(arrowFrozen.Count() >= 2) scoreCount["HANDS"] += 1 ;
+					if(ar.imHand) scoreCount["HANDS"] += 1 ;
 					GainCombo(1, ttp);
 					arrowDownList.Remove(ar);
 					StartParticleDown(ttp);
@@ -1608,7 +1610,8 @@ public class InGameScript : MonoBehaviour {
 						var ttp = timeToPrec(prec);
 						scoreCount[ttp.ToString()] += 1;
 						GainCombo(ar.neighboors.Count, ttp);
-						scoreCount[ar.neighboors.Count > 2 ? "HANDS" : "JUMPS"] += 1;
+						scoreCount[ar.imHand ? "HANDS" : "JUMPS"] += 1;
+						if(ar.imHand && ar.neighboors.Count == 2) scoreCount["JUMPS"] += 1;
 						GainScoreAndLife(ttp.ToString());
 						displayPrec(prec);
 					}
@@ -1626,7 +1629,7 @@ public class InGameScript : MonoBehaviour {
 					precAverage.Add(realprec);
 					var ttp = timeToPrec(prec);
 					scoreCount[ttp.ToString()] += 1;
-					if(arrowFrozen.Count() >= 2) scoreCount["HANDS"] += 1 ;
+					if(ar.imHand) scoreCount["HANDS"] += 1 ;
 					GainCombo(1, ttp);
 					arrowUpList.Remove(ar);
 					StartParticleUp(ttp);
@@ -1769,7 +1772,8 @@ public class InGameScript : MonoBehaviour {
 						var ttp = timeToPrec(prec);
 						scoreCount[ttp.ToString()] += 1;
 						GainCombo(ar.neighboors.Count, ttp);
-						scoreCount[ar.neighboors.Count > 2 ? "HANDS" : "JUMPS"] += 1;
+						scoreCount[ar.imHand ? "HANDS" : "JUMPS"] += 1;
+						if(ar.imHand && ar.neighboors.Count == 2) scoreCount["JUMPS"] += 1;
 						GainScoreAndLife(ttp.ToString());
 						displayPrec(prec);
 					}
@@ -1787,7 +1791,7 @@ public class InGameScript : MonoBehaviour {
 					precAverage.Add(realprec);
 					var ttp = timeToPrec(prec);
 					scoreCount[ttp.ToString()] += 1;
-					if(arrowFrozen.Count() >= 2) scoreCount["HANDS"] += 1 ;
+					if(ar.imHand) scoreCount["HANDS"] += 1 ;
 					GainCombo(1, ttp);
 					arrowRightList.Remove(ar);
 					StartParticleRight(ttp);
@@ -2568,10 +2572,14 @@ public class InGameScript : MonoBehaviour {
 				
 				var listNeighboors = new List<Arrow>();
 				var barr = false;
+				var tripleselect = 0;
+				var selectToRemove = 0;
+				
 				for(int i =0;i<4; i++){
 					if(note[i] == '1'){
 						
 						barr = true;
+						tripleselect++;
 						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
 						if(DataManager.Instance.skinSelected == 1 || DataManager.Instance.skinSelected == 3){
 							for(int j=0; j<goArrow.transform.childCount;j++){
@@ -2623,6 +2631,8 @@ public class InGameScript : MonoBehaviour {
 						//barrow = true;
 					}else if(note[i] == '2'){
 						barr = true;
+						tripleselect++;
+						selectToRemove++;
 						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
 						if(DataManager.Instance.skinSelected == 1 || DataManager.Instance.skinSelected == 3){
 							for(int j=0; j<goArrow.transform.childCount;j++){
@@ -2694,6 +2704,8 @@ public class InGameScript : MonoBehaviour {
 					
 					}else if(note[i] == '4'){
 						barr = true;
+						tripleselect++;
+						selectToRemove++;
 						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
 						if(DataManager.Instance.skinSelected == 1 || DataManager.Instance.skinSelected == 3){
 							for(int j=0; j<goArrow.transform.childCount;j++){
@@ -2772,6 +2784,17 @@ public class InGameScript : MonoBehaviour {
 				if(barr){
 					if(firstArrow <= 0f) firstArrow = timetotal;
 					lastArrow = timetotal;	
+				}
+				
+				for(int i=0;i<4;i++){
+					if(ArrowFreezed[i] != null) tripleselect++;
+					tripleselect -= selectToRemove;
+				}
+				
+				if(tripleselect >= 3f){
+					foreach(var el in listNeighboors){
+						el.imHand = true;
+					}
 				}
 				
 				if(listNeighboors.Count > 1){

@@ -28,7 +28,7 @@ public class DataManager{
 	public Dictionary<Precision, double> PrecisionValues;
 	
 	//Debug
-	public String DEBUGPATH = "/";
+	public String DEBUGPATH = Application.isEditor ? "/../" : "/";
 	
 	//RENDER
 	public List<Material> skyboxList;
