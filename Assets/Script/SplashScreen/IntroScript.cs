@@ -203,9 +203,9 @@ public class IntroScript : MonoBehaviour {
 					profileSelected = i;
 					infoToDisplay = "Name : " + ProfileManager.Instance.profiles[i].name + "\n\n" +
 					"Number of song played : " + ProfileManager.Instance.profiles[i].scoreOnSong.Count + "\n\n" +
-					"Game time : " + "00:00h" + "\n\n\n\n" +
-					"Story mode progression : " + "0%" + "\n\n" + 
-					"Achievement : " + "0/400" + "\n\n";
+					"Game time : " + (ProfileManager.Instance.profiles[i].duration/60f).ToString("00") + ":" + (ProfileManager.Instance.profiles[i].duration%60f).ToString("00") + "\n\n\n\n" +
+					"Story mode progression : " + "N/A" + "\n\n" + 
+					"Achievement : " + "N/A" + "\n\n";
 					StopAllCoroutines();
 					StartCoroutine(TextInfo());
 				}

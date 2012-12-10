@@ -39,6 +39,7 @@ public class ScoreScript : MonoBehaviour {
 	public Rect posQuit;
 	public Rect posRecord;
 	public Rect posLegit;
+	public Rect posAutoSync;
 	
 	//Graph
 	public GameObject graph;
@@ -72,6 +73,7 @@ public class ScoreScript : MonoBehaviour {
 	private string stringmod;
 	private int record;
 	private bool isScoreLegit;
+	private bool autoSync;
 	
 	//Fade
 	private bool fadeToChartScene;
@@ -194,7 +196,7 @@ public class ScoreScript : MonoBehaviour {
 		graphok = false;
 		FlashCadre = 1f;
 		FlashGraph = 1f;
-		
+		autoSync = false;
 		
 		ProcessScore();
 		isScoreLegit = scoreIsLegit();
@@ -225,6 +227,20 @@ public class ScoreScript : MonoBehaviour {
 			GetComponent<FadeManager>().FadeOut();	
 			fadeok = true;
 			time = 0f;
+		}
+		
+		if(Input.GetKeyDown(KeyCode.F2) && !autoSync){
+			autoSync = true;
+			if(percentSens >= 60f)
+			{
+				DataManager.Instance.userGOS += sens*averagePrec;
+				ProfileManager.Instance.currentProfile.saveOptions();
+				ProfileManager.Instance.SaveProfile();
+			}
+			
+			//av prec en ms : averagePrec
+			//sign : sens, percent : percentSens
+			
 		}
 		
 		if(fadeok && !transistionok){
@@ -371,6 +387,7 @@ public class ScoreScript : MonoBehaviour {
 		
 		if(!shadow) GUI.color = new Color(1f, 1f, 1f, alphaTransition);
 		if(!isScoreLegit) GUI.Label(resizeRectGeneralOffset(resizeRect(posLegit), shadow), "Not legit !");
+		if(autoSync) GUI.Label(resizeRectGeneralOffset(resizeRect(posAutoSync), shadow), "Timing Syncronized");
 		
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 0), shadow), "First ex or less : " + ((DataManager.Instance.firstEx == -1) ? "Never" : ((DataManager.Instance.firstEx/DataManager.Instance.songSelected.duration)*100f).ToString("0.00") + "%"));
 		GUI.Label(resizeRectGeneralOffset(resizeRectOfY(posInfo, offsetPosInfo, 1), shadow), "First great or less : " + ((DataManager.Instance.firstGreat == -1) ? "Never" : ((DataManager.Instance.firstGreat/DataManager.Instance.songSelected.duration)*100f).ToString("0.00") + "%"));

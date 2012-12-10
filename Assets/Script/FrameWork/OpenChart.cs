@@ -321,7 +321,7 @@ public class OpenChart{
 						Debug.Log(fil);	
 					}
 				}*/
-				theNewsong.song = "file://" + files.FirstOrDefault(c => c.Contains(".ogg") || c.Contains(".OGG")).Replace('\\', '/');
+				theNewsong.song = "file://" + files.FirstOrDefault(c => c.Contains(".ogg") || c.Contains(".OGG") || c.Contains(".mp3") || c.Contains(".MP3")).Replace('\\', '/');
 				
 				
 				//getting song information

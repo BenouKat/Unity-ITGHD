@@ -63,6 +63,8 @@ public class OptionScript : MonoBehaviour {
 	public Rect posLabelOption;
 	public float offsetLabelYOption;
 	public Rect posTextFieldOption;
+	public Rect posSliderOption;
+	public Rect posValueSliderOption;
 	public Rect posButtonOption;
 	public Rect posButtonBack;
 	public Rect posButtonCancel;
@@ -73,7 +75,7 @@ public class OptionScript : MonoBehaviour {
 	public Rect posLabelHelp;
 	
 	//Audio
-	private string generalVolume;
+	private float generalVolume;
 	
 	//Video
 	private bool enableBloom;
@@ -160,7 +162,7 @@ public class OptionScript : MonoBehaviour {
 		cacheMode = DataManager.Instance.useTheCacheSystem;
 		PDT = DataManager.Instance.PDT;
 		
-		generalVolume = (DataManager.Instance.generalVolume * 100f).ToString("0");
+		generalVolume = DataManager.Instance.generalVolume * 100f;
 		
 		enableBloom = DataManager.Instance.enableBloom;
 		enableDOF = DataManager.Instance.enableDepthOfField;
@@ -267,6 +269,7 @@ public class OptionScript : MonoBehaviour {
 		//Audio
 			case "Audio":
 			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["AUDIO_GENERAL"]);
+			GUI.Label(new Rect(posValueSliderOption.x*Screen.width + 1, posValueSliderOption.y*Screen.height + 1, posValueSliderOption.width*Screen.width, posValueSliderOption.height*Screen.height), generalVolume.ToString("0"));
 			break;
 			
 		//Video
@@ -408,7 +411,8 @@ public class OptionScript : MonoBehaviour {
 		//Audio
 			case "Audio":
 			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["AUDIO_GENERAL"]);
-			generalVolume = GUI.TextField(new Rect(posTextFieldOption.x*Screen.width, posTextFieldOption.y*Screen.height, posTextFieldOption.width*Screen.width, posTextFieldOption.height*Screen.height), generalVolume, 5);
+			generalVolume = GUI.HorizontalSlider(new Rect(posSliderOption.x*Screen.width, posSliderOption.y*Screen.height, posSliderOption.width*Screen.width, posSliderOption.height*Screen.height), generalVolume, 0, 100);
+			GUI.Label(new Rect(posValueSliderOption.x*Screen.width, posValueSliderOption.y*Screen.height, posValueSliderOption.width*Screen.width, posValueSliderOption.height*Screen.height), generalVolume.ToString("0"));
 			break;
 			
 		//Video
@@ -931,7 +935,7 @@ public class OptionScript : MonoBehaviour {
 	
 	void putInDataManager()
 	{
-		DataManager.Instance.generalVolume = System.Convert.ToInt32(generalVolume)/100f;
+		DataManager.Instance.generalVolume = generalVolume/100f;
 		DataManager.Instance.enableBloom = enableBloom;
 		DataManager.Instance.enableDepthOfField = enableDOF;
 		DataManager.Instance.antiAliasing = antiAliasing;
@@ -962,7 +966,7 @@ public class OptionScript : MonoBehaviour {
 		cacheMode = DataManager.Instance.useTheCacheSystem;
 		PDT = DataManager.Instance.PDT;
 		
-		generalVolume = (DataManager.Instance.generalVolume * 100f).ToString("0");
+		generalVolume = DataManager.Instance.generalVolume * 100f;
 		
 		enableBloom = DataManager.Instance.enableBloom;
 		enableDOF = DataManager.Instance.enableDepthOfField;
@@ -987,19 +991,6 @@ public class OptionScript : MonoBehaviour {
 				return false;
 			}else if(outputInt > 5){
 				errorMessage = "Mouse speed : Maximum value is 5";
-				return false;
-			}
-		}
-		
-		if(!System.Double.TryParse(generalVolume, out output)){
-			errorMessage = "General Volume : not a valid entry";
-			return false;
-		}else{
-			if(output < 0){
-				errorMessage = "General Volume : Minimum value is 0";
-				return false;
-			}else if(output > 100){
-				errorMessage = "General Volume : Maximum value is 100";
 				return false;
 			}
 		}
