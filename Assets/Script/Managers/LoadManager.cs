@@ -314,31 +314,30 @@ public class LoadManager{
 		var decoupStore = sss.decoupSerial();
 		
 		for(int i=0; i<decoupStore.Count; i++){
-			Stream stream = File.Open(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache/" + "dataSong" + i + ".cache", FileMode.Create);
-			BinaryFormatter bformatter = new BinaryFormatter();
-		    bformatter.Binder = new VersionDeserializationBinder(); 
-			var minisss = new SerializableSongStorage();
-			minisss.store = decoupStore[i];
-			
-			try{
-				bformatter.Serialize(stream, minisss);
-				stream.Close();
-				minisss = null;
+			using(Stream stream = File.Open(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache/" + "dataSong" + i + ".cache", FileMode.Create))
+			{
+				BinaryFormatter bformatter = new BinaryFormatter();
+				bformatter.Binder = new VersionDeserializationBinder(); 
+				var minisss = new SerializableSongStorage();
+				minisss.store = decoupStore[i];
 				
-			}catch(Exception e){
-				
-				stream.Close();
-				var cacheFilesDel = (string[]) Directory.GetFiles(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache");
-				for(int j=0; j<cacheFilesDel.Length; j++){
-					File.Delete(cacheFilesDel[j]);	
-				};
-				sss.destroy();
-				sss.getStore().Clear();
-				sss = null;
-				decoupStore.Clear();
-				decoupStore = null;
-				Debug.Log(e.Message);
-				return false;
+				try{
+					bformatter.Serialize(stream, minisss);
+					minisss = null;
+					
+				}catch(Exception e){
+					var cacheFilesDel = (string[]) Directory.GetFiles(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache");
+					for(int j=0; j<cacheFilesDel.Length; j++){
+						File.Delete(cacheFilesDel[j]);	
+					};
+					sss.destroy();
+					sss.getStore().Clear();
+					sss = null;
+					decoupStore.Clear();
+					decoupStore = null;
+					Debug.Log(e.Message);
+					return false;
+				}
 			}
 		}
 		
@@ -362,18 +361,20 @@ public class LoadManager{
 			for(int i=0; i<cacheFiles.Length; i++){
 				var file = Directory.GetFiles(Application.dataPath + DataManager.Instance.DEBUGPATH + "Cache").FirstOrDefault(c => c.Contains("dataSong"+ i +".cache"));
 				var minisss = new SerializableSongStorage ();
-				Stream stream = File.Open(file, FileMode.Open);
-				BinaryFormatter bformatter = new BinaryFormatter();
-				bformatter.Binder = new VersionDeserializationBinder(); 
-				minisss = (SerializableSongStorage)bformatter.Deserialize(stream);
-				stream.Close();
-				sss.store.AddRange(minisss.store);
-				minisss = null;
+				using(Stream stream = File.Open(file, FileMode.Open))
+				{
+					BinaryFormatter bformatter = new BinaryFormatter();
+					bformatter.Binder = new VersionDeserializationBinder(); 
+					minisss = (SerializableSongStorage)bformatter.Deserialize(stream);
+					sss.store.AddRange(minisss.store);
+					minisss = null;
+				}
 			}
 			Debug.Log(LoadingFromCacheFile(sss));
 			sss.destroy();
 			sss.getStore().Clear();
 			sss = null;
+			GC.Collect();
 			return true;
 			
 		}

@@ -746,7 +746,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 			
 			//Jouer
-			if(GUI.Button(new Rect(Jouer.x*Screen.width, Jouer.y*Screen.height, Jouer.width*Screen.width, Jouer.height*Screen.height), "Play", "labelGo") && speedmodok && rateok && animok){
+			if(GUI.Button(new Rect(Jouer.x*Screen.width, Jouer.y*Screen.height, Jouer.width*Screen.width, Jouer.height*Screen.height), "Play", "labelGo") && !movinOption && !movinNormal && speedmodok && rateok && animok){
 				
 				DataManager.Instance.songSelected =  songSelected[actualySelected];
 				DataManager.Instance.difficultySelected = actualySelected;
@@ -821,7 +821,6 @@ public class WheelSongMainScript : MonoBehaviour {
 					
 				}else{
 					StartCoroutine(endOptionFade());
-					
 				}
 				animok = false;
 			}
@@ -2232,8 +2231,8 @@ public class WheelSongMainScript : MonoBehaviour {
 						speedmodstring = (resultbpm/System.Convert.ToDouble(bpmtotest.Replace(">", "").Split('-')[DataManager.Instance.BPMChoiceMode])).ToString("0.00");
 						speedmodSelected = (float)(resultbpm/System.Convert.ToDouble(bpmtotest.Replace(">", "").Split('-')[DataManager.Instance.BPMChoiceMode]));
 					}else{
-						speedmodstring = (resultbpm/System.Convert.ToDouble(bpmtotest)*speedmodSelected).ToString("0.00");
-						speedmodSelected = (float)(resultbpm/System.Convert.ToDouble(bpmtotest)*speedmodSelected);
+						speedmodstring = (resultbpm/System.Convert.ToDouble(bpmtotest)).ToString("0.00");
+						speedmodSelected = (float)(resultbpm/System.Convert.ToDouble(bpmtotest));
 					}
 				}else{
 					speedmodstring = "?";

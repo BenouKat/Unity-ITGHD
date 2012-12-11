@@ -243,6 +243,21 @@ public class ScoreScript : MonoBehaviour {
 			
 		}
 		
+		if(Input.GetKeyDown(KeyCode.F5))
+		{
+			if(!Directory.Exists(Application.dataPath + DataManager.Instance.DEBUGPATH + "/Screenshots"))
+			{
+				Directory.CreateDirectory(Application.dataPath + DataManager.Instance.DEBUGPATH + "/Screenshots")
+			}
+			Application.CaptureScreenshot("Screenshot-" + DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString() + 
+				DateTime.Now.Day.ToString() + DateTime.Now.Hour.ToString() + DateTime.Now.Minute.ToString() + 
+					DateTime.Now.Second.ToString() + DateTime.Now.Millisecond.ToString());
+					
+			Application.CaptureScreenshot("HQ-Screenshot-" + DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString() + 
+				DateTime.Now.Day.ToString() + DateTime.Now.Hour.ToString() + DateTime.Now.Minute.ToString() + 
+					DateTime.Now.Second.ToString() + DateTime.Now.Millisecond.ToString(), 2);
+		}
+		
 		if(fadeok && !transistionok){
 			
 			//Camera mov
