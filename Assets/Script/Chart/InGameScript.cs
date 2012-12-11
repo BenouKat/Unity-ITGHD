@@ -795,10 +795,11 @@ public class InGameScript : MonoBehaviour {
 					timechart += startTheSong; 
 					timetotalchart = timebpm + timechart + totaltimestop;
 					firstUpdate = false;
+					MoveArrows();
 				}else{
 					startTheSong -= Time.deltaTime;	
 				}
-				MoveCameraBefore();
+				
 			}
 			
 			BumpsBPM();
@@ -1045,8 +1046,8 @@ public class InGameScript : MonoBehaviour {
 	
 		var bps = thesong.getBPS(actualBPM);
 		//var move = -((float)(bps*(-(1.5 - oneSecond - startTheSong)))*speedmod);
-		var move = ((float)(bps*((oneSecond - 1.5f - startTheSong)))*speedmod);
-		TMainCamera.position = new Vector3(3f, move - 5, -10f);
+		var move = ((float)(bps*((oneSecond - 1.5f + (startTheSong < 0f ? startTheSong : 0f))))*speedmod);
+		TMainCamera.position = new Vector3(3f, - 5 - move, -10f);
 	}
 	
 	

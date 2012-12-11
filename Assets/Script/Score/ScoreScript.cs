@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using System.IO;
 
 public class ScoreScript : MonoBehaviour {
 	
@@ -233,7 +234,7 @@ public class ScoreScript : MonoBehaviour {
 			autoSync = true;
 			if(percentSens >= 60f)
 			{
-				DataManager.Instance.userGOS += sens*averagePrec;
+				DataManager.Instance.userGOS += (float)((float)sens*averagePrec);
 				ProfileManager.Instance.currentProfile.saveOptions();
 				ProfileManager.Instance.SaveProfile();
 			}
@@ -247,15 +248,25 @@ public class ScoreScript : MonoBehaviour {
 		{
 			if(!Directory.Exists(Application.dataPath + DataManager.Instance.DEBUGPATH + "/Screenshots"))
 			{
-				Directory.CreateDirectory(Application.dataPath + DataManager.Instance.DEBUGPATH + "/Screenshots")
+				Directory.CreateDirectory(Application.dataPath + DataManager.Instance.DEBUGPATH + "/Screenshots");
 			}
-			Application.CaptureScreenshot("Screenshot-" + DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString() + 
+			var path = Application.dataPath + DataManager.Instance.DEBUGPATH + "/Screenshots/";
+			Application.CaptureScreenshot(path + "Screenshot-" + DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString() + 
 				DateTime.Now.Day.ToString() + DateTime.Now.Hour.ToString() + DateTime.Now.Minute.ToString() + 
-					DateTime.Now.Second.ToString() + DateTime.Now.Millisecond.ToString());
+					DateTime.Now.Second.ToString() + DateTime.Now.Millisecond.ToString() + ".png");
+		}
+		
+		if(Input.GetKeyDown(KeyCode.F6))
+		{
+			if(!Directory.Exists(Application.dataPath + DataManager.Instance.DEBUGPATH + "/Screenshots"))
+			{
+				Directory.CreateDirectory(Application.dataPath + DataManager.Instance.DEBUGPATH + "/Screenshots");
+			}
+			var path = Application.dataPath + DataManager.Instance.DEBUGPATH + "/Screenshots/";
 					
-			Application.CaptureScreenshot("HQ-Screenshot-" + DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString() + 
+			Application.CaptureScreenshot(path + "HQ-Screenshot-" + DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString() + 
 				DateTime.Now.Day.ToString() + DateTime.Now.Hour.ToString() + DateTime.Now.Minute.ToString() + 
-					DateTime.Now.Second.ToString() + DateTime.Now.Millisecond.ToString(), 2);
+					DateTime.Now.Second.ToString() + DateTime.Now.Millisecond.ToString() + ".png", 2);
 		}
 		
 		if(fadeok && !transistionok){
@@ -572,7 +583,7 @@ public class ScoreScript : MonoBehaviour {
 		}
 		//Mods
 		stringmod = "";
-		stringmod += "x" + DataManager.Instance.speedmodSelected + ", ";
+		stringmod += "x" + DataManager.Instance.speedmodSelected.ToString("0.00") + ", ";
 		if(DataManager.Instance.rateSelected != 0f) stringmod += "rate " + DataManager.Instance.rateSelected + "%, ";
 		if(DataManager.Instance.hitJudgeSelected != Judge.NORMAL) stringmod += DataManager.Instance.dicHitJudge[DataManager.Instance.hitJudgeSelected] + ", ";
 		if(DataManager.Instance.lifeJudgeSelected != Judge.NORMAL) stringmod += DataManager.Instance.dicLifeJudge[DataManager.Instance.lifeJudgeSelected] + ", ";
