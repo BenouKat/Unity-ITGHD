@@ -232,7 +232,7 @@ public class ScoreScript : MonoBehaviour {
 		
 		if(Input.GetKeyDown(KeyCode.F2) && !autoSync){
 			autoSync = true;
-			if(percentSens >= 60f)
+			if(percentSens >= 80f)
 			{
 				DataManager.Instance.userGOS += (float)((float)sens*averagePrec);
 				ProfileManager.Instance.currentProfile.saveOptions();
