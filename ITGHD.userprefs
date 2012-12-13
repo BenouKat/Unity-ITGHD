@@ -1,11 +1,11 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\SplashScreen\IntroScript.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Chart\InGameScript.cs">
     <Files>
+      <File FileName="Assets\Script\Wheel\WheelSongMainScript.cs" Line="1074" Column="68" />
       <File FileName="Assets\Script\Score\ScoreScript.cs" Line="256" Column="85" />
       <File FileName="Assets\Script\Managers\DataManager.cs" Line="31" Column="62" />
-      <File FileName="Assets\Script\Wheel\WheelSongMainScript.cs" Line="1571" Column="55" />
-      <File FileName="Assets\Script\Chart\InGameScript.cs" Line="1057" Column="21" />
+      <File FileName="Assets\Script\Chart\InGameScript.cs" Line="562" Column="30" />
       <File FileName="Assets\Script\FrameWork\OpenChart.cs" Line="325" Column="5" />
       <File FileName="Assets\Script\Chart\Arrow.cs" Line="28" Column="9" />
       <File FileName="Assets\Script\SplashScreen\IntroScript.cs" Line="210" Column="33" />

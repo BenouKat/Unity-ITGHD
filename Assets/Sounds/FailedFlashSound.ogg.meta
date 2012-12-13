@@ -3,7 +3,7 @@ guid: 6f8c322f1c652b84bb3a42cef8deee56
 AudioImporter:
   serializedVersion: 4
   format: 0
-  quality: .5
+  quality: 1
   stream: 1
   3D: 0
   forceToMono: 0

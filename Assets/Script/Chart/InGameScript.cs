@@ -539,10 +539,38 @@ public class InGameScript : MonoBehaviour {
 		}
 		
 		if(displayValue[6]){ //No target
-			arrowLeft.renderer.enabled = false;
-			arrowDown.renderer.enabled = false;
-			arrowUp.renderer.enabled = false;
-			arrowRight.renderer.enabled = false;
+			if(arrowLeft.transform.childCount > 1)
+			{
+				for(int i=0; i<arrowLeft.transform.childCount; i++)
+				{
+					if(arrowLeft.transform.GetChild(i).name != "ParticulePrec") 
+						arrowLeft.transform.GetChild(i).renderer.enabled = false;
+				}
+				
+				for(int i=0; i<arrowDown.transform.childCount; i++)
+				{
+					if(arrowDown.transform.GetChild(i).name != "ParticulePrec") 
+						arrowDown.transform.GetChild(i).renderer.enabled = false;
+				}
+				
+				for(int i=0; i<arrowUp.transform.childCount; i++)
+				{
+					if(arrowUp.transform.GetChild(i).name != "ParticulePrec") 
+						arrowUp.transform.GetChild(i).renderer.enabled = false;
+				}
+				
+				for(int i=0; i<arrowRight.transform.childCount; i++)
+				{
+					if(arrowRight.transform.GetChild(i).name != "ParticulePrec") 
+						arrowRight.transform.GetChild(i).renderer.enabled = false;
+				}
+			}else{
+				arrowLeft.renderer.enabled = false;
+				arrowDown.renderer.enabled = false;
+				arrowUp.renderer.enabled = false;
+				arrowRight.renderer.enabled = false;
+			}
+			
 		}
 		
 		//No score : inside the code
