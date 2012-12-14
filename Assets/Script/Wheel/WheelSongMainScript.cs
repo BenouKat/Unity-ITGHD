@@ -450,7 +450,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		for(int i=0;i<stateLoading.Length;i++) isFading[i] = false;
 		for(int i=0;i<stateLoading.Length;i++) alphaText[i] = 1f;
 		for(int i=0;i<stateLoading.Length;i++) isFadingDisplay[i] = false;
-		for(int i=0;i<stateLoading.Length;i++) alphaDisplay[i] = 0f;
+		for(int i=0;i<stateLoading.Length;i++) alphaDisplay[i] = displaySelected[j] ? 1f : 0f;
 		
 		
 		search = "";
@@ -552,20 +552,31 @@ public class WheelSongMainScript : MonoBehaviour {
 				if(thepos >= 0f && thepos <= numberToDisplay){
 					
 					var el = packOnRender.ElementAt(i);
+					var title = el.Value.First().Value.title;
+					if(title.Lenght > 40) title = title.Remove(40, title.Lenght - 41) + "...";
+					var subtitle = el.Value.First().Value.subtitle;
+					if(subtitle.Lenght > 50) subtitle = subtitle.Remove(50, subtitle.Lenght - 51) + "...";
+					
 					GUI.color = new Color(0f, 0f, 0f, 1f - totalAlpha);
-					GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.title, "songlabel");
-					GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos + offsetSubstitle)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.subtitle, "infosong");
+					GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), title, "songlabel");
+					GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos + offsetSubstitle)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), subtitle, "infosong");
 					GUI.color = new Color(1f, 1f, 1f, 1f - totalAlpha);
-					GUI.Label(new Rect(posSonglist.x*Screen.width, (posSonglist.y + ecartSong*thepos)*Screen.height, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.title, "songlabel");
-					GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos + offsetSubstitle)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.subtitle, "infosong");
+					GUI.Label(new Rect(posSonglist.x*Screen.width, (posSonglist.y + ecartSong*thepos)*Screen.height, posSonglist.width*Screen.width, posSonglist.height*Screen.height), title, "songlabel");
+					GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos + offsetSubstitle)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), subtitle, "infosong");
 				}else if(thepos > -1f && thepos < 0f){
 					var el = packOnRender.ElementAt(i);
+					
+					var title = el.Value.First().Value.title;
+					if(title.Lenght > 40) title = title.Remove(40, title.lenght - 41) + "...";
+					var subtitle = el.Value.First().Value.subtitle;
+					if(subtitle.Lenght > 50) subtitle = subtitle.Remove(50, subtitle.lenght - 51) + "...";
+					
 					GUI.color = new Color(0f, 0f, 0f, 1f + thepos);
-					GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.title, "songlabel");
-					GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos + offsetSubstitle)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.subtitle, "infosong");
+					GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), title, "songlabel");
+					GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos + offsetSubstitle)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), subtitle, "infosong");
 					GUI.color = new Color(1f, 1f, 1f, 1f + thepos);
-					GUI.Label(new Rect(posSonglist.x*Screen.width, (posSonglist.y + ecartSong*thepos)*Screen.height, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.title, "songlabel");
-					GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos + offsetSubstitle)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), el.Value.First().Value.subtitle, "infosong");
+					GUI.Label(new Rect(posSonglist.x*Screen.width, (posSonglist.y + ecartSong*thepos)*Screen.height, posSonglist.width*Screen.width, posSonglist.height*Screen.height), title, "songlabel");
+					GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos + offsetSubstitle)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), subtitle, "infosong");
 				}
 				thepos++;
 			}

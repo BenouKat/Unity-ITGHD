@@ -263,7 +263,7 @@ public class IntroScript : MonoBehaviour {
 					specialInputFired = true;
 				}else{
 					GUI.SetNextControlName("user");
-					username = GUI.TextField(new Rect(TextFieldCreate.x*Screen.width, TextFieldCreate.y*Screen.height, TextFieldCreate.width*Screen.width, TextFieldCreate.y*Screen.height), username, "CenteredBrightLabel");
+					username = GUI.TextField(new Rect(TextFieldCreate.x*Screen.width, TextFieldCreate.y*Screen.height, TextFieldCreate.width*Screen.width, TextFieldCreate.y*Screen.height), username, 30, "CenteredBrightLabel");
 					GUI.FocusControl("user");	
 				}
 				

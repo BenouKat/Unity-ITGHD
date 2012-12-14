@@ -219,14 +219,27 @@ public class OptionScript : MonoBehaviour {
 	void OnGUIOptionSelect(){
 		GUI.skin = skin;
 		GUI.color = new Color(1f, 1f, 1f, alphaFadeIn);
-		if(theSelected != null){
-			var pos2D = Camera.main.WorldToScreenPoint(theSelected.transform.position);
-			GUI.color = new Color(1f, 1f, 1f, 0.5f*alphaFadeIn*loadColor);
+		for(int i = 0; i<menuItem.Count; i++)
+		{
+			var pos2D = Camera.main.WorldToScreenPoint(menuItem.position);
+			GUI.color = new Color(1f, 1f, 1f, 0.5f*alphaFadeIn);
 			GUI.DrawTexture(new Rect(pos2D.x + (sizeLabelBG.x*Screen.width), Screen.height - pos2D.y + (sizeLabelBG.y*Screen.height), sizeLabelBG.width*Screen.width, sizeLabelBG.height*Screen.height), tex["labelbg"]);
-			GUI.color = new Color(0f, 0f, 0f, 1f*alphaFadeIn*loadColor);
-			GUI.Label(new Rect(pos2D.x + offsetLabelOption.x*Screen.width + 1, Screen.height - pos2D.y + offsetLabelOption.y*Screen.height + 1, offsetLabelOption.width*Screen.width, offsetLabelOption.height*Screen.height), theSelected.name, "TitleLabel");
-			GUI.color = new Color(theSelected.renderer.material.color.r, theSelected.renderer.material.color.g, theSelected.renderer.material.color.b, loadColor);
-			GUI.Label(new Rect(pos2D.x + offsetLabelOption.x*Screen.width, Screen.height - pos2D.y + offsetLabelOption.y*Screen.height, offsetLabelOption.width*Screen.width, offsetLabelOption.height*Screen.height), theSelected.name, "TitleLabel");
+			
+			GUI.color = new Color(0f, 0f, 0f, 1f*alphaFadeIn);
+			GUI.Label(new Rect(pos2D.x + offsetLabelOption.x*Screen.width + 1, Screen.height - pos2D.y + offsetLabelOption.y*Screen.height + 1, offsetLabelOption.width*Screen.width, offsetLabelOption.height*Screen.height), menuItem[i].name, "TitleLabel");
+			
+			if(theSelected != null && theSelected.name == menuItem[i].name)
+			{
+				GUI.color = new Color(1f,1f, 1f, 1f*alphaFadeIn*(1 - loadColor));
+				GUI.Label(new Rect(pos2D.x + offsetLabelOption.x*Screen.width, Screen.height - pos2D.y + offsetLabelOption.y*Screen.height, offsetLabelOption.width*Screen.width, offsetLabelOption.height*Screen.height), menuItem[i].name, "TitleLabel");
+			
+				GUI.color = new Color(theSelected.renderer.material.color.r, theSelected.renderer.material.color.g, theSelected.renderer.material.color.b, loadColor);
+				GUI.Label(new Rect(pos2D.x + offsetLabelOption.x*Screen.width, Screen.height - pos2D.y + offsetLabelOption.y*Screen.height, offsetLabelOption.width*Screen.width, offsetLabelOption.height*Screen.height), menuItem[i].name, "TitleLabel");
+			}else
+			{
+				GUI.color = new Color(1f,1f, 1f, 1f*alphaFadeIn);
+				GUI.Label(new Rect(pos2D.x + offsetLabelOption.x*Screen.width, Screen.height - pos2D.y + offsetLabelOption.y*Screen.height, offsetLabelOption.width*Screen.width, offsetLabelOption.height*Screen.height), menuItem[i].name, "TitleLabel");
+			}
 		}
 	}
 	
@@ -251,7 +264,8 @@ public class OptionScript : MonoBehaviour {
 			//Quickmod
 			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1 + offsetLabelYOption*2*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["GENERAL_QUICKMODE"]);
 			//Padmod
-			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1 + offsetLabelYOption*3*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["GENERAL_PADMODE"]);
+			/*
+			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1 + offsetLabelYOption*3*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["GENERAL_PADMODE"]);*/
 			
 			//cache
 			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1 + offsetLabelYOption*4*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["GENERAL_USECACHE"]);
@@ -351,6 +365,7 @@ public class OptionScript : MonoBehaviour {
 			}
 			
 			//Padmod
+			/*
 			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height + offsetLabelYOption*3*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["GENERAL_PADMODE"]);
 			if(padMode){
 				if(GUI.Button(new Rect(posButtonOption.x*Screen.width, posButtonOption.y*Screen.height + offsetLabelYOption*3*Screen.height, posButtonOption.width*Screen.width, posButtonOption.height*Screen.height), "", "GreenButton")){
@@ -361,6 +376,7 @@ public class OptionScript : MonoBehaviour {
 					padMode = true;
 				}
 			}
+			*/
 			
 			//cache
 			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height + offsetLabelYOption*4*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["GENERAL_USECACHE"]);
