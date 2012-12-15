@@ -500,11 +500,11 @@ public class InGameScript : MonoBehaviour {
 		
 		//GUI
 		var title = thesong.title;
-		if(title > 60) title = title.Remove(60, title.Lenght - 61) + "...";
+		if(title.Length > 30) title = title.Remove(30, title.Length - 30) + "...";
 		var artist = thesong.artist;
-		if(artist > 40) artist = artist.Remove(40, artist.Lenght - 41) + "...";
+		if(artist.Length > 30) artist = artist.Remove(30, artist.Length - 30) + "...";
 		var stepartist = thesong.stepartist;
-		if(stepartist > 40) stepartist = stepartist.Remove(40, stepartist.Lenght - 41) + "...";
+		if(stepartist.Length > 30) stepartist = stepartist.Remove(30, stepartist.Length - 30) + "...";
 		infoToDisplay = title + "\n" + artist + "\n"  + stepartist + "\n\n";
 		
 		var mystat = ProfileManager.Instance.FindTheSongStat(thesong.sip);

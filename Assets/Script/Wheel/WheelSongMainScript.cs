@@ -450,7 +450,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		for(int i=0;i<stateLoading.Length;i++) isFading[i] = false;
 		for(int i=0;i<stateLoading.Length;i++) alphaText[i] = 1f;
 		for(int i=0;i<stateLoading.Length;i++) isFadingDisplay[i] = false;
-		for(int i=0;i<stateLoading.Length;i++) alphaDisplay[i] = displaySelected[j] ? 1f : 0f;
+		for(int i=0;i<stateLoading.Length;i++) alphaDisplay[i] = displaySelected[i] ? 1f : 0f;
 		
 		
 		search = "";
@@ -553,9 +553,9 @@ public class WheelSongMainScript : MonoBehaviour {
 					
 					var el = packOnRender.ElementAt(i);
 					var title = el.Value.First().Value.title;
-					if(title.Lenght > 40) title = title.Remove(40, title.Lenght - 41) + "...";
+					if(title.Length > 35) title = title.Remove(35, title.Length - 35) + "...";
 					var subtitle = el.Value.First().Value.subtitle;
-					if(subtitle.Lenght > 50) subtitle = subtitle.Remove(50, subtitle.Lenght - 51) + "...";
+					if(subtitle.Length > 50) subtitle = subtitle.Remove(50, subtitle.Length - 50) + "...";
 					
 					GUI.color = new Color(0f, 0f, 0f, 1f - totalAlpha);
 					GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), title, "songlabel");
@@ -567,9 +567,9 @@ public class WheelSongMainScript : MonoBehaviour {
 					var el = packOnRender.ElementAt(i);
 					
 					var title = el.Value.First().Value.title;
-					if(title.Lenght > 40) title = title.Remove(40, title.lenght - 41) + "...";
+					if(title.Length > 35) title = title.Remove(35, title.Length - 35) + "...";
 					var subtitle = el.Value.First().Value.subtitle;
-					if(subtitle.Lenght > 50) subtitle = subtitle.Remove(50, subtitle.lenght - 51) + "...";
+					if(subtitle.Length > 50) subtitle = subtitle.Remove(50, subtitle.Length - 50) + "...";
 					
 					GUI.color = new Color(0f, 0f, 0f, 1f + thepos);
 					GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), title, "songlabel");

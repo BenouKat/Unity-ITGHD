@@ -219,9 +219,9 @@ public class OptionScript : MonoBehaviour {
 	void OnGUIOptionSelect(){
 		GUI.skin = skin;
 		GUI.color = new Color(1f, 1f, 1f, alphaFadeIn);
-		for(int i = 0; i<menuItem.Count; i++)
+		for(int i = 0; i<menuItem.Count(); i++)
 		{
-			var pos2D = Camera.main.WorldToScreenPoint(menuItem.position);
+			var pos2D = Camera.main.WorldToScreenPoint(menuItem[i].transform.position);
 			GUI.color = new Color(1f, 1f, 1f, 0.5f*alphaFadeIn);
 			GUI.DrawTexture(new Rect(pos2D.x + (sizeLabelBG.x*Screen.width), Screen.height - pos2D.y + (sizeLabelBG.y*Screen.height), sizeLabelBG.width*Screen.width, sizeLabelBG.height*Screen.height), tex["labelbg"]);
 			
