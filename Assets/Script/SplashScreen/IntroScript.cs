@@ -258,12 +258,12 @@ public class IntroScript : MonoBehaviour {
 						TextManager.Instance.texts["SplashScreen"]["QUESTION_2_ANSWER_" + answer2selected], "CenteredBrightLabel");
 				}
 			}else if(stateIntro == INTRO_STATE.USERNAME){
-				if(Event.current.isKey && Event.current.keyCode == KeyCode.Return && !String.IsNullOrEmpty(username)){
+				if(Event.current.isKey && Event.current.keyCode == KeyCode.Return && !String.IsNullOrEmpty(username.Trim())){
 					stateIntro = INTRO_STATE.NONE;
 					specialInputFired = true;
 				}else{
 					GUI.SetNextControlName("user");
-					username = GUI.TextField(new Rect(TextFieldCreate.x*Screen.width, TextFieldCreate.y*Screen.height, TextFieldCreate.width*Screen.width, TextFieldCreate.y*Screen.height), username, 30, "CenteredBrightLabel");
+					username = GUI.TextField(new Rect(TextFieldCreate.x*Screen.width, TextFieldCreate.y*Screen.height, TextFieldCreate.width*Screen.width, TextFieldCreate.y*Screen.height), username.Trim(), 30, "CenteredBrightLabel");
 					GUI.FocusControl("user");	
 				}
 				
@@ -273,7 +273,7 @@ public class IntroScript : MonoBehaviour {
 					specialInputFired = true;
 				}else{
 					GUI.SetNextControlName("newpassword");
-					newpassword = GUI.PasswordField(new Rect(TextFieldCreate.x*Screen.width, TextFieldCreate.y*Screen.height, TextFieldCreate.width*Screen.width, TextFieldCreate.y*Screen.height), newpassword, '*', "CenteredBrightLabel");
+					newpassword = GUI.PasswordField(new Rect(TextFieldCreate.x*Screen.width, TextFieldCreate.y*Screen.height, TextFieldCreate.width*Screen.width, TextFieldCreate.y*Screen.height), newpassword.Trim(), '*', "CenteredBrightLabel");
 					GUI.FocusControl("newpassword");
 				}
 				
@@ -287,7 +287,7 @@ public class IntroScript : MonoBehaviour {
 					specialInputFired = true;
 				}else{
 					GUI.SetNextControlName("newpasswordagain");
-					newpasswordagain = GUI.PasswordField(new Rect(TextFieldCreate.x*Screen.width, TextFieldCreate.y*Screen.height, TextFieldCreate.width*Screen.width, TextFieldCreate.y*Screen.height), newpasswordagain, '*', "CenteredBrightLabel");
+					newpasswordagain = GUI.PasswordField(new Rect(TextFieldCreate.x*Screen.width, TextFieldCreate.y*Screen.height, TextFieldCreate.width*Screen.width, TextFieldCreate.y*Screen.height), newpasswordagain.Trim(), '*', "CenteredBrightLabel");
 					GUI.FocusControl("newpasswordagain");
 				}
 				

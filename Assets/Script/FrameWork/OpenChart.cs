@@ -623,7 +623,7 @@ public class OpenChart{
 				}
 				
 				for(int i=0;i<4;i++){
-					if(freezed[i] == 1) tripleselect++;
+					if(freezed[i] == 1 && barr) tripleselect++;
 				}
 				
 				if(tripleselect >= 3f){

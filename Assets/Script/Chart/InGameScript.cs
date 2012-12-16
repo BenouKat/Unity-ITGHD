@@ -2609,7 +2609,6 @@ public class InGameScript : MonoBehaviour {
 				var listNeighboors = new List<Arrow>();
 				var barr = false;
 				var tripleselect = 0;
-				var selectToRemove = 0;
 				
 				for(int i =0;i<4; i++){
 					if(note[i] == '1'){
@@ -2667,8 +2666,6 @@ public class InGameScript : MonoBehaviour {
 						//barrow = true;
 					}else if(note[i] == '2'){
 						barr = true;
-						tripleselect++;
-						selectToRemove++;
 						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
 						if(DataManager.Instance.skinSelected == 1 || DataManager.Instance.skinSelected == 3){
 							for(int j=0; j<goArrow.transform.childCount;j++){
@@ -2740,8 +2737,6 @@ public class InGameScript : MonoBehaviour {
 					
 					}else if(note[i] == '4'){
 						barr = true;
-						tripleselect++;
-						selectToRemove++;
 						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
 						if(DataManager.Instance.skinSelected == 1 || DataManager.Instance.skinSelected == 3){
 							for(int j=0; j<goArrow.transform.childCount;j++){
@@ -2823,8 +2818,7 @@ public class InGameScript : MonoBehaviour {
 				}
 				
 				for(int i=0;i<4;i++){
-					if(ArrowFreezed[i] != null) tripleselect++;
-					tripleselect -= selectToRemove;
+					if(ArrowFreezed[i] != null && barr) tripleselect++;
 				}
 				
 				if(tripleselect >= 3f){
