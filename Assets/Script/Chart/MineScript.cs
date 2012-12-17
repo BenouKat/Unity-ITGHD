@@ -66,11 +66,13 @@ public class MineScript : MonoBehaviour {
 				igs.GainScoreAndLife("MINE");
 				igs.AddMineToScoreCombo();
 				igs.removeMineFromList(associatedArrow, state);
-				DestroyImmediate(arrowLeft);
+				arrowLeft.setActiveRecursibly(false);
 			}else if(associatedArrow.time <= igs.getTotalTimeChart()){
 				missed = true;
 				igs.removeMineFromList(associatedArrow, state);
 			}
+		}else{
+			igs.desactiveGameObjectMissed(associatedArrow.goArrow, associatedArrow.goFreeze, associatedArrow.distanceDisappear);
 		}
 		
 	}

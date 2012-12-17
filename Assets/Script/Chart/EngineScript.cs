@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 
-public class InGameScript : MonoBehaviour {
+public class EngineScript : MonoBehaviour {
 	
 	#region Declarations
 	//Game object song scene
@@ -58,7 +58,6 @@ public class InGameScript : MonoBehaviour {
 	
 	
 	//CONST
-	private Color blankColor = new Color(1f, 1f, 1f, 1f);
 	
 	//Temps pour le lachement de freeze
 	public float unfrozed = 0.350f;
@@ -129,6 +128,8 @@ public class InGameScript : MonoBehaviour {
 	private List<Arrow> mineRightList;
 	private List<Arrow> mineDownList;
 	private List<Arrow> mineUpList;
+	private List<Arrow> keyToRemove;
+	private Arrow[] keyToCheck;
 	//Dico des arrow prises en freeze
 	private Dictionary<Arrow, float> arrowFrozen;
 	
@@ -164,6 +165,14 @@ public class InGameScript : MonoBehaviour {
 	private bool speedmodok;
 	private int levelToDisplay;
 	private string infoToDisplay;
+	private Rect infoDifficultyCalc;
+	private Rect infoLevelDifficultyCalc;
+	private Rect infoSongCalc;
+	private Rect infoDifficultyCalcShadow;
+	private Rect infoLevelDifficultyCalcShadow;
+	private Rect infoSongCalcShadow;
+	private Color black = new Color(0f, 0f, 0f, 1f);
+	private Color white = new Color(1f, 1f, 1f, 1f);
 	
 	//DISPLAY
 	private Color bumpColor;
@@ -281,6 +290,8 @@ public class InGameScript : MonoBehaviour {
 			rand--;	
 		}
 		
+		
+		
 		//Arrows
 		for(int i=0;i<4;i++){
 			if(i != DataManager.Instance.skinSelected){
@@ -331,7 +342,6 @@ public class InGameScript : MonoBehaviour {
 		arrowTarget[3] = arrowRight.transform;
 		scaleBase = arrowTarget[0].localScale.x;
 		matArrowModel = matSkinModel[DataManager.Instance.skinSelected];
-
 		
 		
 		RenderSettings.skybox = DataManager.Instance.skyboxList.ElementAt(rand);
@@ -360,6 +370,9 @@ public class InGameScript : MonoBehaviour {
 		
 		
 		arrowFrozen = new Dictionary<Arrow, float>();
+		keyToRemove = new List<Arrow>();
+		keyToCheck = new Arrow[4];
+		for(int i=0; i<4; i++) keyToCheck[i] = null;
 		
 		precRight = new Dictionary<string, ParticleSystem>();
 		precLeft = new Dictionary<string, ParticleSystem>();
@@ -470,7 +483,7 @@ public class InGameScript : MonoBehaviour {
 		colorCombo = 1f;
 		comboMisses = 0;
 		alphaCombo = 0.5f;
-		theColorCombo = blankColor;
+		theColorCombo = white;
 		//GUI
 		/*wd = posPercent.width*128;
 		hg = posPercent.height*1024;
@@ -605,6 +618,12 @@ public class InGameScript : MonoBehaviour {
 			fast.renderer.enabled = false;
 		}
 		
+		infoSongCalc = new Rect(infoSong.x*Screen.width, infoSong.y*Screen.height, infoSong.width*Screen.width, infoSong.height*Screen.height);
+		infoSongCalcShadow = new Rect(infoSong.x*Screen.width + 1, infoSong.y*Screen.height + 1, infoSong.width*Screen.width, infoSong.height*Screen.height);
+		infoDifficultyCalc = new Rect(infoDifficulty.x*Screen.width, infoDifficulty.y*Screen.height, infoDifficulty.width*Screen.width, infoDifficulty.height*Screen.height);
+		infoDifficultyLevelCalc = new Rect(infoLevelDifficulty.x*Screen.width, infoLevelDifficulty.y*Screen.height, infoLevelDifficulty.width*Screen.width, infoLevelDifficulty.height*Screen.height);
+		infoDifficultyLevelCalcShadow = new Rect(infoLevelDifficulty.x*Screen.width + 1, infoLevelDifficulty.y*Screen.height + 1, infoLevelDifficulty.width*Screen.width, infoLevelDifficulty.height*Screen.height);
+		
 	}
 	
 	
@@ -622,17 +641,17 @@ public class InGameScript : MonoBehaviour {
 		//fake stuff
 		GUI.Label(new Rect(0.9f*Screen.width, 0.05f*Screen.height, 200f, 200f), fps.ToString());		
 		//end fake stuff
-		GUI.DrawTexture(new Rect(infoDifficulty.x*Screen.width, infoDifficulty.y*Screen.height, infoDifficulty.width*Screen.width, infoDifficulty.height*Screen.height), TextureBase["DIFFICULTY"]);
+		GUI.DrawTexture(infoDifficultyCalc, TextureBase["DIFFICULTY"]);
 		
-		GUI.color = new Color(0f, 0f, 0f, 1f);
-		GUI.Label(new Rect(infoLevelDifficulty.x*Screen.width + 1, infoLevelDifficulty.y*Screen.height + 1, infoLevelDifficulty.width*Screen.width, infoLevelDifficulty.height*Screen.height), levelToDisplay.ToString(), "infoDiff");
-		GUI.Label(new Rect(infoSong.x*Screen.width + 1, infoSong.y*Screen.height + 1, infoSong.width*Screen.width, infoSong.height*Screen.height), infoToDisplay , "infoSong");
+		GUI.color = black;
+		GUI.Label(infoDifficultyLevelCalcShadow, levelToDisplay.ToString(), "infoDiff");
+		GUI.Label(infoSongCalcShadow, infoToDisplay , "infoSong");
 		
 		GUI.color = DataManager.Instance.diffColor[(int)thesong.difficulty];
-		GUI.Label(new Rect(infoLevelDifficulty.x*Screen.width, infoLevelDifficulty.y*Screen.height, infoLevelDifficulty.width*Screen.width, infoLevelDifficulty.height*Screen.height), levelToDisplay.ToString(), "infoDiff");
+		GUI.Label(infoDifficultyLevelCalc, levelToDisplay.ToString(), "infoDiff");
 		
-		GUI.color = new Color(1f, 1f, 1f, 1f);
-		GUI.Label(new Rect(infoSong.x*Screen.width, infoSong.y*Screen.height, infoSong.width*Screen.width, infoSong.height*Screen.height), infoToDisplay , "infoSong");
+		GUI.color = white;
+		GUI.Label(infoSongCalc, infoToDisplay , "infoSong");
 		
 		if(timeDisplayScore < limitDisplayScore && !clear){
 
@@ -640,7 +659,7 @@ public class InGameScript : MonoBehaviour {
 			GUI.DrawTexture(new Rect(posScore.x*Screen.width - zoom, posScore.y*Screen.height, posScore.width*Screen.width + zoom*2, posScore.height*Screen.height), TextureBase[scoreToDisplay.ToString()]); 
 		}
 		
-		GUI.color = new Color(1f, 1f, 1f, 1f);
+		GUI.color = white;
 		
 		if(!displayValue[7]){
 				
@@ -656,8 +675,7 @@ public class InGameScript : MonoBehaviour {
 		if(!displayValue[8]){
 			if(combo >= 5f){
 				//var czoom = zoom/4f;
-				var col = theColorCombo;
-				GUI.color = new Color(col.r , col.g, col.b, alphaCombo);
+				GUI.color = new Color(theColorCombo.r , theColorCombo.g, theColorCombo.b, alphaCombo);
 				for(int i=0; i<thetab.Length; i++){
 					GUI.DrawTexture(new Rect((posCombo.x + ((ecartCombo*(thetab.Length-(i+1))/2f) -ecartCombo*((float)i/2f)))*Screen.width, 
 					posCombo.y*Screen.height, posCombo.width*Screen.width, posCombo.height*Screen.height), TextureBase["C" + thetab[i]]);
@@ -769,9 +787,7 @@ public class InGameScript : MonoBehaviour {
 			//timetotal for this frame
 			
 			timetotalchart = timebpm + timechart + totaltimestop;
-			//var totalchartbegin = timetotalchart;
-			
-			//iwashere = 0;
+
 			
 			//Move Arrows
 			//VersionLibre
@@ -799,17 +815,16 @@ public class InGameScript : MonoBehaviour {
 						actualstop = (double)0;
 						timestop = 0f;
 						timechart += Time.deltaTime;
-						//iwashere = 1;
+				
 					}else{
 						totaltimestop += Time.deltaTime;
 						timestop += Time.deltaTime;
-						//iwashere = 2;
+					
 					}
 
 			}else{
 				timechart += Time.deltaTime;
-				//iwashere = 3;
-				//Debug.Log(timechart);
+
 			}
 			
 			
@@ -911,8 +926,7 @@ public class InGameScript : MonoBehaviour {
 				ClignCombo();
 			}
 			
-			//timetotalchart = timebpm + timechart + totaltimestop;
-			//if((timetotalchart - totalchartbegin) < 0.001f)Debug.Log("Progression : " + (timetotalchart - totalchartbegin) + " / dt : " + Time.deltaTime + " / washere : " + iwashere + " / time : " + timetotalchart);
+			
 			
 		}else{
 			oneSecond += Time.deltaTime;
@@ -962,7 +976,7 @@ public class InGameScript : MonoBehaviour {
 	
 	void BumpsBPM(){
 		if(nextBump < Bumps.Count && Bumps[nextBump] <= timetotalchart){
-			matArrowModel.color = blankColor;
+			matArrowModel.color = white;
 			nextBump++;
 		}	
 		
@@ -1041,7 +1055,7 @@ public class InGameScript : MonoBehaviour {
 				break;
 			}
 		}else if(!alreadytaged){
-			theColorCombo = blankColor;
+			theColorCombo = white;
 			alreadytaged = true;
 		}
 	}
@@ -1057,11 +1071,7 @@ public class InGameScript : MonoBehaviour {
 		var bps = thesong.getBPS(actualBPM);
 		var move = -((float)(bps*timechart))*speedmod +  changeBPM;
 		TMainCamera.position = new Vector3(3f, move - 5, -10f);
-		/*arrowLeft.transform.position = new Vector3(0f, -((float)(bps*timechart))*speedmod  + changeBPM, 2f);
-		arrowRight.transform.position = new Vector3(6f, -((float)(bps*timechart))*speedmod + changeBPM, 2f);
-		arrowDown.transform.position = new Vector3(2f, -((float)(bps*timechart))*speedmod + changeBPM, 2f);
-		arrowUp.transform.position = new Vector3(4f, -((float)(bps*timechart))*speedmod + changeBPM, 2f);*/
-		
+
 		foreach(var el in arrowFrozen.Keys){
 			var pos = el.goArrow.transform.position;
 			el.goArrow.transform.position = new Vector3(pos.x, move, pos.z);
@@ -1177,7 +1187,8 @@ public class InGameScript : MonoBehaviour {
 	//Valid or deny the frozen arrow
 	void VerifyValidFrozenArrow(){
 		if(arrowFrozen.Any()){
-			var KeyToRemove = new List<Arrow>();
+			if(keyToRemove.Any()) keyToRemove.clear();
+			
 			for(int i=0; i<arrowFrozen.Count;i++){
 				var el = arrowFrozen.ElementAt(i);
 				arrowFrozen[el.Key] += Time.deltaTime;
@@ -1199,14 +1210,14 @@ public class InGameScript : MonoBehaviour {
 					}
 					GainScoreAndLife("FREEZE");
 					scoreCount[el.Key.arrowType == ArrowType.FREEZE ? "FREEZE" : "ROLL"] += 1;
-					DestroyImmediate(el.Key.goArrow);
-					DestroyImmediate(el.Key.goFreeze);
+					desactivateGameObject(el.Key.goArrow);
+					desactivateGameObject(el.Key.goFreeze);
 					
-					KeyToRemove.Add(el.Key);
+					keyToRemove.Add(el.Key);
 				}
 				
 				
-				if(el.Value >= unfrozed && !KeyToRemove.Contains(el.Key)){
+				if(el.Value >= unfrozed && !keyToRemove.Contains(el.Key)){
 					el.Key.goArrow.GetComponent<ArrowScript>().missed = true;
 					switch(el.Key.arrowPos){
 					case ArrowPosition.LEFT:
@@ -1223,13 +1234,15 @@ public class InGameScript : MonoBehaviour {
 						break;
 					}
 					GainScoreAndLife("UNFREEZE");
-					KeyToRemove.Add(el.Key);
+					keyToRemove.Add(el.Key);
 				}
 				
 				
 			}
 			
-			foreach(var k in KeyToRemove){
+			
+			
+			foreach(var k in keyToRemove){
 				arrowFrozen.Remove(k);
 			}
 			
@@ -1245,7 +1258,7 @@ public class InGameScript : MonoBehaviour {
 		if((Input.GetKeyDown(KeyCodeLeft) || Input.GetKeyDown(SecondaryKeyCodeLeft) ) && (arrowLeftList.Any())){
 			arrowTarget[0].localScale = arrowTarget[0].localScale*percentScaleInput;
 			var ar = findNextLeftArrow();
-			double realprec = ar.time - (timetotalchart); 
+			double realprec = ar.time - (timetotalchart); //Retirer ou non le Time.deltaTime ?
 			double prec = Mathf.Abs((float)(realprec));
 			
 			if(prec < precToTime(Precision.GREAT)){ //great
@@ -1253,80 +1266,12 @@ public class InGameScript : MonoBehaviour {
 				
 				
 				if(ar.imJump){
-					ar.alreadyValid = true;
-					ar.goArrow.GetComponent<ArrowScript>().valid = true;
 					
-					if(!ar.neighboors.Any(c => c.alreadyValid == false)){
-						var left = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.LEFT);
-						var down = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.DOWN);
-						var up = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.UP);
-						var right = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.RIGHT);
-						if(left != null){
-							if(left.arrowType == ArrowType.NORMAL || left.arrowType == ArrowType.MINE){
-								DestroyImmediate(left.goArrow);
-								
-							}else{
-								arrowFrozen.Add(left,0f);
-								left.displayFrozenBar();
-								StartParticleFreezeLeft(true);
-								
-							}
-							
-							arrowLeftList.Remove(left);
-							StartParticleLeft(timeToPrec(prec));
-						}
-						if(down != null){
-							if(down.arrowType == ArrowType.NORMAL || down.arrowType == ArrowType.MINE){
-								DestroyImmediate(down.goArrow);
-								
-							}else{
-								arrowFrozen.Add(down,0f);
-								down.displayFrozenBar();
-								StartParticleFreezeDown(true);
-								
-							}
-							
-							arrowDownList.Remove(down);
-							StartParticleDown(timeToPrec(prec));
-						}
-						if(up != null){
-							if(up.arrowType == ArrowType.NORMAL || up.arrowType == ArrowType.MINE){
-								DestroyImmediate(up.goArrow);
-								
-							}else{
-								arrowFrozen.Add(up,0f);
-								up.displayFrozenBar();
-								StartParticleFreezeUp(true);
-								
-							}
-							arrowUpList.Remove(up);
-							StartParticleUp(timeToPrec(prec));
-						}
-						if(right != null){
-							if(right.arrowType == ArrowType.NORMAL || right.arrowType == ArrowType.MINE){
-								DestroyImmediate(right.goArrow);
-								
-							}else{
-								arrowFrozen.Add(right,0f);
-								right.displayFrozenBar();
-								StartParticleFreezeRight(true);
-								
-							}
-							arrowRightList.Remove(right);
-							StartParticleRight(timeToPrec(prec));
-						}
-						precAverage.Add(realprec);
-						var ttp = timeToPrec(prec);
-						GainScoreAndLife(ttp.ToString());
-						scoreCount[ttp.ToString()] += 1;
-						scoreCount[ar.imHand ? "HANDS" : "JUMPS"] += 1;
-						if(ar.imHand && ar.neighboors.Count == 2) scoreCount["JUMPS"] += 1;
-						displayPrec(prec);
-						GainCombo(ar.neighboors.Count, ttp);
-					}
+					freezeValidateUpdate(ar, prec, realprec);
+					
 				}else{
 					if(ar.arrowType == ArrowType.NORMAL || ar.arrowType == ArrowType.MINE){
-						DestroyImmediate(ar.goArrow);
+						desactivateGameObject(ar.goArrow);
 						
 					}else{
 						ar.goArrow.GetComponent<ArrowScript>().valid = true;
@@ -1349,40 +1294,8 @@ public class InGameScript : MonoBehaviour {
 			}else if(prec < precToTime(Precision.WAYOFF)){ //miss
 					if(ar.imJump){
 					
-						ar.alreadyValid = true;
-						ar.goArrow.GetComponent<ArrowScript>().missed = true;
-						if(!ar.neighboors.Any(c => c.alreadyValid == false)){
-							var left = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.LEFT);
-							var down = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.DOWN);
-							var up = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.UP);
-							var right = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.RIGHT);
-							if(left != null){
-								
-								arrowLeftList.Remove(left);
-								StartParticleLeft(timeToPrec(prec));
-							}
-							if(down != null){
-								
-								
-								arrowDownList.Remove(down);
-								StartParticleDown(timeToPrec(prec));
-							}
-							if(up != null){
-								
-								arrowUpList.Remove(up);
-								StartParticleUp(timeToPrec(prec));
-							}
-							if(right != null){
-								
-								arrowRightList.Remove(right);
-								StartParticleRight(timeToPrec(prec));
-							}
-							precAverage.Add(realprec);
-							var ttp = timeToPrec(prec);
-							scoreCount[ttp.ToString()] += 1;
-							GainScoreAndLife(ttp.ToString());
-							displayPrec(prec);
-						}
+						freezeMissedUpdate(ar, prec, realprec);
+						
 					}else{
 						precAverage.Add(realprec);
 						var ttp = timeToPrec(prec);
@@ -1416,80 +1329,10 @@ public class InGameScript : MonoBehaviour {
 				
 				
 				if(ar.imJump){
-					ar.alreadyValid = true;
-					ar.goArrow.GetComponent<ArrowScript>().valid = true;
-					
-					if(!ar.neighboors.Any(c => c.alreadyValid == false)){
-						var left = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.LEFT);
-						var down = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.DOWN);
-						var up = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.UP);
-						var right = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.RIGHT);
-						if(left != null){
-							if(left.arrowType == ArrowType.NORMAL || left.arrowType == ArrowType.MINE){
-								DestroyImmediate(left.goArrow);
-								
-							}else{
-								arrowFrozen.Add(left,0f);
-								left.displayFrozenBar();
-								StartParticleFreezeLeft(true);
-								
-							}
-							
-							arrowLeftList.Remove(left);
-							StartParticleLeft(timeToPrec(prec));
-						}
-						if(down != null){
-							if(down.arrowType == ArrowType.NORMAL || down.arrowType == ArrowType.MINE){
-								DestroyImmediate(down.goArrow);
-								
-							}else{
-								arrowFrozen.Add(down,0f);
-								down.displayFrozenBar();
-								StartParticleFreezeDown(true);
-								
-							}
-							
-							arrowDownList.Remove(down);
-							StartParticleDown(timeToPrec(prec));
-						}
-						if(up != null){
-							if(up.arrowType == ArrowType.NORMAL || up.arrowType == ArrowType.MINE){
-								DestroyImmediate(up.goArrow);
-								
-							}else{
-								arrowFrozen.Add(up,0f);
-								up.displayFrozenBar();
-								StartParticleFreezeUp(true);
-								
-							}
-							arrowUpList.Remove(up);
-							StartParticleUp(timeToPrec(prec));
-						}
-						if(right != null){
-							if(right.arrowType == ArrowType.NORMAL || right.arrowType == ArrowType.MINE){
-								DestroyImmediate(right.goArrow);
-								
-							}else{
-								arrowFrozen.Add(right,0f);
-								right.displayFrozenBar();
-								StartParticleFreezeRight(true);
-								
-							}
-							arrowRightList.Remove(right);
-							StartParticleRight(timeToPrec(prec));
-						}
-						precAverage.Add(realprec);
-						var ttp = timeToPrec(prec);
-						scoreCount[ttp.ToString()] += 1;
-						GainCombo(ar.neighboors.Count, ttp);
-						scoreCount[ar.imHand ? "HANDS" : "JUMPS"] += 1;
-						if(ar.imHand && ar.neighboors.Count == 2) scoreCount["JUMPS"] += 1;
-						GainScoreAndLife(ttp.ToString());
-						displayPrec(prec);
-					}
+					freezeValidateUpdate(ar, prec, realprec);
 				}else{
 					if(ar.arrowType == ArrowType.NORMAL || ar.arrowType == ArrowType.MINE){
-						DestroyImmediate(ar.goArrow);
+						desactivateGameObject(ar.goArrow);
 						
 					}else{
 						ar.goArrow.GetComponent<ArrowScript>().valid = true;
@@ -1512,40 +1355,7 @@ public class InGameScript : MonoBehaviour {
 			}else if(prec < precToTime(Precision.WAYOFF)){ //miss
 					if(ar.imJump){
 					
-						ar.alreadyValid = true;
-						ar.goArrow.GetComponent<ArrowScript>().missed = true;
-						if(!ar.neighboors.Any(c => c.alreadyValid == false)){
-							var left = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.LEFT);
-							var down = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.DOWN);
-							var up = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.UP);
-							var right = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.RIGHT);
-							if(left != null){
-								
-								arrowLeftList.Remove(left);
-								StartParticleLeft(timeToPrec(prec));
-							}
-							if(down != null){
-								
-								
-								arrowDownList.Remove(down);
-								StartParticleDown(timeToPrec(prec));
-							}
-							if(up != null){
-								
-								arrowUpList.Remove(up);
-								StartParticleUp(timeToPrec(prec));
-							}
-							if(right != null){
-								
-								arrowRightList.Remove(right);
-								StartParticleRight(timeToPrec(prec));
-							}
-							precAverage.Add(realprec);
-							var ttp = timeToPrec(prec);
-							scoreCount[ttp.ToString()] += 1;
-							GainScoreAndLife(ttp.ToString());
-							displayPrec(prec);
-						}
+						freezeMissedUpdate(ar, prec, realprec);
 					}else{
 						precAverage.Add(realprec);
 						var ttp = timeToPrec(prec);
@@ -1577,80 +1387,10 @@ public class InGameScript : MonoBehaviour {
 				
 				
 				if(ar.imJump){
-					ar.alreadyValid = true;
-					ar.goArrow.GetComponent<ArrowScript>().valid = true;
-					
-					if(!ar.neighboors.Any(c => c.alreadyValid == false)){
-						var left = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.LEFT);
-						var down = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.DOWN);
-						var up = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.UP);
-						var right = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.RIGHT);
-						if(left != null){
-							if(left.arrowType == ArrowType.NORMAL || left.arrowType == ArrowType.MINE){
-								DestroyImmediate(left.goArrow);
-								
-							}else{
-								arrowFrozen.Add(left,0f);
-								left.displayFrozenBar();
-								StartParticleFreezeLeft(true);
-								
-							}
-							
-							arrowLeftList.Remove(left);
-							StartParticleLeft(timeToPrec(prec));
-						}
-						if(down != null){
-							if(down.arrowType == ArrowType.NORMAL || down.arrowType == ArrowType.MINE){
-								DestroyImmediate(down.goArrow);
-								
-							}else{
-								arrowFrozen.Add(down,0f);
-								down.displayFrozenBar();
-								StartParticleFreezeDown(true);
-								
-							}
-							
-							arrowDownList.Remove(down);
-							StartParticleDown(timeToPrec(prec));
-						}
-						if(up != null){
-							if(up.arrowType == ArrowType.NORMAL || up.arrowType == ArrowType.MINE){
-								DestroyImmediate(up.goArrow);
-								
-							}else{
-								arrowFrozen.Add(up,0f);
-								up.displayFrozenBar();
-								StartParticleFreezeUp(true);
-								
-							}
-							arrowUpList.Remove(up);
-							StartParticleUp(timeToPrec(prec));
-						}
-						if(right != null){
-							if(right.arrowType == ArrowType.NORMAL || right.arrowType == ArrowType.MINE){
-								DestroyImmediate(right.goArrow);
-								
-							}else{
-								arrowFrozen.Add(right,0f);
-								right.displayFrozenBar();
-								StartParticleFreezeRight(true);
-								
-							}
-							arrowRightList.Remove(right);
-							StartParticleRight(timeToPrec(prec));
-						}
-						precAverage.Add(realprec);
-						var ttp = timeToPrec(prec);
-						scoreCount[ttp.ToString()] += 1;
-						GainCombo(ar.neighboors.Count, ttp);
-						scoreCount[ar.imHand ? "HANDS" : "JUMPS"] += 1;
-						if(ar.imHand && ar.neighboors.Count == 2) scoreCount["JUMPS"] += 1;
-						GainScoreAndLife(ttp.ToString());
-						displayPrec(prec);
-					}
+					freezeValidateUpdate(ar, prec, realprec);
 				}else{
 					if(ar.arrowType == ArrowType.NORMAL || ar.arrowType == ArrowType.MINE){
-						DestroyImmediate(ar.goArrow);
+						desactivateGameObject(ar.goArrow);
 						
 					}else{
 						ar.goArrow.GetComponent<ArrowScript>().valid = true;
@@ -1673,40 +1413,7 @@ public class InGameScript : MonoBehaviour {
 			}else if(prec < precToTime(Precision.WAYOFF)){ //miss
 					if(ar.imJump){
 					
-						ar.alreadyValid = true;
-						ar.goArrow.GetComponent<ArrowScript>().missed = true;
-						if(!ar.neighboors.Any(c => c.alreadyValid == false)){
-							var left = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.LEFT);
-							var down = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.DOWN);
-							var up = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.UP);
-							var right = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.RIGHT);
-							if(left != null){
-								
-								arrowLeftList.Remove(left);
-								StartParticleLeft(timeToPrec(prec));
-							}
-							if(down != null){
-								
-								
-								arrowDownList.Remove(down);
-								StartParticleDown(timeToPrec(prec));
-							}
-							if(up != null){
-								
-								arrowUpList.Remove(up);
-								StartParticleUp(timeToPrec(prec));
-							}
-							if(right != null){
-								
-								arrowRightList.Remove(right);
-								StartParticleRight(timeToPrec(prec));
-							}
-							precAverage.Add(realprec);
-							var ttp = timeToPrec(prec);
-							scoreCount[ttp.ToString()] += 1;
-							GainScoreAndLife(ttp.ToString());
-							displayPrec(prec);
-						}
+						freezeMissedUpdate(ar, prec, realprec);
 					}else{
 						precAverage.Add(realprec);
 						var ttp = timeToPrec(prec);
@@ -1739,80 +1446,10 @@ public class InGameScript : MonoBehaviour {
 				
 				
 				if(ar.imJump){
-					ar.alreadyValid = true;
-					ar.goArrow.GetComponent<ArrowScript>().valid = true;
-					
-					if(!ar.neighboors.Any(c => c.alreadyValid == false)){
-						var left = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.LEFT);
-						var down = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.DOWN);
-						var up = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.UP);
-						var right = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.RIGHT);
-						if(left != null){
-							if(left.arrowType == ArrowType.NORMAL || left.arrowType == ArrowType.MINE){
-								DestroyImmediate(left.goArrow);
-								
-							}else{
-								arrowFrozen.Add(left,0f);
-								left.displayFrozenBar();
-								StartParticleFreezeLeft(true);
-								
-							}
-							
-							arrowLeftList.Remove(left);
-							StartParticleLeft(timeToPrec(prec));
-						}
-						if(down != null){
-							if(down.arrowType == ArrowType.NORMAL || down.arrowType == ArrowType.MINE){
-								DestroyImmediate(down.goArrow);
-								
-							}else{
-								arrowFrozen.Add(down,0f);
-								down.displayFrozenBar();
-								StartParticleFreezeDown(true);
-								
-							}
-							
-							arrowDownList.Remove(down);
-							StartParticleDown(timeToPrec(prec));
-						}
-						if(up != null){
-							if(up.arrowType == ArrowType.NORMAL || up.arrowType == ArrowType.MINE){
-								DestroyImmediate(up.goArrow);
-								
-							}else{
-								arrowFrozen.Add(up,0f);
-								up.displayFrozenBar();
-								StartParticleFreezeUp(true);
-								
-							}
-							arrowUpList.Remove(up);
-							StartParticleUp(timeToPrec(prec));
-						}
-						if(right != null){
-							if(right.arrowType == ArrowType.NORMAL || right.arrowType == ArrowType.MINE){
-								DestroyImmediate(right.goArrow);
-								
-							}else{
-								arrowFrozen.Add(right,0f);
-								right.displayFrozenBar();
-								StartParticleFreezeRight(true);
-								
-							}
-							arrowRightList.Remove(right);
-							StartParticleRight(timeToPrec(prec));
-						}
-						precAverage.Add(realprec);
-						var ttp = timeToPrec(prec);
-						scoreCount[ttp.ToString()] += 1;
-						GainCombo(ar.neighboors.Count, ttp);
-						scoreCount[ar.imHand ? "HANDS" : "JUMPS"] += 1;
-						if(ar.imHand && ar.neighboors.Count == 2) scoreCount["JUMPS"] += 1;
-						GainScoreAndLife(ttp.ToString());
-						displayPrec(prec);
-					}
+					freezeValidateUpdate(ar, prec, realprec);
 				}else{
 					if(ar.arrowType == ArrowType.NORMAL || ar.arrowType == ArrowType.MINE){
-						DestroyImmediate(ar.goArrow);
+						desactivateGameObject(ar.goArrow);
 						
 					}else{
 						ar.goArrow.GetComponent<ArrowScript>().valid = true;
@@ -1835,40 +1472,7 @@ public class InGameScript : MonoBehaviour {
 			}else if(prec < precToTime(Precision.WAYOFF)){ //miss
 					if(ar.imJump){
 					
-						ar.alreadyValid = true;
-						ar.goArrow.GetComponent<ArrowScript>().missed = true;
-						if(!ar.neighboors.Any(c => c.alreadyValid == false)){
-							var left = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.LEFT);
-							var down = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.DOWN);
-							var up = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.UP);
-							var right = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.RIGHT);
-							if(left != null){
-								
-								arrowLeftList.Remove(left);
-								StartParticleLeft(timeToPrec(prec));
-							}
-							if(down != null){
-								
-								
-								arrowDownList.Remove(down);
-								StartParticleDown(timeToPrec(prec));
-							}
-							if(up != null){
-								
-								arrowUpList.Remove(up);
-								StartParticleUp(timeToPrec(prec));
-							}
-							if(right != null){
-								
-								arrowRightList.Remove(right);
-								StartParticleRight(timeToPrec(prec));
-							}
-							precAverage.Add(realprec);
-							var ttp = timeToPrec(prec);
-							scoreCount[ttp.ToString()] += 1;
-							GainScoreAndLife(ttp.ToString());
-							displayPrec(prec);
-						}
+						freezeMissedUpdate(ar, prec, realprec);
 					}else{
 						precAverage.Add(realprec);
 						var ttp = timeToPrec(prec);
@@ -1898,65 +1502,170 @@ public class InGameScript : MonoBehaviour {
 	}
 	
 	
+	
+	void freezeValidateUpdate(Arrow ar, double prec, double realprec)
+	{
+		ar.alreadyValid = true;
+		ar.goArrow.GetComponent<ArrowScript>().valid = true;
+		
+		if(!ar.neighboors.Any(c => c.alreadyValid == false)){
+			keyToCheck[0] = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.LEFT);
+			keyToCheck[1] = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.DOWN);
+			keyToCheck[2] = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.UP);
+			keyToCheck[3] = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.RIGHT);
+			if(keyToCheck[0] != null){
+				if(keyToCheck[0].arrowType == ArrowType.NORMAL || keyToCheck[0].arrowType == ArrowType.MINE){
+					desactivateGameObject(keyToCheck[0].goArrow);
+					
+				}else{
+					arrowFrozen.Add(keyToCheck[0],0f);
+					keyToCheck[0].displayFrozenBar();
+					StartParticleFreezeLeft(true);
+					
+				}
+				
+				arrowLeftList.Remove(keyToCheck[0]);
+				StartParticleLeft(timeToPrec(prec));
+			}
+			if(keyToCheck[1] != null){
+				if(keyToCheck[1].arrowType == ArrowType.NORMAL || keyToCheck[1].arrowType == ArrowType.MINE){
+					desactivateGameObject(keyToCheck[1].goArrow);
+					
+				}else{
+					arrowFrozen.Add(keyToCheck[1],0f);
+					keyToCheck[1].displayFrozenBar();
+					StartParticleFreezeDown(true);
+					
+				}
+				
+				arrowDownList.Remove(keyToCheck[1]);
+				StartParticleDown(timeToPrec(prec));
+			}
+			if(keyToCheck[2] != null){
+				if(keyToCheck[2].arrowType == ArrowType.NORMAL || keyToCheck[2].arrowType == ArrowType.MINE){
+					desactivateGameObject(keyToCheck[2].goArrow);
+					
+				}else{
+					arrowFrozen.Add(keyToCheck[2],0f);
+					keyToCheck[2].displayFrozenBar();
+					StartParticleFreezeUp(true);
+					
+				}
+				arrowUpList.Remove(keyToCheck[2]);
+				StartParticleUp(timeToPrec(prec));
+			}
+			if(keyToCheck[3] != null){
+				if(keyToCheck[3].arrowType == ArrowType.NORMAL || keyToCheck[3].arrowType == ArrowType.MINE){
+					desactivateGameObject(keyToCheck[3].goArrow);
+					
+				}else{
+					arrowFrozen.Add(keyToCheck[3],0f);
+					keyToCheck[3].displayFrozenBar();
+					StartParticleFreezeRight(true);
+					
+				}
+				arrowRightList.Remove(keyToCheck[3]);
+				StartParticleRight(timeToPrec(prec));
+			}
+			precAverage.Add(realprec);
+			var ttp = timeToPrec(prec);
+			GainScoreAndLife(ttp.ToString());
+			scoreCount[ttp.ToString()] += 1;
+			scoreCount[ar.imHand ? "HANDS" : "JUMPS"] += 1;
+			if(ar.imHand && ar.neighboors.Count == 2) scoreCount["JUMPS"] += 1;
+			displayPrec(prec);
+			GainCombo(ar.neighboors.Count, ttp);
+			
+		}
+	}
+	
+	void freezeMissedUpdate(Arrow ar, double prec, double realprec)
+	{
+		ar.alreadyValid = true;
+		ar.goArrow.GetComponent<ArrowScript>().missed = true;
+		if(!ar.neighboors.Any(c => c.alreadyValid == false)){
+			var keyToCheck[0] = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.LEFT);
+			var keyToCheck[1] = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.DOWN);
+			var keyToCheck[2] = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.UP);
+			var keyToCheck[3] = ar.neighboors.FirstOrDefault(c => c.arrowPos == ArrowPosition.RIGHT);
+			if(keyToCheck[0] != null){
+				
+				arrowLeftList.Remove(keyToCheck[0]);
+				StartParticleLeft(timeToPrec(prec));
+			}
+			if(keyToCheck[1] != null){
+				
+				
+				arrowDownList.Remove(keyToCheck[1]);
+				StartParticleDown(timeToPrec(prec));
+			}
+			if(keyToCheck[2] != null){
+				
+				arrowUpList.Remove(keyToCheck[2]);
+				StartParticleUp(timeToPrec(prec));
+			}
+			if(keyToCheck[3] != null){
+				
+				arrowRightList.Remove(keyToCheck[3]);
+				StartParticleRight(timeToPrec(prec));
+			}
+			precAverage.Add(realprec);
+			var ttp = timeToPrec(prec);
+			scoreCount[ttp.ToString()] += 1;
+			GainScoreAndLife(ttp.ToString());
+			displayPrec(prec);
+		}
+	
+	}
+	
+	
 	//Verify Key for all frames
 	void VerifyKeysOutput(){
 		if(arrowFrozen.Any()){
 			if(Input.GetKey(KeyCodeLeft) || Input.GetKey(SecondaryKeyCodeLeft)){
-				if(Input.GetKeyDown(KeyCodeLeft) || Input.GetKeyDown(SecondaryKeyCodeLeft)){
-					if(arrowFrozen.Any(c => c.Key.arrowPos == ArrowPosition.LEFT && c.Key.arrowType == ArrowType.ROLL))
+				var froz = arrowFrozen.FirstOrDefault(c => c.Key.arrowPos == ArrowPosition.LEFT);
+				if(froz != null)
+				{
+					if(froz.Key.arrowType == ArrowType.FREEZE || (froz.Key.arrowType == ArrowType.ROLL && (Input.GetKeyDown(KeyCodeLeft) || Input.GetKeyDown(SecondaryKeyCodeLeft))))
 					{
-						var froz = arrowFrozen.First(c => c.Key.arrowPos == ArrowPosition.LEFT);
 						arrowFrozen[froz.Key] = 0f;
 					}
-				}
-				if(arrowFrozen.Any(c => c.Key.arrowPos == ArrowPosition.LEFT && c.Key.arrowType == ArrowType.FREEZE)){
-					var ar = arrowFrozen.First(c => c.Key.arrowPos == ArrowPosition.LEFT);
-					arrowFrozen[ar.Key] = 0f;
 				}
 			}
 			
 			
 			if(Input.GetKey(KeyCodeDown) || Input.GetKey(SecondaryKeyCodeDown)){
-				if(Input.GetKeyDown(KeyCodeDown) || Input.GetKeyDown(SecondaryKeyCodeDown)){
-					if(arrowFrozen.Any(c => c.Key.arrowPos == ArrowPosition.DOWN && c.Key.arrowType == ArrowType.ROLL))
+				var froz = arrowFrozen.FirstOrDefault(c => c.Key.arrowPos == ArrowPosition.DOWN);
+				if(froz != null)
+				{
+					if(froz.Key.arrowType == ArrowType.FREEZE || (froz.Key.arrowType == ArrowType.ROLL && (Input.GetKeyDown(KeyCodeDown) || Input.GetKeyDown(SecondaryKeyCodeDown))))
 					{
-						var froz = arrowFrozen.First(c => c.Key.arrowPos == ArrowPosition.DOWN);
 						arrowFrozen[froz.Key] = 0f;
 					}
-				}
-				if(arrowFrozen.Any(c => c.Key.arrowPos == ArrowPosition.DOWN && c.Key.arrowType == ArrowType.FREEZE)){
-					var ar = arrowFrozen.First(c => c.Key.arrowPos == ArrowPosition.DOWN);
-					arrowFrozen[ar.Key] = 0f;
 				}
 			}
 			
 			
 			if(Input.GetKey(KeyCodeUp) || Input.GetKey(SecondaryKeyCodeUp)){
-				if(Input.GetKeyDown(KeyCodeUp) || Input.GetKeyDown(SecondaryKeyCodeUp)){
-					if(arrowFrozen.Any(c => c.Key.arrowPos == ArrowPosition.UP && c.Key.arrowType == ArrowType.ROLL))
+				var froz = arrowFrozen.FirstOrDefault(c => c.Key.arrowPos == ArrowPosition.UP);
+				if(froz != null)
+				{
+					if(froz.Key.arrowType == ArrowType.FREEZE || (froz.Key.arrowType == ArrowType.ROLL && (Input.GetKeyDown(KeyCodeUp) || Input.GetKeyDown(SecondaryKeyCodeUp))))
 					{
-						var froz = arrowFrozen.First(c => c.Key.arrowPos == ArrowPosition.UP);
 						arrowFrozen[froz.Key] = 0f;
 					}
-				}
-				if(arrowFrozen.Any(c => c.Key.arrowPos == ArrowPosition.UP && c.Key.arrowType == ArrowType.FREEZE)){
-					var ar = arrowFrozen.First(c => c.Key.arrowPos == ArrowPosition.UP);
-					arrowFrozen[ar.Key] = 0f;
 				}
 			}
 			
 			
 			if(Input.GetKey(KeyCodeRight) || Input.GetKey(SecondaryKeyCodeRight)){
-				if(Input.GetKeyDown(KeyCodeRight) || Input.GetKeyDown(SecondaryKeyCodeRight)){
-					if(arrowFrozen.Any(c => c.Key.arrowPos == ArrowPosition.RIGHT && c.Key.arrowType == ArrowType.ROLL))
+				var froz = arrowFrozen.FirstOrDefault(c => c.Key.arrowPos == ArrowPosition.RIGHT);
+				if(froz != null)
+				{
+					if(froz.Key.arrowType == ArrowType.FREEZE || (froz.Key.arrowType == ArrowType.ROLL && (Input.GetKeyDown(KeyCodeRight) || Input.GetKeyDown(SecondaryKeyCodeRight))))
 					{
-						var froz = arrowFrozen.First(c => c.Key.arrowPos == ArrowPosition.RIGHT);
 						arrowFrozen[froz.Key] = 0f;
 					}
-				}
-				if(arrowFrozen.Any(c => c.Key.arrowPos == ArrowPosition.RIGHT && c.Key.arrowType == ArrowType.FREEZE)){
-					var ar = arrowFrozen.First(c => c.Key.arrowPos == ArrowPosition.RIGHT);
-					arrowFrozen[ar.Key] = 0f;
 				}
 			}
 			
@@ -2005,7 +1714,6 @@ public class InGameScript : MonoBehaviour {
 		ps.Play();
 		ps.time = 1f;
 		ps.loop = state;
-		
 	}
 	
 	void StartParticleFreezeRight(bool state){
@@ -2156,15 +1864,9 @@ public class InGameScript : MonoBehaviour {
 			outtab[i] = System.Convert.ToInt32(""+thescorestring[4-i]);
 		}
 		
-		/*
-		outtab[1] = System.Convert.ToInt32(""+thescorestring[3]);
-		outtab[2] = System.Convert.ToInt32(""+thescorestring[2]);
-		outtab[3] = System.Convert.ToInt32(""+thescorestring[1]);
-		outtab[4] = System.Convert.ToInt32(""+thescorestring[0]);*/
 		
 		return outtab;
 		
-		//return new Rect(roolInt("0." + thescorestringentier[0]), roolInt("0." + thescorestringentier[1]), roolInt("0." + thescorestringdecim[0]), roolInt("0." + thescorestringdecim[1]));
 	}
 	
 	
@@ -2222,6 +1924,21 @@ public class InGameScript : MonoBehaviour {
 	}
 	
 	
+	void desactivateGameObject(GameObject go)
+	{
+		go.SetActiveRecursivly(false);
+	}
+	
+	public void desactiveGameObjectMissed(GameObject go, GameObject gofreeze, float distance)
+	{
+		if(go.transform.position.y - distance) >= arrowTarget[0].position.y)
+		{
+			desactiveGameObject(go);
+			if(gofreeze != null) desactiveGameObject(gofreeze);
+		}
+	}
+	
+	
 	void SendDataToDatamanager(){
 		DataManager.Instance.scoreEarned = score;
 		DataManager.Instance.precAverage = precAverage;
@@ -2270,20 +1987,6 @@ public class InGameScript : MonoBehaviour {
 			return DataManager.Instance.PrecisionValues[prec];	
 		}
 		return 0;
-		/*switch(prec){
-		case Precision.FANTASTIC:
-			return 0.0215;
-		case Precision.EXCELLENT:
-			return 0.043;
-		case Precision.GREAT:
-			return 0.102;
-		case Precision.DECENT:
-			return 0.135;
-		case Precision.WAYOFF:
-			return 0.180;
-		default:
-			return 0;
-		}*/
 	}
 	
 	
@@ -2299,19 +2002,6 @@ public class InGameScript : MonoBehaviour {
 		if(theprec.Count() > 0) return theprec.First().Key;
 		return Precision.MISS;
 		
-		/*
-		if(prec <= 0.0215){
-			return Precision.FANTASTIC;
-		}else if(prec <= 0.043){
-			return Precision.EXCELLENT;
-		}else if(prec <= 0.102){
-			return Precision.GREAT;
-		}else if(prec <= 0.135){
-			return Precision.DECENT;
-		}else if(prec <= 0.180){
-			return Precision.WAYOFF;
-		}
-		return Precision.MISS;*/
 		
 	}
 	
@@ -2319,57 +2009,6 @@ public class InGameScript : MonoBehaviour {
 	#endregion
 	
 	#region Arrow and time
-	
-	#region oldCode
-	//Tester un simple first or default
-	/*public Arrow findNextUpArrow(){
-
-		return arrowUpList.FirstOrDefault(s => s.time == arrowUpList.Min(c => c.time));
-			
-	}
-	
-	public Arrow findNextDownArrow(){
-
-		return arrowDownList.FirstOrDefault(s => s.time == arrowDownList.Min(c => c.time));
-			
-	}
-	
-	public Arrow findNextLeftArrow(){
-
-		return arrowLeftList.FirstOrDefault(s => s.time == arrowLeftList.Min(c => c.time));
-			
-	}
-	
-	public Arrow findNextRightArrow(){
-
-		return arrowRightList.FirstOrDefault(s => s.time == arrowRightList.Min(c => c.time));
-			
-	}
-	
-	public Arrow findNextUpMine(){
-
-		return mineUpList.FirstOrDefault(s => s.time == mineUpList.Min(c => c.time));
-			
-	}
-	
-	public Arrow findNextDownMine(){
-
-		return mineDownList.FirstOrDefault(s => s.time == mineDownList.Min(c => c.time));
-			
-	}
-	
-	public Arrow findNextLeftMine(){
-
-		return mineLeftList.FirstOrDefault(s => s.time == mineLeftList.Min(c => c.time));
-			
-	}
-	
-	public Arrow findNextRightMine(){
-
-		return mineRightList.FirstOrDefault(s => s.time == mineRightList.Min(c => c.time));
-			
-	}*/
-	#endregion
 	
 	public Arrow findNextUpArrow(){
 
@@ -2456,6 +2095,8 @@ public class InGameScript : MonoBehaviour {
 				
 		}
 	}
+	
+	
 	
 	
 	public double getTotalTimeChart(){

@@ -346,7 +346,6 @@ public class LoadManager{
 		sss = null;
 		decoupStore.Clear();
 		decoupStore = null;
-		GC.Collect();
 		return true;
 		
 		
@@ -374,7 +373,6 @@ public class LoadManager{
 			sss.destroy();
 			sss.getStore().Clear();
 			sss = null;
-			GC.Collect();
 			return true;
 			
 		}

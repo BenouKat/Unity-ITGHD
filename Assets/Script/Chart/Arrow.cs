@@ -8,6 +8,9 @@ public class Arrow {
 	public ArrowPosition arrowPos;
 	public ParticleSystem EndFreeze;
 	
+	public float distanceDisappearBase;
+	public float distanceDisappear;
+	
 	public ArrowType arrowType;
 	
 	public double time;
@@ -32,6 +35,7 @@ public class Arrow {
 		arrowType = at;
 		time = passedTime;
 		posBegining = goArrow.transform.position;
+		distanceDisappear = distanceDisappearBase;
 	}
 	
 	
@@ -47,6 +51,7 @@ public class Arrow {
 			goFreeze.renderer.material.color = new Color(0.4f, 0.4f, 0f, 1f);
 		}
 		goFreeze.transform.GetChild(0).renderer.material.color = new Color(col.r, col.g, col.b, 0f);
+		distanceDisappear = distanceDisappearBase + (goFreeze.transform.localScale.y);
 	}
 	
 	
