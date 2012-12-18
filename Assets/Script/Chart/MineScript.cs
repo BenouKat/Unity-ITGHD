@@ -66,7 +66,7 @@ public class MineScript : MonoBehaviour {
 				igs.GainScoreAndLife("MINE");
 				igs.AddMineToScoreCombo();
 				igs.removeMineFromList(associatedArrow, state);
-				arrowLeft.setActiveRecursibly(false);
+				arrowLeft.SetActiveRecursively(false);
 			}else if(associatedArrow.time <= igs.getTotalTimeChart()){
 				missed = true;
 				igs.removeMineFromList(associatedArrow, state);
