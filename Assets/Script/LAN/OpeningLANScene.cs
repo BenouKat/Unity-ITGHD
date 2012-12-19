@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 public class OpeningLANScene : MonoBehaviour {
 	
@@ -39,16 +41,16 @@ public class OpeningLANScene : MonoBehaviour {
 	
 	void OnGUI()
 	{
-		for(int i=0; i<optionCube.length; i++)
+		for(int i=0; i<optionCube.Length; i++)
 		{
-			var pos2D = MainCamera.WorldToPointScreen(optionCube[i]);
+			var pos2D = Camera.main.WorldToScreenPoint(optionCube[i].transform.position);
 			if(i == optionSelected)
 			{
-				GUI.Color = new Color(1f, 1f, 1f, alphaClign);
+				GUI.color = new Color(1f, 1f, 1f, alphaClign);
 				GUI.DrawTexture(new Rect(pos2D.x + (posTitleOption.x*Screen.width), pos2D.y + (posTitleOption.y*Screen.height), posTitleOption.width*Screen.width, posTitleOption.height*Screen.height), tex["option" + i]);
 			}else
 			{
-				GUI.Color = new Color(1f, 1f, 1f, 0.5f);
+				GUI.color = new Color(1f, 1f, 1f, 0.5f);
 				GUI.DrawTexture(new Rect(pos2D.x + (posTitleOption.x*Screen.width), pos2D.y + (posTitleOption.y*Screen.height), posTitleOption.width*Screen.width*ratioNotSelected, posTitleOption.height*Screen.height*ratioNotSelected), tex["option" + i]);
 			}
 			
@@ -63,14 +65,14 @@ public class OpeningLANScene : MonoBehaviour {
 		}
 		
 		if(GUI.Button(new Rect(posForw.x*Screen.width, posForw.y*Screen.height, posForw.width*Screen.width, posForw.height*Screen.height), "buttonForw") && !activeBack && !activeForw){
-			if(optionSelected < optionCube.length - 1)
+			if(optionSelected < optionCube.Length - 1)
 			{
 				optionSelected++;
 				activeForw = true;
 			}
 		}
 		
-		GUI.Label(new Rect(infoOption.x*Screen.width, infoOption.y*Screen.height, infoOption.width*Screen.width, infoOption.height*infoOption.height), TextManager.texts["LAN"]["MENUOption" + optionSelected]);
+		GUI.Label(new Rect(infoOption.x*Screen.width, infoOption.y*Screen.height, infoOption.width*Screen.width, infoOption.height*infoOption.height), TextManager.Instance.texts["LAN"]["MENUOption" + optionSelected]);
 	}
 	
 	// Update is called once per frame

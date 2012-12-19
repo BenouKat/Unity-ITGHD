@@ -61,6 +61,7 @@
      <Compile Include="Assets\Script\FrameWork\Song.cs" />
      <Compile Include="Assets\Script\FrameWork\SongInfoProfil.cs" />
      <Compile Include="Assets\Script\FrameWork\VersionDeserializationBinder.cs" />
+     <Compile Include="Assets\Script\LAN\OpeningLANScene.cs" />
      <Compile Include="Assets\Script\MainMenu\ArrowFake.cs" />
      <Compile Include="Assets\Script\MainMenu\FakeChart.cs" />
      <Compile Include="Assets\Script\MainMenu\MainMenu.cs" />
@@ -69,6 +70,7 @@
      <Compile Include="Assets\Script\Managers\DataManager.cs" />
      <Compile Include="Assets\Script\Managers\EnumManager.cs" />
      <Compile Include="Assets\Script\Managers\FadeManager.cs" />
+     <Compile Include="Assets\Script\Managers\LANManager.cs" />
      <Compile Include="Assets\Script\Managers\LoadManager.cs" />
      <Compile Include="Assets\Script\Managers\OptionManager.cs" />
      <Compile Include="Assets\Script\Managers\ProfileManager.cs" />

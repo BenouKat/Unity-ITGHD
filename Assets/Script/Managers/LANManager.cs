@@ -21,12 +21,12 @@ public class LANManager{
 	public int roundForElimination;
 	
 	//INSTANCE
-	private static DataManager instance;
+	private static LANManager instance;
 	
-	public static DataManager Instance{
+	public static LANManager Instance{
 		get{
 			if(instance == null){ 
-				instance = new DataManager();
+				instance = new LANManager();
 				instance.init();
 			}
 			return instance;
