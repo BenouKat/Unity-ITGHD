@@ -21,6 +21,19 @@ Affronte tes adversaires via internet;
 Coopère ou affronte 8 touches seul;
 <Back>;
 Retourne à l'entrée;
+[LAN];
+<MENUOption0>;
+Joue avec d'autres joueurs sans aucune règle.
+Pas de limite de manches.;
+<MENUOption1>;
+Seul le score compte.
+Course au plus haut score en un nombre de manches définies.;
+<MENUOption2>;
+Seul le classement compte.
+Course au meilleur classement par points en un nombre de manches définies.;
+<MENUOption3>;
+La loi de la jungle.
+Ne soyez jamais dernier à la fin d'un nombre de manches définies.;
 [ErrorMainMenuMessage];
 <Story>;
 Le mode Story sera accessible à partir de la build b8000 du jeu.;
@@ -30,8 +43,6 @@ Le mode Mods sera accessible à partir du build b4000.;
 Le tutorial sera accessible à partir du build b3000.;
 <Trophy>;
 Les achievements seront accessibles à partir du build b7000.;
-<Option>;
-Les options seront accessibles à partir du build b800.;
 <LAN>;
 Le mode LAN sera accessible à partir du build b2000.;
 <Double>;
@@ -202,4 +213,4 @@ Appuyez la touche que vous voulez associer;
 Merci de confirmer votre demande;
 [Config];
 <NumberBuild>;
-Version actuelle : build b1000;
+Version actuelle : build b1012;

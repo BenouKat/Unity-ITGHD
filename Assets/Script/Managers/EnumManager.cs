@@ -97,7 +97,15 @@ public enum ArrowPosition{
 	DOWN
 }
 
-enum PrecParticle{
+public enum LANMode{
+	FFA,
+	SCORETOURN,
+	POINTTOURN,
+	ELIMINATION,
+	NONE
+}
+
+public enum PrecParticle{
 		FANTASTIC,
 		FANTASTICC,
 		EXCELLENT,

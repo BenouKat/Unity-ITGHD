@@ -12,19 +12,8 @@ public class DataManager{
 	
 	
 	//DATA GAME
-	//0 - Fantastic
-	//1 - Excellent
-	//2 - Great
-	//3 - Decent
-	//4 - WayOff
-	//5 - Miss
-	//6 - Freeze
-	//7 - Unfreeze
-	//8 - Mines
 	public Dictionary<string, float> ScoreWeightValues;
-	
 	public Dictionary<string, float> LifeWeightValues;
-	
 	public Dictionary<Precision, double> PrecisionValues;
 	
 	//Debug
@@ -46,25 +35,17 @@ public class DataManager{
 	
 	//WHEEL SONG
 	public float[] posYDiff;
-	
 	public float[] posYZoneDiff;
-	
 	public Color[] diffColor;
-	
 	public Color[] precColor;
 	
 	
 	//MAIN MENU
-	
 	public bool alreadyPressStart;
 	
 	//SYSTEM
-	
-	
 	public int regenComboAfterMiss = 5;
-	
 	public bool BPMEntryMode;
-	
 	public int BPMChoiceMode;
 	
 	//INSTANCE
@@ -96,7 +77,6 @@ public class DataManager{
 	
 	//OPTION WHEEL
 	public Sort sortMethod;
-	
 	public Dictionary<Judge, string> dicScoreJudge;
 	public Dictionary<Judge, string> dicHitJudge;
 	public Dictionary<Judge, string> dicLifeJudge;
@@ -104,43 +84,26 @@ public class DataManager{
 	public string[] aRace;
 	public string[] aDisplay;
 	public string[] aDeath;
-	
 	public Song songSelected;
-	
 	public Difficulty difficultySelected;
-	
 	public float speedmodSelected;
-	
 	public float rateSelected;
-	
 	public int skinSelected;
-	
 	public Judge scoreJudgeSelected;
-	
 	public Judge hitJudgeSelected;
-	
 	public Judge lifeJudgeSelected;
-	
 	public int raceSelected;
-	
 	public bool[] displaySelected;
-	
 	public int deathSelected;
 	
 	
 	
 	//SONG RESULT
-	
 	public float scoreEarned;
-	
 	public List<double> precAverage;
-	
 	public Dictionary<double, int> timeCombo;
-	
 	public Dictionary<double, double> lifeGraph;
-	
 	public Dictionary<string, int> scoreCount;
-	
 	public double firstEx;
 	public double firstGreat;
 	public double firstMisteak;
@@ -154,9 +117,10 @@ public class DataManager{
 	
 	
 	//Memory wheelsong
-	
 	public int mousePosition = -1;
 	public string packSelected = "";
+	
+	
 	
 	public static DataManager Instance{
 		get{
