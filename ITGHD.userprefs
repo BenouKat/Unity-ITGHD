@@ -1,13 +1,9 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Chart\Arrow.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\LAN\OpeningLANScene.cs">
     <Files>
-      <File FileName="Assets\Script\Chart\ArrowScript.cs" Line="65" Column="1" />
-      <File FileName="Assets\Script\LAN\OpeningLANScene.cs" Line="75" Column="166" />
-      <File FileName="Assets\Script\Chart\MineScript.cs" Line="69" Column="43" />
-      <File FileName="Assets\Script\Chart\InGameScript.cs" Line="1660" Column="9" />
-      <File FileName="Assets\Script\Managers\LANManager.cs" Line="29" Column="30" />
-      <File FileName="Assets\Script\Chart\Arrow.cs" Line="54" Column="84" />
+      <File FileName="Assets\Script\LAN\OpeningLANScene.cs" Line="55" Column="3" />
+      <File FileName="Assets\Resources\Texts\texts.txt" Line="31" Column="27" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

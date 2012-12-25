@@ -22,6 +22,10 @@ Coopère ou affronte 8 touches seul;
 <Back>;
 Retourne à l'entrée;
 [LAN];
+<MENUJoinOption0>;
+Crée une partie multijoueur;
+<MENUJoinOption1>;
+Rejoint une partie déjà crée;
 <MENUOption0>;
 Joue avec d'autres joueurs sans aucune règle.
 Pas de limite de manches.;
