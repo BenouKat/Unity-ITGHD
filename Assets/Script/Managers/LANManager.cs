@@ -18,7 +18,16 @@ public class LANManager{
 	
 	//Elimination
 	public int roundNumber;
-	public int roundForElimination;
+	
+	//0 - Host only
+	//1 - Each player after each
+	//2 - Random
+	public int hostSystem;
+	
+	//0 - All Same
+	//1 - All Different
+	//2 - Select players
+	public int songDiffSystem;
 	
 	//INSTANCE
 	private static LANManager instance;

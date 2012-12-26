@@ -2297,7 +2297,7 @@ public class InGameScript : MonoBehaviour {
 						}
 						listNeighboors.Add(theArrow);
 						goArrow.SetActiveRecursively(false);
-						gameObject.GetComponent<ManageGameObject>().Add(timetotal, goArrow);
+						gameObject.GetComponent<ManageGameObject>().Add(goArrow);
 						//barrow = true;
 					}else if(note[i] == '2'){
 						barr = true;
@@ -2348,7 +2348,7 @@ public class InGameScript : MonoBehaviour {
 						}
 						listNeighboors.Add(theArrow);
 						goArrow.SetActiveRecursively(false);
-						GetComponent<ManageGameObject>().Add(timetotal, goArrow);
+						GetComponent<ManageGameObject>().Add(goArrow);
 					}else if(note[i] == '3'){
 						barr = true;
 						var theArrow = ArrowFreezed[i];
@@ -2419,7 +2419,7 @@ public class InGameScript : MonoBehaviour {
 						}
 						listNeighboors.Add(theArrow);
 						goArrow.SetActiveRecursively(false);
-						GetComponent<ManageGameObject>().Add(timetotal, goArrow);
+						GetComponent<ManageGameObject>().Add(goArrow);
 					}else if(note[i] == 'M'){
 						var goArrow = (GameObject) Instantiate(mines, new Vector3(i*2, -ypos, 0f), mines.transform.rotation);
 						var theArrow = new Arrow(goArrow, ArrowType.MINE, timetotal);

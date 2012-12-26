@@ -89,6 +89,7 @@ public class LifeBar : MonoBehaviour {
 			
 			if(realLife <= 25f){
 				lifebar[0].transform.localScale = baseScale[0]*(realLife/25f);
+				lifebar[1].transform.localScale = baseScale[1]*0f;
 			}else if(realLife < 100f){
 				var index = (int)((realLife - 25f)/numberStep) + 1;
 				lifebar[index - 1].transform.localScale = baseScale[index - 1];

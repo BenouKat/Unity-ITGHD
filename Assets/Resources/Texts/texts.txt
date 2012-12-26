@@ -38,6 +38,30 @@ Course au meilleur classement par points en un nombre de manches définies.;
 <MENUOption3>;
 La loi de la jungle.
 Ne soyez jamais dernier à la fin d'un nombre de manches définies.;
+<OPTIONRound>;
+Nombre de manches :;
+<INFOElimination>;
+En mode Elimination, le nombre de manche correspond au nombre de chansons jouées avant chaque élimination.
+Le nombre total de manche dépend donc du nombre de joueur;
+<OPTIONHost>;
+Selection des chansons :;
+<OPTIONHost0>;
+Uniquement vous;
+<OPTIONHost1>;
+Chacun son tour;
+<OPTIONHost2>;
+Aléatoirement;
+<OPTIONSongDiff>;
+Choix de la difficulté d'une chanson proposée :;
+<OPTIONSongDiff0>;
+Uniquement celle proposée;
+<OPTIONSongDiff1>;
+N'importe laquelle;
+<OPTIONSongDiff2>;
+N'importe laquelle pour certains joueurs seulement;
+<INFOJoin>;
+Tapez l'ip à rejoindre (De la forme [ip]:[port], ex : 192.168.1.1:12345)
+Le créateur de la salle doit vous avoir communiqué l'adresse à rejoindre;
 [ErrorMainMenuMessage];
 <Story>;
 Le mode Story sera accessible à partir de la build b8000 du jeu.;
