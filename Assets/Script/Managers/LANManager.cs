@@ -49,7 +49,6 @@ public class LANManager{
 		pointsOfPlayers = new Dictionary<NetworkPlayer, int>();
 		numberOfPlayersConnected = 0;
 		roundNumber = 0;
-		roundForElimination = 0;
 	}
 	
 	

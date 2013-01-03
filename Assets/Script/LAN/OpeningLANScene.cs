@@ -42,6 +42,7 @@ public class OpeningLANScene : MonoBehaviour {
 	//Select Option
 	public Rect posOptionSelected;
 	public Rect labelRound;
+	public Rect infoRound;
 	public Rect textFieldRound;
 	private string roundValue;
 	public Rect labelMaster;
@@ -95,7 +96,7 @@ public class OpeningLANScene : MonoBehaviour {
 		ringSelected = ringJoin;
 		rotationCount = 0f;
 		alphaOption = 0f;
-		roundValue = LANManager.Instance.roundNumber;
+		roundValue = LANManager.Instance.roundNumber.ToString();
 		fm = GetComponent<FadeManager>();
 		ipValue = "";
 	}
@@ -237,7 +238,7 @@ public class OpeningLANScene : MonoBehaviour {
 		//Round
 		GUI.Label(new Rect(labelRound.x*Screen.width, labelRound.y*Screen.height, labelRound.width*Screen.width, labelRound.height*Screen.height), TextManager.Instance.texts["LAN"]["OPTIONRound"]);
 		
-		roundValue = GUI.TextField(new Rect(textFieldRound.x*Screen.width, textFieldRound.y*Screen.height, textFieldRound.width*Screen.width, textFieldRound.height*Screen.height), 2, roundValue.Trim());
+		roundValue = GUI.TextField(new Rect(textFieldRound.x*Screen.width, textFieldRound.y*Screen.height, textFieldRound.width*Screen.width, textFieldRound.height*Screen.height), roundValue.Trim(), 2);
 		
 		if(optionSelected == 3) //Special Elimination
 		{
@@ -314,7 +315,7 @@ public class OpeningLANScene : MonoBehaviour {
 		//Info join
 		GUI.Label(new Rect(posJoiningLabel.x*Screen.width, posJoiningLabel.y*Screen.height, posJoiningLabel.width*Screen.width, posJoiningLabel.height*Screen.height), TextManager.Instance.texts["LAN"]["INFOJoin"]);
 		
-		ipValue = GUI.TextField(new Rect(textFieldIP.x*Screen.width, textFieldIP.y*Screen.height, textFieldIP.width*Screen.width, textFieldIP.height*Screen.height), 25, ipValue.Trim());
+		ipValue = GUI.TextField(new Rect(textFieldIP.x*Screen.width, textFieldIP.y*Screen.height, textFieldIP.width*Screen.width, textFieldIP.height*Screen.height), ipValue.Trim(), 25);
 					
 		GUI.color = new Color(1f, 1f, 1f, 1f);
 		
@@ -345,10 +346,10 @@ public class OpeningLANScene : MonoBehaviour {
 		if(activeForw)
 		{
 			rotationCount += Time.deltaTime*rotationSpeed;
-			ringSelected.Rotate(0f, Time.deltaTime*rotationSpeed, 0f);
+			ringSelected.transform.Rotate(0f, Time.deltaTime*rotationSpeed, 0f);
 			if(rotationCount >= rotationDegrees)
 			{
-				ringSelected.Rotate(0f, -(rotationDegrees-rotationCount), 0f);
+				ringSelected.transform.Rotate(0f, -(rotationDegrees-rotationCount), 0f);
 				activeForw = false;
 				rotationCount = 0f;
 			}
@@ -358,10 +359,10 @@ public class OpeningLANScene : MonoBehaviour {
 		if(activeBack)
 		{
 			rotationCount += Time.deltaTime*rotationSpeed;
-			ringSelected.Rotate(0f, -Time.deltaTime*rotationSpeed, 0f);
+			ringSelected.transform.Rotate(0f, -Time.deltaTime*rotationSpeed, 0f);
 			if(rotationCount >= rotationDegrees)
 			{
-				ringSelected.Rotate(0f, (rotationDegrees-rotationCount), 0f);
+				ringSelected.transform.Rotate(0f, (rotationDegrees-rotationCount), 0f);
 				activeForw = false;
 				rotationCount = 0f;
 			}

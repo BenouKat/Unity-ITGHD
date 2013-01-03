@@ -5,7 +5,7 @@ using System.Linq;
 
 public class ManageGameObject : MonoBehaviour {
 
-	public Dictionary<double, GameObject> listarrow;
+	public Dictionary<float, GameObject> listarrow;
 	
 	public Transform cameraTransform;
 	
