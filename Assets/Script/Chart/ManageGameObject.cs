@@ -43,10 +43,12 @@ public class ManageGameObject : MonoBehaviour {
 	
 	public void Add(GameObject go){
 		var ypos = go.transform.position.y;
-		while(listarrow.ContainsKey(ypos)){
-			ypos -= 0.0001f;
+		var counter = 0;
+		while(listarrow.ContainsKey(ypos) && counter < 10){
+			ypos -= 0.01f;
+			counter++;
 		}
-		listarrow.Add(ypos, go);
+		if(!listarrow.ContainsKey(ypos)) listarrow.Add(ypos, go);
 	}
 
 }

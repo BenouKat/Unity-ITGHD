@@ -629,7 +629,7 @@ public class InGameScript : MonoBehaviour {
 		DataManager.Instance.removeRatedSong();
 	}
 	
-	
+	/*
 	//only for FPS
 	void OnGUI(){
 		
@@ -762,7 +762,7 @@ public class InGameScript : MonoBehaviour {
 			
 		}
 		
-	}
+	}*/
 	
 	
 	
@@ -2297,7 +2297,7 @@ public class InGameScript : MonoBehaviour {
 						}
 						listNeighboors.Add(theArrow);
 						goArrow.SetActiveRecursively(false);
-						gameObject.GetComponent<ManageGameObject>().Add(goArrow);
+						GetComponent<ManageGameObject>().Add(goArrow);
 						//barrow = true;
 					}else if(note[i] == '2'){
 						barr = true;
