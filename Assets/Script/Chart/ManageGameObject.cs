@@ -20,7 +20,7 @@ public class ManageGameObject : MonoBehaviour {
 		if(listarrow.Any()){
 			var next = listarrow.First();
 			if(next.Key > (cameraTransform.position.y - zoneAppear)){
-				next.Value.SetActiveRecursively(true);
+				activeGameObject(next.Value);
 				listarrow.Remove(next.Key);
 			}
 			
@@ -32,7 +32,7 @@ public class ManageGameObject : MonoBehaviour {
 		listarrow.OrderByDescending(c => c.Key);
 		for(int i=0; i<listarrow.Count; i++){
 			if(listarrow.ElementAt(i).Key > (cameraTransform.position.y - zoneAppear)){
-				listarrow.ElementAt(i).Value.SetActiveRecursively(true);
+				activeGameObject(listarrow.ElementAt(i).Value);
 				listarrow.Remove(listarrow.ElementAt(i).Key);
 				i--;
 			}
@@ -48,7 +48,36 @@ public class ManageGameObject : MonoBehaviour {
 			ypos -= 0.01f;
 			counter++;
 		}
-		if(!listarrow.ContainsKey(ypos)) listarrow.Add(ypos, go);
+		if(!listarrow.ContainsKey(ypos)){
+			supressGameObject(go);
+			listarrow.Add(ypos, go);
+		}
+	}
+	
+	public void supressGameObject(GameObject go)
+	{
+		if(go.GetComponent("ArrowScript") != null) go.GetComponent<ArrowScript>().enabled = false;
+		if(go.transform.GetChildCount() > 0)
+		{
+			for(int i=0; i < go.transform.GetChildCount(); i++)
+			{
+				go.transform.GetChild(i).renderer.enabled = false;	
+			}
+		}
+		go.transform.renderer.enabled = false;
+	}
+	
+	public void activeGameObject(GameObject go)
+	{
+		if(go.GetComponent("ArrowScript") != null) go.GetComponent<ArrowScript>().enabled = true;
+		if(go.transform.GetChildCount() > 0)
+		{
+			for(int i=0; i < go.transform.GetChildCount(); i++)
+			{
+				go.transform.GetChild(i).renderer.enabled = true;	
+			}
+		}
+		go.transform.renderer.enabled = true;
 	}
 
 }

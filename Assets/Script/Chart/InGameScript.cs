@@ -629,7 +629,7 @@ public class InGameScript : MonoBehaviour {
 		DataManager.Instance.removeRatedSong();
 	}
 	
-	/*
+	
 	//only for FPS
 	void OnGUI(){
 		
@@ -762,7 +762,7 @@ public class InGameScript : MonoBehaviour {
 			
 		}
 		
-	}*/
+	}
 	
 	
 	
@@ -1923,7 +1923,15 @@ public class InGameScript : MonoBehaviour {
 	
 	void desactivateGameObject(GameObject go)
 	{
-		go.SetActiveRecursively(false);
+		if(go.GetComponent("ArrowScript") != null) go.GetComponent<ArrowScript>().enabled = false;
+		if(go.transform.GetChildCount() > 0)
+		{
+			for(int i=0; i < go.transform.GetChildCount(); i++)
+			{
+				go.transform.GetChild(i).renderer.enabled = false;	
+			}
+		}
+		go.transform.renderer.enabled = false;
 	}
 	
 	public void desactiveGameObjectMissed(GameObject go, GameObject gofreeze, float distance)
@@ -2296,7 +2304,7 @@ public class InGameScript : MonoBehaviour {
 							break;
 						}
 						listNeighboors.Add(theArrow);
-						goArrow.SetActiveRecursively(false);
+						//goArrow.SetActiveRecursively(false);
 						GetComponent<ManageGameObject>().Add(goArrow);
 						//barrow = true;
 					}else if(note[i] == '2'){
@@ -2347,7 +2355,7 @@ public class InGameScript : MonoBehaviour {
 							break;
 						}
 						listNeighboors.Add(theArrow);
-						goArrow.SetActiveRecursively(false);
+						//goArrow.SetActiveRecursively(false);
 						GetComponent<ManageGameObject>().Add(goArrow);
 					}else if(note[i] == '3'){
 						barr = true;
@@ -2418,7 +2426,7 @@ public class InGameScript : MonoBehaviour {
 							break;
 						}
 						listNeighboors.Add(theArrow);
-						goArrow.SetActiveRecursively(false);
+						//goArrow.SetActiveRecursively(false);
 						GetComponent<ManageGameObject>().Add(goArrow);
 					}else if(note[i] == 'M'){
 						var goArrow = (GameObject) Instantiate(mines, new Vector3(i*2, -ypos, 0f), mines.transform.rotation);

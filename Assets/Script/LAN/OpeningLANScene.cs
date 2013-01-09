@@ -30,6 +30,8 @@ public class OpeningLANScene : MonoBehaviour {
 	
 	private FadeManager fm;
 	
+	public GUISkin skin;
+	
 	//Join && Mode
 	public Rect posTitleOption;
 	public float ratioNotSelected;
@@ -80,6 +82,7 @@ public class OpeningLANScene : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
+		TextManager.Instance.LoadTextFile();
 		tex = new Dictionary<string, Texture2D>();
 		tex.Add("join0", (Texture2D) Resources.Load("LANCreate"));
 		tex.Add("join1", (Texture2D) Resources.Load("LANJoin"));
@@ -104,6 +107,7 @@ public class OpeningLANScene : MonoBehaviour {
 	
 	void OnGUI()
 	{
+		GUI.skin = skin;
 		switch(stateLAN){
 		case StateLAN.JOINCHOOSE:
 			OnGUIChoose();
@@ -126,14 +130,15 @@ public class OpeningLANScene : MonoBehaviour {
 			for(int i=0; i<optionJoinCube.Length; i++)
 			{
 				var pos2D = Camera.main.WorldToScreenPoint(optionJoinCube[i].transform.position);
+				//Debug.Log("index " + i + " : " + pos2D.x + "," + pos2D.y);
 				if(i == optionJoinSelected)
 				{
 					GUI.color = new Color(1f, 1f, 1f, alphaClign);
-					GUI.DrawTexture(new Rect(pos2D.x + (posTitleOption.x*Screen.width), pos2D.y + (posTitleOption.y*Screen.height), posTitleOption.width*Screen.width, posTitleOption.height*Screen.height), tex["join" + i]);
+					GUI.DrawTexture(new Rect(pos2D.x + (posTitleOption.x*Screen.width), (Screen.height - pos2D.y) + (posTitleOption.y*Screen.height), posTitleOption.width*Screen.width, posTitleOption.height*Screen.height), tex["join" + i]);
 				}else
 				{
 					GUI.color = new Color(1f, 1f, 1f, 0.5f);
-					GUI.DrawTexture(new Rect(pos2D.x + (posTitleOption.x*Screen.width), pos2D.y + (posTitleOption.y*Screen.height), posTitleOption.width*Screen.width*ratioNotSelected, posTitleOption.height*Screen.height*ratioNotSelected), tex["join" + i]);
+					GUI.DrawTexture(new Rect(pos2D.x + (posTitleOption.x*Screen.width + ((1f-ratioNotSelected)/4f)*Screen.width), (Screen.height - pos2D.y) + (posTitleOption.y*Screen.height + ((1f-ratioNotSelected)/4f)*Screen.height), posTitleOption.width*Screen.width*ratioNotSelected, posTitleOption.height*Screen.height*ratioNotSelected), tex["join" + i]);
 				}
 				
 			}
@@ -158,7 +163,7 @@ public class OpeningLANScene : MonoBehaviour {
 		}
 		
 		
-		if(GUI.Button(new Rect(posButtonConfirm.x*Screen.width, posButtonConfirm.y*Screen.height, posButtonConfirm.width*Screen.width, posButtonConfirm.height*Screen.height), "Confirm", "buttonForw") && !activeBack && !activeForw && !activeTransition && !activeTransitionBack){
+		if(GUI.Button(new Rect(posButtonConfirm.x*Screen.width, posButtonConfirm.y*Screen.height, posButtonConfirm.width*Screen.width, posButtonConfirm.height*Screen.height), "Confirm") && !activeBack && !activeForw && !activeTransition && !activeTransitionBack){
 			switch(optionJoinSelected)
 			{
 				case 0:
@@ -170,7 +175,7 @@ public class OpeningLANScene : MonoBehaviour {
 			}
 		}
 		
-		if(GUI.Button(new Rect(posButtonBack.x*Screen.width, posButtonBack.y*Screen.height, posButtonBack.width*Screen.width, posButtonBack.height*Screen.height), "Back", "buttonForw") && !activeBack && !activeForw && !activeTransition && !activeTransitionBack){
+		if(GUI.Button(new Rect(posButtonBack.x*Screen.width, posButtonBack.y*Screen.height, posButtonBack.width*Screen.width, posButtonBack.height*Screen.height), "Back") && !activeBack && !activeForw && !activeTransition && !activeTransitionBack){
 			fm.FadeIn("mainmenu");
 		}
 		
@@ -294,11 +299,11 @@ public class OpeningLANScene : MonoBehaviour {
 					
 		GUI.color = new Color(1f, 1f, 1f, 1f);
 		
-		if(GUI.Button(new Rect(posButtonConfirm.x*Screen.width, posButtonConfirm.y*Screen.height, posButtonConfirm.width*Screen.width, posButtonConfirm.height*Screen.height), "Confirm" , "buttonForw") && !activeBack && !activeForw && !activeTransition && !activeTransitionBack){
+		if(GUI.Button(new Rect(posButtonConfirm.x*Screen.width, posButtonConfirm.y*Screen.height, posButtonConfirm.width*Screen.width, posButtonConfirm.height*Screen.height), "Confirm") && !activeBack && !activeForw && !activeTransition && !activeTransitionBack){
 			fm.FadeIn("sdhfoisdfoisdf"); // !!!!
 		}
 		
-		if(GUI.Button(new Rect(posButtonBack.x*Screen.width, posButtonBack.y*Screen.height, posButtonBack.width*Screen.width, posButtonBack.height*Screen.height), "Back", "buttonForw") && !activeBack && !activeForw && !activeTransition && !activeTransitionBack){
+		if(GUI.Button(new Rect(posButtonBack.x*Screen.width, posButtonBack.y*Screen.height, posButtonBack.width*Screen.width, posButtonBack.height*Screen.height), "Back") && !activeBack && !activeForw && !activeTransition && !activeTransitionBack){
 			stateLAN = StateLAN.MODECHOOSE;
 		}
 	}
