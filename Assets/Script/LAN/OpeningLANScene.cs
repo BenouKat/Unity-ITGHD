@@ -143,6 +143,8 @@ public class OpeningLANScene : MonoBehaviour {
 				
 			}
 			
+			GUI.color = new Color(1f, 1f, 1f, 1f);
+			
 			if(GUI.Button(new Rect(posBack.x*Screen.width, posBack.y*Screen.height, posBack.width*Screen.width, posBack.height*Screen.height), "", "buttonBack") && !activeBack && !activeForw){
 				if(optionJoinSelected > 0)
 				{
@@ -200,6 +202,8 @@ public class OpeningLANScene : MonoBehaviour {
 				}
 				
 			}
+			
+			GUI.color = new Color(1f, 1f, 1f, 1f);
 		
 			if(GUI.Button(new Rect(posBack.x*Screen.width, posBack.y*Screen.height, posBack.width*Screen.width, posBack.height*Screen.height), "", "buttonBack") && !activeBack && !activeForw){
 				if(optionSelected > 0)
@@ -368,7 +372,7 @@ public class OpeningLANScene : MonoBehaviour {
 			if(rotationCount >= rotationDegrees)
 			{
 				ringSelected.transform.Rotate(0f, (rotationDegrees-rotationCount), 0f);
-				activeForw = false;
+				activeBack = false;
 				rotationCount = 0f;
 			}
 			
