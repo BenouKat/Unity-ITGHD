@@ -1,6 +1,6 @@
 ﻿[MainMenu];
 <Story>;
-Accède au forum "The Cube";
+Accède à la cité;
 <Free>;
 Joue librement sur toutes les chansons installées;
 <Mods>;
@@ -64,17 +64,17 @@ Tapez l'ip à rejoindre (De la forme [ip]:[port], ex : 192.168.1.1:12345)
 Le créateur de la salle doit vous avoir communiqué l'adresse à rejoindre;
 [ErrorMainMenuMessage];
 <Story>;
-Le mode Story sera accessible à partir de la build b8000 du jeu.;
+Le mode Story sera accessible à partir de la version 4 du jeu.;
 <Mods>;
-Le mode Mods sera accessible à partir du build b4000.;
+Le mode Mods sera accessible à partir de la version 6 du jeu.;
 <Learn>;
-Le tutorial sera accessible à partir du build b3000.;
+Le tutorial sera accessible à partir du version 3 du jeu.;
 <Trophy>;
-Les achievements seront accessibles à partir du build b7000.;
+Les achievements seront accessibles à partir de la version 5 du jeu.;
 <LAN>;
-Le mode LAN sera accessible à partir du build b2000.;
+Le mode LAN sera accessible à partir de la version 2 du jeu.;
 <Double>;
-Le mode Double sera accessible à partir de la build b9000 du jeu.;
+Le mode Double sera accessible à partir de la version 7 du jeu.;
 [SplashScreen];
 <LOADING>;
 Loading songs...;
@@ -95,16 +95,14 @@ New user detected;
 <SPEECH_0>;
 Bienvenue.;
 <SPEECH_1>;
-Vous venez de vous connecter pour la première
-fois sur l'espace harmonique;
+Ceci est votre première connexion. 
+Vous n'avez jamais rejoint cet espace.;
 <SPEECH_2>;
-Aucune vérification de vos aptitudes à évoluer
-au sein de cet espace n'a encore été effectuée.;
+Aucune vérification de vos aptitudes à évoluer n'a encore été effectuée.;
 <SPEECH_3>;
-Pour évoluer, vous devez disposer d'une énergie harmonique suffisante.;
+Le sens du rythme est primordial afin d'accéder à tout l'espace.;
 <SPEECH_4>;
-La première source d'énergie harmonique chez un utilisateur
-se trouve avant tout dans son sens du rythme.;
+C'est la seul chose dont vous aurez besoin ici.;
 <SPEECH_5>;
 Merci de répondre avec honnêteté et assurance : 
 Avez-vous le sens du rythme ?;
@@ -119,15 +117,13 @@ J'ai une passion pour les jeux de rythme, je suis un accro.;
 <SPEECH_6>;
 Parfait.;
 <SPEECH_7>;
-Afin de créer l'énergie à la sauvegarde de cet espace, ce dernier
-possède la capacité de materialiser la musique sous une forme simple.;
+Le sens du rythme se développe chez chaque individu.;
 <SPEECH_8>;
-Cette forme simple, une fois alliée au sens du rythme des utilisateurs,
-dégage cette énergie et préserve cette harmonie.;
+Qu'est ce qui vous pousse à bouger la tête, à bouger le pied,
+lorsque la musique se lance ?;
 <SPEECH_9>;
-La création de l'espace harmonique a été inspirée par d'autres espaces
-plus anciens, et est aujourd'hui menacée d'extinction à cause de la faible
-activité des utilisateurs présents.;
+C'est cette énergie dont je parle, et nous l'utilisons ici comme
+énergie principal du fonctionnement de ce lieu.;
 <SPEECH_10>;
 Répondez à cette question avec honnêteté et assurance :
 Avez-vous déjà visité d'autres espaces comme celui ci ?;
@@ -145,41 +141,39 @@ je suis un grand expert.;
 <SPEECH_11>;
 Parfait.;
 <SPEECH_12>;
-Se perdre dans l'espace harmonique est à tout prix ce que nous voulons éviter.
-C'est pourquoi vos réponses nous aident à ne pas vous demander l'impossible et
-créer de la frustration ou autre énergie négative.;
+Un être frustré ne pourra pas correctement développer et
+dégager un sens du rythme acceptable. C'est pourquoi nous essayons
+de connaitre votre potentiel à évoluer seul.;
 <SPEECH_RESULT_1_1>;
 Nous avons compris que le sens du rythme n'était pas encore
 quelque chose d'inné chez vous.;
 <SPEECH_RESULT_1_2>;
-C'est pourquoi nous vous avons bloqué l'accès à l'histoire de
-la communauté.;
+C'est pourquoi nous vous avons bloqué l'accès à la cité.;
 <SPEECH_RESULT_1_3>;
 Il vous faudra d'abord finir l'apprentissage des techniques basiques.;
 <SPEECH_RESULT_2_1>;
 Nous avons compris que le sens du rythme commençait doucement à s'eveiller chez vous.;
 <SPEECH_RESULT_2_2>;
-C'est pourquoi nous avons bloqué l'accès à l'histoire de la communauté,
-sauf si vous arrivez à prouver votre niveau dans un petit test.;
+Vous pouvez accéder à la cité de façon simple.;
 <SPEECH_RESULT_2_3>;
-Il vous faudra d'abord finir l'apprentissage des techniques basiques autrement.;
+Nous vous conseillons d'abord de revoir votre technique.;
 <SPEECH_RESULT_3_1>;
 Nous avons compris que le sens du rythme était déjà présent chez vous.;
 <SPEECH_RESULT_3_2>;
-C'est pourquoi nous avons simplement bloqué les challenges expert de l'histoire de la communauté.;
+Vous pouvez accéder à la cité de façon simple ou normale.;
 <SPEECH_RESULT_3_3>;
-Il vous faudra d'abord finir l'histoire du Cube une première fois pour y accéder.;
+Il faudra prouver votre niveau pour accéder à la cité de façon avancée.;
 <SPEECH_RESULT_4_1>;
 Nous avons compris que le sens du rythme était déjà parfait chez vous.;
 <SPEECH_RESULT_4_2>;
-C'est pourquoi nous vous donnons libre accès à l'histoire de la communauté.;
+C'est pourquoi nous vous donnons libre accès à la cité.;
 <SPEECH_RESULT_4_3>;
 Les challenges experts seront visibles dès la première visite.;
 <SPEECH_13>;
 Pour terminer, merci de rentrer votre nom d'utilisateur :;
 <SPEECH_14>;
-Merci de rentrer votre mot de passe. Il ne vous sera demandé que si vous tentez 
-de vous connecter à l'espace harmonique depuis un autre point que celui-ci :;
+Merci de rentrer votre mot de passe. Il vous sera demandé à chaque connexion
+non-automatique :;
 <SPEECH_15>;
 Merci de confirmer votre mot de passe :;
 <SPEECH_PASSWORDWRONG>;
@@ -188,16 +182,16 @@ Entrez un mot de passe :;
 <SPEECH_16>;
 Votre profil a été crée.;
 <SPEECH_17>;
-Avant de vous connecter, sachez que le simple sens du rythme ne permet
-pas un rendement optimal au sein de l'espace, il peut être amélioré.;
+Sachez que l'experiance connectée améliore votre sens du rythme et vous
+aide à progresser.;
 <SPEECH_18>;
-L'énergie dégagée peut être décuplée avec le sens du challenge.;
+Le challenge proposer par d'autres joueurs ne pourra qu'accentuer votre motivation
+à vous améliorer et à dépasser vos limites.;
 <SPEECH_19>;
-Si vous rencontrez d'autres amis dans l'espace harmonique, n'hésitez pas à vous connecter
-pour travailler ensemble mais aussi échanger vos données et ainsi vous procurer de
-nouveau objectifs à atteindre, même seul.;
+Si vous connaissez un ami lui aussi connecté, jouez avec lui ou échangez vos profils
+afin que vous puissiez vous donner de nouveaux objectifs.;
 <SPEECH_20>;
-Bienvenue dans l'espace harmonique, USER_NAME;
+Bienvenue dans Cublast, USER_NAME;
 <PRESSENTER>;
 Appuyez sur Entrée pour continuer.;
 [Util];
@@ -241,4 +235,4 @@ Appuyez la touche que vous voulez associer;
 Merci de confirmer votre demande;
 [Config];
 <NumberBuild>;
-Version actuelle : build b1012;
+Version actuelle : 1.1.0.6;

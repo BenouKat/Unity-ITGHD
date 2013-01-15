@@ -24,6 +24,9 @@ public class OpeningLANScene : MonoBehaviour {
 	
 	private GameObject ringSelected;
 	
+	private transform cameraPos1;
+	private transform cameraPos2;
+	
 	private int optionJoinSelected;
 	private int optionSelected;
 	
@@ -70,6 +73,9 @@ public class OpeningLANScene : MonoBehaviour {
 	private float alphaClign;
 	private float alphaOption;
 	public float speedAlphaOption;
+	
+	public float speedTransitionTranslation;
+	public float speedTransitionRotation;
 	
 	//Idem
 	private bool activeBack;
@@ -397,7 +403,26 @@ public class OpeningLANScene : MonoBehaviour {
 		
 		if(activeTransition)
 		{
+			Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, cameraPos2.position, speedTransitionTranslation*Time.deltaTime);
+			Camera.main.transform.rotation = Quaternion.Lerp(Camera.main.transform.rotation, cameraPos2.rotation, speedTransitionRotation*Time.deltaTime);
 			
+			if(Vector3.Distance(Camera.main.transform.position, cameraPos2.position) <= 0.01f){
+				Camera.main.transform.position = cameraPos2.position;
+				Camera.main.transform.rotation = cameraPos2.rotation;
+				activeTransition = false;
+			}
+		}
+		
+		if(activeTransitionBack)
+		{
+			Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, cameraPos1.position, speedTransitionTranslation*Time.deltaTime);
+			Camera.main.transform.rotation = Quaternion.Lerp(Camera.main.transform.rotation, cameraPos1.rotation, speedTransitionRotation*Time.deltaTime);
+			
+			if(Vector3.Distance(Camera.main.transform.position, cameraPos1.position) <= 0.01f){
+				Camera.main.transform.position = cameraPos1.position;
+				Camera.main.transform.rotation = cameraPos1.rotation;
+				activeTransitionBack = false;
+			}
 		}
 		
 	}
