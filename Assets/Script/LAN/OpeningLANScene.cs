@@ -24,8 +24,8 @@ public class OpeningLANScene : MonoBehaviour {
 	
 	private GameObject ringSelected;
 	
-	private transform cameraPos1;
-	private transform cameraPos2;
+	public Transform cameraPos1;
+	public Transform cameraPos2;
 	
 	private int optionJoinSelected;
 	private int optionSelected;
@@ -37,6 +37,7 @@ public class OpeningLANScene : MonoBehaviour {
 	
 	//Join && Mode
 	public Rect posTitleOption;
+	public Rect posTitleOptionReverse;
 	public float ratioNotSelected;
 	public Rect posBack;
 	public Rect posForw;
@@ -136,7 +137,6 @@ public class OpeningLANScene : MonoBehaviour {
 			for(int i=0; i<optionJoinCube.Length; i++)
 			{
 				var pos2D = Camera.main.WorldToScreenPoint(optionJoinCube[i].transform.position);
-				//Debug.Log("index " + i + " : " + pos2D.x + "," + pos2D.y);
 				if(i == optionJoinSelected)
 				{
 					GUI.color = new Color(1f, 1f, 1f, alphaClign);
@@ -167,7 +167,7 @@ public class OpeningLANScene : MonoBehaviour {
 				}
 			}
 			
-			GUI.Label(new Rect(infoOption.x*Screen.width, infoOption.y*Screen.height, infoOption.width*Screen.width, infoOption.height*infoOption.height), TextManager.Instance.texts["LAN"]["MENUJoinOption" + optionSelected]);
+			GUI.Label(new Rect(infoOption.x*Screen.width, infoOption.y*Screen.height, infoOption.width*Screen.width, infoOption.height*Screen.height), TextManager.Instance.texts["LAN"]["MENUJoinOption" + optionJoinSelected]);
 		}
 		
 		
@@ -200,11 +200,11 @@ public class OpeningLANScene : MonoBehaviour {
 				if(i == optionSelected)
 				{
 					GUI.color = new Color(1f, 1f, 1f, alphaClign);
-					GUI.DrawTexture(new Rect(pos2D.x + (posTitleOption.x*Screen.width), pos2D.y + (posTitleOption.y*Screen.height), posTitleOption.width*Screen.width, posTitleOption.height*Screen.height), tex["option" + i]);
+					GUI.DrawTexture(new Rect(pos2D.x + (posTitleOptionReverse.x*Screen.width), (Screen.height - pos2D.y) + (posTitleOptionReverse.y*Screen.height), posTitleOptionReverse.width*Screen.width, posTitleOptionReverse.height*Screen.height), tex["option" + i]);
 				}else
 				{
 					GUI.color = new Color(1f, 1f, 1f, 0.5f);
-					GUI.DrawTexture(new Rect(pos2D.x + (posTitleOption.x*Screen.width), pos2D.y + (posTitleOption.y*Screen.height), posTitleOption.width*Screen.width*ratioNotSelected, posTitleOption.height*Screen.height*ratioNotSelected), tex["option" + i]);
+					GUI.DrawTexture(new Rect(pos2D.x + (posTitleOptionReverse.x*Screen.width - ((1f-ratioNotSelected)/4f)*Screen.width), (Screen.height - pos2D.y) + (posTitleOptionReverse.y*Screen.height - ((1f-ratioNotSelected)/4f)*Screen.height), posTitleOptionReverse.width*Screen.width*ratioNotSelected, posTitleOptionReverse.height*Screen.height*ratioNotSelected), tex["option" + i]);
 				}
 				
 			}
@@ -231,11 +231,11 @@ public class OpeningLANScene : MonoBehaviour {
 		
 		}
 		
-		if(GUI.Button(new Rect(posButtonConfirm.x*Screen.width, posButtonConfirm.y*Screen.height, posButtonConfirm.width*Screen.width, posButtonConfirm.height*Screen.height), "Confirm", "buttonForw") && !activeBack && !activeForw && !activeTransition && !activeTransitionBack){
+		if(GUI.Button(new Rect(posButtonConfirm.x*Screen.width, posButtonConfirm.y*Screen.height, posButtonConfirm.width*Screen.width, posButtonConfirm.height*Screen.height), "Confirm") && !activeBack && !activeForw && !activeTransition && !activeTransitionBack){
 			stateLAN = StateLAN.OPTIONCHOOSE;
 		}
 		
-		if(GUI.Button(new Rect(posButtonBack.x*Screen.width, posButtonBack.y*Screen.height, posButtonBack.width*Screen.width, posButtonBack.height*Screen.height), "Back", "buttonForw") && !activeBack && !activeForw && !activeTransition && !activeTransitionBack){
+		if(GUI.Button(new Rect(posButtonBack.x*Screen.width, posButtonBack.y*Screen.height, posButtonBack.width*Screen.width, posButtonBack.height*Screen.height), "Back") && !activeBack && !activeForw && !activeTransition && !activeTransitionBack){
 			activeTransitionBack = true;
 		}
 		
@@ -410,6 +410,8 @@ public class OpeningLANScene : MonoBehaviour {
 				Camera.main.transform.position = cameraPos2.position;
 				Camera.main.transform.rotation = cameraPos2.rotation;
 				activeTransition = false;
+				stateLAN = StateLAN.MODECHOOSE;
+				ringSelected = ring;
 			}
 		}
 		
@@ -422,6 +424,8 @@ public class OpeningLANScene : MonoBehaviour {
 				Camera.main.transform.position = cameraPos1.position;
 				Camera.main.transform.rotation = cameraPos1.rotation;
 				activeTransitionBack = false;
+				stateLAN = StateLAN.JOINCHOOSE;
+				ringSelected = ringJoin;
 			}
 		}
 		

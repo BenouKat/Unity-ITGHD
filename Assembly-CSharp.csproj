@@ -86,7 +86,6 @@
      <Compile Include="Assets\Script\SplashScreen\TurnAnneau.cs" />
      <Compile Include="Assets\Script\SplashScreen\TurnBigCube.cs" />
      <Compile Include="Assets\Script\Test\CaptureScreen.cs" />
-     <Compile Include="Assets\Script\Test\GridManager.cs" />
      <Compile Include="Assets\Script\Wheel\DebugOffset.cs" />
      <Compile Include="Assets\Script\Wheel\ErrorLabel.cs" />
      <Compile Include="Assets\Script\Wheel\WheelSongMainScript.cs" />
