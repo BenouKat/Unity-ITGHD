@@ -19,7 +19,7 @@ public class OpeningLANScene : MonoBehaviour {
 	public GameObject[] optionJoinCube;
 	public GameObject ring;
 	public GameObject[] optionCube;
-	public float rotationDegrees;
+	public Quaternion rotationBase;
 	public float rotationSpeed;
 	
 	private GameObject ringSelected;
@@ -44,6 +44,7 @@ public class OpeningLANScene : MonoBehaviour {
 	public Rect posButtonConfirm;
 	public Rect posButtonBack;
 	public Rect infoOption;
+	public Rect infoOptionReverse;
 	
 	//Select Option
 	public Rect posOptionSelected;
@@ -75,15 +76,22 @@ public class OpeningLANScene : MonoBehaviour {
 	private float alphaOption;
 	public float speedAlphaOption;
 	
+	public float speedShining;
+	public float speedPingPongRotation;
+	public float maxDegreePingPong;
+	
 	public float speedTransitionTranslation;
 	public float speedTransitionRotation;
 	
 	//Idem
-	private bool activeBack;
-	private bool activeForw;
+	private float sensShininess;
+	private float shininess;
+	private GameObject previousGo;
+	private Color baseMaterialColor;
+	public Material selectedMaterial;
 	private bool activeTransition;
 	private bool activeTransitionBack;
-	private float rotationCount;
+	private float sensRotationCam;
 	
 	public Dictionary<string, Texture2D> tex;
 	
@@ -100,15 +108,21 @@ public class OpeningLANScene : MonoBehaviour {
 		tex.Add("black", (Texture2D) Resources.Load("black"));
 		
 		sens = -1f;
-		optionSelected = 0;
+		sensShininess = -1f;
+		sensRotationCam = 1f;
+		optionJoinSelected = -1;
+		optionSelected = -1;
 		alphaClign = 1f;
 		stateLAN = StateLAN.JOINCHOOSE;
 		ringSelected = ringJoin;
-		rotationCount = 0f;
 		alphaOption = 0f;
 		roundValue = LANManager.Instance.roundNumber.ToString();
 		fm = GetComponent<FadeManager>();
 		ipValue = "";
+		shininess = 0f;
+		
+		baseMaterialColor = selectedMaterial.color;
+		rotationBase = ring.transform.rotation;
 	}
 	
 	
@@ -126,64 +140,30 @@ public class OpeningLANScene : MonoBehaviour {
 			OnGUIOptionChoose();
 			break;
 		case StateLAN.JOINENTERING:
-			OnGUIOptionChoose();
+			OnGUIJoinEntering();
 			break;
 		}
 	}
 	
 	void OnGUIChoose()
 	{
-		if(!activeTransition && !activeTransitionBack){
+		if(!activeTransition && !activeTransitionBack && optionJoinSelected != -1){
 			for(int i=0; i<optionJoinCube.Length; i++)
 			{
-				var pos2D = Camera.main.WorldToScreenPoint(optionJoinCube[i].transform.position);
 				if(i == optionJoinSelected)
 				{
 					GUI.color = new Color(1f, 1f, 1f, alphaClign);
-					GUI.DrawTexture(new Rect(pos2D.x + (posTitleOption.x*Screen.width), (Screen.height - pos2D.y) + (posTitleOption.y*Screen.height), posTitleOption.width*Screen.width, posTitleOption.height*Screen.height), tex["join" + i]);
-				}else
-				{
-					GUI.color = new Color(1f, 1f, 1f, 0.5f);
-					GUI.DrawTexture(new Rect(pos2D.x + (posTitleOption.x*Screen.width + ((1f-ratioNotSelected)/4f)*Screen.width), (Screen.height - pos2D.y) + (posTitleOption.y*Screen.height + ((1f-ratioNotSelected)/4f)*Screen.height), posTitleOption.width*Screen.width*ratioNotSelected, posTitleOption.height*Screen.height*ratioNotSelected), tex["join" + i]);
+					GUI.DrawTexture(new Rect((posTitleOption.x*Screen.width), (posTitleOption.y*Screen.height), posTitleOption.width*Screen.width, posTitleOption.height*Screen.height), tex["join" + i]);
 				}
 				
 			}
 			
 			GUI.color = new Color(1f, 1f, 1f, 1f);
 			
-			if(GUI.Button(new Rect(posBack.x*Screen.width, posBack.y*Screen.height, posBack.width*Screen.width, posBack.height*Screen.height), "", "buttonBack") && !activeBack && !activeForw){
-				if(optionJoinSelected > 0)
-				{
-					optionJoinSelected--;
-					activeBack = true;
-				}
-			}
-			
-			if(GUI.Button(new Rect(posForw.x*Screen.width, posForw.y*Screen.height, posForw.width*Screen.width, posForw.height*Screen.height), "", "buttonForw") && !activeBack && !activeForw){
-				if(optionJoinSelected < optionJoinCube.Length - 1)
-				{
-					optionJoinSelected++;
-					activeForw = true;
-				}
-			}
-			
 			GUI.Label(new Rect(infoOption.x*Screen.width, infoOption.y*Screen.height, infoOption.width*Screen.width, infoOption.height*Screen.height), TextManager.Instance.texts["LAN"]["MENUJoinOption" + optionJoinSelected]);
 		}
 		
-		
-		if(GUI.Button(new Rect(posButtonConfirm.x*Screen.width, posButtonConfirm.y*Screen.height, posButtonConfirm.width*Screen.width, posButtonConfirm.height*Screen.height), "Confirm") && !activeBack && !activeForw && !activeTransition && !activeTransitionBack){
-			switch(optionJoinSelected)
-			{
-				case 0:
-					activeTransition = true;
-					break;
-				case 1:
-					stateLAN = StateLAN.JOINENTERING;
-					break;
-			}
-		}
-		
-		if(GUI.Button(new Rect(posButtonBack.x*Screen.width, posButtonBack.y*Screen.height, posButtonBack.width*Screen.width, posButtonBack.height*Screen.height), "Back") && !activeBack && !activeForw && !activeTransition && !activeTransitionBack){
+		if(GUI.Button(new Rect(posButtonBack.x*Screen.width, posButtonBack.y*Screen.height, posButtonBack.width*Screen.width, posButtonBack.height*Screen.height), "Back") && !activeTransition && !activeTransitionBack){
 			fm.FadeIn("mainmenu");
 		}
 		
@@ -193,49 +173,24 @@ public class OpeningLANScene : MonoBehaviour {
 	
 	void OnGUISelectMode()
 	{
-		if(!activeTransition && !activeTransitionBack){
+		if(!activeTransition && !activeTransitionBack && optionSelected != -1){
 			for(int i=0; i<optionCube.Length; i++)
 			{
-				var pos2D = Camera.main.WorldToScreenPoint(optionCube[i].transform.position);
 				if(i == optionSelected)
 				{
 					GUI.color = new Color(1f, 1f, 1f, alphaClign);
-					GUI.DrawTexture(new Rect(pos2D.x + (posTitleOptionReverse.x*Screen.width), (Screen.height - pos2D.y) + (posTitleOptionReverse.y*Screen.height), posTitleOptionReverse.width*Screen.width, posTitleOptionReverse.height*Screen.height), tex["option" + i]);
-				}else
-				{
-					GUI.color = new Color(1f, 1f, 1f, 0.5f);
-					GUI.DrawTexture(new Rect(pos2D.x + (posTitleOptionReverse.x*Screen.width - ((1f-ratioNotSelected)/4f)*Screen.width), (Screen.height - pos2D.y) + (posTitleOptionReverse.y*Screen.height - ((1f-ratioNotSelected)/4f)*Screen.height), posTitleOptionReverse.width*Screen.width*ratioNotSelected, posTitleOptionReverse.height*Screen.height*ratioNotSelected), tex["option" + i]);
+					GUI.DrawTexture(new Rect((posTitleOptionReverse.x*Screen.width), (posTitleOptionReverse.y*Screen.height), posTitleOptionReverse.width*Screen.width, posTitleOptionReverse.height*Screen.height), tex["option" + i]);
 				}
 				
 			}
 			
 			GUI.color = new Color(1f, 1f, 1f, 1f);
-		
-			if(GUI.Button(new Rect(posBack.x*Screen.width, posBack.y*Screen.height, posBack.width*Screen.width, posBack.height*Screen.height), "", "buttonBack") && !activeBack && !activeForw){
-				if(optionSelected > 0)
-				{
-					optionSelected--;
-					activeBack = true;
-				}
-			}
 			
-			if(GUI.Button(new Rect(posForw.x*Screen.width, posForw.y*Screen.height, posForw.width*Screen.width, posForw.height*Screen.height), "", "buttonForw") && !activeBack && !activeForw){
-				if(optionSelected < optionCube.Length - 1)
-				{
-					optionSelected++;
-					activeForw = true;
-				}
-			}
-			
-			GUI.Label(new Rect(infoOption.x*Screen.width, infoOption.y*Screen.height, infoOption.width*Screen.width, infoOption.height*infoOption.height), TextManager.Instance.texts["LAN"]["MENUOption" + optionSelected]);
+			GUI.Label(new Rect(infoOptionReverse.x*Screen.width, infoOptionReverse.y*Screen.height, infoOptionReverse.width*Screen.width, infoOptionReverse.height*Screen.height), TextManager.Instance.texts["LAN"]["MENUOption" + optionSelected]);
 		
 		}
 		
-		if(GUI.Button(new Rect(posButtonConfirm.x*Screen.width, posButtonConfirm.y*Screen.height, posButtonConfirm.width*Screen.width, posButtonConfirm.height*Screen.height), "Confirm") && !activeBack && !activeForw && !activeTransition && !activeTransitionBack){
-			stateLAN = StateLAN.OPTIONCHOOSE;
-		}
-		
-		if(GUI.Button(new Rect(posButtonBack.x*Screen.width, posButtonBack.y*Screen.height, posButtonBack.width*Screen.width, posButtonBack.height*Screen.height), "Back") && !activeBack && !activeForw && !activeTransition && !activeTransitionBack){
+		if(GUI.Button(new Rect(posButtonBack.x*Screen.width, posButtonBack.y*Screen.height, posButtonBack.width*Screen.width, posButtonBack.height*Screen.height), "Back") && !activeTransition && !activeTransitionBack){
 			activeTransitionBack = true;
 		}
 		
@@ -309,11 +264,11 @@ public class OpeningLANScene : MonoBehaviour {
 					
 		GUI.color = new Color(1f, 1f, 1f, 1f);
 		
-		if(GUI.Button(new Rect(posButtonConfirm.x*Screen.width, posButtonConfirm.y*Screen.height, posButtonConfirm.width*Screen.width, posButtonConfirm.height*Screen.height), "Confirm") && !activeBack && !activeForw && !activeTransition && !activeTransitionBack){
+		if(GUI.Button(new Rect(posButtonConfirm.x*Screen.width, posButtonConfirm.y*Screen.height, posButtonConfirm.width*Screen.width, posButtonConfirm.height*Screen.height), "Confirm") && !activeTransition && !activeTransitionBack){
 			fm.FadeIn("sdhfoisdfoisdf"); // !!!!
 		}
 		
-		if(GUI.Button(new Rect(posButtonBack.x*Screen.width, posButtonBack.y*Screen.height, posButtonBack.width*Screen.width, posButtonBack.height*Screen.height), "Back") && !activeBack && !activeForw && !activeTransition && !activeTransitionBack){
+		if(GUI.Button(new Rect(posButtonBack.x*Screen.width, posButtonBack.y*Screen.height, posButtonBack.width*Screen.width, posButtonBack.height*Screen.height), "Back") && !activeTransition && !activeTransitionBack){
 			stateLAN = StateLAN.MODECHOOSE;
 		}
 	}
@@ -328,20 +283,20 @@ public class OpeningLANScene : MonoBehaviour {
 		GUI.DrawTexture(new Rect(posOptionSelected.x*Screen.width, posOptionSelected.y*Screen.height, posOptionSelected.width*Screen.width, posOptionSelected.height*Screen.height), tex["join" + optionJoinSelected]);
 		
 		//Info join
-		GUI.Label(new Rect(posJoiningLabel.x*Screen.width, posJoiningLabel.y*Screen.height, posJoiningLabel.width*Screen.width, posJoiningLabel.height*Screen.height), TextManager.Instance.texts["LAN"]["INFOJoin"]);
-		
+		GUI.color = new Color(1f, 1f, 1f, 1f);
+		GUI.Label(new Rect(posJoiningLabel.x*Screen.width, posJoiningLabel.y*Screen.height, posJoiningLabel.width*Screen.width, posJoiningLabel.height*Screen.height), TextManager.Instance.texts["LAN"]["INFOJoin"], "centered");
+		Debug.Log(TextManager.Instance.texts["LAN"]["INFOJoin"]);
 		ipValue = GUI.TextField(new Rect(textFieldIP.x*Screen.width, textFieldIP.y*Screen.height, textFieldIP.width*Screen.width, textFieldIP.height*Screen.height), ipValue.Trim(), 25);
 					
-		GUI.color = new Color(1f, 1f, 1f, 1f);
 		
 		//Connexion statut
-		GUI.Label(new Rect(posConnexionStatut.x*Screen.width, posConnexionStatut.y*Screen.height, posConnexionStatut.width*Screen.width, posConnexionStatut.height*Screen.height), ""); //todo
+		GUI.Label(new Rect(posConnexionStatut.x*Screen.width, posConnexionStatut.y*Screen.height, posConnexionStatut.width*Screen.width, posConnexionStatut.height*Screen.height), "Connecting...", "centered"); //todo
 		
-		if(GUI.Button(new Rect(posButtonConfirm.x*Screen.width, posButtonConfirm.y*Screen.height, posButtonConfirm.width*Screen.width, posButtonConfirm.height*Screen.height), "Confirm" , "buttonForw") && !activeBack && !activeForw && !activeTransition && !activeTransitionBack){
+		if(GUI.Button(new Rect(posButtonConfirm.x*Screen.width, posButtonConfirm.y*Screen.height, posButtonConfirm.width*Screen.width, posButtonConfirm.height*Screen.height), "Confirm") && !activeTransition && !activeTransitionBack){
 			 // Joing room 
 		}
 		
-		if(GUI.Button(new Rect(posButtonBack.x*Screen.width, posButtonBack.y*Screen.height, posButtonBack.width*Screen.width, posButtonBack.height*Screen.height), "Back", "buttonForw") && !activeBack && !activeForw && !activeTransition && !activeTransitionBack){
+		if(GUI.Button(new Rect(posButtonBack.x*Screen.width, posButtonBack.y*Screen.height, posButtonBack.width*Screen.width, posButtonBack.height*Screen.height), "Back") && !activeTransition && !activeTransitionBack){
 			stateLAN = StateLAN.JOINCHOOSE;
 		}
 	}
@@ -356,33 +311,105 @@ public class OpeningLANScene : MonoBehaviour {
 		alphaClign += sens*speedAlphaCling;
 		
 		
-		
-		//Active Back/Forw
-		if(activeForw)
+		Camera.main.transform.Rotate(0f, 0f, speedPingPongRotation*Time.deltaTime*sensRotationCam);
+		if(Camera.main.transform.eulerAngles.z >= 2 && sensRotationCam == 1f)
 		{
-			rotationCount += Time.deltaTime*rotationSpeed;
-			ringSelected.transform.Rotate(0f, Time.deltaTime*rotationSpeed, 0f);
-			if(rotationCount >= rotationDegrees)
-			{
-				ringSelected.transform.Rotate(0f, -(rotationDegrees-rotationCount), 0f);
-				activeForw = false;
-				rotationCount = 0f;
-			}
-			
+			sensRotationCam = -1f;
+		}else if(Camera.main.transform.eulerAngles.z <= 0f && sensRotationCam == -1f)
+		{
+			sensRotationCam = 1f;	
 		}
 		
-		if(activeBack)
+		//Raycast
+		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);	
+		RaycastHit hit;
+				
+		if(Physics.Raycast(ray, out hit))
 		{
-			rotationCount += Time.deltaTime*rotationSpeed;
-			ringSelected.transform.Rotate(0f, -Time.deltaTime*rotationSpeed, 0f);
-			if(rotationCount >= rotationDegrees)
+			var theGo = hit.transform.gameObject;
+			if(theGo != null && theGo.tag == "MenuItem")
 			{
-				ringSelected.transform.Rotate(0f, (rotationDegrees-rotationCount), 0f);
-				activeBack = false;
-				rotationCount = 0f;
+				if(previousGo != null && previousGo != theGo)
+				{
+					previousGo.renderer.material.color = baseMaterialColor;
+					shininess = 0f;
+				}
+				previousGo = theGo;
+				if(stateLAN == StateLAN.JOINCHOOSE)
+				{
+					optionJoinSelected = System.Convert.ToInt32(theGo.name);	
+					shininess += sensShininess*speedShining*Time.deltaTime;
+					theGo.renderer.material.color = new Color(baseMaterialColor.r + ((1f-baseMaterialColor.r)*shininess),
+						baseMaterialColor.g + ((1f-baseMaterialColor.g)*shininess), 
+						baseMaterialColor.b + ((1f-baseMaterialColor.b)*shininess), 1f);
+					
+					if(Input.GetMouseButtonDown(0))
+					{
+						switch(optionJoinSelected)
+						{
+							case 0:
+								activeTransition = true;
+								break;
+							case 1:
+								stateLAN = StateLAN.JOINENTERING;
+								break;
+						}
+					}
+					
+					
+				}else if(stateLAN == StateLAN.MODECHOOSE){
+					optionSelected = System.Convert.ToInt32(theGo.name);	
+					
+					shininess += sensShininess*speedShining*Time.deltaTime;
+					theGo.renderer.material.color = new Color(baseMaterialColor.r + ((1f-baseMaterialColor.r)*shininess),
+						baseMaterialColor.g + ((1f-baseMaterialColor.g)*shininess), 
+						baseMaterialColor.b + ((1f-baseMaterialColor.b)*shininess), 1f);
+					
+					if(Input.GetMouseButtonDown(0))
+					{
+						stateLAN = StateLAN.OPTIONCHOOSE;
+					}
+					
+					
+					
+				}else
+				{
+					optionSelected = -1;
+				}
+				
+				
+				if(shininess <= 0f)
+				{
+					shininess = 0f;
+					sensShininess = 1f;
+				}else if(shininess >= 1f)
+				{
+					shininess = 1f;
+					sensShininess = -1f;
+				}
+				
+				
+			}else
+			{
+				if(previousGo != null)
+				{
+					previousGo.renderer.material.color = baseMaterialColor;
+					previousGo = null;
+					shininess = 0f;
+				}
+				optionSelected = -1;
 			}
-			
+		}else
+		{	
+			if(previousGo != null)
+			{
+				previousGo.renderer.material.color = baseMaterialColor;
+				previousGo = null;
+				shininess = 0f;
+			}
+			optionSelected = -1;
 		}
+		
 		
 		if(stateLAN >= StateLAN.OPTIONCHOOSE && alphaOption < 1f)
 		{
@@ -391,7 +418,7 @@ public class OpeningLANScene : MonoBehaviour {
 			{
 				alphaOption = 1f;
 			}
-		}else if(alphaOption > 0f)
+		}else if(stateLAN < StateLAN.OPTIONCHOOSE && alphaOption > 0f)
 		{
 			alphaOption -= Time.deltaTime*speedAlphaOption;
 			if(alphaOption < 0f)
