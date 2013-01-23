@@ -60,7 +60,7 @@ N'importe laquelle;
 <OPTIONSongDiff2>;
 N'importe laquelle pour certains joueurs seulement;
 <INFOJoin>;
-Tapez l'ip à rejoindre (De la forme [ip]:[port], ex : 192.168.1.1:12345)
+Tapez l'ip à rejoindre (De la forme {ip}:{port}, ex : 192.168.1.1:12345)
 Le créateur de la salle doit vous avoir communiqué l'adresse à rejoindre;
 [ErrorMainMenuMessage];
 <Story>;
