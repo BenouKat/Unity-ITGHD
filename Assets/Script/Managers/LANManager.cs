@@ -8,7 +8,18 @@ public class LANManager{
 	
 	//LAN
 	public LANMode modeLANselected;
+	
+	public bool isCreator;
+	
+	public string actualIP;
+	public int actualPort;
+	
+	public string IPRequest;
+	public int portRequest;
+	
 	public float numberOfPlayersConnected;
+	
+	public Dictionary<NetworkPlayer, Profile> players;
 	
 	//Score tournament
 	public Dictionary<NetworkPlayer, double> scoreOfPlayers;
@@ -45,10 +56,18 @@ public class LANManager{
 	
 	public void init(){
 		modeLANselected = LANMode.NONE;
+		players = new Dictionary<NetworkPlayer, Profile>();
 		scoreOfPlayers = new Dictionary<NetworkPlayer, double>();
 		pointsOfPlayers = new Dictionary<NetworkPlayer, int>();
 		numberOfPlayersConnected = 0;
 		roundNumber = 0;
+		isCreator = true;
+		
+		actualIP = "";
+		actualPort = 0;
+		
+		IPRequest = "";
+		portRequest = 0;
 	}
 	
 	

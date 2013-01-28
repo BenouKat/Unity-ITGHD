@@ -118,3 +118,13 @@ public enum PrecParticle{
 		MINE
 		
 	}
+
+public enum LANConnexionState
+{
+	LOADING,
+	CONNEXIONIN,
+	CONNEXIONOUT,
+	SETPLAYERPERFS,
+	NONE
+	
+}

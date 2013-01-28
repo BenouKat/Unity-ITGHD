@@ -62,6 +62,16 @@ N'importe laquelle pour certains joueurs seulement;
 <INFOJoin>;
 Tapez l'ip à rejoindre (De la forme {ip}:{port}, ex : 192.168.1.1:12345)
 Le créateur de la salle doit vous avoir communiqué l'adresse à rejoindre;
+<ERRORJoin>;
+Format de l'adresse à rejoindre incorrect;
+<ERRORMode>;
+Les rounds doivent être compris entre 1 et 99;
+<NETWORKConnecting>;
+Connexion...;
+<NETWORKFail>;
+La tentative de connexion a échouée;
+<NETWORKQuit>;
+Vous avez été deconnecté;
 [ErrorMainMenuMessage];
 <Story>;
 Le mode Story sera accessible à partir de la version 4 du jeu.;
@@ -100,7 +110,7 @@ Vous n'avez jamais rejoint cet espace.;
 <SPEECH_2>;
 Aucune vérification de vos aptitudes à évoluer n'a encore été effectuée.;
 <SPEECH_3>;
-Le sens du rythme est primordial afin d'accéder à tout l'espace.;
+Le sens du rythme est primordial afin d'accéder à tout l'espace harmonique.;
 <SPEECH_4>;
 C'est la seul chose dont vous aurez besoin ici.;
 <SPEECH_5>;
@@ -172,8 +182,8 @@ Les challenges experts seront visibles dès la première visite.;
 <SPEECH_13>;
 Pour terminer, merci de rentrer votre nom d'utilisateur :;
 <SPEECH_14>;
-Merci de rentrer votre mot de passe. Il vous sera demandé à chaque connexion
-non-automatique :;
+Merci de rentrer votre mot de passe. Il vous sera demandé 
+à chaque connexion non-automatique :;
 <SPEECH_15>;
 Merci de confirmer votre mot de passe :;
 <SPEECH_PASSWORDWRONG>;
@@ -182,10 +192,10 @@ Entrez un mot de passe :;
 <SPEECH_16>;
 Votre profil a été crée.;
 <SPEECH_17>;
-Sachez que l'experiance connectée améliore votre sens du rythme et vous
+Sachez que l'expérience connectée améliore votre sens du rythme et vous
 aide à progresser.;
 <SPEECH_18>;
-Le challenge proposer par d'autres joueurs ne pourra qu'accentuer votre motivation
+Le challenge proposé par d'autres joueurs ne pourra qu'accentuer votre motivation
 à vous améliorer et à dépasser vos limites.;
 <SPEECH_19>;
 Si vous connaissez un ami lui aussi connecté, jouez avec lui ou échangez vos profils

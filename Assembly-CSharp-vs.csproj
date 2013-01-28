@@ -61,6 +61,7 @@
      <Compile Include="Assets\Script\FrameWork\Song.cs" />
      <Compile Include="Assets\Script\FrameWork\SongInfoProfil.cs" />
      <Compile Include="Assets\Script\FrameWork\VersionDeserializationBinder.cs" />
+     <Compile Include="Assets\Script\LAN\NetworkScript.cs" />
      <Compile Include="Assets\Script\LAN\OpeningLANScene.cs" />
      <Compile Include="Assets\Script\MainMenu\ArrowFake.cs" />
      <Compile Include="Assets\Script\MainMenu\FakeChart.cs" />

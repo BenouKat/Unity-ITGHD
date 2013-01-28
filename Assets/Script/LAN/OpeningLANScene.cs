@@ -22,6 +22,10 @@ public class OpeningLANScene : MonoBehaviour {
 	public Quaternion rotationBase;
 	public float rotationSpeed;
 	
+	
+	public ParticleSystem psFlash;
+	public GameObject cache;
+	
 	public Transform cameraPos1;
 	public Transform cameraPos2;
 	
@@ -58,6 +62,7 @@ public class OpeningLANScene : MonoBehaviour {
 	public Rect labelSongDiff;
 	public Rect posBackSongDiff;
 	public Rect posForwSongDiff;
+	public Rect errorInfo;
 	
 	//Join entering
 	public Rect posJoiningLabel;
@@ -84,6 +89,8 @@ public class OpeningLANScene : MonoBehaviour {
 	
 	public float speedTransitionTranslation;
 	public float speedTransitionRotation;
+	
+	public bool error;
 	
 	//Idem
 	private float sensShininess;
@@ -125,6 +132,7 @@ public class OpeningLANScene : MonoBehaviour {
 		fm = GetComponent<FadeManager>();
 		ipValue = "";
 		shininess = 0f;
+		error = false;
 		
 		baseMaterialColor = selectedMaterial.color;
 		rotationBase = ring.transform.rotation;
@@ -134,6 +142,7 @@ public class OpeningLANScene : MonoBehaviour {
 	void OnGUI()
 	{
 		GUI.skin = skin;
+		GUI.depth = -1;
 		switch(stateLAN){
 		case StateLAN.JOINCHOOSE:
 			OnGUIChoose();
@@ -153,7 +162,7 @@ public class OpeningLANScene : MonoBehaviour {
 	void OnGUIChoose()
 	{
 		GUI.color = new Color(1f, 1f, 1f, 0.7f*alphaOption);
-		GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), tex["black"]);
+		GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), tex["black"]);	
 		
 		if(!activeTransition && !activeTransitionBack && optionJoinSelected != -1){
 			for(int i=0; i<optionJoinCube.Length; i++)
@@ -213,12 +222,20 @@ public class OpeningLANScene : MonoBehaviour {
 	
 	void OnGUIOptionChoose()
 	{
-		GUI.color = new Color(1f, 1f, 1f, (0.7f*alphaOption) + alphaTitle);
-		GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), tex["black"]);
+		if(!cache.active)
+		{
+			GUI.color = new Color(1f, 1f, 1f, (0.7f*alphaOption) + alphaTitle);
+			GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), tex["black"]);
+		}
+		
 		
 		//Label Option Selected
 		GUI.color = new Color(1f, 1f, 1f, (1f*alphaOption) + (alphaTitle*alphaDisappearTitle));
 		GUI.DrawTexture(new Rect(posOptionSelected.x*Screen.width, posOptionSelected.y*Screen.height, posOptionSelected.width*Screen.width, posOptionSelected.height*Screen.height), tex["option" + finalSelected]);
+		
+		//Error
+		GUI.color = new Color(1f, 0.2f, 0.2f, 1f - alphaTitle);
+		GUI.Label(new Rect(errorInfo.x*Screen.width, errorInfo.y*Screen.height, errorInfo.width*Screen.width, errorInfo.height*Screen.height), TextManager.Instance.texts["LAN"]["ERRORMode"]);
 		
 		//Round
 		GUI.color = new Color(1f, 1f, 1f, 1f - alphaTitle);
@@ -287,7 +304,7 @@ public class OpeningLANScene : MonoBehaviour {
 		}	
 		GUI.color = new Color(1f, 1f, 1f, 1f - alphaTitle);
 		
-		if(GUI.Button(new Rect(posButtonConfirm.x*Screen.width, posButtonConfirm.y*Screen.height, posButtonConfirm.width*Screen.width, posButtonConfirm.height*Screen.height), "Confirm") && !activeTransition && !activeTransitionBack && !activeRoomTransition){
+		if(GUI.Button(new Rect(posButtonConfirm.x*Screen.width, posButtonConfirm.y*Screen.height, posButtonConfirm.width*Screen.width, posButtonConfirm.height*Screen.height), "Confirm") && !activeTransition && !activeTransitionBack && !activeRoomTransition && isRoundNumberValid()){
 			activeRoomTransition = true;
 			StartCoroutine(roomTransition());
 		}
@@ -299,12 +316,20 @@ public class OpeningLANScene : MonoBehaviour {
 	
 	void OnGUIJoinEntering()
 	{
-		GUI.color = new Color(1f, 1f, 1f, (0.7f*alphaOption) + alphaTitle);
-		GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), tex["black"]);
+		if(!cache.active)
+		{
+			GUI.color = new Color(1f, 1f, 1f, (0.7f*alphaOption) + alphaTitle);
+			GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), tex["black"]);
+		}
 		
 		//Label Join
 		GUI.color = new Color(1f, 1f, 1f, (1f*alphaOption) + (alphaTitle*alphaDisappearTitle));
 		GUI.DrawTexture(new Rect(posOptionSelected.x*Screen.width, posOptionSelected.y*Screen.height, posOptionSelected.width*Screen.width, posOptionSelected.height*Screen.height), tex["join" + finalSelected]);
+		
+		//Error
+		GUI.color = new Color(1f, 0.2f, 0.2f, 1f - alphaTitle);
+		GUI.Label(new Rect(errorInfo.x*Screen.width, errorInfo.y*Screen.height, errorInfo.width*Screen.width, errorInfo.height*Screen.height), TextManager.Instance.texts["LAN"]["ERRORJoin"]);
+		
 		
 		//Info join
 		GUI.color = new Color(1f, 1f, 1f, 1f - alphaTitle);
@@ -312,7 +337,7 @@ public class OpeningLANScene : MonoBehaviour {
 		
 		ipValue = GUI.TextField(new Rect(textFieldIP.x*Screen.width, textFieldIP.y*Screen.height, textFieldIP.width*Screen.width, textFieldIP.height*Screen.height), ipValue.Trim(), 25);
 					
-		if(GUI.Button(new Rect(posButtonConfirm.x*Screen.width, posButtonConfirm.y*Screen.height, posButtonConfirm.width*Screen.width, posButtonConfirm.height*Screen.height), "Confirm") && !activeTransition && !activeTransitionBack && !activeRoomTransition){
+		if(GUI.Button(new Rect(posButtonConfirm.x*Screen.width, posButtonConfirm.y*Screen.height, posButtonConfirm.width*Screen.width, posButtonConfirm.height*Screen.height), "Confirm") && !activeTransition && !activeTransitionBack && !activeRoomTransition && isEntryJoinValid()){
 			activeRoomTransition = true;
 			StartCoroutine(roomTransition()); 
 		}
@@ -486,14 +511,17 @@ public class OpeningLANScene : MonoBehaviour {
 	
 	public IEnumerator roomTransition()
 	{
+		psFlash.gameObject.active = true;
+		cache.active = true;
 		while(alphaTitle < 1f)
 		{
 			alphaTitle += speedAlphaTitle*Time.deltaTime;
 			alphaOption -= speedAlphaTitle*Time.deltaTime;
+			cache.renderer.material.color = new Color(0f, 0f, 0f, (0.7f*alphaOption) + alphaTitle);
 			yield return new WaitForEndOfFrame();	
 		}
 		
-		yield return new WaitForSeconds(1f);
+		yield return new WaitForSeconds(1.5f);
 		
 		while(alphaDisappearTitle > 0f)
 		{
@@ -501,7 +529,48 @@ public class OpeningLANScene : MonoBehaviour {
 			yield return new WaitForEndOfFrame();
 		}
 		
+		
+		if(stateLAN == StateLAN.JOINENTERING)
+		{
+			LANManager.Instance.isCreator = false;
+			LANManager.Instance.IPRequest = ipValue.Split(':')[0];
+			LANManager.Instance.portRequest = System.Convert.ToInt32(ipValue.Split(':')[1]);
+		}else
+		{
+			LANManager.Instance.isCreator = true;
+			LANManager.Instance.modeLANselected = (LANMode)optionSelected;
+			LANManager.Instance.roundNumber = System.Convert.ToInt32(roundValue);
+		}
 		//Change Room
+	}
+	
+	
+	public bool isEntryJoinValid()
+	{
+		var result = 0;
+		if(ipValue.Split(':')[0].Length < 8 && ipValue.Split(':')[0].Count(c => c == '.') != 3)
+		{
+			error = true;
+			return false;
+		}else if(!System.Int32.TryParse(ipValue.Split(':')[1], out result)){
+			error = true;
+			return false;
+		}
+		error = false;
+		return true;
+	}
+	
+	public bool isRoundNumberValid()
+	{
+		var result = 0;
+		if(System.Int32.TryParse(roundValue, out result))
+		{
+			error = (result > 0 && result < 100);
+			return !error;
+		}
+		error = true;
+		return false;
+		
 	}
 	
 }
