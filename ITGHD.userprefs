@@ -1,14 +1,12 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Resources\Texts\texts.txt">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\LAN\ConnectingLANScene.cs">
     <Files>
-      <File FileName="Assets\Resources\Texts\texts.txt" Line="198" Column="21" />
-      <File FileName="Assets\Script\Managers\TextManager.cs" Line="29" Column="29" />
-      <File FileName="Assets\Script\LAN\NetworkScript.cs" Line="7" Column="17" />
-      <File FileName="Assets\Script\Managers\LANManager.cs" Line="59" Column="54" />
-      <File FileName="Assets\Script\Managers\EnumManager.cs" Line="128" Column="6" />
-      <File FileName="Assets\Script\FrameWork\Profile.cs" Line="1" Column="1" />
-      <File FileName="Assets\Script\FrameWork\SongInfoProfil.cs" Line="1" Column="1" />
+      <File FileName="Assets\Script\LAN\NetworkScript.cs" Line="10" Column="44" />
+      <File FileName="Assets\Script\LAN\ConnectingLANScene.cs" Line="66" Column="3" />
+      <File FileName="Assets\Script\Managers\LANManager.cs" Line="15" Column="24" />
+      <File FileName="Assets\Script\Managers\EnumManager.cs" Line="125" Column="18" />
+      <File FileName="Assets\Resources\Texts\texts.txt" Line="76" Column="35" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

@@ -122,6 +122,7 @@ public enum PrecParticle{
 public enum LANConnexionState
 {
 	LOADING,
+	INITIALIZESCENE,
 	CONNEXIONIN,
 	CONNEXIONOUT,
 	SETPLAYERPERFS,
