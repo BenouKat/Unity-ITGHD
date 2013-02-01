@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System;
 
 public class NetworkScript : MonoBehaviour {
 	
@@ -20,7 +21,11 @@ public class NetworkScript : MonoBehaviour {
 	{
 		if(LANManager.Instance.isCreator)
 		{
-			Network.InitializeServer(8, LANManager.Instance.actualPort, false);
+			var nce = Network.InitializeServer(8, LANManager.Instance.actualPort, false);
+			LANManager.Instance.errorToDisplay = LANManager.errorToString(nce);
+			if(!String.IsNullOrEmpty(LANManager.Instance.errorToDisplay)){
+				cls.stateScene = LANConnexionState.FAIL;
+			}
 		}else
 		{
 			Network.Connect(LANManager.Instance.IPRequest, LANManager.Instance.portRequest); //TODO
@@ -29,16 +34,23 @@ public class NetworkScript : MonoBehaviour {
 	
 	void OnServerInitialized()
 	{
-		LANManager.Instance.actualIP = Network.player.externalIP;
+		if(Network.player.externalIP.Contains("UNASSIGNED"))
+		{
+			LANManager.Instance.actualIP = Network.player.ipAddress;
+		}else{
+			LANManager.Instance.actualIP = Network.player.externalIP;
+		}
+		
 		Network.maxConnections = 8;
 		Debug.Log("Initialized ! " + LANManager.Instance.actualIP + " : " + LANManager.Instance.actualPort);
+		cls.stateScene = LANConnexionState.INITIALIZESCENE;
 	}
 	
 	void OnPlayerConnected(NetworkPlayer player)
 	{
 		
 		Debug.Log(player.externalIP + " : " + player.externalPort + " connected");
-		//Envoi/Recupération du profil
+
 		//Recupération du joueur et association dans LANManager
 		//Instanciation du game Object de connexion
 	}
@@ -53,7 +65,8 @@ public class NetworkScript : MonoBehaviour {
 		LANManager.Instance.actualIP = Network.player.ipAddress;
 		LANManager.Instance.actualPort = Network.player.port;
 		
-		//Envoi/Recupération du profil
+		cls.stateScene = LANConnexionState.INITIALIZESCENE;
+		
 		//Recupération de tous les joueurs joueur et association dans LANManager
 		//Instanciation du game Object de connexion
 		

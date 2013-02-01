@@ -19,7 +19,9 @@ public class LANManager{
 	
 	public float numberOfPlayersConnected;
 	
-	public Dictionary<NetworkPlayer, Profile> players;
+	public string errorToDisplay;
+	
+	public Dictionary<NetworkPlayer, int> playersDifficulty;
 	
 	//Score tournament
 	public Dictionary<NetworkPlayer, double> scoreOfPlayers;
@@ -56,7 +58,7 @@ public class LANManager{
 	
 	public void init(){
 		modeLANselected = LANMode.NONE;
-		players = new Dictionary<NetworkPlayer, Profile>();
+		playersDifficulty = new Dictionary<NetworkPlayer, int>();
 		scoreOfPlayers = new Dictionary<NetworkPlayer, double>();
 		pointsOfPlayers = new Dictionary<NetworkPlayer, int>();
 		numberOfPlayersConnected = 0;
@@ -68,6 +70,35 @@ public class LANManager{
 		
 		IPRequest = "";
 		portRequest = 0;
+	}
+	
+	
+	
+	public static string errorToString(NetworkConnectionError nce)
+	{
+		switch(nce){
+		case NetworkConnectionError.AlreadyConnectedToAnotherServer :
+			return "You are already connected to another server.";
+		case NetworkConnectionError.AlreadyConnectedToServer :
+			return "You are already connected to the server.";
+		case NetworkConnectionError.ConnectionFailed :
+			return "The server initialization has failed.";
+		case NetworkConnectionError.CreateSocketOrThreadFailure :
+			return "The server can't initialize. Check your used sockets.";
+		case NetworkConnectionError.EmptyConnectTarget :
+			return "The ip address field is empty.";
+		case NetworkConnectionError.IncorrectParameters :
+			return "The ip address field is incorrect.";
+		case NetworkConnectionError.InternalDirectConnectFailed :
+			return "Same network already connected by NAT.";
+		case NetworkConnectionError.TooManyConnectedPlayers :
+			return "The room is full. Please try later.";
+		case NetworkConnectionError.NoError :
+			return "";
+		default :
+			return "Connexion problems. Please try again.";
+		}
+		
 	}
 	
 	

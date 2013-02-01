@@ -116,7 +116,6 @@ public enum PrecParticle{
 		WAYOFF,
 		FREEZE,
 		MINE
-		
 	}
 
 public enum LANConnexionState
@@ -126,6 +125,8 @@ public enum LANConnexionState
 	CONNEXIONIN,
 	CONNEXIONOUT,
 	SETPLAYERPERFS,
+	IDLE,
+	FAIL,
 	NONE
 	
 }
