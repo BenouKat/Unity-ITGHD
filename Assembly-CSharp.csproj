@@ -54,6 +54,7 @@
      <Compile Include="Assets\Script\Chart\MoveBackground.cs" />
      <Compile Include="Assets\Script\Chart\MoveCameraBackground.cs" />
      <Compile Include="Assets\Script\Chart\TimeBar.cs" />
+     <Compile Include="Assets\Script\FrameWork\CublastPlayer.cs" />
      <Compile Include="Assets\Script\FrameWork\OpenChart.cs" />
      <Compile Include="Assets\Script\FrameWork\Profile.cs" />
      <Compile Include="Assets\Script\FrameWork\SerializableSong.cs" />

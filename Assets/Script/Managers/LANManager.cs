@@ -21,13 +21,8 @@ public class LANManager{
 	
 	public string errorToDisplay;
 	
-	public Dictionary<NetworkPlayer, int> playersDifficulty;
-	
-	//Score tournament
-	public Dictionary<NetworkPlayer, double> scoreOfPlayers;
-	
-	//Point tournament
-	public Dictionary<NetworkPlayer, int> pointsOfPlayers;
+	//For server
+	public Dictionary<NetworkPlayer, CublastPlayer> players;
 	
 	//Elimination
 	public int roundNumber;
@@ -58,9 +53,7 @@ public class LANManager{
 	
 	public void init(){
 		modeLANselected = LANMode.NONE;
-		playersDifficulty = new Dictionary<NetworkPlayer, int>();
-		scoreOfPlayers = new Dictionary<NetworkPlayer, double>();
-		pointsOfPlayers = new Dictionary<NetworkPlayer, int>();
+		players = new Dictionary<NetworkPlayer, CublastPlayer>();
 		numberOfPlayersConnected = 0;
 		roundNumber = 0;
 		isCreator = true;

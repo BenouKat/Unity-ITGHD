@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 public class ConnectingLANScene : MonoBehaviour {
 	
@@ -7,7 +9,15 @@ public class ConnectingLANScene : MonoBehaviour {
 	public GameObject cubePlayers;
 	public GameObject cubePlayersPosition;
 	public GameObject hiddenPart;
-
+	
+	//for server
+	public Dictionary<GameObject, NetworkPlayer> hitNet;
+	
+	//for clients
+	public Dictionary<GameObject, string> hitNetClient;
+	private int previousLenghtConnected;
+	
+	//for everyone
 	public LANConnexionState stateScene;
 	
 	private NetworkScript nets;
@@ -61,6 +71,15 @@ public class ConnectingLANScene : MonoBehaviour {
 		TextManager.Instance.LoadTextFile();
 		nets = GetComponent<NetworkScript>();
 		stateScene = LANConnexionState.LOADING;
+		
+		if(LANManager.Instance.isCreator)
+		{
+			hitNet = new Dictionary<GameObject, NetworkPlayer>();
+		}else
+		{
+			hitNetClient = new Dictionary<GameObject, string>();
+			previousLenghtConnected = 0;
+		}
 		
 		networkStarted = false;
 		actualColor = 0f;
@@ -119,6 +138,10 @@ public class ConnectingLANScene : MonoBehaviour {
 		{
 			cubeLoading.active = false;	
 			hiddenPart.SetActiveRecursively(true);
+			for(int i = 0; i < hiddenPart.transform.childCount; i++)
+			{
+				hiddenPart.transform.GetChild(i).gameObject.active = true;
+			}
 			cubePlayers.transform.GetChild(0).renderer.material.color = new Color(1f, 1f, 1f, 1f);
 		}
 		
@@ -200,5 +223,82 @@ public class ConnectingLANScene : MonoBehaviour {
 		GUI.Label(new Rect(posMyIp.x*Screen.width + 1, posMyIp.y*Screen.height + 1, posMyIp.width*Screen.width, posMyIp.height*Screen.height), "Share your IP :\n" + LANManager.Instance.actualIP + ":" + LANManager.Instance.actualPort, "big");
 		GUI.color = new Color(1f, 1f, 1f, 1f);
 		GUI.Label(new Rect(posMyIp.x*Screen.width, posMyIp.y*Screen.height, posMyIp.width*Screen.width, posMyIp.height*Screen.height), "Share your IP :\n" + LANManager.Instance.actualIP + ":" + LANManager.Instance.actualPort, "big");
+	}
+	
+	
+	//Only server
+	public bool addHitNet(NetworkPlayer player)
+	{
+		if(hitNet.Count < 8)
+		{
+			for(var i = 0; i < cubePlayers.transform.childCount; i++)
+			{
+				if(!hitNet.ContainsKey(cubePlayers.transform.GetChild(i).gameObject))
+				{
+					hitNet.Add(cubePlayers.transform.GetChild(i).gameObject, player);
+					
+					cubePlayers.transform.GetChild(i).GetChild(0).gameObject.active = true;
+					cubePlayers.transform.GetChild(i).GetChild(0).particleSystem.Play();
+					cubePlayers.transform.GetChild(i).gameObject.renderer.material.color = new Color(1f, 1f, 1f, 1f);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	//Only server
+	public void removeHitNet(NetworkPlayer player)
+	{
+		var cube = hitNet.First(c => c.Value == player).Key;
+		cube.transform.GetChild(1).gameObject.active = true;
+		cube.transform.GetChild(1).particleSystem.Play();
+		cube.renderer.material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
+		hitNet.Remove(cube);
+	}
+	
+	//Only client
+	public void associateCubeToString(string name)
+	{
+		for(int i = 0; i < cubePlayers.transform.childCount; i++)
+		{
+			if(!hitNetClient.ContainsKey(cubePlayers.transform.GetChild(i).gameObject))
+			{
+				hitNetClient.Add(cubePlayers.transform.GetChild(i).gameObject, name);	
+				cubePlayers.transform.GetChild(i).gameObject.renderer.material.color = new Color(1f, 1f, 1f, 1f);
+			}
+		}
+	}
+	
+	//Only client
+	public void checkForVerificationConnected(string nameEvent)
+	{
+		if(previousLenghtConnected == 0)
+		{
+			previousLenghtConnected = hitNetClient.Count;	
+			
+		}else if (previousLenghtConnected != hitNetClient.Count)
+		{
+			for(int i=0; i < hitNetClient.Count; i++)
+			{
+				if(hitNetClient.ElementAt(i).Value == nameEvent)
+				{
+					if(previousLenghtConnected < hitNetClient.Count)
+					{
+						hitNetClient.ElementAt(i).Key.transform.GetChild(0).gameObject.active = true;
+						hitNetClient.ElementAt(i).Key.transform.GetChild(0).particleSystem.Play();
+						hitNetClient.ElementAt(i).Key.renderer.material.color = new Color(1f, 1f, 1f, 1f);
+						
+					}else if(previousLenghtConnected > hitNetClient.Count)
+					{
+						hitNetClient.ElementAt(i).Key.transform.GetChild(1).gameObject.active = true;
+						hitNetClient.ElementAt(i).Key.transform.GetChild(1).particleSystem.Play();
+						hitNetClient.ElementAt(i).Key.renderer.material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
+					}
+					break;
+				}
+			}
+			previousLenghtConnected = hitNetClient.Count;
+		}
 	}
 }

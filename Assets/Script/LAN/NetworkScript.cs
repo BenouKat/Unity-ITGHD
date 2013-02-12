@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System;
 
 public class NetworkScript : MonoBehaviour {
@@ -43,32 +45,51 @@ public class NetworkScript : MonoBehaviour {
 		
 		Network.maxConnections = 8;
 		Debug.Log("Initialized ! " + LANManager.Instance.actualIP + " : " + LANManager.Instance.actualPort);
+		
+		LANManager.Instance.players.Add(Network.player, new CublastPlayer(ProfileManager.Instance.currentProfile.name));
+		cls.addHitNet(Network.player);
 		cls.stateScene = LANConnexionState.INITIALIZESCENE;
 	}
 	
+	//server side
 	void OnPlayerConnected(NetworkPlayer player)
 	{
 		
 		Debug.Log(player.externalIP + " : " + player.externalPort + " connected");
-
-		//Recupération du joueur et association dans LANManager
-		//Instanciation du game Object de connexion
+		
+		if(!LANManager.Instance.players.ContainsKey(player))
+		{
+			LANManager.Instance.players.Add(player, new CublastPlayer("Waiting..."));
+		}
+		
+		cls.addHitNet(player);
 	}
 	
+	//server side
 	void OnPlayerDisconnected(NetworkPlayer player)
 	{
+		Debug.Log(player.externalIP + " : " + player.externalPort + " disconnected");
 		
+		var nameDisconnected = LANManager.Instance.players[player].name;
+		
+		LANManager.Instance.players.Remove(player);
+		
+		cls.removeHitNet(player);
+		
+		sendNameOfAllPlayers(nameDisconnected);
 	}
 	
+	
+	//client side
 	void OnConnectedToServer()
 	{
 		LANManager.Instance.actualIP = Network.player.ipAddress;
 		LANManager.Instance.actualPort = Network.player.port;
 		
-		cls.stateScene = LANConnexionState.INITIALIZESCENE;
+		networkView.RPC("getNameOnPlayerConnected", RPCMode.Server, Network.player, ProfileManager.Instance.currentProfile.name);
 		
-		//Recupération de tous les joueurs joueur et association dans LANManager
-		//Instanciation du game Object de connexion
+		
+		cls.stateScene = LANConnexionState.INITIALIZESCENE;
 		
 	}
 	
@@ -80,5 +101,44 @@ public class NetworkScript : MonoBehaviour {
 	void OnFailedToConnect(NetworkConnectionError nce)
 	{
 		
+	}
+	
+	//Only called by server from players
+	void getNameOnPlayerConnected(NetworkPlayer player, string name)
+	{
+		if(!LANManager.Instance.players.ContainsKey(player))
+		{
+			LANManager.Instance.players.Add(player, new CublastPlayer(name));
+		}else
+		{
+			LANManager.Instance.players[player].name = name;
+		}
+		
+		sendNameOfAllPlayers(name);
+	}
+	
+	//Only called by client from server
+	void sendNameOfAllPlayers(string nameEvent)
+	{
+		var players = new string[LANManager.Instance.players.Count];
+		for(int i = 0; i < LANManager.Instance.players.Count; i++)
+		{
+			players[i] = LANManager.Instance.players.ElementAt(i).Value.name;	
+		}
+		
+		networkView.RPC("getNameOfAllPlayers", RPCMode.Others, players, nameEvent);	
+	}
+	
+	
+	void getNameOfAllPlayers(string[] players, string nameEvent)
+	{
+		cls.hitNetClient.Clear();
+		
+		for(int i = 0; i < players.Length; i++)
+		{
+			cls.associateCubeToString(players[i]);	
+		}
+		
+		cls.checkForVerificationConnected(nameEvent);
 	}
 }
