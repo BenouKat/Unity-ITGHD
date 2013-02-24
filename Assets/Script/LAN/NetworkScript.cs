@@ -8,8 +8,32 @@ public class NetworkScript : MonoBehaviour {
 	
 	private ConnectingLANScene cls;
 	
+	public string ipAsked;
+	public int portAsked;
+	public bool server;
+	
+	void Test()
+	{
+		ProfileManager.Instance.CreateTestProfile();
+		LANManager.Instance.modeLANselected = LANMode.SCORETOURN;
+		LANManager.Instance.hostSystem = 1;
+		LANManager.Instance.songDiffSystem = 2;
+		LANManager.Instance.roundNumber = 10;
+		if(server)
+		{
+			LANManager.Instance.isCreator = true;	
+			LANManager.Instance.actualPort = portAsked;
+		}else
+		{
+			LANManager.Instance.isCreator = false;
+			LANManager.Instance.portRequest = portAsked;
+		}
+		LANManager.Instance.IPRequest = ipAsked;
+		
+	}
 	// Use this for initialization
 	void Start () {
+		Test();
 		cls = GetComponent<ConnectingLANScene>();
 	}
 	
@@ -30,7 +54,7 @@ public class NetworkScript : MonoBehaviour {
 			}
 		}else
 		{
-			Network.Connect(LANManager.Instance.IPRequest, LANManager.Instance.portRequest); //TODO
+			Network.Connect(LANManager.Instance.IPRequest, LANManager.Instance.portRequest);
 		}
 	}
 	
@@ -46,8 +70,11 @@ public class NetworkScript : MonoBehaviour {
 		Network.maxConnections = 8;
 		Debug.Log("Initialized ! " + LANManager.Instance.actualIP + " : " + LANManager.Instance.actualPort);
 		
-		LANManager.Instance.players.Add(Network.player, new CublastPlayer(ProfileManager.Instance.currentProfile.name));
+		LANManager.Instance.players.Add(Network.player, new CublastPlayer(ProfileManager.Instance.currentProfile.name, ProfileManager.Instance.currentProfile.idFile));
+		LANManager.Instance.players[Network.player].packName = LoadManager.Instance.getAllPackName();
 		cls.addHitNet(Network.player);
+		
+		LANManager.Instance.dataArrived = true;
 		cls.stateScene = LANConnexionState.INITIALIZESCENE;
 	}
 	
@@ -59,8 +86,10 @@ public class NetworkScript : MonoBehaviour {
 		
 		if(!LANManager.Instance.players.ContainsKey(player))
 		{
-			LANManager.Instance.players.Add(player, new CublastPlayer("Waiting..."));
+			LANManager.Instance.players.Add(player, new CublastPlayer("Waiting...", ""));
 		}
+		
+		networkView.RPC("sendInfoPartyToPlayer", RPCMode.Others, (int)LANManager.Instance.modeLANselected, LANManager.Instance.roundNumber, LANManager.Instance.hostSystem, LANManager.Instance.songDiffSystem);
 		
 		cls.addHitNet(player);
 	}
@@ -71,12 +100,15 @@ public class NetworkScript : MonoBehaviour {
 		Debug.Log(player.externalIP + " : " + player.externalPort + " disconnected");
 		
 		var nameDisconnected = LANManager.Instance.players[player].name;
+		var idDisconnected = LANManager.Instance.players[player].idFile;
+		
+		GetComponent<ChatScript>().sendDirectMessage("Info", nameDisconnected + " has left the node");
 		
 		LANManager.Instance.players.Remove(player);
 		
 		cls.removeHitNet(player);
 		
-		sendNameOfAllPlayers(nameDisconnected);
+		sendNameOfAllPlayers(nameDisconnected, idDisconnected);
 	}
 	
 	
@@ -86,8 +118,9 @@ public class NetworkScript : MonoBehaviour {
 		LANManager.Instance.actualIP = Network.player.ipAddress;
 		LANManager.Instance.actualPort = Network.player.port;
 		
-		networkView.RPC("getNameOnPlayerConnected", RPCMode.Server, Network.player, ProfileManager.Instance.currentProfile.name);
+		networkView.RPC("getInfoOnPlayerConnected", RPCMode.Server, Network.player, ProfileManager.Instance.currentProfile.name, ProfileManager.Instance.currentProfile.idFile, ProfileManager.Instance.currentProfile.victoryOnline, LoadManager.Instance.getAllPackName());
 		
+		GetComponent<ChatScript>().sendDirectMessage("Info", ProfileManager.Instance.currentProfile.name + " has joined the node");
 		
 		cls.stateScene = LANConnexionState.INITIALIZESCENE;
 		
@@ -95,50 +128,94 @@ public class NetworkScript : MonoBehaviour {
 	
 	void OnDisconnectedFromServer(NetworkDisconnection info)
 	{
-		
+		LANManager.Instance.errorToDisplay = info.ToString();
+		cls.stateScene = LANConnexionState.FAIL;
 	}
 	
 	void OnFailedToConnect(NetworkConnectionError nce)
 	{
-		
+		LANManager.Instance.errorToDisplay = nce.ToString();
+		cls.stateScene = LANConnexionState.FAIL;
 	}
 	
 	//Only called by server from players
-	void getNameOnPlayerConnected(NetworkPlayer player, string name)
+	[RPC]
+	void getInfoOnPlayerConnected(NetworkPlayer player, string name, string id, int vict, string packname)
 	{
 		if(!LANManager.Instance.players.ContainsKey(player))
 		{
-			LANManager.Instance.players.Add(player, new CublastPlayer(name));
+			LANManager.Instance.players.Add(player, new CublastPlayer(name, id));
+			LANManager.Instance.players[player].packName = packname;
+			LANManager.Instance.players[player].victoryOnline = vict;
 		}else
 		{
 			LANManager.Instance.players[player].name = name;
+			LANManager.Instance.players[player].idFile = id;
+			LANManager.Instance.players[player].packName = packname;
+			LANManager.Instance.players[player].victoryOnline = vict;
 		}
 		
-		sendNameOfAllPlayers(name);
+		
+		sendNameOfAllPlayers(name, id);
+	}
+	
+	[RPC]
+	void sendInfoPartyToPlayer(int LANModeSelec, int roundNumber, int hostSystem, int songDiffSystem)
+	{
+		LANManager.Instance.modeLANselected = (LANMode)LANModeSelec;
+		LANManager.Instance.roundNumber = roundNumber;
+		LANManager.Instance.hostSystem = hostSystem;
+		LANManager.Instance.songDiffSystem = songDiffSystem;
+		LANManager.Instance.dataArrived = true;
 	}
 	
 	//Only called by client from server
-	void sendNameOfAllPlayers(string nameEvent)
+	[RPC]
+	void sendNameOfAllPlayers(string nameEvent, string id)
 	{
-		var players = new string[LANManager.Instance.players.Count];
+		string players = "";
+		string playersID = "";
+		string playersVict = "";
 		for(int i = 0; i < LANManager.Instance.players.Count; i++)
 		{
-			players[i] = LANManager.Instance.players.ElementAt(i).Value.name;	
+			players += LANManager.Instance.players.ElementAt(i).Value.name;
+			playersID += LANManager.Instance.players.ElementAt(i).Value.idFile;
+			playersVict += LANManager.Instance.players.ElementAt(i).Value.victoryOnline;
+			if(i < LANManager.Instance.players.Count - 1)
+			{
+				players += ";";	
+				playersID += ";";
+				playersVict += ";";
+			}
 		}
 		
-		networkView.RPC("getNameOfAllPlayers", RPCMode.Others, players, nameEvent);	
+		networkView.RPC("getNameOfAllPlayers", RPCMode.Others, players, playersID, playersVict, nameEvent, id);	
 	}
 	
-	
-	void getNameOfAllPlayers(string[] players, string nameEvent)
+	[RPC]
+	void getNameOfAllPlayers(string players, string playersID, string playersVict, string nameEvent, string idEvent)
 	{
 		cls.hitNetClient.Clear();
+		string[] playerGetted = players.Split(';');
+		string[] playersIDGetted = playersID.Split(';');
+		string[] playersVictGetted = playersVict.Split(';');
 		
-		for(int i = 0; i < players.Length; i++)
+		for(int i = 0; i < playerGetted.Length; i++)
 		{
-			cls.associateCubeToString(players[i]);	
+			Debug.Log("test rpc : " + playerGetted[i] + " // " + playersVictGetted[i]);
+			cls.associateCubeToString(playerGetted[i], playersIDGetted[i], System.Convert.ToInt32(playersVictGetted[i]));	
 		}
 		
-		cls.checkForVerificationConnected(nameEvent);
+		cls.checkForVerificationConnected(nameEvent, idEvent);
+	}
+	
+	void sendProfile()
+	{
+			
+	}
+	
+	void getProfile(byte[] profile)
+	{
+		//unstream a voir avec internet	
 	}
 }

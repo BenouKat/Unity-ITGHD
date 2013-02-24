@@ -37,6 +37,9 @@ public class LANManager{
 	//2 - Select players
 	public int songDiffSystem;
 	
+	
+	public bool dataArrived;
+	
 	//INSTANCE
 	private static LANManager instance;
 	
@@ -48,6 +51,35 @@ public class LANManager{
 			}
 			return instance;
 		}
+	}
+	
+	public string convertDifficultyModeToString(int diffmode)
+	{
+		switch(diffmode)
+		{
+		case 0:
+			return "Same as master";
+		case 1:
+			return "Player decision";
+		case 2:
+			return "Some players decision";
+		}
+		return "null";
+	}
+	
+	public string convertHostSystemToString(int hostSystem)
+	{
+		switch(hostSystem)
+		{
+		case 0:
+			return "Master only";
+		case 1:
+			return "One by one";
+		case 2:
+			return "Random";
+		}
+		return "null";
+		
 	}
 	
 	
@@ -63,6 +95,8 @@ public class LANManager{
 		
 		IPRequest = "";
 		portRequest = 0;
+		
+		dataArrived = false;
 	}
 	
 	
@@ -95,7 +129,75 @@ public class LANManager{
 	}
 	
 	
-	
-	
-	
+	public string returnPackAvailableText()
+	{
+		string packText = "";
+		Dictionary<string, string> banned = new Dictionary<string, string>();
+		List<List<string>> listPack = new List<List<string>>();
+		for(int i=0; i < players.Count; i++)
+		{
+			listPack.Add(players.ElementAt(i).Value.packName.Split(';').ToList());
+		}
+		
+		
+		//Pour toute les listes
+		for(int i=0; i < listPack.Count; i++)
+		{
+			//pour toutes les autres listes
+			
+			for(int j=i; j < listPack.Count; j++)
+			{
+				if(i != j)
+				{
+					var foundOne = false;
+					for(int k=0; k < listPack.ElementAt(i).Count() && !foundOne; k++)
+					{
+						//Si l'élément de la liste comparé contient l'élement en cours de la liste en cours
+						if(listPack.ElementAt(j).Contains(listPack.ElementAt(i).ElementAt(k)))
+						{
+							foundOne = true;
+							
+						}
+					}
+					
+					//S'il n'a rien trouvé
+					if(!foundOne)
+					{
+						var firstbanned = players.ElementAt(i).Value.name;
+						var secondbanned = players.ElementAt(j).Value.name;
+						
+						if(!(banned.ContainsKey(secondbanned) && banned[secondbanned].Contains(firstbanned)))
+						{
+							if(banned.ContainsKey(firstbanned))
+							{
+								banned[firstbanned] += ";" + secondbanned;	
+							}else
+							{
+								banned.Add(firstbanned, secondbanned);
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		if(banned.Count == 0)
+		{
+			packText += TextManager.Instance.texts["LAN"]["NETWORKPackSuccess"];	
+		}else
+		{
+			foreach(var banPlayer in banned)
+			{
+				packText += TextManager.Instance.texts["LAN"]["NETWORKPackFail"];
+				packText.Replace("FIRST_NAME", banPlayer.Key);
+				packText.Replace("OTHER_NAMES", banPlayer.Value.Replace(";", ", "));
+				packText += "\n";
+			}
+			
+			packText += TextManager.Instance.texts["LAN"]["NETWORKPackFailInfo"] + "\n";
+		}
+		
+		return packText;
+	}
+
 }

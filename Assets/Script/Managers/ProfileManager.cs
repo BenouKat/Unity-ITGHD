@@ -35,7 +35,7 @@ public class ProfileManager{
 	
 	public void CreateTestProfile(){
 		//Test
-		var p1 = new Profile("BenouKat", "baba");
+		var p1 = new Profile("UserTest" + ((int)(UnityEngine.Random.value*100)).ToString(), "baba");
 		profiles.Add(p1);
 		currentProfile = p1;	
 		SaveProfile();

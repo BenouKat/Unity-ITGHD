@@ -55,6 +55,7 @@ public class Profile{
 	
 	//Stat
 	public double gameTime;
+	public int victoryOnline;
 	
 	//Achivement
 	public int numberOfAchivement;
@@ -73,6 +74,8 @@ public class Profile{
 		name = id;
 		password = pass;
 		scoreOnSong = new List<SongInfoProfil>();
+		gameTime = 0f;
+		victoryOnline = 0;
 		lastSpeedmodUsed = "";
 		lastBPM = "";
 		inBPMMode = false;

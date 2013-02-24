@@ -62,6 +62,7 @@
      <Compile Include="Assets\Script\FrameWork\Song.cs" />
      <Compile Include="Assets\Script\FrameWork\SongInfoProfil.cs" />
      <Compile Include="Assets\Script\FrameWork\VersionDeserializationBinder.cs" />
+     <Compile Include="Assets\Script\LAN\ChatScript.cs" />
      <Compile Include="Assets\Script\LAN\ConnectingLANScene.cs" />
      <Compile Include="Assets\Script\LAN\NetworkScript.cs" />
      <Compile Include="Assets\Script\LAN\OpeningLANScene.cs" />
