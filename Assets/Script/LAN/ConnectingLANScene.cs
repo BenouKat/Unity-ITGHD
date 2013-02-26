@@ -18,6 +18,7 @@ public class ConnectingLANScene : MonoBehaviour {
 	private int previousLenghtConnected;
 	
 	//for everyone
+	public List<GameObject> profileAlreadyGetted;
 	public LANConnexionState stateScene;
 	
 	private NetworkScript nets;
@@ -52,36 +53,23 @@ public class ConnectingLANScene : MonoBehaviour {
 	public Rect posVictory;
 	public Rect posDifficulty;
 	public Rect posButtonDifficulty;
+	public Rect posGetProfile;
 	public Rect posButtonAskPack;
+	public Rect posReadyButton;
+	
+	
 	private float alphaDescription;
 	public float speedAlphaDescription;
 	private GameObject playerSelected;
 	
 	private bool somethingSelected;
 	private bool locked;
-	
-	//PLAYERPERFS SCENE
-	public Rect posBackButton;
-	
-	//CONNEXION IN/OUT
-	public Rect posInfoConnexion;
-	
-	/**
-	 * TO DO :
-	 * - DONE / Regarder la gestion des id players
-	 * - DONE / Gérer les connexion entrante et sortante (envoi du pseudo, verification de l'id dans les profiles joueurs)
-	 * - A TESTER / Gérer les connexions sortantes non-dernière
-	 * - need internet - Envoi/Reception de profile (RPC byte[]) via bouton
-	 * - TESTER LE FAIL / Envoie du nom des packs via RPC string
-	 * - Mode "ready".
-	 * - DONE / Module de chat
-	 * - Debut de partie.
-	 * 
-	 */
+	private bool isReady;
+	public Rect posQuitButton;
 	
 	// Use this for initialization
 	void Start () {
-		TextManager.Instance.LoadTextFile();
+		
 		nets = GetComponent<NetworkScript>();
 		stateScene = LANConnexionState.LOADING;
 	
@@ -99,12 +87,18 @@ public class ConnectingLANScene : MonoBehaviour {
 		
 		locked = false;
 		somethingSelected = false;
+		isReady = false;
 		
 		tex = new Dictionary<string, Texture2D>();
 		tex.Add("mode0", (Texture2D) Resources.Load("LANFFA"));
 		tex.Add("mode1", (Texture2D) Resources.Load("LANScoreTournament"));
 		tex.Add("mode2", (Texture2D) Resources.Load("LANPointTournament"));
 		tex.Add("mode3", (Texture2D) Resources.Load("LANElimination"));
+		
+		if(LANManager.Instance.isCreator)
+		{
+			profileAlreadyGetted.Add(cubePlayers.transform.GetChild(0).gameObject);
+		}
 	}
 	
 	// Update is called once per frame
@@ -212,7 +206,7 @@ public class ConnectingLANScene : MonoBehaviour {
 				
 				if(theGO != null && theGO.tag == "MenuItem" && (hitNet.Keys.Contains(theGO) || hitNetClient.Keys.Contains(theGO)))
 				{
-					if(playerSelected != null) playerSelected.renderer.material.color = new Color(1f, 1f, 1f, 1f);
+					if(playerSelected != null) playerSelected.renderer.material.color = idleColor(playerSelected);
 					playerSelected = theGO;
 					playerSelected.renderer.material.color = new Color(1f, 1f, 0.5f, 1f);
 					somethingSelected = true;
@@ -224,12 +218,12 @@ public class ConnectingLANScene : MonoBehaviour {
 					}
 				}else
 				{
-					if(playerSelected != null) playerSelected.renderer.material.color = new Color(1f, 1f, 1f, 1f);
+					if(playerSelected != null) playerSelected.renderer.material.color = idleColor(playerSelected);
 					somethingSelected = false;	
 				}
 				
 			}else{
-				if(playerSelected != null) playerSelected.renderer.material.color = new Color(1f, 1f, 1f, 1f);
+				if(playerSelected != null) playerSelected.renderer.material.color = idleColor(playerSelected);
 				somethingSelected = false;	
 			}
 		}
@@ -334,15 +328,38 @@ public class ConnectingLANScene : MonoBehaviour {
 				
 				if(LANManager.Instance.songDiffSystem == 2)
 				{
-					if(GUI.Button(new Rect(posButtonDifficulty.x*Screen.width, posButtonDifficulty.y*Screen.height, posButtonDifficulty.width*Screen.width, posButtonDifficulty.height*Screen.height), "Switch")){	
+					if(GUI.Button(new Rect(posButtonDifficulty.x*Screen.width, posButtonDifficulty.y*Screen.height, posButtonDifficulty.width*Screen.width, posButtonDifficulty.height*Screen.height), "Switch") && locked){	
 						LANManager.Instance.players[hitNet[playerSelected]].difficultyMode = (LANManager.Instance.players[hitNet[playerSelected]].difficultyMode == 0 ? 1 : 0);
 					}
 				}
-			
+				
+				if(!profileAlreadyGetted.Contains(playerSelected))
+				{
+					if(GUI.Button(new Rect(posGetProfile.x*Screen.width, posGetProfile.y*Screen.height, posGetProfile.width*Screen.width, posGetProfile.height*Screen.height), "Get Profile"))
+					{
+						var pl = LANManager.Instance.players[hitNet[playerSelected]];
+						Debug.Log("Send : " + pl.name + " : " + pl.idFile + " : " + Network.player.ToString());
+						nets.notifyPlayerForProfile(pl.name, pl.idFile, Network.player);
+						profileAlreadyGetted.Add(playerSelected);
+					}
+				}
 			}else{
 				var player = hitNetClient[playerSelected];
 				GUI.Label(new Rect(posName.x*Screen.width, posName.y*Screen.height, posName.width*Screen.width, posName.height*Screen.height), player.name);
 				GUI.Label(new Rect(posVictory.x*Screen.width, posVictory.y*Screen.height, posVictory.width*Screen.width, posVictory.height*Screen.height), "Vict : " + player.victoryOnline);
+				
+				if(!profileAlreadyGetted.Contains(playerSelected))
+				{
+					if(GUI.Button(new Rect(posGetProfile.x*Screen.width, posGetProfile.y*Screen.height, posGetProfile.width*Screen.width, posGetProfile.height*Screen.height), "Get Profile"))
+					{
+						var pl = hitNetClient[playerSelected];
+						Debug.Log("Send : " + pl.name + " : " + pl.idFile + " : " + Network.player.ToString());
+						nets.callProfileToServer(pl.name, pl.idFile, Network.player);
+						
+						profileAlreadyGetted.Add(playerSelected);
+					}
+				}
+			
 			}
 		}
 		
@@ -354,6 +371,20 @@ public class ConnectingLANScene : MonoBehaviour {
 				posButtonAskPack.width*Screen.width, posButtonAskPack.height*Screen.height), "Check pack")){
 				GetComponent<ChatScript>().sendDirectMessage("Info", LANManager.Instance.returnPackAvailableText());
 			}
+		}
+		
+		if(!isReady)
+		{
+			if(GUI.Button(new Rect(posReadyButton.x*Screen.width, posReadyButton.y*Screen.height, posReadyButton.width*Screen.width, posReadyButton.height*Screen.height), "Ready")){
+
+				nets.callPlayerReady(ProfileManager.Instance.currentProfile.name, ProfileManager.Instance.currentProfile.idFile);	
+				
+				isReady = true;
+			}
+		}
+		
+		if(GUI.Button(new Rect(posQuitButton.x*Screen.width, posQuitButton.y*Screen.height, posQuitButton.width*Screen.width, posQuitButton.height*Screen.height), "Quit")){
+			//back
 		}
 	}
 	
@@ -394,21 +425,27 @@ public class ConnectingLANScene : MonoBehaviour {
 	}
 	
 	//Only client
-	public void associateCubeToString(string name, string id, int vict)
+	public void associateCubeToString(string name, string id, bool ready, int vict)
 	{
 		for(int i = 0; i < cubePlayers.transform.childCount; i++)
 		{
+			
 			if(!hitNetClient.ContainsKey(cubePlayers.transform.GetChild(i).gameObject))
 			{
-				hitNetClient.Add(cubePlayers.transform.GetChild(i).gameObject, new CublastPlayer(name, vict, id));	
-				cubePlayers.transform.GetChild(i).gameObject.renderer.material.color = new Color(1f, 1f, 1f, 1f);
+				if(name == ProfileManager.Instance.currentProfile.name && id == ProfileManager.Instance.currentProfile.idFile)
+				{
+					profileAlreadyGetted.Add(cubePlayers.transform.GetChild(i).gameObject);
+				}
+				hitNetClient.Add(cubePlayers.transform.GetChild(i).gameObject, new CublastPlayer(name, vict, ready, id));	
+				cubePlayers.transform.GetChild(i).gameObject.renderer.material.color = ready ? new Color(0.5f, 0.8f, 1f, 1f) : new Color(1f, 1f, 1f, 1f);
 				break;
 			}
 		}
+		
 	}
 	
 	//Only client
-	public void checkForVerificationConnected(string nameEvent, string id)
+	public void checkForVerificationConnected(string nameEvent, string id, Dictionary<GameObject, CublastPlayer> oldList)
 	{
 		if(previousLenghtConnected == 0)
 		{
@@ -416,30 +453,85 @@ public class ConnectingLANScene : MonoBehaviour {
 			
 		}else if (previousLenghtConnected != hitNetClient.Count)
 		{
-			for(int i=0; i < hitNetClient.Count; i++)
+			if(previousLenghtConnected < hitNetClient.Count)
 			{
-				if(hitNetClient.ElementAt(i).Value.name == nameEvent && hitNetClient.ElementAt(i).Value.idFile == id)
+				for(int i=0; i < hitNetClient.Count; i++)
 				{
-					if(previousLenghtConnected < hitNetClient.Count)
+					if(hitNetClient.ElementAt(i).Value.name == nameEvent && hitNetClient.ElementAt(i).Value.idFile == id)
 					{
+						
 						hitNetClient.ElementAt(i).Key.transform.GetChild(0).gameObject.active = true;
 						hitNetClient.ElementAt(i).Key.transform.GetChild(0).particleSystem.Play();
 						hitNetClient.ElementAt(i).Key.renderer.material.color = new Color(1f, 1f, 1f, 1f);
-						
-					}else if(previousLenghtConnected > hitNetClient.Count)
-					{
-						hitNetClient.ElementAt(i).Key.transform.GetChild(1).gameObject.active = true;
-						hitNetClient.ElementAt(i).Key.transform.GetChild(1).particleSystem.Play();
-						hitNetClient.ElementAt(i).Key.renderer.material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
+						break;
 					}
-					break;
+					
+				}
+			}else if(previousLenghtConnected > hitNetClient.Count)
+			{
+				for(int i=0; i < oldList.Count; i++)
+				{
+					if(oldList.ElementAt(i).Value.name == nameEvent && oldList.ElementAt(i).Value.idFile == id)
+					{
+						if(profileAlreadyGetted.Contains(oldList.ElementAt(i).Key))
+						{
+							profileAlreadyGetted.Remove(oldList.ElementAt(i).Key);
+						}
+						oldList.ElementAt(i).Key.transform.GetChild(1).gameObject.active = true;
+						oldList.ElementAt(i).Key.transform.GetChild(1).particleSystem.Play();
+						oldList.ElementAt(i).Key.renderer.material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
+						break;
+					}
 				}
 			}
+			oldList.Clear();
 			previousLenghtConnected = hitNetClient.Count;
 		}
+		
 		if(playerSelected != null && !hitNetClient.ContainsKey(playerSelected))
 		{
 			playerSelected = null;
+		}
+	}
+	
+	public void checkPlayerReady(string name, string id)
+	{
+		if(LANManager.Instance.isCreator)
+		{
+			var key = LANManager.Instance.players.FirstOrDefault(c => c.Value.name == name && c.Value.idFile == id).Key;
+			var realkey = hitNet.FirstOrDefault(c => c.Value == key).Key;
+			realkey.transform.GetChild(2).gameObject.active = true;
+			realkey.transform.GetChild(2).particleSystem.Play();
+			realkey.renderer.material.color = new Color(0.5f, 0.8f, 1f, 1f);
+			LANManager.Instance.players[key].isReady = true;
+		}else{
+			var key = hitNetClient.FirstOrDefault(c => c.Value.name == name && c.Value.idFile == id).Key;
+			key.transform.GetChild(2).gameObject.active = true;
+			key.transform.GetChild(2).particleSystem.Play();
+			key.renderer.material.color = new Color(0.5f, 0.8f, 1f, 1f);
+			hitNetClient[key].isReady = true;
+		}
+		
+		
+	}
+	
+	
+	public Color idleColor(GameObject go)
+	{
+		if(LANManager.Instance.isCreator)
+		{
+			if(LANManager.Instance.players[hitNet[go]].isReady)
+			{
+				return new Color(0.5f, 0.8f, 1f, 1f);	
+			}
+			return new Color(1f, 1f, 1f, 1f);
+		}else
+		{
+			if(hitNetClient[go].isReady)
+			{
+				return new Color(0.5f, 0.8f, 1f, 1f);	
+			}
+			return new Color(1f, 1f, 1f, 1f);
 		}
 	}
 }

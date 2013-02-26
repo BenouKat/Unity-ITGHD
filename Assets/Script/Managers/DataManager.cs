@@ -579,6 +579,8 @@ public class DataManager{
 			return "ChartScene";
 		case "option":
 			return "OptionScreen";
+		case "lan":
+			return "LAN";
 		default:
 			return "fail";
 		}

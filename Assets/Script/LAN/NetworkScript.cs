@@ -14,6 +14,7 @@ public class NetworkScript : MonoBehaviour {
 	
 	void Test()
 	{
+		TextManager.Instance.LoadTextFile();
 		ProfileManager.Instance.CreateTestProfile();
 		LANManager.Instance.modeLANselected = LANMode.SCORETOURN;
 		LANManager.Instance.hostSystem = 1;
@@ -31,9 +32,18 @@ public class NetworkScript : MonoBehaviour {
 		LANManager.Instance.IPRequest = ipAsked;
 		
 	}
+	
+	void TestShort()
+	{
+		ProfileManager.Instance.CreateTestProfile();
+		if(server)
+		{
+			LANManager.Instance.actualPort = portAsked;
+		}
+	}
 	// Use this for initialization
 	void Start () {
-		Test();
+		TestShort();
 		cls = GetComponent<ConnectingLANScene>();
 	}
 	
@@ -175,47 +185,89 @@ public class NetworkScript : MonoBehaviour {
 	{
 		string players = "";
 		string playersID = "";
+		string playersReady = "";
 		string playersVict = "";
 		for(int i = 0; i < LANManager.Instance.players.Count; i++)
 		{
 			players += LANManager.Instance.players.ElementAt(i).Value.name;
 			playersID += LANManager.Instance.players.ElementAt(i).Value.idFile;
+			playersReady += LANManager.Instance.players.ElementAt(i).Value.isReady ? "1" : "0";
 			playersVict += LANManager.Instance.players.ElementAt(i).Value.victoryOnline;
 			if(i < LANManager.Instance.players.Count - 1)
 			{
 				players += ";";	
 				playersID += ";";
+				playersReady += ";";
 				playersVict += ";";
 			}
 		}
 		
-		networkView.RPC("getNameOfAllPlayers", RPCMode.Others, players, playersID, playersVict, nameEvent, id);	
+		networkView.RPC("getNameOfAllPlayers", RPCMode.Others, players, playersID, playersReady, playersVict, nameEvent, id);	
 	}
 	
 	[RPC]
-	void getNameOfAllPlayers(string players, string playersID, string playersVict, string nameEvent, string idEvent)
+	void getNameOfAllPlayers(string players, string playersID, string playersVict, string playersReady, string nameEvent, string idEvent)
 	{
+		var oldList = new Dictionary<GameObject, CublastPlayer>();
+		for(int i = 0; i < cls.hitNetClient.Count; i++){
+			oldList.Add(cls.hitNetClient.ElementAt(i).Key, cls.hitNetClient.ElementAt(i).Value);	
+		}
 		cls.hitNetClient.Clear();
 		string[] playerGetted = players.Split(';');
 		string[] playersIDGetted = playersID.Split(';');
+		string[] playersReadyGetted = playersReady.Split(';');
 		string[] playersVictGetted = playersVict.Split(';');
 		
 		for(int i = 0; i < playerGetted.Length; i++)
 		{
-			Debug.Log("test rpc : " + playerGetted[i] + " // " + playersVictGetted[i]);
-			cls.associateCubeToString(playerGetted[i], playersIDGetted[i], System.Convert.ToInt32(playersVictGetted[i]));	
+			cls.associateCubeToString(playerGetted[i], playersIDGetted[i], playersReadyGetted[i] == "1", System.Convert.ToInt32(playersVictGetted[i]));	
 		}
 		
-		cls.checkForVerificationConnected(nameEvent, idEvent);
+		cls.checkForVerificationConnected(nameEvent, idEvent, oldList);
 	}
 	
-	void sendProfile()
+	public void callPlayerReady(string name, string id)
 	{
-			
+		networkView.RPC ("onPlayerReady", RPCMode.All, name, id);	
 	}
 	
+	[RPC]
+	void onPlayerReady(string name, string id)
+	{
+		cls.checkPlayerReady(name, id);	
+	}
+	
+	public void callProfileToServer(string name, string id, NetworkPlayer player)
+	{
+		networkView.RPC ("notifyPlayerForProfile", RPCMode.Server, name, id, player);
+	}
+	
+	[RPC]
+	public void notifyPlayerForProfile(string name, string id, NetworkPlayer player)
+	{
+		var theNP = LANManager.Instance.players.FirstOrDefault(c => c.Value.name == name && c.Value.idFile == id).Key;
+		if(theNP != null)
+		{
+			if(theNP.ToString() == "0") //Server
+			{
+				sendProfile(player);	
+			}else
+			{
+				networkView.RPC ("sendProfile", theNP, player);	
+			}
+			
+		}
+	}
+	
+	[RPC]
+	void sendProfile(NetworkPlayer player)
+	{
+		networkView.RPC("getProfile", player, ProfileManager.Instance.getProfileStream());
+	}
+	
+	[RPC]
 	void getProfile(byte[] profile)
 	{
-		//unstream a voir avec internet	
+		ProfileManager.Instance.saveProfileStream(profile);
 	}
 }

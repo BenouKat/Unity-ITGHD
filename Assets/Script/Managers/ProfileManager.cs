@@ -36,6 +36,7 @@ public class ProfileManager{
 	public void CreateTestProfile(){
 		//Test
 		var p1 = new Profile("UserTest" + ((int)(UnityEngine.Random.value*100)).ToString(), "baba");
+		
 		profiles.Add(p1);
 		currentProfile = p1;	
 		SaveProfile();
@@ -101,6 +102,39 @@ public class ProfileManager{
 		return true;
 		
 		
+	}
+	
+	public byte[] getProfileStream()
+	{
+		BinaryFormatter bf = new BinaryFormatter();
+		bf.Binder = new VersionDeserializationBinder();
+		MemoryStream ms = new MemoryStream();
+		bf.Serialize(ms, currentProfile);
+		
+		return ms.ToArray();
+	}
+	
+	public void saveProfileStream(byte[] stream)
+	{
+		Profile pr = new Profile();
+		MemoryStream ms = new MemoryStream(stream);
+		BinaryFormatter bf = new BinaryFormatter();
+		bf.Binder = new VersionDeserializationBinder();
+		pr = (Profile)bf.Deserialize(ms);
+		
+		Stream fstream = File.Open(Application.dataPath + DataManager.Instance.DEBUGPATH + "Profiles/" + pr.idFile + ".profile", FileMode.Create);
+		BinaryFormatter bformatter = new BinaryFormatter();
+	    bformatter.Binder = new VersionDeserializationBinder(); 
+		
+		try{
+			bformatter.Serialize(fstream, pr);
+			fstream.Close();
+		}catch(Exception e){
+			
+			fstream.Close();
+			File.Delete(Application.dataPath + DataManager.Instance.DEBUGPATH + "Profiles/" + pr.idFile + ".profile");
+			Debug.Log(e.Message);
+		}
 	}
 	
 	public void LoadProfiles () {

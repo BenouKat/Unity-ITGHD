@@ -84,7 +84,7 @@ public class MainMenu : MonoBehaviour {
 	
 	//Message d'erreur
 	private bool error;
-	private string listerror = "Story Mods Trophy Learn LAN Double";
+	private string listerror = "Story Mods Trophy Learn Double";
 	public Rect posError;
 	public float offsetNumberBuild;
 	public float speedFadeError;

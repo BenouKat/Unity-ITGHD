@@ -34,6 +34,8 @@ public class OpeningLANScene : MonoBehaviour {
 	private int finalSelected;
 	
 	private FadeManager fm;
+	private float timeFade;
+	private bool alreadyFaded;
 	
 	public GUISkin skin;
 	
@@ -105,9 +107,14 @@ public class OpeningLANScene : MonoBehaviour {
 	
 	public Dictionary<string, Texture2D> tex;
 	
+	void TestShort()
+	{
+		TextManager.Instance.LoadTextFile();
+	}
+	
 	// Use this for initialization
 	void Start () {
-		TextManager.Instance.LoadTextFile();
+		TestShort();
 		tex = new Dictionary<string, Texture2D>();
 		tex.Add("join0", (Texture2D) Resources.Load("LANCreate"));
 		tex.Add("join1", (Texture2D) Resources.Load("LANJoin"));
@@ -133,6 +140,8 @@ public class OpeningLANScene : MonoBehaviour {
 		ipValue = "";
 		shininess = 0f;
 		error = false;
+		timeFade = 0f;
+		alreadyFaded = false;
 		
 		baseMaterialColor = selectedMaterial.color;
 		rotationBase = ring.transform.rotation;
@@ -303,7 +312,6 @@ public class OpeningLANScene : MonoBehaviour {
 			GUI.Label(new Rect(labelSongDiff.x*Screen.width, labelSongDiff.y*Screen.height, labelSongDiff.width*Screen.width, labelSongDiff.height*Screen.height), TextManager.Instance.texts["LAN"]["OPTIONSongDiff"+ LANManager.Instance.songDiffSystem], "centered");
 		}	
 		GUI.color = new Color(1f, 1f, 1f, 1f - alphaTitle);
-		
 		if(GUI.Button(new Rect(posButtonConfirm.x*Screen.width, posButtonConfirm.y*Screen.height, posButtonConfirm.width*Screen.width, posButtonConfirm.height*Screen.height), "Confirm") && !activeTransition && !activeTransitionBack && !activeRoomTransition && isRoundNumberValid()){
 			activeRoomTransition = true;
 			StartCoroutine(roomTransition());
@@ -507,6 +515,14 @@ public class OpeningLANScene : MonoBehaviour {
 			}
 		}
 		
+		
+		if(!alreadyFaded && timeFade > 0.25f){
+			GetComponent<FadeManager>().FadeOut();
+			alreadyFaded = true;
+		}else{
+			timeFade += Time.deltaTime;
+		}
+		
 	}
 	
 	public IEnumerator roomTransition()
@@ -541,7 +557,8 @@ public class OpeningLANScene : MonoBehaviour {
 			LANManager.Instance.modeLANselected = (LANMode)optionSelected;
 			LANManager.Instance.roundNumber = System.Convert.ToInt32(roundValue);
 		}
-		//Change Room
+		
+		Application.LoadLevel("LANSelection");
 	}
 	
 	
@@ -565,7 +582,7 @@ public class OpeningLANScene : MonoBehaviour {
 		var result = 0;
 		if(System.Int32.TryParse(roundValue, out result))
 		{
-			error = (result > 0 && result < 100);
+			error = !(result > 0 && result < 100);
 			return !error;
 		}
 		error = true;

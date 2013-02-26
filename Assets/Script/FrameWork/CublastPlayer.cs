@@ -28,12 +28,12 @@ public class CublastPlayer{
 		this.isReady = false;
 	}
 	
-	public CublastPlayer(string name, int vict, string idFile)
+	public CublastPlayer(string name, int vict, bool ready, string idFile)
 	{
 		this.name = name;
 		this.idFile = idFile;
 		this.victoryOnline = vict;
 		this.difficultyMode = 0;
-		this.isReady = false;
+		this.isReady = ready;
 	}
 }

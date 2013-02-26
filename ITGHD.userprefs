@@ -2,13 +2,19 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\LAN\ConnectingLANScene.cs">
     <Files>
+      <File FileName="Assets\Script\LAN\ConnectingLANScene.cs" Line="293" Column="4" />
       <File FileName="Assets\Script\LAN\ChatScript.cs" Line="92" Column="55" />
-      <File FileName="Assets\Script\LAN\ConnectingLANScene.cs" Line="397" Column="69" />
-      <File FileName="Assets\Script\LAN\NetworkScript.cs" Line="209" Column="57" />
+      <File FileName="Assets\Script\LAN\NetworkScript.cs" Line="37" Column="3" />
       <File FileName="Assets\Script\Managers\LANManager.cs" Line="182" Column="4" />
       <File FileName="Assets\Script\Managers\LoadManager.cs" Line="314" Column="6" />
-      <File FileName="Assets\Script\FrameWork\CublastPlayer.cs" Line="26" Column="24" />
+      <File FileName="Assets\Script\FrameWork\CublastPlayer.cs" Line="37" Column="24" />
       <File FileName="Assets\Script\FrameWork\Profile.cs" Line="107" Column="38" />
+      <File FileName="Assets\Script\Managers\ProfileManager.cs" Line="38" Column="95" />
+      <File FileName="Assets\Script\MainMenu\MainMenu.cs" Line="225" Column="14" />
+      <File FileName="Assets\Script\Managers\FadeManager.cs" Line="73" Column="23" />
+      <File FileName="Assets\Script\Managers\DataManager.cs" Line="583" Column="17" />
+      <File FileName="Assets\Script\LAN\OpeningLANScene.cs" Line="586" Column="12" />
+      <File FileName="Assets\Script\OptionScreen\OptionScript.cs" Line="612" Column="3" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
