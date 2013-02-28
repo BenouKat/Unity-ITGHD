@@ -243,8 +243,11 @@ public class OpeningLANScene : MonoBehaviour {
 		GUI.DrawTexture(new Rect(posOptionSelected.x*Screen.width, posOptionSelected.y*Screen.height, posOptionSelected.width*Screen.width, posOptionSelected.height*Screen.height), tex["option" + finalSelected]);
 		
 		//Error
-		GUI.color = new Color(1f, 0.2f, 0.2f, 1f - alphaTitle);
-		GUI.Label(new Rect(errorInfo.x*Screen.width, errorInfo.y*Screen.height, errorInfo.width*Screen.width, errorInfo.height*Screen.height), TextManager.Instance.texts["LAN"]["ERRORMode"]);
+		if(error)
+		{
+			GUI.color = new Color(1f, 0.2f, 0.2f, 1f - alphaTitle);
+			GUI.Label(new Rect(errorInfo.x*Screen.width, errorInfo.y*Screen.height, errorInfo.width*Screen.width, errorInfo.height*Screen.height), TextManager.Instance.texts["LAN"]["ERRORMode"]);
+		}
 		
 		//Round
 		GUI.color = new Color(1f, 1f, 1f, 1f - alphaTitle);
@@ -335,9 +338,11 @@ public class OpeningLANScene : MonoBehaviour {
 		GUI.DrawTexture(new Rect(posOptionSelected.x*Screen.width, posOptionSelected.y*Screen.height, posOptionSelected.width*Screen.width, posOptionSelected.height*Screen.height), tex["join" + finalSelected]);
 		
 		//Error
-		GUI.color = new Color(1f, 0.2f, 0.2f, 1f - alphaTitle);
-		GUI.Label(new Rect(errorInfo.x*Screen.width, errorInfo.y*Screen.height, errorInfo.width*Screen.width, errorInfo.height*Screen.height), TextManager.Instance.texts["LAN"]["ERRORJoin"]);
-		
+		if(error)
+		{
+			GUI.color = new Color(1f, 0.2f, 0.2f, 1f - alphaTitle);
+			GUI.Label(new Rect(errorInfo.x*Screen.width, errorInfo.y*Screen.height, errorInfo.width*Screen.width, errorInfo.height*Screen.height), TextManager.Instance.texts["LAN"]["ERRORJoin"]);
+		}
 		
 		//Info join
 		GUI.color = new Color(1f, 1f, 1f, 1f - alphaTitle);
@@ -556,6 +561,7 @@ public class OpeningLANScene : MonoBehaviour {
 			LANManager.Instance.isCreator = true;
 			LANManager.Instance.modeLANselected = (LANMode)optionSelected;
 			LANManager.Instance.roundNumber = System.Convert.ToInt32(roundValue);
+			LANManager.Instance.modeLANselected = (LANMode)finalSelected;
 		}
 		
 		Application.LoadLevel("LANSelection");
@@ -580,6 +586,11 @@ public class OpeningLANScene : MonoBehaviour {
 	public bool isRoundNumberValid()
 	{
 		var result = 0;
+		if(finalSelected == 0) //ffa
+		{
+			error = false;
+			return true;
+		}
 		if(System.Int32.TryParse(roundValue, out result))
 		{
 			error = !(result > 0 && result < 100);

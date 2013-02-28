@@ -30,16 +30,11 @@ public class NetworkScript : MonoBehaviour {
 			LANManager.Instance.portRequest = portAsked;
 		}
 		LANManager.Instance.IPRequest = ipAsked;
-		
 	}
 	
 	void TestShort()
 	{
 		ProfileManager.Instance.CreateTestProfile();
-		if(server)
-		{
-			LANManager.Instance.actualPort = portAsked;
-		}
 	}
 	// Use this for initialization
 	void Start () {
@@ -52,6 +47,10 @@ public class NetworkScript : MonoBehaviour {
 
 	}
 	
+	void OnApplicationQuit()
+	{
+		Network.Disconnect();
+	}
 	
 	public void StartNetwork()
 	{
@@ -72,7 +71,13 @@ public class NetworkScript : MonoBehaviour {
 	{
 		if(Network.player.externalIP.Contains("UNASSIGNED"))
 		{
-			LANManager.Instance.actualIP = Network.player.ipAddress;
+			if(Network.player.ipAddress == "0.0.0.0")
+			{
+				LANManager.Instance.actualIP = "localhost";	
+			}else
+			{
+				LANManager.Instance.actualIP = Network.player.ipAddress;
+			}
 		}else{
 			LANManager.Instance.actualIP = Network.player.externalIP;
 		}
@@ -83,7 +88,7 @@ public class NetworkScript : MonoBehaviour {
 		LANManager.Instance.players.Add(Network.player, new CublastPlayer(ProfileManager.Instance.currentProfile.name, ProfileManager.Instance.currentProfile.idFile));
 		LANManager.Instance.players[Network.player].packName = LoadManager.Instance.getAllPackName();
 		cls.addHitNet(Network.player);
-		
+		GetComponent<ChatScript>().active(true);
 		LANManager.Instance.dataArrived = true;
 		cls.stateScene = LANConnexionState.INITIALIZESCENE;
 	}
@@ -130,6 +135,7 @@ public class NetworkScript : MonoBehaviour {
 		
 		networkView.RPC("getInfoOnPlayerConnected", RPCMode.Server, Network.player, ProfileManager.Instance.currentProfile.name, ProfileManager.Instance.currentProfile.idFile, ProfileManager.Instance.currentProfile.victoryOnline, LoadManager.Instance.getAllPackName());
 		
+		GetComponent<ChatScript>().active(true);
 		GetComponent<ChatScript>().sendDirectMessage("Info", ProfileManager.Instance.currentProfile.name + " has joined the node");
 		
 		cls.stateScene = LANConnexionState.INITIALIZESCENE;
@@ -138,6 +144,7 @@ public class NetworkScript : MonoBehaviour {
 	
 	void OnDisconnectedFromServer(NetworkDisconnection info)
 	{
+		GetComponent<ChatScript>().active(false);
 		LANManager.Instance.errorToDisplay = info.ToString();
 		cls.stateScene = LANConnexionState.FAIL;
 	}
@@ -206,7 +213,7 @@ public class NetworkScript : MonoBehaviour {
 	}
 	
 	[RPC]
-	void getNameOfAllPlayers(string players, string playersID, string playersVict, string playersReady, string nameEvent, string idEvent)
+	void getNameOfAllPlayers(string players, string playersID, string playersReady, string playersVict, string nameEvent, string idEvent)
 	{
 		var oldList = new Dictionary<GameObject, CublastPlayer>();
 		for(int i = 0; i < cls.hitNetClient.Count; i++){
@@ -220,7 +227,7 @@ public class NetworkScript : MonoBehaviour {
 		
 		for(int i = 0; i < playerGetted.Length; i++)
 		{
-			cls.associateCubeToString(playerGetted[i], playersIDGetted[i], playersReadyGetted[i] == "1", System.Convert.ToInt32(playersVictGetted[i]));	
+			cls.associateCubeToString(playerGetted[i], playersIDGetted[i], System.Convert.ToInt32(playersReadyGetted[i]) == 1, System.Convert.ToInt32(playersVictGetted[i]));	
 		}
 		
 		cls.checkForVerificationConnected(nameEvent, idEvent, oldList);
@@ -237,37 +244,56 @@ public class NetworkScript : MonoBehaviour {
 		cls.checkPlayerReady(name, id);	
 	}
 	
-	public void callProfileToServer(string name, string id, NetworkPlayer player)
+	//Client side
+	public void callProfileToServer(string name, string id, NetworkPlayer playerAsked)
 	{
-		networkView.RPC ("notifyPlayerForProfile", RPCMode.Server, name, id, player);
+		networkView.RPC ("notifyPlayerForProfile", RPCMode.Server, name, id, playerAsked);
 	}
 	
+	//Server side
 	[RPC]
-	public void notifyPlayerForProfile(string name, string id, NetworkPlayer player)
+	public void notifyPlayerForProfile(string name, string id, NetworkPlayer playerAsked)
 	{
-		var theNP = LANManager.Instance.players.FirstOrDefault(c => c.Value.name == name && c.Value.idFile == id).Key;
-		if(theNP != null)
+		var playerCalled = LANManager.Instance.players.FirstOrDefault(c => c.Value.name == name && c.Value.idFile == id).Key;
+		if(playerCalled != null)
 		{
-			if(theNP.ToString() == "0") //Server
+			if(playerCalled.ToString() == "0") //Server
 			{
-				sendProfile(player);	
+				networkView.RPC("getPlayerProfile", playerAsked, ProfileManager.Instance.getProfileStream());	
 			}else
 			{
-				networkView.RPC ("sendProfile", theNP, player);	
+				networkView.RPC ("sendProfile", playerCalled, playerAsked);	
 			}
 			
 		}
 	}
 	
+	//Client called side
 	[RPC]
-	void sendProfile(NetworkPlayer player)
+	void sendProfile(NetworkPlayer playerAsked)
 	{
-		networkView.RPC("getProfile", player, ProfileManager.Instance.getProfileStream());
+		networkView.RPC("getProfile", RPCMode.Server, ProfileManager.Instance.getProfileStream(), playerAsked);	
 	}
 	
+	//Server side
 	[RPC]
-	void getProfile(byte[] profile)
+	void getProfile(byte[] profile, NetworkPlayer playerAsked)
 	{
-		ProfileManager.Instance.saveProfileStream(profile);
+		if(playerAsked.ToString() == "0")
+		{
+			var name = ProfileManager.Instance.saveProfileStream(profile);	
+			GetComponent<ChatScript>().sendDirectMessage("Info", ProfileManager.Instance.currentProfile.name + " " + name + " profile");
+		}else{
+			networkView.RPC ("getPlayerProfile", playerAsked, profile);
+		}
+		
+	}
+	
+	//Client asked side
+	[RPC]
+	void getPlayerProfile(byte[] profile)
+	{
+		var name = ProfileManager.Instance.saveProfileStream(profile);	
+		GetComponent<ChatScript>().sendDirectMessage("Info", ProfileManager.Instance.currentProfile.name + " " + name + " profile");
 	}
 }

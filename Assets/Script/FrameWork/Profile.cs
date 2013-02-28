@@ -38,7 +38,7 @@ public class Profile{
 	public bool useTheCacheSystem;
 	
 	//Profiles
-	public ProfileDownloadType PDT;
+	public int portPref;
 	
 	//Audio
 	public float generalVolume;
@@ -83,7 +83,7 @@ public class Profile{
 		mouseMolSpeed = 1;
 		dancepadMode = false;
 		quickMode = false;
-		PDT =  ProfileDownloadType.ALL;
+		portPref = 25000;
 		generalVolume = 1f;
 		enableBloom = true;
 		enableDepthOfField = true;
@@ -130,7 +130,7 @@ public class Profile{
 		DataManager.Instance.mouseMolSpeed = this.mouseMolSpeed;
 		DataManager.Instance.dancepadMode = this.dancepadMode;
 		DataManager.Instance.quickMode = this.quickMode;
-		DataManager.Instance.PDT = this.PDT;
+		LANManager.Instance.actualPort = this.portPref;
 		DataManager.Instance.generalVolume = this.generalVolume;
 		DataManager.Instance.enableBloom = this.enableBloom;
 		DataManager.Instance.enableDepthOfField = this.enableDepthOfField;
@@ -154,7 +154,7 @@ public class Profile{
 		this.mouseMolSpeed = DataManager.Instance.mouseMolSpeed;
 		this.dancepadMode = DataManager.Instance.dancepadMode;
 		this.quickMode = DataManager.Instance.quickMode;
-		this.PDT = DataManager.Instance.PDT;
+		this.portPref = LANManager.Instance.actualPort;
 		this.generalVolume = DataManager.Instance.generalVolume;
 		this.enableBloom = DataManager.Instance.enableBloom;
 		this.enableDepthOfField = DataManager.Instance.enableDepthOfField;

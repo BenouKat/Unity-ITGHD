@@ -87,7 +87,7 @@ public class LANManager{
 		modeLANselected = LANMode.NONE;
 		players = new Dictionary<NetworkPlayer, CublastPlayer>();
 		numberOfPlayersConnected = 0;
-		roundNumber = 0;
+		roundNumber = 5;
 		isCreator = true;
 		
 		actualIP = "";

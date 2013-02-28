@@ -34,13 +34,6 @@ public enum Sort{
 	BPM
 }
 
-public enum ProfileDownloadType{
-	NEVER,
-	NOTMANY,
-	MANY,
-	ALL,
-}
-
 public enum ScoreCount{
 		FANTASTIC,
 		EXCELLENT,

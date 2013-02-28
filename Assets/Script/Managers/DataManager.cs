@@ -62,9 +62,6 @@ public class DataManager{
 	public bool quickMode;
 	public bool useTheCacheSystem;
 	
-	//Profiles
-	public ProfileDownloadType PDT;
-	
 	//Audio
 	public float generalVolume;
 	

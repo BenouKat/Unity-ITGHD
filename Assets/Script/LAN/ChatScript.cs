@@ -11,6 +11,7 @@ public class ChatScript : MonoBehaviour {
 	
 	public int maxSentenceCount;
 	
+	private bool activateChat;
 	
 	//GUI 
 	public GUISkin skin;
@@ -35,6 +36,7 @@ public class ChatScript : MonoBehaviour {
 		chatActive = false;
 		popinChatTrigger = false;
 		popoutChatTrigger = false;
+		activateChat = false;
 		dialogListed = new List<string>();
 	}
 	
@@ -53,29 +55,32 @@ public class ChatScript : MonoBehaviour {
 	
 	void OnGUI()
 	{
-		GUI.skin = skin;
-
-		GUI.TextArea(new Rect(posTextArea.x*Screen.width + (decalChatWindow.x*valueDecal)*Screen.width, 
-			posTextArea.y*Screen.height + (decalChatWindow.y*valueDecal)*Screen.height, 
-			posTextArea.width*Screen.width, posTextArea.height*Screen.height), dialog, 1000);
-		
-		tmpDialog = GUI.TextField(new Rect(posTextField.x*Screen.width + (decalChatWindow.x*valueDecal)*Screen.width, 
-			posTextField.y*Screen.height + (decalChatWindow.y*valueDecal)*Screen.height, 
-			posTextField.width*Screen.width, posTextField.height*Screen.height), tmpDialog, 160);
-		
-		if(Event.current.isKey && Event.current.keyCode == KeyCode.Return && !String.IsNullOrEmpty(tmpDialog))
+		if(activateChat)
 		{
-			networkView.RPC("addLine", RPCMode.All, ProfileManager.Instance.currentProfile.name, tmpDialog);
-			tmpDialog = "";
-		}
-		
-		if(GUI.Button(new Rect(posButtonHideChat.x*Screen.width, posButtonHideChat.y*Screen.height, posButtonHideChat.width*Screen.width, posButtonHideChat.height*Screen.height), chatActive ? "Hide" : "Chat"))
-		{
-			if(chatActive)
+			GUI.skin = skin;
+	
+			GUI.TextArea(new Rect(posTextArea.x*Screen.width + (decalChatWindow.x*valueDecal)*Screen.width, 
+				posTextArea.y*Screen.height + (decalChatWindow.y*valueDecal)*Screen.height, 
+				posTextArea.width*Screen.width, posTextArea.height*Screen.height), dialog, 1000);
+			
+			tmpDialog = GUI.TextField(new Rect(posTextField.x*Screen.width + (decalChatWindow.x*valueDecal)*Screen.width, 
+				posTextField.y*Screen.height + (decalChatWindow.y*valueDecal)*Screen.height, 
+				posTextField.width*Screen.width, posTextField.height*Screen.height), tmpDialog, 160);
+			
+			if(Event.current.isKey && Event.current.keyCode == KeyCode.Return && !String.IsNullOrEmpty(tmpDialog))
 			{
-				popoutChatTrigger = true;
-			}else{
-				popinChatTrigger = true;
+				networkView.RPC("addLine", RPCMode.All, ProfileManager.Instance.currentProfile.name, tmpDialog);
+				tmpDialog = "";
+			}
+			
+			if(GUI.Button(new Rect(posButtonHideChat.x*Screen.width, posButtonHideChat.y*Screen.height, posButtonHideChat.width*Screen.width, posButtonHideChat.height*Screen.height), chatActive ? "Hide" : "Chat"))
+			{
+				if(chatActive)
+				{
+					popoutChatTrigger = true;
+				}else{
+					popinChatTrigger = true;
+				}
 			}
 		}
 	}
@@ -131,5 +136,10 @@ public class ChatScript : MonoBehaviour {
 			popinChatTrigger = false;
 			chatActive = true;
 		}
+	}
+	
+	public void active(bool activate)
+	{
+		activateChat = activate;
 	}
 }

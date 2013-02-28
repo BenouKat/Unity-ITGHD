@@ -114,18 +114,26 @@ public class ProfileManager{
 		return ms.ToArray();
 	}
 	
-	public void saveProfileStream(byte[] stream)
+	public string saveProfileStream(byte[] stream)
 	{
 		Profile pr = new Profile();
 		MemoryStream ms = new MemoryStream(stream);
 		BinaryFormatter bf = new BinaryFormatter();
 		bf.Binder = new VersionDeserializationBinder();
 		pr = (Profile)bf.Deserialize(ms);
-		
+		var name = "";
+		if(File.Exists(Application.dataPath + DataManager.Instance.DEBUGPATH + "Profiles/" + pr.idFile + ".profile"))
+		{
+			File.Delete(Application.dataPath + DataManager.Instance.DEBUGPATH + "Profiles/" + pr.idFile + ".profile");	
+			name = "updates ";
+		}else
+		{
+			name = "gets ";
+		}
 		Stream fstream = File.Open(Application.dataPath + DataManager.Instance.DEBUGPATH + "Profiles/" + pr.idFile + ".profile", FileMode.Create);
 		BinaryFormatter bformatter = new BinaryFormatter();
 	    bformatter.Binder = new VersionDeserializationBinder(); 
-		
+		name += pr.name;
 		try{
 			bformatter.Serialize(fstream, pr);
 			fstream.Close();
@@ -135,6 +143,8 @@ public class ProfileManager{
 			File.Delete(Application.dataPath + DataManager.Instance.DEBUGPATH + "Profiles/" + pr.idFile + ".profile");
 			Debug.Log(e.Message);
 		}
+		
+		return name;
 	}
 	
 	public void LoadProfiles () {

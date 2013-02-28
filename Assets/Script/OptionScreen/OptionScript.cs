@@ -134,8 +134,7 @@ public class OptionScript : MonoBehaviour {
 	private bool cacheMode;
 	
 	//Network
-	private string[] networkValue;
-	private ProfileDownloadType PDT;
+	private string portPref;
 	
 	
 	//textures
@@ -160,7 +159,7 @@ public class OptionScript : MonoBehaviour {
 		quickMode = DataManager.Instance.quickMode;
 		padMode = DataManager.Instance.dancepadMode;
 		cacheMode = DataManager.Instance.useTheCacheSystem;
-		PDT = DataManager.Instance.PDT;
+		portPref = LANManager.Instance.portRequest.ToString();
 		
 		generalVolume = DataManager.Instance.generalVolume * 100f;
 		
@@ -168,12 +167,6 @@ public class OptionScript : MonoBehaviour {
 		enableDOF = DataManager.Instance.enableDepthOfField;
 		antiAliasing = DataManager.Instance.antiAliasing;
 		onlyOnGame = DataManager.Instance.onlyOnGame;
-		
-		networkValue = new string[4];
-		networkValue[(int)ProfileDownloadType.NEVER] = "Ne jamais partager les profiles";
-		networkValue[(int)ProfileDownloadType.NOTMANY] = "Ne pas stocker plus de 10 profiles";
-		networkValue[(int)ProfileDownloadType.MANY] = "Ne pas stocker plus de 50 profiles";
-		networkValue[(int)ProfileDownloadType.ALL] = "Stocker tous les profiles";
 		
 		fadeOut = false;
 		fm = gameObject.GetComponent<FadeManager>();
@@ -276,7 +269,7 @@ public class OptionScript : MonoBehaviour {
 			case "Network":
 			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["NETWORK_CHOICE"]);
 			
-			GUI.Label(new Rect(posLabelListChoice.x*Screen.width + 1, posLabelListChoice.y*Screen.height + 1, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), networkValue[(int)PDT], "centeredLabel");
+			//GUI.Label(new Rect(posLabelListChoice.x*Screen.width + 1, posLabelListChoice.y*Screen.height + 1, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), networkValue[(int)PDT], "centeredLabel");
 			break;
 			
 			
@@ -409,6 +402,7 @@ public class OptionScript : MonoBehaviour {
 			case "Network":
 			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["NETWORK_CHOICE"]);
 			
+			/*
 			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width + offsetBetweenLabel*Screen.width + sizeArrowButton.x*Screen.width, posLabelListChoice.y*Screen.height + sizeArrowButton.y*Screen.height, sizeArrowButton.width*Screen.width, sizeArrowButton.height*Screen.height), "", "rightArrow")){
 				PDT++;
 				if((int)PDT > 3) PDT = (ProfileDownloadType)0;
@@ -420,7 +414,11 @@ public class OptionScript : MonoBehaviour {
 			}
 			
 			GUI.Label(new Rect(posLabelListChoice.x*Screen.width, posLabelListChoice.y*Screen.height, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), networkValue[(int)PDT], "centeredLabel");
+			*/
 			//Faire une anim ?
+			
+			portPref = GUI.TextField(new Rect(posTextFieldOption.x*Screen.width, posTextFieldOption.y*Screen.height + offsetLabelYOption*Screen.height, posTextFieldOption.width*Screen.width, posTextFieldOption.height*Screen.height), portPref, 5);
+		
 			break;
 			
 			
@@ -956,7 +954,7 @@ public class OptionScript : MonoBehaviour {
 		DataManager.Instance.enableDepthOfField = enableDOF;
 		DataManager.Instance.antiAliasing = antiAliasing;
 		
-		DataManager.Instance.PDT = PDT;
+		LANManager.Instance.portRequest = System.Convert.ToInt32(portPref);
 		DataManager.Instance.useTheCacheSystem = cacheMode;
 		DataManager.Instance.dancepadMode = padMode;
 		DataManager.Instance.quickMode = quickMode;
@@ -980,7 +978,7 @@ public class OptionScript : MonoBehaviour {
 		quickMode = DataManager.Instance.quickMode;
 		padMode = DataManager.Instance.dancepadMode;
 		cacheMode = DataManager.Instance.useTheCacheSystem;
-		PDT = DataManager.Instance.PDT;
+		portPref = LANManager.Instance.portRequest.ToString();
 		
 		generalVolume = DataManager.Instance.generalVolume * 100f;
 		
@@ -1007,6 +1005,17 @@ public class OptionScript : MonoBehaviour {
 				return false;
 			}else if(outputInt > 5){
 				errorMessage = "Mouse speed : Maximum value is 5";
+				return false;
+			}
+		}
+		
+		if(!System.Int32.TryParse(portPref, out outputInt)){
+			errorMessage = "Port : not a valid entry";	
+			return false;
+		}else{
+			if(outputInt < 0)
+			{
+				errorMessage = "Network port is a positive integer";
 				return false;
 			}
 		}
