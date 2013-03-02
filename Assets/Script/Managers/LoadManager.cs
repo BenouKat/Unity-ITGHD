@@ -297,13 +297,10 @@ public class LoadManager{
 		
 	}
 	
-	/**
-	 * 	TEST MODE ON
-	 */
 	public string getAllPackName()
 	{
 		var packName = "";
-		/*
+		
 		for(int i=0; i < songs.Count(); i++)
 		{
 			packName += songs.ElementAt(i).Key;
@@ -311,16 +308,17 @@ public class LoadManager{
 			{
 				packName += ";";	
 			}
-		}*/
+		}
 		
 		
 		//TESTING
+		/*
 		packName = "MotaBlob" + 
 			(UnityEngine.Random.value < 0.5 ? ";PackOneTwo" : "") +
 				(UnityEngine.Random.value < 0.5 ? ";PackTwoThree" : "") +
 				(UnityEngine.Random.value < 0.5 ? ";PackFourFive" : "") +
 				(UnityEngine.Random.value < 0.5 ? ";PackSixSex" : "") +
-				(UnityEngine.Random.value < 0.5 ? ";PackFinalBeam" : "");
+				(UnityEngine.Random.value < 0.5 ? ";PackFinalBeam" : "");*/
 		return packName;
 	}
 	

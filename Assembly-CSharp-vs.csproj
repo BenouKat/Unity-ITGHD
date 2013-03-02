@@ -92,6 +92,12 @@
      <Compile Include="Assets\Script\Test\CaptureScreen.cs" />
      <Compile Include="Assets\Script\Wheel\DebugOffset.cs" />
      <Compile Include="Assets\Script\Wheel\ErrorLabel.cs" />
+     <Compile Include="Assets\Script\Wheel\GeneralScript.cs" />
+     <Compile Include="Assets\Script\Wheel\InfoZone.cs" />
+     <Compile Include="Assets\Script\Wheel\LaunchSongZone.cs" />
+     <Compile Include="Assets\Script\Wheel\OptionZone.cs" />
+     <Compile Include="Assets\Script\Wheel\PackZone.cs" />
+     <Compile Include="Assets\Script\Wheel\SongZone.cs" />
      <Compile Include="Assets\Script\Wheel\WheelSongMainScript.cs" />
      <None Include="Assets\Standard Assets\Projectors\Guidelines.txt" />
      <None Include="Assets\Standard Assets\Glass Refraction (Pro Only)\Sources\Shaders\Glass-Stained-BumpDistort.shader" />

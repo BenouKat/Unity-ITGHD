@@ -165,7 +165,11 @@ public class ConnectingLANScene : MonoBehaviour {
 			{
 				hiddenPart.transform.GetChild(i).gameObject.active = true;
 			}
-			cubePlayers.transform.GetChild(0).renderer.material.color = new Color(1f, 1f, 1f, 1f);
+			if(LANManager.Instance.isCreator)
+			{
+				cubePlayers.transform.GetChild(0).renderer.material.color = new Color(1f, 1f, 1f, 1f);
+			}
+			
 		}
 		
 		if(hiddenPart.active)

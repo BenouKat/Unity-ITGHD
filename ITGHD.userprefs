@@ -1,12 +1,13 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\LAN\ConnectingLANScene.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Wheel\GeneralScript.cs">
     <Files>
-      <File FileName="Assets\Script\LAN\ConnectingLANScene.cs" Line="103" Column="62" />
-      <File FileName="Assets\Script\LAN\NetworkScript.cs" Line="209" Column="5" />
-      <File FileName="Assets\Script\LAN\ChatScript.cs" Line="39" Column="24" />
-      <File FileName="Assets\Script\Managers\ProfileManager.cs" Line="131" Column="16" />
-      <File FileName="Assets\Script\Managers\LoadManager.cs" Line="1" Column="1" />
+      <File FileName="Assets\Script\Wheel\GeneralScript.cs" Line="149" Column="3" />
+      <File FileName="Assets\Script\Wheel\InfoZone.cs" Line="108" Column="19" />
+      <File FileName="Assets\Script\Wheel\SongZone.cs" Line="57" Column="20" />
+      <File FileName="Assets\Script\Wheel\OptionZone.cs" Line="151" Column="3" />
+      <File FileName="Assets\Script\Wheel\LaunchSongZone.cs" Line="5" Column="14" />
+      <File FileName="Assets\Script\Wheel\PackZone.cs" Line="84" Column="38" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
