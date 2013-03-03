@@ -138,7 +138,7 @@ public class ChatScript : MonoBehaviour {
 		}
 	}
 	
-	public void active(bool activate)
+	public void activeChat(bool activate)
 	{
 		activateChat = activate;
 	}

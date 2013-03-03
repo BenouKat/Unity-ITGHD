@@ -402,7 +402,12 @@ public class ConnectingLANScene : MonoBehaviour {
 							cubeSelec.transform.Find("3 - Unready").gameObject.active = true;
 							cubeSelec.transform.Find("3 - Unready").particleSystem.Play();
 							GetComponent<ChatScript>().sendDirectMessage("Info", LANManager.Instance.players.ElementAt(i).Value.name + " is not ready");
+							someoneNotReady = true;
 						}
+					}
+					if(someoneNotReady)
+					{
+						//launch	
 					}
 				}
 			}

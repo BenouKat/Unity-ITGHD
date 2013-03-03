@@ -88,7 +88,7 @@ public class NetworkScript : MonoBehaviour {
 		LANManager.Instance.players.Add(Network.player, new CublastPlayer(ProfileManager.Instance.currentProfile.name, ProfileManager.Instance.currentProfile.idFile));
 		LANManager.Instance.players[Network.player].packName = LoadManager.Instance.getAllPackName();
 		cls.addHitNet(Network.player);
-		GetComponent<ChatScript>().active(true);
+		GetComponent<ChatScript>().activeChat(true);
 		LANManager.Instance.dataArrived = true;
 		cls.stateScene = LANConnexionState.INITIALIZESCENE;
 	}
@@ -135,7 +135,7 @@ public class NetworkScript : MonoBehaviour {
 		
 		networkView.RPC("getInfoOnPlayerConnected", RPCMode.Server, Network.player, ProfileManager.Instance.currentProfile.name, ProfileManager.Instance.currentProfile.idFile, ProfileManager.Instance.currentProfile.victoryOnline, LoadManager.Instance.getAllPackName());
 		
-		GetComponent<ChatScript>().active(true);
+		GetComponent<ChatScript>().activeChat(true);
 		GetComponent<ChatScript>().sendDirectMessage("Info", ProfileManager.Instance.currentProfile.name + " has joined the node");
 		
 		cls.stateScene = LANConnexionState.INITIALIZESCENE;
@@ -144,7 +144,7 @@ public class NetworkScript : MonoBehaviour {
 	
 	void OnDisconnectedFromServer(NetworkDisconnection info)
 	{
-		GetComponent<ChatScript>().active(false);
+		GetComponent<ChatScript>().activeChat(false);
 		LANManager.Instance.errorToDisplay = info.ToString();
 		cls.stateScene = LANConnexionState.FAIL;
 	}

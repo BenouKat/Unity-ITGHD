@@ -82,12 +82,69 @@ public class PackZone : MonoBehaviour {
 		organiseCube();
 		
 		activePack(packs.ElementAt(0).Key);
+		
+		decalFade = 0f;
+		decalFadeM = 0f;
+		fadeAlpha = 0f;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 	
 	}
+	
+	void OnGUI()
+	{
+		if(!LoadManager.Instance.isAllowedToSearch(search)){
+			var decal = ((Screen.width - wd*Screen.width)/2);
+			if(movinBackward) GUI.Label(new Rect((xm10*2f + decalFadeM)*Screen.width + decal, y*Screen.height, wd*Screen.width, ht*Screen.height), packs.ElementAt(PrevInt(numberPack, 2)).Key);
+			if(!movinForward) GUI.Label(new Rect((xm10 + decalFadeM)*Screen.width + decal, y*Screen.height, wd*Screen.width, ht*Screen.height), packs.ElementAt(PrevInt(numberPack, 1)).Key);
+			GUI.Label(new Rect(decalFade > 0 ? decalFade*Screen.width + decal : decalFadeM*Screen.width + decal  , y*Screen.height, wd*Screen.width, ht*Screen.height), packs.ElementAt(numberPack).Key);
+			if(!movinBackward) GUI.Label(new Rect((x10 + decalFade)*Screen.width + decal, y*Screen.height, wd*Screen.width, ht*Screen.height), packs.ElementAt(NextInt(numberPack, 1)).Key);
+			if(movinForward) GUI.Label(new Rect((x10*2f + decalFade)*Screen.width + decal, y*Screen.height, wd*Screen.width, ht*Screen.height), packs.ElementAt(NextInt(numberPack, 2)).Key);
+			
+		
+		
+			if(GUI.Button(new Rect(posBackward.x*Screen.width, posBackward.y*Screen.height, posBackward.width*Screen.width, posBackward.height*Screen.height),"","LBackward") && !movinBackward && !movinNormal && !movinOption){
+				nextnumberPack = PrevInt(numberPack, 1);
+				activePack(packs.ElementAt(nextnumberPack).Key);
+				movinBackward = true;
+				startnumber = 0;
+				currentstartnumber = 0;
+				camerapack.transform.position = new Vector3(0f, 0f, 0f);
+				cubeBase.transform.position = basePosCubeBase;
+			}
+			if(GUI.Button(new Rect(posBackward.x*Screen.width, posBackward.y*Screen.height + ecart*Screen.height, posBackward.width*Screen.width, posBackward.height*Screen.height),"","Backward") && !movinNormal && !movinOption){
+				nextnumberPack = PrevInt(numberPack, 3);
+				activePack(packs.ElementAt(nextnumberPack).Key);
+				movinBackwardFast = true;
+				startnumber = 0;
+				currentstartnumber = 0;
+				camerapack.transform.position = new Vector3(0f, 0f, 0f);
+				cubeBase.transform.position = basePosCubeBase;
+			}
+			
+			if(GUI.Button(new Rect(posForward.x*Screen.width, posForward.y*Screen.height, posForward.width*Screen.width, posForward.height*Screen.height),"","LForward") && !movinForward && !movinNormal && !movinOption)
+			{
+				nextnumberPack = NextInt(numberPack, 1);
+				activePack(packs.ElementAt(nextnumberPack).Key);
+				movinForward = true;
+				startnumber = 0;
+				currentstartnumber = 0;
+				camerapack.transform.position = new Vector3(0f, 0f, 0f);
+				cubeBase.transform.position = basePosCubeBase;
+			}
+			if(GUI.Button(new Rect(posForward.x*Screen.width, posForward.y*Screen.height + ecart*Screen.height, posForward.width*Screen.width, posForward.height*Screen.height),"","Forward") && !movinNormal && !movinOption){
+				nextnumberPack = NextInt(numberPack, 3);
+				activePack(packs.ElementAt(nextnumberPack).Key);
+				movinForwardFast = true;
+				startnumber = 0;
+				camerapack.transform.position = new Vector3(0f, 0f, 0f);
+				cubeBase.transform.position = basePosCubeBase;
+			}
+		}
+	}
+	
 	
 	void organiseCube(){
 		cubesPos.ElementAt(0).Key.transform.position = new Vector3(0f, 13, 20f);
