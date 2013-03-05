@@ -21,6 +21,13 @@ public class GeneralScript : MonoBehaviour {
 	public ParticleSystem Explode2;
 	public ParticleSystem Explode3;
 	
+	
+	private PackZone packZone;
+	private SongZone songZone;
+	private InfoZone infoZone;
+	private OptionZone optionZone;
+	private LaunchSongZone launchSongZone;
+	
 	//List And dictionary
 	
 	private Dictionary<string, Texture2D> tex;
@@ -90,6 +97,11 @@ public class GeneralScript : MonoBehaviour {
 	
 	void Start () {
 		
+		packZone = GetComponent<PackZone>();
+		songZone = GetComponent<SongZone>();
+		infoZone = GetComponent<InfoZone>();
+		optionZone = GetComponent<OptionZone>();
+		launchSongZone = GetComponent<LaunchSongZone>();
 		
 		timeFade = 0f;
 		if(!LoadManager.Instance.alreadyLoaded) ProfileManager.Instance.CreateTestProfile();
@@ -566,6 +578,31 @@ public class GeneralScript : MonoBehaviour {
 		#endregion
 	}
 	
+	
+	public PackZone getZonePack()
+	{
+		return packZone;
+	}
+	
+	public SongZone getZoneSong()
+	{
+		return songZone;
+	}
+	
+	public OptionZone getZoneOption()
+	{
+		return optionZone;
+	}
+	
+	public InfoZone getZoneInfo()
+	{
+		return infoZone;
+	}
+	
+	public LaunchSongZone getZoneLaunchSong()
+	{
+		return launchSongZone;
+	}
 	#region sound
 	IEnumerator startTheSongUnstreamed(){
 		

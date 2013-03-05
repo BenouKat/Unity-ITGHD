@@ -286,40 +286,10 @@ public class PackZone : MonoBehaviour {
 	
 	}
 	
-	/*
-	void activePack(string s){
-		foreach(var el in songCubePack){
-			if(el.Value == s && el.Key.transform.position.y > - 3f*numberToDisplay){
-				el.Key.SetActiveRecursively(true);
-				el.Key.transform.FindChild("Selection").gameObject.active = false;
-			}else if(el.Key.active){
-				el.Key.SetActiveRecursively(false);
-			}
-		}
-		plane.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[packs.ElementAt(nextnumberPack).Key];
-		plane.renderer.material.color = new Color(plane.renderer.material.color.r, plane.renderer.material.color.g, plane.renderer.material.color.b, 1f);
-		alphaBanner = 1f;
-		FadeOutBanner = false;
-	}
 	
-	void activeCustomPack(){
-		foreach(var el in customSongCubePack){
-			if(el.Key.transform.position.y > - 3f*numberToDisplay){
-				el.Key.SetActiveRecursively(true);
-				el.Key.transform.FindChild("Selection").gameObject.active = false;
-			}else if(el.Key.active){
-				el.Key.SetActiveRecursively(false);
-			}
-		}
+	void activePack(){
+		GetComponent<GeneralScript>().getSongPack().setSongList(LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberpack).Value]);
 	}
-	
-	void desactivePack(){
-		foreach(var el in songCubePack){
-			if(el.Key.active){
-				el.Key.SetActiveRecursively(false);
-			}
-		}
-	}*/
 	
 	
 }

@@ -7,19 +7,23 @@ using System;
 public class SongZone : MonoBehaviour {
 	
 	
+	
+	public Camera camerasong;
 	public GameObject cubeSong;
-	public GameObject cubeBase;
 	
 	
 	
 	private Dictionary<GameObject, string> songCubePack;
-	private Dictionary<GameObject, string> customSongCubePack;
-	private Dictionary<GameObject, string> LinkCubeSong;
-	private Dictionary<GameObject, string> customLinkCubeSong;
 	private Dictionary<Difficulty, Song> songSelected;
 	
 	//SongList
 	private GameObject cubeSelected;
+	public float decalCubeSelected;
+	public float startSongListY; //2f
+	public float decalSongListY; //-3f
+	public float decalLabelX;
+	public float decalLabelY;
+	
 	public Rect posSonglist;
 	public float ecartSong;
 	private GameObject particleOnPlay;
@@ -29,16 +33,15 @@ public class SongZone : MonoBehaviour {
 	public float speedCameraDefil;
 	private float posLabel;
 	public float offsetSubstitle;
-	private Vector3 basePosCubeBase;
 	
-	
+	private Dictionary<string, Dictionary<Difficulty, Song>> songList;
 	private bool locked;
 	
 	
 	
 	//Search Bar
 	public Rect SearchBarPos;
-	private Dictionary<string, Dictionary<Difficulty, Song>> songList;
+	
 	private string search;
 	private string searchOldValue;
 	public Rect posSwitchSearch;
@@ -51,8 +54,6 @@ public class SongZone : MonoBehaviour {
 		
 		songCubePack = new Dictionary<GameObject, string>();
 		LinkCubeSong = new Dictionary<GameObject, string>();
-		customSongCubePack = new Dictionary<GameObject, string>();
-		customLinkCubeSong = new Dictionary<GameObject, string>();
 		
 		createCubeSong();
 		
@@ -63,14 +64,38 @@ public class SongZone : MonoBehaviour {
 		searchOldValue = "";
 		songList = new Dictionary<string, Dictionary<Difficulty, Song>>();
 		
-		
 		if(DataManager.Instance.mousePosition != -1){
 			startnumber = DataManager.Instance.mousePosition;
 			currentstartnumber = startnumber;
 		}
+	}
+	
+	public void activeSongList(Dictionary<string, Dictionary<Difficulty, Song>> list)
+	{
+		songList = list;
+		if(songList.Count > songCubePack.Count)
+		{
+			var pos = startSongListY  - decalSongList*songCubePack.Count;
+			for(int i=songCubePack.Count; i < songList.Count; i++)
+			{
+				
+				var thego = (GameObject) Instantiate(cubeSong, new Vector3(-25f, pos, 0f), cubeSong.transform.rotation);
+				pos -= decalSongListY;
+				thego.SetActiveRecursively(false);
+				songCubePack.Add(thego, "");
+			}
+		}
 		
-		basePosCubeBase = new Vector3(cubeBase.transform.position.x, 5f, cubeBase.transform.position.z);
-		cubeBase.transform.position = new Vector3(basePosCubeBase.x, basePosCubeBase.y - (3f*startnumber), basePosCubeBase.z);
+		for(int i=0; i < songList.Count; i++)
+		{
+			var key = songCubePack.ElementAt(i).Key;
+			if(!key.active) key.SetActiveRecursivly(true);
+			songCubePack[songCubePack.ElementAt(i).Key] = songList.ElementAt(i).First().Value.title + ";" + songList.ElementAt(i).First().Value.subtitle;
+		}
+		for(int i=songList.Count; i < songCubePack.Count; i++)
+		{
+			if(key.active) key.SetActiveRecursivly(false);
+		}
 	}
 	
 	// Update is called once per frame
@@ -233,7 +258,6 @@ public class SongZone : MonoBehaviour {
 			foreach(var cubeel in songCubeOnRender.Where(c => c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value)){
 				cubeel.Key.SetActiveRecursively(false);
 				if(startnumber > currentstartnumber) currentstartnumber++;
-				cubeBase.transform.position = new Vector3(basePosCubeBase.x, basePosCubeBase.y - (3f*currentstartnumber), basePosCubeBase.z);
 			}
 
 			
@@ -252,7 +276,6 @@ public class SongZone : MonoBehaviour {
 				cubeel.Key.SetActiveRecursively(true);
 				if(startnumber < currentstartnumber) currentstartnumber--;
 				if(cubeSelected == null || cubeSelected != cubeel.Key) cubeel.Key.transform.FindChild("Selection").gameObject.active = false;
-				cubeBase.transform.position = new Vector3(basePosCubeBase.x, basePosCubeBase.y - (3f*currentstartnumber), basePosCubeBase.z);
 				
 			}
 			
@@ -262,42 +285,38 @@ public class SongZone : MonoBehaviour {
 	
 	void OnGUI()
 	{
-		var packOnRender = LoadManager.Instance.isAllowedToSearch(search) ? songList : LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key];
-		var thepos = -posLabel;
-		for(int i=0; i<packOnRender.Count; i++){
-			if(thepos >= 0f && thepos <= numberToDisplay){
-				
-				var el = packOnRender.ElementAt(i);
-				var title = el.Value.First().Value.title;
+		var begin = startnumber == 0 ? 0 : startnumber - 1;
+		for(int i=begin; i<numberToDisplay; i++){
+
+				var point2D = cameraSong.WorldPointToScreen(songCubePack.ElementAt(i).Key.transform.position);
+				point2D.x += decalLabelX*Screen.width;
+				point2D.y += decalLabelY*Screen.height;
+
+				var title = songCubePack.ElementAt(i).Value.Split(';')[0];
 				if(title.Length > 35) title = title.Remove(35, title.Length - 35) + "...";
-				var subtitle = el.Value.First().Value.subtitle;
+				var subtitle = songCubePack.ElementAt(i).Value.Split(';')[1];
 				if(subtitle.Length > 50) subtitle = subtitle.Remove(50, subtitle.Length - 50) + "...";
 				
-				GUI.color = new Color(0f, 0f, 0f, 1f - totalAlpha);
-				GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), title, "songlabel");
-				GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos + offsetSubstitle)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), subtitle, "infosong");
-				GUI.color = new Color(1f, 1f, 1f, 1f - totalAlpha);
-				GUI.Label(new Rect(posSonglist.x*Screen.width, (posSonglist.y + ecartSong*thepos)*Screen.height, posSonglist.width*Screen.width, posSonglist.height*Screen.height), title, "songlabel");
-				GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos + offsetSubstitle)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), subtitle, "infosong");
-			}else if(thepos > -1f && thepos < 0f){
-				var el = packOnRender.ElementAt(i);
+				var alphaText = 1f;
+				if(begin != 0 && i == begin)
+				{
+					alphaText = Math.Abs(cameraSong.transform.position.y - startnumber*decalSongListY + startSongListY);
+					if(decal > 1f)
+					{
+						alphaText = 1f;
+					}
+					
+				}
+				GUI.color = new Color(0f, 0f, 0f, alphaText);
+				GUI.Label(new Rect(point2D.x +1f , point2D.y +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), title, "songlabel");
+				GUI.Label(new Rect(point2D.x +1f , point2D.y + (offsetSubstitle*Screen.height) +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), subtitle, "infosong");
 				
-				var title = el.Value.First().Value.title;
-				if(title.Length > 35) title = title.Remove(35, title.Length - 35) + "...";
-				var subtitle = el.Value.First().Value.subtitle;
-				if(subtitle.Length > 50) subtitle = subtitle.Remove(50, subtitle.Length - 50) + "...";
-				
-				GUI.color = new Color(0f, 0f, 0f, 1f + thepos);
-				GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), title, "songlabel");
-				GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos + offsetSubstitle)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), subtitle, "infosong");
-				GUI.color = new Color(1f, 1f, 1f, 1f + thepos);
-				GUI.Label(new Rect(posSonglist.x*Screen.width, (posSonglist.y + ecartSong*thepos)*Screen.height, posSonglist.width*Screen.width, posSonglist.height*Screen.height), title, "songlabel");
-				GUI.Label(new Rect(posSonglist.x*Screen.width +1f , (posSonglist.y + ecartSong*thepos + offsetSubstitle)*Screen.height +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), subtitle, "infosong");
-			}
-			thepos++;
+				GUI.color = new Color(1f, 1f, 1f, alphaText);
+				GUI.Label(new Rect(point2D.x, point2D.y, posSonglist.width*Screen.width, posSonglist.height*Screen.height), title, "songlabel");
+				GUI.Label(new Rect(point2D.x, point2D.y + (offsetSubstitle*Screen.height) +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), subtitle, "infosong");
 		}
 		
-		
+		//TO DO START HERE
 		if(GUI.Button(new Rect(posSwitchSearch.x*Screen.width, posSwitchSearch.y*Screen.height, posSwitchSearch.width*Screen.width, posSwitchSearch.height*Screen.height), sortToString(DataManager.Instance.sortMethod), "labelGoLittle")){
 			DataManager.Instance.sortMethod++;
 			if((int)DataManager.Instance.sortMethod > (int)Sort.BPM){
@@ -309,51 +328,16 @@ public class SongZone : MonoBehaviour {
 		
 		if(search != searchOldValue){
 			if(!String.IsNullOrEmpty(search.Trim()) && LoadManager.Instance.isAllowedToSearch(search)){
-				songList = LoadManager.Instance.ListSong(songList, search.Trim());
-				if(particleOnPlay != null){
-					cubeSelected = null;
-					songSelected = null;
-					FadeOutBanner = true;
-					graph.enabled = false;
-					songClip.Stop();
-					PSDiff[(int)actualySelected].gameObject.active = false;
-					desactiveDiff();
-					particleOnPlay.active = false;
-					locked = false;
-				}
-				startnumber = 0;
-				currentstartnumber = 0;
-				camerapack.transform.position = new Vector3(0f, 0f, 0f);
-				cubeBase.transform.position = basePosCubeBase;
-				desactivePack();
-				createCubeSong(songList);
-				activeCustomPack();
-				StartCoroutine(AnimSearchBar(false));
+				activeSongList(LoadManager.Instance.ListSong(songList, search.Trim()));
+				//custom list
 				var	num = 0;
 				error.displayError = (DataManager.Instance.sortMethod >= Sort.DIFFICULTY && !Int32.TryParse(search, out num));
 			}else if(!LoadManager.Instance.isAllowedToSearch(search) && searchOldValue.Trim().Length > search.Trim().Length){
-				songList.Clear();
-				if(particleOnPlay != null){
-					cubeSelected = null;
-					songSelected = null;
-					FadeOutBanner = true;
-					graph.enabled = false;
-					songClip.Stop();
-					PSDiff[(int)actualySelected].gameObject.active = false;
-					desactiveDiff();
-					particleOnPlay.active = false;
-					locked = false;
-				}
-				startnumber = 0;
-				currentstartnumber = 0;
-				camerapack.transform.position = new Vector3(0f, 0f, 0f);
-				cubeBase.transform.position = basePosCubeBase;
-				activePack(packs.ElementAt(nextnumberPack).Key);
-				DestroyCustomCubeSong();
-				StartCoroutine(AnimSearchBar(true));
+				//recover
 				error.displayError = false;
 			}
 			if(songList.Count == 0 && LoadManager.Instance.isAllowedToSearch(search)){
+				//no entry
 				GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
 				GUI.Label(new Rect(posSonglist.x*Screen.width, posSonglist.y*Screen.height, posSonglist.width*Screen.width, posSonglist.height*Screen.height), "No entry", "songlabel");
 				GUI.color = new Color(1f, 1f, 1f, 1f);
@@ -365,33 +349,22 @@ public class SongZone : MonoBehaviour {
 	
 	void createCubeSong(){
 		
-		foreach(var el in LoadManager.Instance.ListSong()){
-			var pos = 2f;
-			foreach(var song in el.Value){
-				var thego = (GameObject) Instantiate(cubeSong, new Vector3(-25f, pos, 0f), cubeSong.transform.rotation);
-				pos -= 3f;
-				thego.SetActiveRecursively(false);
-				songCubePack.Add(thego,el.Key);
-				LinkCubeSong.Add(thego, song.Value.First().Value.title + "/" + song.Value.First().Value.subtitle);
-
+		var maximumSize = 0;
+		for(int i=0; i < LoadManager.Instance.ListSong().Count; i++)
+		{
+			if(maximumSize < LoadManager.Instance.ListSong().ElementAt(i).Count)
+			{
+				maximumSize = LoadManager.Instance.ListSong().ElementAt(i).Count;
 			}
 		}
-	}
-	
-	void createCubeSong(Dictionary<string, Dictionary<Difficulty, Song>> theSongList){
-		var pos = 2f;
-		foreach(var cubes in customSongCubePack){
-			Destroy(cubes.Key);
-		}
-		customSongCubePack.Clear();
-		customLinkCubeSong.Clear();
-		foreach(var song in theSongList){
+		
+		var pos = startSongListY;
+		for(int i = 0; i < maximumSize; i++)
+		{
 			var thego = (GameObject) Instantiate(cubeSong, new Vector3(-25f, pos, 0f), cubeSong.transform.rotation);
-			pos -= 3f;
+			pos -= decalSongListY;
 			thego.SetActiveRecursively(false);
-			customSongCubePack.Add(thego,packs.ElementAt(nextnumberPack).Key);
-			customLinkCubeSong.Add(thego, song.Value.First().Value.title + "/" + song.Value.First().Value.subtitle);
-
+			songCubePack.Add(thego, "");
 		}
 	}
 	
