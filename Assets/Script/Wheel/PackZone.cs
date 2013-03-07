@@ -298,12 +298,14 @@ public class PackZone : MonoBehaviour {
 	public void onPopin()
 	{
 		popin = true;
+		activeModule = true;
 	}
 	
 	
 	public void onPopout()
 	{
 		popout = true;
+		activeModule = false;
 		
 	}
 	

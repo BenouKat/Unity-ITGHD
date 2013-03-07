@@ -28,7 +28,6 @@ public class SongZone : MonoBehaviour {
 	private bool popout;
 	
 	public Rect posSonglist;
-	public float ecartSong;
 	private GameObject particleOnPlay;
 	public int numberToDisplay;
 	private int startnumber;
@@ -38,7 +37,6 @@ public class SongZone : MonoBehaviour {
 	
 	private Dictionary<string, Dictionary<Difficulty, Song>> songList;
 	private bool locked;
-	private string packLocked;
 	
 	
 	
@@ -49,12 +47,14 @@ public class SongZone : MonoBehaviour {
 	private string searchOldValue;
 	public Rect posSwitchSearch;
 	
+	private bool activeModule;
 	// Use this for initialization
 	void Start () {
 		gs = GetComponent<GeneralScript>();
 		
 		popin = false;
 		popout = false;
+		activeModule = true;
 		posBaseCameraSong = camerasong.transform.position;
 		startnumber = 0;
 		currentstartnumber = 0;
@@ -79,50 +79,12 @@ public class SongZone : MonoBehaviour {
 		}
 	}
 	
-	public void activeSongList(string pack)
-	{
-		packSelected = pack;
-		songList = LoadManager.Instance.ListSong()[pack];
-		startnumber = 0;
-		currentstartnumber = 0;
-		camerasong.transform.position = posBaseCameraSong;
-		
-		if(songList.Count > songCubePack.Count)
-		{
-			var pos = startSongListY  - decalSongList*songCubePack.Count;
-			for(int i=songCubePack.Count; i < songList.Count; i++)
-			{
-				
-				var thego = (GameObject) Instantiate(cubeSong, new Vector3(-25f, pos, 0f), cubeSong.transform.rotation);
-				pos -= decalSongListY;
-				thego.SetActiveRecursively(false);
-				songCubePack.Add(thego, "");
-			}
-		}
-		
-		for(int i=0; i < songList.Count; i++)
-		{
-			var key = songCubePack.ElementAt(i).Key;
-			if(!key.active) key.SetActiveRecursivly(i <= numberToDisplay);
-			songCubePack[songCubePack.ElementAt(i).Key] = songList.ElementAt(i).First().Value.title + ";" + songList.ElementAt(i).First().Value.subtitle + ";" + songList.ElementAt(i).Key;
-		}
-		for(int i=songList.Count; i < songCubePack.Count; i++)
-		{
-			if(key.active) key.SetActiveRecursivly(false);
-		}
-	}
 	
-	public void desactiveSongList()
-	{
-		for(int i=0; i < songCubePack.Count; i++)
-		{
-			if(key.active) key.SetActiveRecursivly(false);
-		}
-	}
 	
 	// Update is called once per frame
 	void Update () {
 	
+		//Selection
 		Ray ray = camerasong.ScreenPointToRay(Input.mousePosition);	
 		RaycastHit hit;
 			
@@ -139,9 +101,10 @@ public class SongZone : MonoBehaviour {
 						particleOnPlay.active = false;
 					}
 					var splitedNameSong = songCubePack[papa.gameObject].Split(';');
-					if(gs.songSelected == null || ((gs.songSelected.First().Value.title + ";" + gs.songSelected.First().Value.subtitle) != splitedNameSong[0] + ";" + splitedNameSong[1])){
+					if(gs.songSelected == null || ((gs.songSelected.First().Value.title + ";" + gs.songSelected.First().Value.subtitle) != splitedNameSong[0] + ";" + splitedNameSong[1]))
+					{
 						gs.songSelected = LoadManager.Instance.FindSong[packSelected][splitedNameSong[2]];
-						
+						gs.getZoneInfo().refreshDifficultyDisplayed();
 						cubeSelected = papa.gameObject;
 					}
 					particleOnPlay = thepart;
@@ -158,8 +121,10 @@ public class SongZone : MonoBehaviour {
 							particleOnPlay.active = false;
 						}
 						var splitedNameSong = songCubePack[papa.gameObject].Split(';');
-						if(gs.songSelected == null || ((gs.songSelected.First().Value.title + ";" + gs.songSelected.First().Value.subtitle) != splitedNameSong[0] + ";" + splitedNameSong[1])){
+						if(gs.songSelected == null || ((gs.songSelected.First().Value.title + ";" + gs.songSelected.First().Value.subtitle) != splitedNameSong[0] + ";" + splitedNameSong[1]))
+						{
 							gs.songSelected = LoadManager.Instance.FindSong[packSelected][splitedNameSong[2]];
+							gs.getZoneInfo().refreshDifficultyDisplayed();
 							cubeSelected = papa.gameObject;
 						}
 						particleOnPlay = thepart;
@@ -184,6 +149,7 @@ public class SongZone : MonoBehaviour {
 			}
 		}
 		
+		//inputs
 		if(Input.GetMouseButtonDown(1)){
 			locked = false;
 		}
@@ -215,7 +181,6 @@ public class SongZone : MonoBehaviour {
 		}
 		var newpos = camerapack.transform.position.y;
 		
-		//Move song list
 		if(oldpos > newpos){
 		
 			foreach(var cubeel2 in songCubePack.Where(c => !c.Key.active && (c.Key.transform.position.y > camerasong.transform.position.y - decalSongListY*numberToDisplay) && !(c.Key.transform.position.y > camerasong.transform.position.y + startSongListY))){
@@ -252,6 +217,8 @@ public class SongZone : MonoBehaviour {
 			
 		}
 		
+		
+		//Popin/out
 		if(popin)
 		{
 			camerasong.transform.position = Vector3.Lerp(camerasong.transform.position, new Vector3(camerasong.transform.position.x, posYModule.x, camerasong.transform.position.z), Time.deltaTime/speedPop);
@@ -372,6 +339,7 @@ public class SongZone : MonoBehaviour {
 	void unFocus()
 	{
 		cubeSelected = null;
+		gs.getInfoZone().disableDifficultyDisplayed();
 		gs.songSelected = null;
 		locked = false;
 		if(particleOnPlay != null)
@@ -380,16 +348,58 @@ public class SongZone : MonoBehaviour {
 		}
 	}
 	
+	public void activeSongList(string pack)
+	{
+		packSelected = pack;
+		songList = LoadManager.Instance.ListSong()[pack];
+		startnumber = 0;
+		currentstartnumber = 0;
+		camerasong.transform.position = posBaseCameraSong;
+		
+		if(songList.Count > songCubePack.Count)
+		{
+			var pos = startSongListY  - decalSongList*songCubePack.Count;
+			for(int i=songCubePack.Count; i < songList.Count; i++)
+			{
+				
+				var thego = (GameObject) Instantiate(cubeSong, new Vector3(-25f, pos, 0f), cubeSong.transform.rotation);
+				pos -= decalSongListY;
+				thego.SetActiveRecursively(false);
+				songCubePack.Add(thego, "");
+			}
+		}
+		
+		for(int i=0; i < songList.Count; i++)
+		{
+			var key = songCubePack.ElementAt(i).Key;
+			if(!key.active) key.SetActiveRecursivly(i <= numberToDisplay);
+			songCubePack[songCubePack.ElementAt(i).Key] = songList.ElementAt(i).First().Value.title + ";" + songList.ElementAt(i).First().Value.subtitle + ";" + songList.ElementAt(i).Key;
+		}
+		for(int i=songList.Count; i < songCubePack.Count; i++)
+		{
+			if(key.active) key.SetActiveRecursivly(false);
+		}
+	}
+	
+	public void desactiveSongList()
+	{
+		for(int i=0; i < songCubePack.Count; i++)
+		{
+			if(key.active) key.SetActiveRecursivly(false);
+		}
+	}
+	
 	public void onPopin()
 	{
 		popin = true;
+		activeModule = true;
 	}
 	
 	
 	public void onPopout()
 	{
 		popout = true;
-		
+		activeModule = false;
 	}
 
 	

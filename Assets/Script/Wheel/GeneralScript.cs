@@ -35,6 +35,11 @@ public class GeneralScript : MonoBehaviour {
 	private Dictionary<string, Texture2D> tex;
 	
 	
+	//General feature
+	private string speedmodstring;
+	private string bpmstring;
+	private float speedmodSelected;
+	
 	//Banner
 	private Texture2D actualBanner;
 	public float speedFadeAlpha;
@@ -150,10 +155,25 @@ public class GeneralScript : MonoBehaviour {
 		
 		
 		
+		if(!String.IsNullOrEmpty(ProfileManager.Instance.currentProfile.lastSpeedmodUsed)){
+			speedmodstring = ProfileManager.Instance.currentProfile.lastSpeedmodUsed;
+			speedmodSelected = (float)System.Convert.ToDouble(ProfileManager.Instance.currentProfile.lastSpeedmodUsed);
+		}else{
+			speedmodSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.speedmodSelected : 2f;
+			speedmodstring = speedmodSelected.ToString("0.00");
+		}
 		
 		
-		
-		
+		if(DataManager.Instance.songSelected != null){
+			var bpmtotest = DataManager.Instance.songSelected.bpmToDisplay;
+			if(bpmtotest.Contains("->")){
+				bpmstring = (System.Convert.ToDouble(System.Convert.ToDouble(bpmtotest.Replace(">", "").Split('-')[DataManager.Instance.BPMChoiceMode])*speedmodSelected)).ToString("0");
+			}else{
+				bpmstring = (System.Convert.ToDouble(bpmtotest)*speedmodSelected).ToString("0");
+			}
+		}else{
+			bpmstring = String.IsNullOrEmpty(ProfileManager.Instance.currentProfile.lastBPM) ? "300" : ProfileManager.Instance.currentProfile.lastBPM;
+		}
 		
 		
 		
@@ -700,9 +720,11 @@ public class GeneralScript : MonoBehaviour {
 	
 	#region util
 	
-	public void verifyScore(){
-		var oldscore = score;
-		
+	
+	
+	public string refreshPreference(double score)
+	{
+		var queryreturn = "";
 		var kv = ProfileManager.Instance.FindTheBestScore(songSelected[actualySelected].sip);
 		bestfriendscore = kv.Key;
 		bestnamefriendscore = kv.Value;
@@ -748,13 +770,8 @@ public class GeneralScript : MonoBehaviour {
 			}
 			
 		}
-		if(DataManager.Instance.giveNoteOfScore((float)score) != DataManager.Instance.giveNoteOfScore((float)oldscore) && oldscore >= 96f){
-			medals.FirstOrDefault(c => c.name == DataManager.Instance.giveNoteOfScore((float)oldscore).Split(';')[1]).SetActiveRecursively(false);
-		}
-		if(score >= 96f){
-			medals.FirstOrDefault(c => c.name == DataManager.Instance.giveNoteOfScore((float)score).Split(';')[1]).SetActiveRecursively(true);
-		}
-		
+		queryreturn = score + ";" + bestfriendscore + ";" + bestnamefriendscore + ";" + (isScoreFail ? "1" : "0");
+		return queryreturn;
 	}
 	
 	

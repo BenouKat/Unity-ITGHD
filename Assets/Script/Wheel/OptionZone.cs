@@ -28,7 +28,6 @@ public class OptionZone : MonoBehaviour {
 	public float borderXDisplay;
 	public float offsetSpeedRateX;
 	public float ecartForBack;
-	private float speedmodSelected;
 	private float rateSelected;
 	private Judge scoreJudgeSelected;
 	private Judge hitJudgeSelected;
@@ -37,8 +36,7 @@ public class OptionZone : MonoBehaviour {
 	private int raceSelected;
 	private bool[] displaySelected;
 	private int deathSelected;
-	private string speedmodstring;
-	private string bpmstring;
+	
 	private string ratestring;
 	private bool speedmodok;
 	private bool rateok;
@@ -55,9 +53,12 @@ public class OptionZone : MonoBehaviour {
 	private int previousSelected;
 	public float offsetBaseFading;
 	
+	private bool activeModule;
 	// Use this for initialization
 	void Start () {
 	
+		activeModule = false;
+		
 		speedmodok = true;
 		rateok = true;
 		
@@ -69,24 +70,9 @@ public class OptionZone : MonoBehaviour {
 		for(int i=0;i<stateLoading.Length-1;i++) stateLoading[i] = false;
 		for(int j=0;j<DataManager.Instance.aDisplay.Length;j++) displaySelected[j] = DataManager.Instance.songSelected != null ? DataManager.Instance.displaySelected[j] : false;
 		
-		if(!String.IsNullOrEmpty(ProfileManager.Instance.currentProfile.lastSpeedmodUsed)){
-			speedmodstring = ProfileManager.Instance.currentProfile.lastSpeedmodUsed;
-			speedmodSelected = (float)System.Convert.ToDouble(ProfileManager.Instance.currentProfile.lastSpeedmodUsed);
-		}else{
-			speedmodSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.speedmodSelected : 2f;
-			speedmodstring = speedmodSelected.ToString("0.00");
-		}
 		
-		if(DataManager.Instance.songSelected != null){
-			var bpmtotest = DataManager.Instance.songSelected.bpmToDisplay;
-			if(bpmtotest.Contains("->")){
-				bpmstring = (System.Convert.ToDouble(System.Convert.ToDouble(bpmtotest.Replace(">", "").Split('-')[DataManager.Instance.BPMChoiceMode])*speedmodSelected)).ToString("0");
-			}else{
-				bpmstring = (System.Convert.ToDouble(bpmtotest)*speedmodSelected).ToString("0");
-			}
-		}else{
-			bpmstring = String.IsNullOrEmpty(ProfileManager.Instance.currentProfile.lastBPM) ? "300" : ProfileManager.Instance.currentProfile.lastBPM;
-		}
+		
+		
 		DataManager.Instance.BPMEntryMode = ProfileManager.Instance.currentProfile.inBPMMode;
 		
 		rateSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.rateSelected : 0f;
@@ -119,14 +105,9 @@ public class OptionZone : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if(Input.GetKeyDown(KeyCode.Escape) && !movinSong && !SongMode && !fadedOut){
-			if(OptionMode && animok){
-				StartCoroutine(endOptionFade());
-				animok = false;
-			}else if(!OptionMode){
-				fadedOut = true;
-				GetComponent<FadeManager>().FadeIn("mainmenu");	
-			}
+		if(Input.GetKeyDown(KeyCode.Escape) && animok){
+			StartCoroutine(endOptionFade());
+			animok = false;
 		}
 	}
 	
@@ -134,13 +115,16 @@ public class OptionZone : MonoBehaviour {
 	void OnGUI()
 	{
 		//Option
-		if((OptionMode || movinNormal) && !movinOption){
+		if(activeModule){
 			for(int i=0;i<stateLoading.Length;i++){
 				if(stateLoading[i]){
 					GUI.DrawTexture(new Rect(posOptionTitle.x*Screen.width, (posOptionTitle.y + offsetYOption*i)*Screen.height, posOptionTitle.width*Screen.width, posOptionTitle.height*Screen.height), tex["Option" + (i+1)]);
 					switch(i){
+					
+						/**
+							SPEEDMOD
+						*/
 						case 0:
-							//speedmod offsetXDisplayBPMSwitch
 							if(!DataManager.Instance.BPMEntryMode){
 								speedmodstring = GUI.TextArea (new Rect(posItem[0].x*Screen.width, posItem[0].y*Screen.height, posItem[0].width*Screen.width, posItem[0].height*Screen.height), speedmodstring.Trim(), 5);
 							}else{
@@ -211,8 +195,12 @@ public class OptionZone : MonoBehaviour {
 							}
 							
 						break;
+						
+						/**
+							RATE
+						*/
 						case 1:
-							//Rate
+							
 							ratestring = GUI.TextArea (new Rect(posItem[1].x*Screen.width, posItem[1].y*Screen.height, posItem[1].width*Screen.width, posItem[1].height*Screen.height), ratestring.Trim(), 4);
 							if(!String.IsNullOrEmpty(ratestring)){
 								int rateresult = 0;
@@ -241,8 +229,10 @@ public class OptionZone : MonoBehaviour {
 							}
 							
 						break;
+						/**
+							SKIN
+						*/
 						case 2:
-							//skin
 							GUI.color = new Color(1f, 1f, 1f, alphaText[2]);
 							GUI.Label(new Rect(posItemLabel[2].x*Screen.width, (posItemLabel[2].y - offsetFading[2])*Screen.height, posItemLabel[2].width*Screen.width, posItemLabel[2].height*Screen.height), DataManager.Instance.aSkin[skinSelected], "bpmdisplay");
 							GUI.color = new Color(1f, 1f, 1f, 1 - alphaText[2]);
@@ -267,8 +257,10 @@ public class OptionZone : MonoBehaviour {
 								StartCoroutine(OptionAnim(2, false));
 							}
 						break;
+						/**
+							HIT JUDGE
+						*/
 						case 3:
-							//hit
 							GUI.color = new Color(1f, 1f, 1f, alphaText[3]);
 							GUI.Label(new Rect(posItemLabel[3].x*Screen.width, (posItemLabel[3].y - offsetFading[3])*Screen.height, posItemLabel[3].width*Screen.width, posItemLabel[3].height*Screen.height), DataManager.Instance.dicHitJudge[hitJudgeSelected], "bpmdisplay");
 							GUI.color = new Color(1f, 1f, 1f, 1 - alphaText[3]);
@@ -289,8 +281,10 @@ public class OptionZone : MonoBehaviour {
 								}
 							}
 						break;
+						/**
+							SCORE JUDGE
+						*/
 						case 4:
-							//score
 							GUI.color = new Color(1f, 1f, 1f, alphaText[4]);
 							GUI.Label(new Rect(posItemLabel[4].x*Screen.width, (posItemLabel[4].y - offsetFading[4])*Screen.height, posItemLabel[4].width*Screen.width, posItemLabel[4].height*Screen.height), DataManager.Instance.dicScoreJudge[scoreJudgeSelected], "bpmdisplay");
 							GUI.color = new Color(1f, 1f, 1f, 1 - alphaText[4]);
@@ -311,8 +305,10 @@ public class OptionZone : MonoBehaviour {
 								}
 							}
 						break;
+						/**
+							LIFE JUDGE
+						*/
 						case 5:
-							//life judge
 							GUI.color = new Color(1f, 1f, 1f, alphaText[5]);
 							GUI.Label(new Rect(posItemLabel[5].x*Screen.width, (posItemLabel[5].y - offsetFading[5])*Screen.height, posItemLabel[5].width*Screen.width, posItemLabel[5].height*Screen.height), DataManager.Instance.dicLifeJudge[lifeJudgeSelected], "bpmdisplay");
 							GUI.color = new Color(1f, 1f, 1f, 1 - alphaText[5]);
@@ -333,8 +329,10 @@ public class OptionZone : MonoBehaviour {
 								}
 							}
 						break;
+						/**
+							DISPLAY
+						*/
 						case 6:
-							//display
 							for(int j=0; j<DataManager.Instance.aDisplay.Length; j++){
 								if(displaySelected[j]){
 									GUI.color = new Color(1f, 1f, 1f, alphaDisplay[j]);
@@ -348,8 +346,10 @@ public class OptionZone : MonoBehaviour {
 								}
 							}
 						break;
+						/**
+							RACE
+						*/
 						case 7:
-							//race
 							GUI.color = new Color(1f, 1f, 1f, alphaText[7]);
 							GUI.Label(new Rect(posItemLabel[7].x*Screen.width, (posItemLabel[7].y - offsetFading[7])*Screen.height, posItemLabel[7].width*Screen.width, posItemLabel[7].height*Screen.height), DataManager.Instance.aRace[raceSelected], "bpmdisplay");
 							GUI.color = new Color(1f, 1f, 1f, 1 - alphaText[7]);
@@ -374,8 +374,10 @@ public class OptionZone : MonoBehaviour {
 								StartCoroutine(OptionAnim(7, false));
 							}
 						break;
+						/**
+							DEATH
+						*/
 						case 8:
-							//death
 							GUI.color = new Color(1f, 1f, 1f, alphaText[8]);
 							GUI.Label(new Rect(posItemLabel[8].x*Screen.width, (posItemLabel[8].y - offsetFading[8])*Screen.height, posItemLabel[8].width*Screen.width, posItemLabel[8].height*Screen.height), DataManager.Instance.aDeath[deathSelected], "bpmdisplay");
 							GUI.color = new Color(1f, 1f, 1f, 1 - alphaText[8]);
@@ -428,6 +430,7 @@ public class OptionZone : MonoBehaviour {
 		cacheOption.active = false;
 		cacheOption.transform.position = posInit;
 		animok = true;
+		activeModule = true;
 	}
 	
 	IEnumerator endOptionFade(){
@@ -444,11 +447,10 @@ public class OptionZone : MonoBehaviour {
 			yield return new WaitForSeconds(timeOption);
 			cacheOption.transform.Translate(0f, 2f, 0f);
 		}
-		OptionMode = false;
-		movinNormal = true;
 		cacheOption.active = false;
 		cacheOption.transform.position = posInit;
 		animok = true;
+		activeModule = false;
 	}
 	
 	IEnumerator OptionAnim(int i, bool reverse){
@@ -507,5 +509,16 @@ public class OptionZone : MonoBehaviour {
 		
 		isFadingDisplay[i] = false;
 		
+	}
+	
+	
+	public void onPopin()
+	{
+		StartCoroutine(startOptionFade());
+	}
+	
+	public void onPopout()
+	{
+		StartCoroutine(endOptionFade());
 	}
 }

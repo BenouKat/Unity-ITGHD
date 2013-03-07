@@ -29,8 +29,6 @@ public class InfoZone : MonoBehaviour {
 	
 	//Difficulty
 	public Rect posDifficulty;
-	public float ecartDiff;
-	public float[] offsetX;
 	private int[] diffNumber;
 	public Rect posNumberDiff;
 	
@@ -44,7 +42,11 @@ public class InfoZone : MonoBehaviour {
 	public float decalInfoDiffY;
 	public float decalInfoNumDiffY;
 	
+	public Vector3 recoverPosition;
+	public Vector3 posDiffOption;
+	public Vector3 posDiffLaunch;
 	
+	public float speedMoveDiff;
 	
 	//InfoSong
 	public Rect posGraph;
@@ -69,10 +71,18 @@ public class InfoZone : MonoBehaviour {
 	public Rect posSpecialNote;
 	
 	
+	private bool enterOption;
+	private bool enterLaunch;
+	private bool exitOption;
 	
+	
+	private bool activeModule;
 	// Use this for initialization
 	void Start () {
 		gs = GetComponent<GeneralScript>();
+		
+		activeModule = true;
+		
 		diffSelected = new Dictionary<Difficulty, GameObject>();
 		diffActiveColor = new Dictionary<Difficulty, Color>();
 		PSDiff = new Dictionary<int, ParticleSystem>();
@@ -124,7 +134,8 @@ public class InfoZone : MonoBehaviour {
 	void Update () {
 		Ray ray2 = cameradiff.ScreenPointToRay(Input.mousePosition);	
 		RaycastHit hit2;
-			
+		
+		
 		if(Physics.Raycast(ray2, out hit2))
 		{
 			var theGo = hit2.transform.gameObject;
@@ -136,7 +147,7 @@ public class InfoZone : MonoBehaviour {
 					trulySelected = (Difficulty)int.Parse(theGo.name);
 					PSDiff[(int)actualySelected].gameObject.active = true;
 					displayGraph();
-					gs.verifyScore();
+					verifyScore();
 				}
 			}else{
 				onHoverDifficulty = Difficulty.NONE;
@@ -145,7 +156,35 @@ public class InfoZone : MonoBehaviour {
 			onHoverDifficulty = Difficulty.NONE;	
 		}
 		
+		if(enterOption)
+		{
+			diffSelected[(int)actualySelected].transform.position = Vector3.Lerp(diffSelected[(int)actualySelected].transform.position, posDiffOption, Time.deltaTime/speedMoveDiff);
+			if(Vector3.Distance(diffSelected[(int)actualySelected].transform.position - posDiffOption) <= 0.1f)
+			{
+				diffSelected[(int)actualySelected].transform.position = posDiffOption;
+				enterOption = false;
+			}
+		}
 		
+		if(exitOption)
+		{
+			diffSelected[(int)actualySelected].transform.position = Vector3.Lerp(diffSelected[(int)actualySelected].transform.position, recoverPosition, Time.deltaTime/speedMoveDiff);
+			if(Vector3.Distance(diffSelected[(int)actualySelected].transform.position - recoverPosition) <= 0.1f)
+			{
+				diffSelected[(int)actualySelected].transform.position = recoverPosition;
+				exitOption = false;
+			}
+		}
+		
+		if(enterLaunch)
+		{
+			diffSelected[(int)actualySelected].transform.position = Vector3.Lerp(diffSelected[(int)actualySelected].transform.position, posDifflaunch, Time.deltaTime/speedMoveDiff);
+			if(Vector3.Distance(diffSelected[(int)actualySelected].transform.position - posDifflaunch) <= 0.1f)
+			{
+				diffSelected[(int)actualySelected].transform.position = posDifflaunch;
+				enterLaunch = false;
+			}
+		}
 		
 	}
 	
@@ -163,9 +202,9 @@ public class InfoZone : MonoBehaviour {
 			var diffwidth = posNumberDiff.width*Screen.width;
 			var diffheight = posNumberDiff.height*Screen.height;
 			
-			var ecartjump = 0f;
 			for(int i=0; i<=(int)Difficulty.EDIT; i++){
-				if(diffNumber[i] != 0){
+				if(diffNumber[i] != 0 && (activeModule || (diffNumber[i] == actualySelected))
+				{
 					var point2D = cameradiff.WorldToScreenPoint(diffSelected[(Difficulty)i].transform.position);
 					
 					GUI.color = new Color(1f, 1f, 1f, 1f);
@@ -176,13 +215,14 @@ public class InfoZone : MonoBehaviour {
 					GUI.color = new Color(DataManager.Instance.diffColor[i].r, DataManager.Instance.diffColor[i].g, DataManager.Instance.diffColor[i].b, 1f);
 					GUI.Label(new Rect(point2D.x + decalNumDiffX , point2D.y + decalNumDiffY, diffwidth, diffheight), gs.songSelected[(Difficulty)i].level.ToString(), "numberdiff");
 				}
+				
 			}
 			GUI.color = new Color(1f, 1f, 1f, 1f);
 			GUI.DrawTexture(new Rect(posGraph.x*Screen.width, posGraph.y*Screen.height, posGraph.width*Screen.width, posGraph.height*Screen.height), tex["graph"]);
 		}
 		
 		//Song Info
-		if(gs.songSelected != null){ 
+		if(gs.songSelected != null && activeModule){ 
 			//BPM
 			GUI.Label(new Rect(BPMDisplay.x*Screen.width , BPMDisplay.y*Screen.height, BPMDisplay.width*Screen.width, BPMDisplay.height*Screen.height), "BPM\n" + gs.songSelected[(Difficulty)actualySelected].bpmToDisplay, "bpmdisplay");
 			
@@ -248,14 +288,33 @@ public class InfoZone : MonoBehaviour {
 			
 	}
 	
-	void activeDiffPS(Dictionary<Difficulty, Song> so){
-		if(so.ContainsKey(trulySelected)){
+	public void refreshDifficultyDisplayed()
+	{
+		refreshNumberDiff();
+		activeDiff();
+		PSDiff[(int)actualySelected].gameObject.active = false;
+		activeDiffPS();
+		PSDiff[(int)actualySelected].gameObject.active = true;
+		displayGraph();
+		verifyScore();
+		graph.enabled = true;
+	}
+	
+	public void disableDifficultyDisplayed()
+	{
+		graph.enabled = false;
+		PSDiff[(int)actualySelected].gameObject.active = false;
+		desactiveDiff();
+	}
+	
+	public void activeDiffPS(){
+		if(gs.songSelected.ContainsKey(trulySelected)){
 			actualySelected = trulySelected;	
 		}else{
 			var min = 99;
 			var mini = (int)trulySelected;
 			for(int i=(int)Difficulty.BEGINNER; i<=(int)Difficulty.EDIT; i++){
-				if(so.ContainsKey((Difficulty)i)){
+				if(gs.songSelected.ContainsKey((Difficulty)i)){
 					var abs = Mathf.Abs((float)i - (float)trulySelected);
 					if(abs < min){
 						min = (int)abs;	
@@ -268,17 +327,17 @@ public class InfoZone : MonoBehaviour {
 		}
 	}
 	
-	void activeDiff(Dictionary<Difficulty, Song> so){
+	public void activeDiff(){
 		var countpos = 0;
 		for(int i=(int)Difficulty.BEGINNER; i<=(int)Difficulty.EDIT; i++){
-			if(so.ContainsKey((Difficulty)i)){
-				//diffSelected[(Difficulty)i].SetActiveRecursively(true);	
+			if(gs.songSelected.ContainsKey((Difficulty)i)){
+				
 				diffSelected[(Difficulty)i].transform.position = new Vector3(diffSelected[(Difficulty)i].transform.position.x, DataManager.Instance.posYDiff[countpos], diffSelected[(Difficulty)i].transform.position.z);
 				PSDiff[i].transform.position = new Vector3(PSDiff[i].transform.position.x, DataManager.Instance.posYZoneDiff[countpos], PSDiff[i].transform.position.z);
 				RayDiff[i].transform.position = new Vector3(RayDiff[i].transform.position.x, DataManager.Instance.posYZoneDiff[countpos], RayDiff[i].transform.position.z);
 				countpos++;
 				for(int j=0; j<diffSelected[(Difficulty)i].transform.GetChildCount(); j++){
-					if((int.Parse(diffSelected[(Difficulty)i].transform.GetChild(j).name)) <= so[(Difficulty)i].level){
+					if((int.Parse(diffSelected[(Difficulty)i].transform.GetChild(j).name)) <= gs.songSelected[(Difficulty)i].level){
 						if(diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.GetColor("_TintColor") != diffActiveColor[(Difficulty)i]) diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.SetColor("_TintColor",diffActiveColor[(Difficulty)i]);
 					}else{
 						if(diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.GetColor("_TintColor") == diffActiveColor[(Difficulty)i]) diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.SetColor("_TintColor",new Color(diffActiveColor[(Difficulty)i].r/10f, diffActiveColor[(Difficulty)i].g/10f, diffActiveColor[(Difficulty)i].b/10f, 1f));
@@ -294,22 +353,60 @@ public class InfoZone : MonoBehaviour {
 		}
 	}
 	
-	void desactiveDiff(){
+	public void desactiveDiff(){
 		for(int i=(int)Difficulty.BEGINNER; i<=(int)Difficulty.EDIT; i++){
 			RayDiff[i].transform.Translate(0f, -100f, 0f);
 			diffSelected[(Difficulty)i].transform.Translate(0f, -100f, 0f);
 		}
 	}
 	
-	void activeNumberDiff(Dictionary<Difficulty, Song> so){
+	public void refreshNumberDiff(){
 		for(int i=(int)Difficulty.BEGINNER; i<=(int)Difficulty.EDIT; i++){
-			if(so.ContainsKey((Difficulty)i)){
+			if(gs.songSelected.ContainsKey((Difficulty)i)){
 				
-				diffNumber[i] = so[(Difficulty)i].level;
+				diffNumber[i] = gs.songSelected[(Difficulty)i].level;
 				
 			}else{
 				diffNumber[i] = 0;
 			}
 		}
 	}
+	
+	public void verifyScore(){
+		var oldscore = score;
+		
+		var result = gs.refreshPreference(score).Split(';');
+		score = System.Convert.ToDouble(result[0]);
+		bestfriendscore = System.Convert.ToDouble(result[1]);
+		bestnamefriendscore = result[2];
+		isScoreFail = result[3] == "1";
+		if(DataManager.Instance.giveNoteOfScore((float)score) != DataManager.Instance.giveNoteOfScore((float)oldscore) && oldscore >= 96f){
+			medals.FirstOrDefault(c => c.name == DataManager.Instance.giveNoteOfScore((float)oldscore).Split(';')[1]).SetActiveRecursively(false);
+		}
+		if(score >= 96f){
+			medals.FirstOrDefault(c => c.name == DataManager.Instance.giveNoteOfScore((float)score).Split(';')[1]).SetActiveRecursively(true);
+		}
+		
+	}
+	
+	
+	public void onEnterOption()
+	{
+		enterOption = true;
+		recoverPosition = diffSelected[(int)actualySelected].transform.position;
+		activeModule = false;
+	}
+	
+	public void onExitOption()
+	{
+		exitOption = true;
+		activeModule = true;
+	}
+	
+	public void onEnterLaunch()
+	{
+		enterLaunch = true;
+		activeModule = false;
+	}
+	
 }
