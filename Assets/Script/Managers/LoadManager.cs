@@ -165,7 +165,6 @@ public class LoadManager{
 
 	public Dictionary<Difficulty, Song> FindSong(string pack, string song){
 		return songs[pack][song];
-		
 	}
 	
 	public Dictionary<string, Dictionary<string, Dictionary<Difficulty, Song>>> ListSong(){

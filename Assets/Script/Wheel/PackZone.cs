@@ -26,6 +26,8 @@ public class PackZone : MonoBehaviour {
 	public float ecart;
 	public float speedMove;
 	public float limite;
+	private bool popin;
+	private bool popout;
 	
 	private float fadeAlpha;
 	
@@ -36,6 +38,8 @@ public class PackZone : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		
+		popin = false;
+		popout = false;
 		activeModule = true;
 		numberPack = 0;
 		nextnumberPack = 0;
@@ -78,8 +82,6 @@ public class PackZone : MonoBehaviour {
 		
 		organiseCube(0);
 		
-		activePack(packs.ElementAt(0).Key);
-		
 		fadeAlpha = 0f;
 	}
 	
@@ -115,6 +117,28 @@ public class PackZone : MonoBehaviour {
 				decreaseCubeB();
 			}
 		}
+		
+		if(popin)
+		{
+			camerapack.transform.position = Vector3.Lerp(camerapack.transform.position, new Vector3(camerapack.transform.position.x, posYModule.x, camerapack.transform.position.z), Time.deltaTime/speedPop);
+			
+			if(Math.Abs(camerapack.transform.position.y - posYModule.x <= limite))
+			{
+				popin = false;	
+				camerapack.transform.position = new Vector3(camerapack.transform.position.x, posYModule.x, camerapack.transform.position.z);
+			}
+		}
+		
+		if(popout)
+		{
+			camerapack.transform.position = Vector3.Lerp(camerapack.transform.position, new Vector3(camerapack.transform.position.x, posYModule.y, camerapack.transform.position.z), Time.deltaTime/speedPop);
+			
+			if(Math.Abs(camerapack.transform.position.y - posYModule.y <= limite))
+			{
+				popout = false;	
+				camerapack.transform.position = new Vector3(camerapack.transform.position.x, posYModule.y, camerapack.transform.position.z);	
+			}
+		}
 	}
 	
 	void OnGUI()
@@ -137,11 +161,13 @@ public class PackZone : MonoBehaviour {
 				if(GUI.Button(new Rect(posBackward.x*Screen.width, posBackward.y*Screen.height, posBackward.width*Screen.width, posBackward.height*Screen.height),"","LBackward") && !movinBackward && !movinForward){
 					nextnumberPack = PrevInt(numberPack, 1);
 					organiseCube(numberPack);
+					setActivePack();
 					movinBackward = true;
 				}
 				if(GUI.Button(new Rect(posBackward.x*Screen.width, posBackward.y*Screen.height + ecart*Screen.height, posBackward.width*Screen.width, posBackward.height*Screen.height),"","Backward") && !movinBackward && !movinForward ){
 					nextnumberPack = PrevInt(numberPack, 3);
 					organiseCube(nextnumberPack);
+					setActivePack();
 					numberPack = nextnumberPack;
 				}
 				
@@ -149,11 +175,13 @@ public class PackZone : MonoBehaviour {
 				{
 					nextnumberPack = NextInt(numberPack, 1);
 					organiseCube(numberPack);
+					setActivePack();
 					movinForward = true;
 				}
 				if(GUI.Button(new Rect(posForward.x*Screen.width, posForward.y*Screen.height + ecart*Screen.height, posForward.width*Screen.width, posForward.height*Screen.height),"","Forward") && !movinBackward && !movinForward){
 					nextnumberPack = NextInt(numberPack, 3);
 					organiseCube(nextnumberPack);
+					setActivePack();
 					numberPack = nextnumberPack;
 				}
 			}
@@ -180,8 +208,8 @@ public class PackZone : MonoBehaviour {
 		packs.ElementAt(PrevInt(start, 2)).Key.renderer.material.color = new Color(1f, 1f, 1f, 0f);
 		
 		for(int i=0; i<packs.Count;i++){
-			var reverse = (i < PrevInt(numberPack, 2) || i > NextInt(numberPack, 2);
-			if((i < PrevInt(numberPack, 2) || i > NextInt(numberPack, 2))
+			var reverse = (i < PrevInt(numberPack, 2) || i > NextInt(numberPack, 2));
+			if((i < PrevInt(numberPack, 2) || i > NextInt(numberPack, 2)))
 			{
 				packs.ElementAt(i).Key.transform.position = packpos[5]; //out
 				packs.ElementAt(i).Key.renderer.material.color = new Color(1f, 1f, 1f, 0f);
@@ -267,28 +295,26 @@ public class PackZone : MonoBehaviour {
 	
 	
 	
-	public void popin()
+	public void onPopin()
 	{
-		for(int i=0; i < packs.Count; i++)
-		{
-			packs.ElementAt(i).Key.transform.position = Vector3.Lerp(packs.ElementAt(i).Key.transform.position, new Vector3(packs.ElementAt(i).Key.transform.position.x, posYModule.x, packs.ElementAt(i).Key.transform.position.z), Time.deltaTime/speedPop);
-		}
-	
+		popin = true;
 	}
 	
 	
-	public void popout()
+	public void onPopout()
 	{
-		for(int i=0; i < packs.Count; i++)
-		{
-			packs.ElementAt(i).Key.transform.position = Vector3.Lerp(packs.ElementAt(i).Key.transform.position, new Vector3(packs.ElementAt(i).Key.transform.position.x, posYModule.y, packs.ElementAt(i).Key.transform.position.z), Time.deltaTime/speedPop);
-		}
-	
+		popout = true;
+		
 	}
 	
 	
-	void activePack(){
-		GetComponent<GeneralScript>().getSongPack().setSongList(LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberpack).Value]);
+	public string getActivePack(){
+		return packs.ElementAt(nextnumberpack).Value;
+	}
+	
+	public void setActivePack(){
+		
+		GetComponent<GeneralScript>().getZoneSong().activeSongList(packs.ElementAt(nextnumberPack).Value);	
 	}
 	
 	

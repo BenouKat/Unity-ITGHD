@@ -6,23 +6,26 @@ using System;
 
 public class SongZone : MonoBehaviour {
 	
-	
-	
 	public Camera camerasong;
 	public GameObject cubeSong;
 	
 	
 	
 	private Dictionary<GameObject, string> songCubePack;
-	private Dictionary<Difficulty, Song> songSelected;
+	private GeneralScript gs;
+	
 	
 	//SongList
+	private string packSelected;
 	private GameObject cubeSelected;
 	public float decalCubeSelected;
 	public float startSongListY; //2f
 	public float decalSongListY; //-3f
 	public float decalLabelX;
 	public float decalLabelY;
+	private Vector3 posBaseCameraSong;
+	private bool popin;
+	private bool popout;
 	
 	public Rect posSonglist;
 	public float ecartSong;
@@ -31,11 +34,11 @@ public class SongZone : MonoBehaviour {
 	private int startnumber;
 	private int currentstartnumber;
 	public float speedCameraDefil;
-	private float posLabel;
 	public float offsetSubstitle;
 	
 	private Dictionary<string, Dictionary<Difficulty, Song>> songList;
 	private bool locked;
+	private string packLocked;
 	
 	
 	
@@ -48,9 +51,13 @@ public class SongZone : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
+		gs = GetComponent<GeneralScript>();
+		
+		popin = false;
+		popout = false;
+		posBaseCameraSong = camerasong.transform.position;
 		startnumber = 0;
 		currentstartnumber = 0;
-		posLabel = 0f;
 		
 		songCubePack = new Dictionary<GameObject, string>();
 		LinkCubeSong = new Dictionary<GameObject, string>();
@@ -64,15 +71,22 @@ public class SongZone : MonoBehaviour {
 		searchOldValue = "";
 		songList = new Dictionary<string, Dictionary<Difficulty, Song>>();
 		
+		activeSongList(GetComponent<GeneralScript>().getZonePack().getActivePack());
+		
 		if(DataManager.Instance.mousePosition != -1){
 			startnumber = DataManager.Instance.mousePosition;
 			currentstartnumber = startnumber;
 		}
 	}
 	
-	public void activeSongList(Dictionary<string, Dictionary<Difficulty, Song>> list)
+	public void activeSongList(string pack)
 	{
-		songList = list;
+		packSelected = pack;
+		songList = LoadManager.Instance.ListSong()[pack];
+		startnumber = 0;
+		currentstartnumber = 0;
+		camerasong.transform.position = posBaseCameraSong;
+		
 		if(songList.Count > songCubePack.Count)
 		{
 			var pos = startSongListY  - decalSongList*songCubePack.Count;
@@ -89,10 +103,18 @@ public class SongZone : MonoBehaviour {
 		for(int i=0; i < songList.Count; i++)
 		{
 			var key = songCubePack.ElementAt(i).Key;
-			if(!key.active) key.SetActiveRecursivly(true);
-			songCubePack[songCubePack.ElementAt(i).Key] = songList.ElementAt(i).First().Value.title + ";" + songList.ElementAt(i).First().Value.subtitle;
+			if(!key.active) key.SetActiveRecursivly(i <= numberToDisplay);
+			songCubePack[songCubePack.ElementAt(i).Key] = songList.ElementAt(i).First().Value.title + ";" + songList.ElementAt(i).First().Value.subtitle + ";" + songList.ElementAt(i).Key;
 		}
 		for(int i=songList.Count; i < songCubePack.Count; i++)
+		{
+			if(key.active) key.SetActiveRecursivly(false);
+		}
+	}
+	
+	public void desactiveSongList()
+	{
+		for(int i=0; i < songCubePack.Count; i++)
 		{
 			if(key.active) key.SetActiveRecursivly(false);
 		}
@@ -101,11 +123,7 @@ public class SongZone : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 	
-		var packOnRender = LoadManager.Instance.isAllowedToSearch(search) ? songList : LoadManager.Instance.ListSong()[packs.ElementAt(nextnumberPack).Key];
-		var linkOnRender = LoadManager.Instance.isAllowedToSearch(search) ? customLinkCubeSong : LinkCubeSong;
-		Dictionary<GameObject, string> songCubeOnRender = LoadManager.Instance.isAllowedToSearch(search) ? customSongCubePack : songCubePack;
-		
-		Ray ray = camerapack.ScreenPointToRay(Input.mousePosition);	
+		Ray ray = camerasong.ScreenPointToRay(Input.mousePosition);	
 		RaycastHit hit;
 			
 		if(Physics.Raycast(ray, out hit))
@@ -118,25 +136,13 @@ public class SongZone : MonoBehaviour {
 					var thepart = papa.Find("Selection").gameObject;
 					if(particleOnPlay != null && particleOnPlay != thepart && particleOnPlay.active) 
 					{
-						
 						particleOnPlay.active = false;
 					}
-					if(songSelected == null || ((songSelected.First().Value.title + "/" + songSelected.First().Value.subtitle) != linkOnRender[papa.gameObject])){
-						songSelected = packOnRender.FirstOrDefault(c => (c.Value.First().Value.title + "/" + c.Value.First().Value.subtitle) == linkOnRender[papa.gameObject]).Value;
-						activeNumberDiff(songSelected);
-						activeDiff(songSelected);
-						PSDiff[(int)actualySelected].gameObject.active = false;
-						activeDiffPS(songSelected);
-						PSDiff[(int)actualySelected].gameObject.active = true;
-						displayGraph(songSelected);
-						verifyScore();
-						graph.enabled = true;
+					var splitedNameSong = songCubePack[papa.gameObject].Split(';');
+					if(gs.songSelected == null || ((gs.songSelected.First().Value.title + ";" + gs.songSelected.First().Value.subtitle) != splitedNameSong[0] + ";" + splitedNameSong[1])){
+						gs.songSelected = LoadManager.Instance.FindSong[packSelected][splitedNameSong[2]];
+						
 						cubeSelected = papa.gameObject;
-						alreadyRefresh = false;
-						songClip.Stop();
-						//if(time >= timeBeforeDisplay) plane.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[packs.ElementAt(nextnumberPack).Key];
-						time = 0f;
-						if(alphaBanner > 0) FadeOutBanner = true;
 					}
 					particleOnPlay = thepart;
 					particleOnPlay.active = true;
@@ -151,22 +157,10 @@ public class SongZone : MonoBehaviour {
 						{
 							particleOnPlay.active = false;
 						}
-						if(songSelected == null || ((songSelected.First().Value.title + "/" + songSelected.First().Value.subtitle) != linkOnRender[papa.gameObject])){
-							songSelected = packOnRender.FirstOrDefault(c => (c.Value.First().Value.title + "/" + c.Value.First().Value.subtitle) == linkOnRender[papa.gameObject]).Value;
-							activeNumberDiff(songSelected);
-							activeDiff(songSelected);
-							PSDiff[(int)actualySelected].gameObject.active = false;
-							activeDiffPS(songSelected);
-							PSDiff[(int)actualySelected].gameObject.active = true;
-							displayGraph(songSelected);
-							verifyScore();
-							graph.enabled = true;
+						var splitedNameSong = songCubePack[papa.gameObject].Split(';');
+						if(gs.songSelected == null || ((gs.songSelected.First().Value.title + ";" + gs.songSelected.First().Value.subtitle) != splitedNameSong[0] + ";" + splitedNameSong[1])){
+							gs.songSelected = LoadManager.Instance.FindSong[packSelected][splitedNameSong[2]];
 							cubeSelected = papa.gameObject;
-							alreadyRefresh = false;
-							songClip.Stop();
-							if(alphaBanner > 0) FadeOutBanner = true;
-							//if(time >= timeBeforeDisplay) plane.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[packs.ElementAt(nextnumberPack).Key];
-							time = 0f;
 						}
 						particleOnPlay = thepart;
 						particleOnPlay.active = true;
@@ -178,18 +172,7 @@ public class SongZone : MonoBehaviour {
 			}else if(particleOnPlay != null && particleOnPlay.active){
 				
 				if(!locked){
-					cubeSelected = null;
-					songSelected = null;
-					FadeOutBanner = true;
-					graph.enabled = false;
-					songClip.Stop();
-					PSDiff[(int)actualySelected].gameObject.active = false;
-					desactiveDiff();
-					particleOnPlay.active = false;
-					foreach(var med in medals)
-					{
-						if(med.active) med.SetActiveRecursively(false);
-					}
+					unFocus();
 				}
 			}
 			
@@ -197,18 +180,7 @@ public class SongZone : MonoBehaviour {
 			
 		}else if(particleOnPlay != null && particleOnPlay.active){
 			if(!locked){
-				cubeSelected = null;
-				songSelected = null;
-				FadeOutBanner = true;
-				songClip.Stop();
-				PSDiff[(int)actualySelected].gameObject.active = false;
-				graph.enabled = false;
-				desactiveDiff();
-				particleOnPlay.active = false;
-				foreach(var med in medals)
-				{
-					if(med.active) med.SetActiveRecursively(false);
-				}
+				unFocus();
 			}
 		}
 		
@@ -220,8 +192,8 @@ public class SongZone : MonoBehaviour {
 			startnumber -= DataManager.Instance.mouseMolSpeed;
 			if(startnumber < 0) startnumber = 0;
 			
-		}else if(Input.GetAxis("Mouse ScrollWheel") < 0 && startnumber < (songCubeOnRender.Where(c => packs.ElementAt(nextnumberPack).Key == c.Value).Count() - numberToDisplay + 1)){
-			var songcount = songCubeOnRender.Where(c => packs.ElementAt(nextnumberPack).Key == c.Value).Count() - numberToDisplay + 1;
+		}else if(Input.GetAxis("Mouse ScrollWheel") < 0 && startnumber < (songList.Count() - numberToDisplay + 1)){
+			var songcount = songList.Count() - numberToDisplay + 1;
 			if(startnumber < songcount){
 				startnumber += DataManager.Instance.mouseMolSpeed;
 				if(startnumber > songcount) startnumber = songcount;
@@ -232,15 +204,13 @@ public class SongZone : MonoBehaviour {
 		
 		
 		//Move song list
-		var oldpos = camerapack.transform.position.y;
-		if(Mathf.Abs(camerapack.transform.position.y - 3f*startnumber) <= 0.1f){
-			camerapack.transform.position = new Vector3(camerapack.transform.position.x, - 3f*startnumber, camerapack.transform.position.z);
-			posLabel = startnumber;
+		var oldpos = camerasong.transform.position.y;
+		if(Mathf.Abs(camerasong.transform.position.y - decalSongListY*startnumber) <= 0.1f){
+			camerasong.transform.position = new Vector3(camerasong.transform.position.x, - decalSongListY*startnumber, camerasong.transform.position.z);
+
 		}else{
 			 
-			camerapack.transform.position = Vector3.Lerp(camerapack.transform.position, new Vector3(camerapack.transform.position.x, -3f*startnumber, camerapack.transform.position.z), Time.deltaTime/speedCameraDefil);
-			
-			posLabel = Mathf.Lerp(posLabel, startnumber, Time.deltaTime/speedCameraDefil);
+			camerasong.transform.position = Vector3.Lerp(camerapack.transform.position, new Vector3(camerasong.transform.position.x, decalSongListY*startnumber, camerasong.transform.position.z), Time.deltaTime/speedCameraDefil);
 			
 		}
 		var newpos = camerapack.transform.position.y;
@@ -248,14 +218,14 @@ public class SongZone : MonoBehaviour {
 		//Move song list
 		if(oldpos > newpos){
 		
-			foreach(var cubeel2 in songCubeOnRender.Where(c => !c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y - 3f*numberToDisplay) && !(c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value)){
+			foreach(var cubeel2 in songCubePack.Where(c => !c.Key.active && (c.Key.transform.position.y > camerasong.transform.position.y - decalSongListY*numberToDisplay) && !(c.Key.transform.position.y > camerasong.transform.position.y + startSongListY))){
 				cubeel2.Key.SetActiveRecursively(true);
 				if(cubeSelected == null || cubeSelected != cubeel2.Key) cubeel2.Key.transform.FindChild("Selection").gameObject.active = false;
 				
 			}
 			
 			
-			foreach(var cubeel in songCubeOnRender.Where(c => c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value)){
+			foreach(var cubeel in songCubePack.Where(c => c.Key.active && (c.Key.transform.position.y > camerasong.transform.position.y + startSongListY))){
 				cubeel.Key.SetActiveRecursively(false);
 				if(startnumber > currentstartnumber) currentstartnumber++;
 			}
@@ -264,14 +234,14 @@ public class SongZone : MonoBehaviour {
 			
 		}else if(oldpos < newpos){
 			
-			foreach(var cubeel2 in songCubeOnRender.Where(c => c.Key.active && (c.Key.transform.position.y < camerapack.transform.position.y - 3f*numberToDisplay) && packs.ElementAt(nextnumberPack).Key == c.Value)){
+			foreach(var cubeel2 in songCubeOnRender.Where(c => c.Key.active && (c.Key.transform.position.y < camerasong.transform.position.y - decalSongListY*numberToDisplay))){
 
 				cubeel2.Key.SetActiveRecursively(false);
 				
 			}
 			
 			
-			foreach(var cubeel in songCubeOnRender.Where(c => !c.Key.active && (c.Key.transform.position.y < camerapack.transform.position.y + 5f) && (c.Key.transform.position.y > camerapack.transform.position.y - 3f*(numberToDisplay - 2)) && packs.ElementAt(nextnumberPack).Key == c.Value)){
+			foreach(var cubeel in songCubeOnRender.Where(c => !c.Key.active && (c.Key.transform.position.y < camerasong.transform.position.y + 5f) && (c.Key.transform.position.y > camerasong.transform.position.y - decalSongListY*(numberToDisplay - 2)))){
 
 				cubeel.Key.SetActiveRecursively(true);
 				if(startnumber < currentstartnumber) currentstartnumber--;
@@ -280,6 +250,28 @@ public class SongZone : MonoBehaviour {
 			}
 			
 			
+		}
+		
+		if(popin)
+		{
+			camerasong.transform.position = Vector3.Lerp(camerasong.transform.position, new Vector3(camerasong.transform.position.x, posYModule.x, camerasong.transform.position.z), Time.deltaTime/speedPop);
+			
+			if(Math.Abs(camerasong.transform.position.y - posYModule.x <= limite))
+			{
+				popin = false;	
+				camerapack.transform.position = new Vector3(camerasong.transform.position.x, posYModule.x, camerasong.transform.position.z);
+			}
+		}
+		
+		if(popout)
+		{
+			camerasong.transform.position = Vector3.Lerp(camerasong.transform.position, new Vector3(camerasong.transform.position.x, posYModule.y, camerasong.transform.position.z), Time.deltaTime/speedPop);
+			
+			if(Math.Abs(camerasong.transform.position.y - posYModule.y <= limite))
+			{
+				popout = false;	
+				camerasong.transform.position = new Vector3(camerasong.transform.position.x, posYModule.y, camerasong.transform.position.z);	
+			}
 		}
 	}
 	
@@ -316,7 +308,7 @@ public class SongZone : MonoBehaviour {
 				GUI.Label(new Rect(point2D.x, point2D.y + (offsetSubstitle*Screen.height) +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), subtitle, "infosong");
 		}
 		
-		//TO DO START HERE
+		
 		if(GUI.Button(new Rect(posSwitchSearch.x*Screen.width, posSwitchSearch.y*Screen.height, posSwitchSearch.width*Screen.width, posSwitchSearch.height*Screen.height), sortToString(DataManager.Instance.sortMethod), "labelGoLittle")){
 			DataManager.Instance.sortMethod++;
 			if((int)DataManager.Instance.sortMethod > (int)Sort.BPM){
@@ -329,15 +321,23 @@ public class SongZone : MonoBehaviour {
 		if(search != searchOldValue){
 			if(!String.IsNullOrEmpty(search.Trim()) && LoadManager.Instance.isAllowedToSearch(search)){
 				activeSongList(LoadManager.Instance.ListSong(songList, search.Trim()));
-				//custom list
+				//custom
+				
+				unFocus();
+				
 				var	num = 0;
 				error.displayError = (DataManager.Instance.sortMethod >= Sort.DIFFICULTY && !Int32.TryParse(search, out num));
 			}else if(!LoadManager.Instance.isAllowedToSearch(search) && searchOldValue.Trim().Length > search.Trim().Length){
+				activeSongList(LoadManager.Instance.ListSong()[GetComponent<GeneralScript>().getZonePack().getActivePack()]);
 				//recover
+				unFocus();
+				
 				error.displayError = false;
 			}
 			if(songList.Count == 0 && LoadManager.Instance.isAllowedToSearch(search)){
+				desactiveSongList();
 				//no entry
+				
 				GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
 				GUI.Label(new Rect(posSonglist.x*Screen.width, posSonglist.y*Screen.height, posSonglist.width*Screen.width, posSonglist.height*Screen.height), "No entry", "songlabel");
 				GUI.color = new Color(1f, 1f, 1f, 1f);
@@ -368,38 +368,30 @@ public class SongZone : MonoBehaviour {
 		}
 	}
 	
-	void DestroyCustomCubeSong(){
-		foreach(var cubes in customSongCubePack){
-			Destroy(cubes.Key);
+	
+	void unFocus()
+	{
+		cubeSelected = null;
+		gs.songSelected = null;
+		locked = false;
+		if(particleOnPlay != null)
+		{
+			particleOnPlay.active = false;	
 		}
-		customSongCubePack.Clear();
-		customLinkCubeSong.Clear();
 	}
 	
-	IEnumerator AnimSearchBar(bool reverse){
-		if(!reverse){
-			while(Mathf.Abs(packs.First().Value.transform.position.y - 17f) > limite){
-				foreach(var pa in packs){
-					pa.Value.transform.position = Vector3.Lerp(pa.Value.transform.position, new Vector3(pa.Value.transform.position.x, 17f, pa.Value.transform.position.z), Time.deltaTime/speedMove);
-				}
-				yield return new WaitForFixedUpdate();
-			}
-			foreach(var pa in packs){
-				pa.Value.transform.position = new Vector3(pa.Value.transform.position.x, 17f, pa.Value.transform.position.z);
-			}
-		}else{
-			while(Mathf.Abs(packs.First().Value.transform.position.y - 13f) > limite){
-				foreach(var pa in packs){
-					pa.Value.transform.position = Vector3.Lerp(pa.Value.transform.position, new Vector3(pa.Value.transform.position.x, 13f, pa.Value.transform.position.z), Time.deltaTime/speedMove);
-				}
-				yield return new WaitForFixedUpdate();
-			}
-			foreach(var pa in packs){
-				pa.Value.transform.position = new Vector3(pa.Value.transform.position.x, 13f, pa.Value.transform.position.z);
-			}
-		}
+	public void onPopin()
+	{
+		popin = true;
+	}
+	
+	
+	public void onPopout()
+	{
+		popout = true;
 		
 	}
+
 	
 	string sortToString(Sort s){
 		switch(s){

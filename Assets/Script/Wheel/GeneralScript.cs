@@ -30,9 +30,17 @@ public class GeneralScript : MonoBehaviour {
 	
 	//List And dictionary
 	
+	public Dictionary<Difficulty, Song> songSelected;
+	
 	private Dictionary<string, Texture2D> tex;
 	
 	
+	//Banner
+	private Texture2D actualBanner;
+	public float speedFadeAlpha;
+	private float alphaBanner;
+	private bool FadeOutBanner;
+	private bool FadeInBanner;
 	
 	
 	//General GUI
@@ -177,7 +185,11 @@ public class GeneralScript : MonoBehaviour {
 		
 		textButton = "Option";
 		
+		alphaBanner = 1f;
 		
+		
+		FadeOutBanner = false;
+		FadeInBanner = false;
 		
 		
 		
@@ -468,6 +480,43 @@ public class GeneralScript : MonoBehaviour {
 		}
 		
 		
+		//refreshBanner and sound
+		if(songSelected != null && !alreadyRefresh){
+			if(time >= timeBeforeDisplay){
+				plane.renderer.material.mainTexture = actualBanner;
+				var thebanner = songSelected.First().Value.GetBanner(actualBanner);
+				//StartCoroutine(startTheSongUnstreamed());
+				startTheSongStreamed();
+				if(thebanner != null){
+					actualBanner = thebanner;	
+				}else{
+					plane.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[packs.ElementAt(nextnumberPack).Key];
+				}
+				
+				alreadyRefresh = true;
+				FadeInBanner = true;
+			}else{
+				time += Time.deltaTime;	
+			}
+		}
+		
+		//Fade Banner
+		if(FadeInBanner){
+			alphaBanner += Time.deltaTime/speedFadeAlpha;
+			plane.renderer.material.color = new Color(plane.renderer.material.color.r, plane.renderer.material.color.g, plane.renderer.material.color.b, alphaBanner);	
+			if(alphaBanner >= 1){
+				FadeInBanner = false;
+				FadeOutBanner = false;
+			}
+		}else if(FadeOutBanner){
+			alphaBanner -= Time.deltaTime/speedFadeAlpha;
+			plane.renderer.material.color = new Color(plane.renderer.material.color.r, plane.renderer.material.color.g, plane.renderer.material.color.b, alphaBanner);
+			if(alphaBanner <= 0){
+				FadeOutBanner = false;	
+			}
+		}
+		
+		
 		//Move to normal
 		if(movinNormal){
 			foreach(var el in packs){
@@ -603,6 +652,23 @@ public class GeneralScript : MonoBehaviour {
 	{
 		return launchSongZone;
 	}
+	
+	public void onBannerChanged()
+	{
+		//TO DO
+		plane.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[packs.ElementAt(0).Key];
+	}
+	
+	public void onFadeInBanner()
+	{
+		FadeInBanner = true;	
+	}
+	
+	public void onFadeOutBanner()
+	{
+		FadeOutBanner = true;	
+	}
+	
 	#region sound
 	IEnumerator startTheSongUnstreamed(){
 		
@@ -634,7 +700,7 @@ public class GeneralScript : MonoBehaviour {
 	
 	#region util
 	
-	void verifyScore(){
+	public void verifyScore(){
 		var oldscore = score;
 		
 		var kv = ProfileManager.Instance.FindTheBestScore(songSelected[actualySelected].sip);
