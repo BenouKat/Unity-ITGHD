@@ -53,7 +53,7 @@ public class OptionZone : MonoBehaviour {
 	private int previousSelected;
 	public float offsetBaseFading;
 	
-	private bool activeModule;
+	public bool activeModule;
 	// Use this for initialization
 	void Start () {
 	
@@ -101,6 +101,10 @@ public class OptionZone : MonoBehaviour {
 		for(int i=0;i<stateLoading.Length;i++) isFadingDisplay[i] = false;
 		for(int i=0;i<stateLoading.Length;i++) alphaDisplay[i] = displaySelected[i] ? 1f : 0f;
 		
+		if(DataManager.Instance.quickMode){
+			timeOption = 0.02f;
+		}
+		
 	}
 	
 	// Update is called once per frame
@@ -108,6 +112,11 @@ public class OptionZone : MonoBehaviour {
 		if(Input.GetKeyDown(KeyCode.Escape) && animok){
 			StartCoroutine(endOptionFade());
 			animok = false;
+		}
+		
+		if(matCache.color.a > 0f){
+			fadeAlphaOptionTitle -= Time.deltaTime/timeOption;
+			matCache.color = new Color(matCache.color.r, matCache.color.g, matCache.color.b, fadeAlphaOptionTitle);
 		}
 	}
 	
@@ -450,6 +459,9 @@ public class OptionZone : MonoBehaviour {
 		cacheOption.active = false;
 		cacheOption.transform.position = posInit;
 		animok = true;
+		gs.getZonePack().onPopin();
+		gs.getZoneSong().onPopin();
+		gs.getZoneInfo().onExitOption();
 		activeModule = false;
 	}
 	
@@ -511,6 +523,17 @@ public class OptionZone : MonoBehaviour {
 		
 	}
 	
+	public void fillDataManager()
+	{
+		DataManager.Instance.rateSelected = rateSelected;
+		DataManager.Instance.skinSelected = skinSelected;
+		DataManager.Instance.scoreJudgeSelected = scoreJudgeSelected;
+		DataManager.Instance.hitJudgeSelected = hitJudgeSelected;
+		DataManager.Instance.lifeJudgeSelected = lifeJudgeSelected;
+		DataManager.Instance.raceSelected = raceSelected;
+		DataManager.Instance.displaySelected = displaySelected;
+		DataManager.Instance.deathSelected = deathSelected;
+	}
 	
 	public void onPopin()
 	{
@@ -520,5 +543,16 @@ public class OptionZone : MonoBehaviour {
 	public void onPopout()
 	{
 		StartCoroutine(endOptionFade());
+	}
+	
+	public void instantClose()
+	{
+		if(activeModule)
+		{
+			for(int i=0;i<optionSeparator.Length; i++){
+				optionSeparator[i].enabled = false;
+			}	
+			activeModule = false;
+		}
 	}
 }

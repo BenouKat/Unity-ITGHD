@@ -77,6 +77,8 @@ public class SongZone : MonoBehaviour {
 			startnumber = DataManager.Instance.mousePosition;
 			currentstartnumber = startnumber;
 		}
+		
+		
 	}
 	
 	
@@ -105,6 +107,7 @@ public class SongZone : MonoBehaviour {
 					{
 						gs.songSelected = LoadManager.Instance.FindSong[packSelected][splitedNameSong[2]];
 						gs.getZoneInfo().refreshDifficultyDisplayed();
+						gs.refreshBanner();
 						cubeSelected = papa.gameObject;
 					}
 					particleOnPlay = thepart;
@@ -125,6 +128,7 @@ public class SongZone : MonoBehaviour {
 						{
 							gs.songSelected = LoadManager.Instance.FindSong[packSelected][splitedNameSong[2]];
 							gs.getZoneInfo().refreshDifficultyDisplayed();
+							gs.refreshBanner();
 							cubeSelected = papa.gameObject;
 						}
 						particleOnPlay = thepart;
@@ -341,6 +345,7 @@ public class SongZone : MonoBehaviour {
 		cubeSelected = null;
 		gs.getInfoZone().disableDifficultyDisplayed();
 		gs.songSelected = null;
+		gs.refreshBanner();
 		locked = false;
 		if(particleOnPlay != null)
 		{
@@ -400,6 +405,11 @@ public class SongZone : MonoBehaviour {
 	{
 		popout = true;
 		activeModule = false;
+	}
+	
+	public int getStartNumber()
+	{
+		return !LoadManager.Instance.isAllowedToSearch(search) ? startnumber : -1;
 	}
 
 	

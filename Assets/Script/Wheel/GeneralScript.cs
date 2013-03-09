@@ -9,7 +9,7 @@ public class GeneralScript : MonoBehaviour {
 	#region variable	
 	//GameObject library
 	
-	
+	public GameObject plane;
 	public GUISkin skin;
 	public LineRenderer separator;
 	
@@ -17,10 +17,6 @@ public class GeneralScript : MonoBehaviour {
 	public AudioSource mainThemeClip;
 	public ParticleSystem Line1;
 	public ParticleSystem Fond1;
-	public ParticleSystem Explode1;
-	public ParticleSystem Explode2;
-	public ParticleSystem Explode3;
-	
 	
 	private PackZone packZone;
 	private SongZone songZone;
@@ -32,7 +28,7 @@ public class GeneralScript : MonoBehaviour {
 	
 	public Dictionary<Difficulty, Song> songSelected;
 	
-	private Dictionary<string, Texture2D> tex;
+	public Dictionary<string, Texture2D> tex;
 	
 	
 	//General feature
@@ -54,6 +50,8 @@ public class GeneralScript : MonoBehaviour {
 	private float timeFade;
 	private ErrorLabel error;
 	public Rect posLabelLoading;
+	public Rect Jouer;
+	public Rect Option;
 	
 	
 	//Declancheurs
@@ -95,7 +93,6 @@ public class GeneralScript : MonoBehaviour {
 	//Sound
 	AudioClip actualClip;
 	public float speedAudioVolume;
-	public AudioClip launchSong;
 	
 	#endregion
 	// Use this for initialization
@@ -152,7 +149,7 @@ public class GeneralScript : MonoBehaviour {
 		
 		
 		
-		
+		actualBanner = new Texture2D(256,512);
 		
 		
 		if(!String.IsNullOrEmpty(ProfileManager.Instance.currentProfile.lastSpeedmodUsed)){
@@ -226,10 +223,6 @@ public class GeneralScript : MonoBehaviour {
 		//quickMode a déplacer aussi
 		if(DataManager.Instance.quickMode){
 			speedMoveOption = 0.01f;
-			speedMoveSong = 0.01f;
-			speedAlphaSongLaunch = 0.1f;
-			speedAlphaBlack = 0.1f;
-			timeOption = 0.02f;
 		}
 	}
 	
@@ -244,116 +237,52 @@ public class GeneralScript : MonoBehaviour {
 		
 		#region optionPlayGUI
 		//Option/jouer
-		if(songSelected != null && !movinSong && !SongMode){
+		if(songSelected != null){
 		
 			
 		
 			
 			//Jouer
-			if(GUI.Button(new Rect(Jouer.x*Screen.width, Jouer.y*Screen.height, Jouer.width*Screen.width, Jouer.height*Screen.height), "Play", "labelGo") && !movinOption && !movinNormal && speedmodok && rateok && animok){
+			if(GUI.Button(new Rect(Jouer.x*Screen.width, Jouer.y*Screen.height, Jouer.width*Screen.width, Jouer.height*Screen.height), "Play", "labelGo")){
 				
-				DataManager.Instance.songSelected =  songSelected[actualySelected];
-				DataManager.Instance.difficultySelected = actualySelected;
+				DataManager.Instance.songSelected =  songSelected[getZoneInfo().getActualySelected()];
+				DataManager.Instance.difficultySelected = getZoneInfo().getActualySelected();
 				DataManager.Instance.speedmodSelected = speedmodSelected;
-				DataManager.Instance.rateSelected = rateSelected;
-				DataManager.Instance.skinSelected = skinSelected;
-				DataManager.Instance.scoreJudgeSelected = scoreJudgeSelected;
-				DataManager.Instance.hitJudgeSelected = hitJudgeSelected;
-				DataManager.Instance.lifeJudgeSelected = lifeJudgeSelected;
-				DataManager.Instance.raceSelected = raceSelected;
-				DataManager.Instance.displaySelected = displaySelected;
-				DataManager.Instance.deathSelected = deathSelected;
-				DataManager.Instance.packSelected = !LoadManager.Instance.isAllowedToSearch(search) ? packs.ElementAt(numberPack).Key : "";
-				DataManager.Instance.mousePosition = !LoadManager.Instance.isAllowedToSearch(search) ? startnumber : -1;
+				
+				getZoneOption().fillDataManager();
+				
+				DataManager.Instance.packSelected = getZonePack().getActivePack();
+				DataManager.Instance.mousePosition = getZoneSong().getStartNumber();
 				
 				///Save prefs
 				ProfileManager.Instance.currentProfile.lastSpeedmodUsed = speedmodstring;
 				ProfileManager.Instance.currentProfile.lastBPM = bpmstring;
 				ProfileManager.Instance.currentProfile.inBPMMode = DataManager.Instance.BPMEntryMode;
-					
-				PSDiff[(int)actualySelected].gameObject.active = false;
-				for(int i=0;i<RayDiff.Count;i++){
-					RayDiff[i].active = false;	
-				}
-				var ecartjump = 0;
-				for(int i=0; i<(int)actualySelected; i++){
-					if(diffNumber[i] != 0){
-						ecartjump++;
-					}
-				}
-				departSongDiff = new Vector2(posDifficulty.x + offsetX[(int)actualySelected], posDifficulty.y + ecartDiff*ecartjump);
-				moveSongDiff = new Vector2(posDifficulty.x+ offsetX[(int)actualySelected], posDifficulty.y + ecartDiff*ecartjump);
-				graph.enabled = false;
-				for(int i=0;i<diffSelected.Count;i++){
-					diffSelected.ElementAt(i).Value.transform.Translate(0f, -200f, 0f);
-				}
-				movinSong = true;
-				OptionMode = false;
-				for(int i=0;i<optionSeparator.Length; i++){
-					optionSeparator[i].enabled = false;
-				}
-				Line1.Stop ();
-				Fond1.gameObject.active = false;
-				Explode1.Play();
-				Explode2.Play();
-				Explode3.Play();
-				songClip.Stop ();
-				songClip.clip = launchSong;
-				songClip.loop = false;
-				songClip.Play();
+				
+				getZonePack().onPopout();
+				getZoneSong().onPopout();
+				getZoneInfo().onEnterLaunch();
+				getZoneOption().instantClose();
+				getZoneLaunchSong().activate();
+				
 			}
 		
 			//Option
 			if(GUI.Button(new Rect(Option.x*Screen.width, Option.y*Screen.height, Option.width*Screen.width, Option.height*Screen.height), textButton, "labelGo") && !movinOption && !movinNormal && animok){
 				if(textButton == "Option"){
-					PSDiff[(int)actualySelected].gameObject.active = false;
-					for(int i=0;i<RayDiff.Count;i++){
-						RayDiff[i].active = false;	
-					}
-					var ecartjump = 0;
-					for(int i=0; i<(int)actualySelected; i++){
-						if(diffNumber[i] != 0){
-							ecartjump++;
-						}
-					}
-					departOptionDiff = new Vector2(posDifficulty.x + offsetX[(int)actualySelected], posDifficulty.y + ecartDiff*ecartjump);
-					moveOptionDiff = new Vector2(posDifficulty.x+ offsetX[(int)actualySelected], posDifficulty.y + ecartDiff*ecartjump);
-					graph.enabled = false;
-					movinOption = true;
-					OptionMode = true;
+					getZonePack().onPopout();
+					getZoneSong().onPopout();
+					getZoneInfo().onEnterOption();
+					getZoneOption().onPopin();
 					textButton = "Back";
 					
 				}else{
-					StartCoroutine(endOptionFade());
+					getZoneOption().onPopout();
 				}
 				animok = false;
 			}
 			
 		}
-		
-		//During move to option
-		if(OptionMode || movinNormal || movinSong || SongMode){
-			var realx = posDifficulty.x*Screen.width;
-			var realy = posDifficulty.y*Screen.height;
-			var realwidth = posDifficulty.width*Screen.width;
-			var realheight = posDifficulty.height*Screen.height;
-			var diffx = posNumberDiff.x*Screen.width;
-			var diffy = posNumberDiff.y*Screen.height;
-			var diffwidth = posNumberDiff.width*Screen.width;
-			var diffheight = posNumberDiff.height*Screen.height;
-			var theRealEcart = ecartDiff*Screen.height;
-			var ecartjump = 0;
-			for(int i=0; i<(int)actualySelected; i++){
-				if(diffNumber[i] != 0){
-					ecartjump++;
-				}
-			}
-			GUI.DrawTexture(new Rect(realx + offsetX[(int)actualySelected]*Screen.width + offsetXDiff*Screen.width, realy + theRealEcart*ecartjump + offsetYDiff*Screen.height, realwidth, realheight), tex[(actualySelected).ToString()]);
-			GUI.color = DataManager.Instance.diffColor[(int)actualySelected];
-			GUI.Label(new Rect(diffx + offsetXDiff*Screen.width, diffy + theRealEcart*ecartjump + offsetYDiff*Screen.height, diffwidth, diffheight), songSelected[actualySelected].level.ToString(), "numberdiff");
-					
-		}
-		
 		
 		
 		#endregion
@@ -375,129 +304,9 @@ public class GeneralScript : MonoBehaviour {
 			timeFade += Time.deltaTime;	
 		}
 		#region MoveToOptionUpdate
-		//Move to option
-		if(movinOption){
-			foreach(var el in packs){
-				el.Value.transform.position = Vector3.Lerp(el.Value.transform.position, new Vector3(el.Value.transform.position.x, 20f, el.Value.transform.position.z), Time.deltaTime/speedMoveOption);
-			}	
-			foreach(var eld in diffSelected){
-				if(eld.Key != actualySelected) eld.Value.transform.position = Vector3.Lerp(eld.Value.transform.position, new Vector3(5f, eld.Value.transform.position.y, eld.Value.transform.position.z), Time.deltaTime/speedMoveOption);
-			}
-			foreach(var m in medals){
-				m.transform.position = Vector3.Lerp(m.transform.position, new Vector3(30f, m.transform.position.y, m.transform.position.z),Time.deltaTime/speedMoveOption); 
-			}
-			camerapack.transform.position = Vector3.Lerp(camerapack.transform.position, new Vector3(25f, camerapack.transform.position.y, camerapack.transform.position.z), Time.deltaTime/speedMoveOption);
-			basePositionSeparator = Mathf.Lerp(basePositionSeparator, -50f, Time.deltaTime/speedMoveOption);
-			separator.SetPosition(0, new Vector3(basePositionSeparator, -20f, 20f));
-			separator.SetPosition(1, new Vector3(basePositionSeparator, 12f, 20f));
-			moveOptionDiff.x = Mathf.Lerp(moveOptionDiff.x, arriveOptionDiff.x, Time.deltaTime/speedMoveOption);
-			offsetXDiff = moveOptionDiff.x - departOptionDiff.x;
-			moveOptionDiff.y = Mathf.Lerp(moveOptionDiff.y, arriveOptionDiff.y, Time.deltaTime/speedMoveOption);
-			offsetYDiff = moveOptionDiff.y - departOptionDiff.y;
-			diffSelected[actualySelected].transform.position = Vector3.Lerp(diffSelected[actualySelected].transform.position, new Vector3(-1.2f, 0.75f, 2f), Time.deltaTime/speedMoveOption);
-			plane.transform.position = Vector3.Lerp(plane.transform.position, new Vector3(0f, 12f, 20f), Time.deltaTime/speedMoveOption);
-			totalAlpha = Mathf.Lerp(totalAlpha, 1f, Time.deltaTime/speedMoveOption);
-			
-			if(Mathf.Abs(camerapack.transform.position.x - 25f) <= limiteMoveOption){
-				
-				foreach(var el in packs){
-					el.Value.transform.position = new Vector3(el.Value.transform.position.x, 20f, el.Value.transform.position.z);
-				}	
-				foreach(var eld in diffSelected){
-					if(eld.Key != actualySelected) eld.Value.transform.position = new Vector3(5f, eld.Value.transform.position.y, eld.Value.transform.position.z);
-				}
-				foreach(var m in medals){
-					m.transform.position = new Vector3(30f, m.transform.position.y, m.transform.position.z); 
-				}
-				camerapack.transform.position = new Vector3(25f, camerapack.transform.position.y, camerapack.transform.position.z);
-				totalAlpha = 1f;
-				separator.SetPosition(0, new Vector3(-50f, -20f, 20f));
-				separator.SetPosition(1, new Vector3(-50f, 12f, 20f));
-				offsetXDiff = arriveOptionDiff.x - departOptionDiff.x;
-				offsetYDiff = arriveOptionDiff.y - departOptionDiff.y;
-				diffSelected[actualySelected].transform.position = new Vector3(-1.2f, 0.75f, 2f);
-				plane.transform.position = new Vector3(0f, 12f, 20f);
-				movinOption = false;
-				StartCoroutine(startOptionFade());
-			}
-		}
+	
 		
 		
-		
-		if(movinSong && !SongMode){
-
-				foreach(var el in packs){
-					el.Value.transform.position = Vector3.Lerp(el.Value.transform.position, new Vector3(el.Value.transform.position.x, 20f, el.Value.transform.position.z), Time.deltaTime/speedMoveSong);
-				}	
-				foreach(var eld in diffSelected){
-					if(eld.Key != actualySelected) eld.Value.transform.position = Vector3.Lerp(eld.Value.transform.position, new Vector3(5f, eld.Value.transform.position.y, eld.Value.transform.position.z), Time.deltaTime/speedMoveSong);
-				}
-				foreach(var m in medals){
-					m.transform.position = Vector3.Lerp(m.transform.position, new Vector3(30f, m.transform.position.y, m.transform.position.z),Time.deltaTime/speedMoveSong); 
-				}
-				camerapack.transform.position = Vector3.Lerp(camerapack.transform.position, new Vector3(25f, camerapack.transform.position.y, camerapack.transform.position.z), Time.deltaTime/speedMoveSong);
-				basePositionSeparator = Mathf.Lerp(basePositionSeparator, -50f, Time.deltaTime/speedMoveSong);
-				separator.SetPosition(0, new Vector3(basePositionSeparator, -20f, 20f));
-				separator.SetPosition(1, new Vector3(basePositionSeparator, 12f, 20f));
-				moveSongDiff.x = Mathf.Lerp(moveSongDiff.x, arriveSongDiff.x, Time.deltaTime/speedMoveSong);
-				offsetXDiff = moveSongDiff.x - departSongDiff.x;
-				moveSongDiff.y = Mathf.Lerp(moveSongDiff.y, arriveSongDiff.y, Time.deltaTime/speedMoveSong);
-				offsetYDiff = moveSongDiff.y - departSongDiff.y;
-				plane.transform.position = Vector3.Lerp(plane.transform.position, new Vector3(0f, 10f, 20f), Time.deltaTime/speedMoveSong);
-				plane.transform.localScale = Vector3.Lerp(plane.transform.localScale, new Vector3(3f, 2f, 0.8f), Time.deltaTime/speedMoveSong);
-				totalAlpha = Mathf.Lerp(totalAlpha, 1f, Time.deltaTime/speedMoveSong*2f);
-				if(Mathf.Abs(plane.transform.position.y - 10f) <= limiteMoveOption){
-					
-					foreach(var el in packs){
-						el.Value.transform.position = new Vector3(el.Value.transform.position.x, 20f, el.Value.transform.position.z);
-					}	
-					foreach(var eld in diffSelected){
-						if(eld.Key != actualySelected) eld.Value.transform.position = new Vector3(5f, eld.Value.transform.position.y, eld.Value.transform.position.z);
-					}
-					
-					camerapack.transform.position = new Vector3(25f, camerapack.transform.position.y, camerapack.transform.position.z);
-					totalAlpha = 1f;
-					separator.SetPosition(0, new Vector3(-50f, -20f, 20f));
-					separator.SetPosition(1, new Vector3(-50f, 12f, 20f));
-					offsetXDiff = arriveSongDiff.x - departSongDiff.x;
-					offsetYDiff = arriveSongDiff.y - departSongDiff.y;
-					plane.transform.position = new Vector3(0f, 10f, 20f);
-					plane.transform.localScale = new Vector3(3f, 2f, 0.8f);
-					SongMode = true;
-					time = 0f;
-				}
-			
-			
-		}
-		
-		if(SongMode){
-			if(alphaSongLaunch[5] < 1 ){
-				for(int i=0;i<6;i++){
-					if(alphaSongLaunch[i] < 1){
-						alphaSongLaunch[i] += Time.deltaTime/speedAlphaSongLaunch;
-						i = 6;
-					}
-				}
-			}
-			
-			if(time > 1f){
-				if(alphaBlack < 1f){
-					alphaBlack += Time.deltaTime/speedAlphaBlack;	
-					songClip.volume -= Time.deltaTime/speedAlphaBlack;	
-					
-					if(alphaBlack >= 1f && DataManager.Instance.rateSelected != 0f){
-						displayLoading = true;
-					}
-				}else{
-					DataManager.Instance.loadRatedSong();
-					Application.LoadLevel("ChartScene");
-				}
-					
-			}else if(alphaSongLaunch[5] >= 1){
-				time += Time.deltaTime;	
-			}	
-			
-		}
 		
 		
 		//refreshBanner and sound
@@ -510,7 +319,7 @@ public class GeneralScript : MonoBehaviour {
 				if(thebanner != null){
 					actualBanner = thebanner;	
 				}else{
-					plane.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[packs.ElementAt(nextnumberPack).Key];
+					plane.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[getZonePack().getActivePack()];
 				}
 				
 				alreadyRefresh = true;
@@ -537,116 +346,41 @@ public class GeneralScript : MonoBehaviour {
 		}
 		
 		
-		//Move to normal
-		if(movinNormal){
-			foreach(var el in packs){
-				el.Value.transform.position = Vector3.Lerp(el.Value.transform.position, new Vector3(el.Value.transform.position.x, 13f, el.Value.transform.position.z), Time.deltaTime/speedMoveOption);
-			}	
-			foreach(var eld in diffSelected){
-				if(eld.Key != actualySelected) eld.Value.transform.position = Vector3.Lerp(eld.Value.transform.position, new Vector3(0.45f, eld.Value.transform.position.y, eld.Value.transform.position.z), Time.deltaTime/speedMoveOption);
-			}
-			foreach(var m in medals){
-				m.transform.position = Vector3.Lerp(m.transform.position, new Vector3(22f, m.transform.position.y, m.transform.position.z),Time.deltaTime/speedMoveOption); 
-			}
-			camerapack.transform.position = Vector3.Lerp(camerapack.transform.position, new Vector3(0f, camerapack.transform.position.y, camerapack.transform.position.z), Time.deltaTime/speedMoveOption);
-			basePositionSeparator = Mathf.Lerp(basePositionSeparator, -5.5f, Time.deltaTime/speedMoveOption);
-			separator.SetPosition(0, new Vector3(basePositionSeparator, -20f, 20f));
-			separator.SetPosition(1, new Vector3(basePositionSeparator, 12f, 20f));
-			moveOptionDiff.x = Mathf.Lerp(moveOptionDiff.x, departOptionDiff.x, Time.deltaTime/speedMoveOption);
-			offsetXDiff = moveOptionDiff.x - departOptionDiff.x;
-			moveOptionDiff.y = Mathf.Lerp(moveOptionDiff.y, departOptionDiff.y, Time.deltaTime/speedMoveOption);
-			offsetYDiff = moveOptionDiff.y - departOptionDiff.y;
-			totalAlpha = Mathf.Lerp(totalAlpha, 0f, Time.deltaTime/speedMoveOption);
-			var ecartjump = 0;
-			for(int i=0; i<(int)actualySelected; i++){
-				if(diffNumber[i] != 0){
-					ecartjump++;
-				}
-			}
-			diffSelected[actualySelected].transform.position = Vector3.Lerp(diffSelected[actualySelected].transform.position, new Vector3(0.45f, DataManager.Instance.posYDiff[ecartjump], 2f), Time.deltaTime/speedMoveOption);
-			plane.transform.position = Vector3.Lerp(plane.transform.position, new Vector3(10f, 7f, 20f), Time.deltaTime/speedMoveOption);
-			
-			if(camerapack.transform.position.x <= limiteMoveOption){
-				
-				
-				foreach(var el in packs){
-					el.Value.transform.position = new Vector3(el.Value.transform.position.x, 13f, el.Value.transform.position.z);
-				}	
-				foreach(var eld in diffSelected){
-					if(eld.Key != actualySelected) eld.Value.transform.position = new Vector3(0.45f, eld.Value.transform.position.y, eld.Value.transform.position.z);
-				}
-				foreach(var m in medals){
-					m.transform.position = new Vector3(22f, m.transform.position.y, m.transform.position.z); 
-				}
-				camerapack.transform.position = new Vector3(0f, camerapack.transform.position.y, camerapack.transform.position.z);
-				totalAlpha = 0f;
-				separator.SetPosition(0, new Vector3(-5.5f, -20f, 20f));
-				separator.SetPosition(1, new Vector3(-5.5f, 12f, 20f));
-				offsetXDiff = 0f;
-				offsetYDiff = 0f;
-				diffSelected[actualySelected].transform.position = new Vector3(0.45f, DataManager.Instance.posYDiff[ecartjump], 2f);
-				plane.transform.position = new Vector3(10f, 7f, 20f);
-				movinNormal = false;
-				PSDiff[(int)actualySelected].gameObject.active = true;
-				for(int i=0;i<RayDiff.Count;i++){
-					RayDiff[i].active = true;	
-				}
-				graph.enabled = true;
-				textButton = "Option";
-			}
-		}
 		#endregion
 		
 		
 		
-		if(!movinNormal && !movinOption && !OptionMode){
-			
-			
-			#region input
-			//Unlock
-			
-			if(Input.GetKeyDown(KeyCode.Escape) && !movinSong && !SongMode && !fadedOut){
-				if(OptionMode && animok){
-					StartCoroutine(endOptionFade());
-					animok = false;
-				}else if(!OptionMode){
-					fadedOut = true;
-					GetComponent<FadeManager>().FadeIn("mainmenu");	
-				}
-			}
-			
-			//Scrollwheel
-			
-			
-			#endregion
 			
 			
 			
-			
-			
+		if(Input.GetKeyDown(KeyCode.Escape) && !getZoneOption().activeModule){
+				fadedOut = true;
+				GetComponent<FadeManager>().FadeIn("mainmenu");	
 		}
+			
+			
+			
+			
+			
+		
 		
 		#region Audio
 			
-			if(songSelected != null && alreadyRefresh && mainThemeClip.volume > 0){
-					mainThemeClip.volume -= Time.deltaTime/speedAudioVolume;
-			}
-			if((songSelected == null || !alreadyRefresh) && mainThemeClip.volume < 1){
-					mainThemeClip.volume += Time.deltaTime/speedAudioVolume;
-			}
+		if(songSelected != null && alreadyRefresh && mainThemeClip.volume > 0){
+				mainThemeClip.volume -= Time.deltaTime/speedAudioVolume;
+		}
+		if((songSelected == null || !alreadyRefresh) && mainThemeClip.volume < 1){
+				mainThemeClip.volume += Time.deltaTime/speedAudioVolume;
+		}
 			
 		#endregion
 		
-		#region option
-			
-			if(OptionMode && matCache.color.a > 0f){
-				fadeAlphaOptionTitle -= Time.deltaTime/timeOption;
-				matCache.color = new Color(matCache.color.r, matCache.color.g, matCache.color.b, fadeAlphaOptionTitle);
-			}
-			
-		#endregion
 	}
 	
+	public void refreshBanner()
+	{
+		alreadyRefresh = false;	
+	}
 	
 	public PackZone getZonePack()
 	{
@@ -671,12 +405,6 @@ public class GeneralScript : MonoBehaviour {
 	public LaunchSongZone getZoneLaunchSong()
 	{
 		return launchSongZone;
-	}
-	
-	public void onBannerChanged()
-	{
-		//TO DO
-		plane.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[packs.ElementAt(0).Key];
 	}
 	
 	public void onFadeInBanner()
@@ -725,10 +453,12 @@ public class GeneralScript : MonoBehaviour {
 	public string refreshPreference(double score)
 	{
 		var queryreturn = "";
-		var kv = ProfileManager.Instance.FindTheBestScore(songSelected[actualySelected].sip);
-		bestfriendscore = kv.Key;
-		bestnamefriendscore = kv.Value;
-		var mystats = ProfileManager.Instance.FindTheSongStat(songSelected[actualySelected].sip);
+		var kv = ProfileManager.Instance.FindTheBestScore(songSelected[getZoneInfo().getActualySelected()].sip);
+		var bestfriendscore = kv.Key;
+		var bestnamefriendscore = kv.Value;
+		var isScoreFail = false;
+		
+		var mystats = ProfileManager.Instance.FindTheSongStat(songSelected[getZoneInfo().getActualySelected()].sip);
 		if(mystats != null){
 			score = mystats.score;
 			isScoreFail = mystats.fail;
