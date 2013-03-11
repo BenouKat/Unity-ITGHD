@@ -438,4 +438,24 @@ public class InfoZone : MonoBehaviour {
 		activeModule = false;
 	}
 	
+	public double getScore()
+	{
+		return score;	
+	}
+	
+	public double getBestFriendScore()
+	{
+		return bestfriendscore;
+	}
+	
+	public string getBestFriendName()
+	{
+		return bestnamefriendscore;	
+	}
+	
+	public bool isFail()
+	{
+		return isScoreFail;
+	}
+	
 }

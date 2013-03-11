@@ -32,9 +32,9 @@ public class GeneralScript : MonoBehaviour {
 	
 	
 	//General feature
-	private string speedmodstring;
-	private string bpmstring;
-	private float speedmodSelected;
+	public string speedmodstring;
+	public string bpmstring;
+	public float speedmodSelected;
 	
 	//Banner
 	private Texture2D actualBanner;
@@ -49,7 +49,7 @@ public class GeneralScript : MonoBehaviour {
 	private string textButton;
 	private float timeFade;
 	private ErrorLabel error;
-	public Rect posLabelLoading;
+	
 	public Rect Jouer;
 	public Rect Option;
 	
@@ -62,7 +62,7 @@ public class GeneralScript : MonoBehaviour {
 	private bool movinSong;
 	private bool SongMode;
 	private bool fadedOut;
-	private bool displayLoading;
+	
 	
 	
 	//Move to option mode
@@ -195,7 +195,6 @@ public class GeneralScript : MonoBehaviour {
 		movinSong = false;
 		
 		fadedOut = false;
-		displayLoading = false;
 		
 		animok = true;
 		

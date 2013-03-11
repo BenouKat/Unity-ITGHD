@@ -14,7 +14,7 @@ public class PackZone : MonoBehaviour {
 	//PackList
 	private int numberPack;
 	private int nextnumberPack;
-	public Transform[] packpos; //pos base = new Vector3(0f, 13, 20f)
+	public Vector3[] packpos; //pos base = new Vector3(0f, 13, 20f)
 	public Vector2 posYModule; //x : low, Y : high
 	public float speedPop;
 	public float decalYLabel;
@@ -34,10 +34,11 @@ public class PackZone : MonoBehaviour {
 	private bool movinForward;
 	private bool movinBackward;
 	
+	private GeneralScript gs;
 	private bool activeModule;
 	// Use this for initialization
 	void Start () {
-		
+		gs = GetComponent<GeneralScript>();
 		popin = false;
 		popout = false;
 		activeModule = true;
@@ -55,15 +56,9 @@ public class PackZone : MonoBehaviour {
 		foreach(var el in LoadManager.Instance.ListSong().Keys){
 			var thego = (GameObject) Instantiate(miniCubePack, new Vector3(0f, 13f, 20f), miniCubePack.transform.rotation);
 			if(LoadManager.Instance.ListTexture().ContainsKey(el)) thego.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[el];
-			if(tempPack.ContainsKey(el)){ 
-				tempPack.Add(thego, el + "(" + tempPack.Count + ")");	
-				if(el + "(" + tempPack.Count + ")" == DataManager.Instance.packSelected) thePackPosition = position; 
-			}
-			else
-			{ 
-				tempPack.Add(thego, el); 
-				if(el == DataManager.Instance.packSelected) thePackPosition = position;
-			}
+			tempPack.Add(thego, el); 
+			if(el == DataManager.Instance.packSelected) thePackPosition = position;
+			
 			position++;
 		}
 
@@ -92,7 +87,7 @@ public class PackZone : MonoBehaviour {
 		//Move forward pack
 		if(movinForward){
 			
-			if(moveCube(Time.deltaTime/speedMove)){
+			if(moveCube(Time.deltaTime/speedMove, limite)){
 				movinForward = false;
 				fadeAlpha = 0.5f;
 				decreaseCubeF();
@@ -106,10 +101,8 @@ public class PackZone : MonoBehaviour {
 		
 		//Move backward pack
 		if(movinBackward){
-			if(moveCube(Time.deltaTime/speedMove)){
+			if(moveCube(Time.deltaTime/speedMove, limite)){
 				movinBackward = false;	
-				decalFade = 0f;
-				decalFadeM = 0f;
 				fadeAlpha = 0.5f;
 				decreaseCubeB();
 				fadeAlpha = 0f;
@@ -124,7 +117,7 @@ public class PackZone : MonoBehaviour {
 		{
 			camerapack.transform.position = Vector3.Lerp(camerapack.transform.position, new Vector3(camerapack.transform.position.x, posYModule.x, camerapack.transform.position.z), Time.deltaTime/speedPop);
 			
-			if(Math.Abs(camerapack.transform.position.y - posYModule.x <= limite))
+			if(Math.Abs(camerapack.transform.position.y - posYModule.x) <= limite)
 			{
 				popin = false;	
 				camerapack.transform.position = new Vector3(camerapack.transform.position.x, posYModule.x, camerapack.transform.position.z);
@@ -135,7 +128,7 @@ public class PackZone : MonoBehaviour {
 		{
 			camerapack.transform.position = Vector3.Lerp(camerapack.transform.position, new Vector3(camerapack.transform.position.x, posYModule.y, camerapack.transform.position.z), Time.deltaTime/speedPop);
 			
-			if(Math.Abs(camerapack.transform.position.y - posYModule.y <= limite))
+			if(Math.Abs(camerapack.transform.position.y - posYModule.y) <= limite)
 			{
 				popout = false;	
 				camerapack.transform.position = new Vector3(camerapack.transform.position.x, posYModule.y, camerapack.transform.position.z);	
@@ -145,18 +138,18 @@ public class PackZone : MonoBehaviour {
 	
 	void OnGUI()
 	{
-		if(!LoadManager.Instance.isAllowedToSearch(search)){
+		if(activeModule){
 			for(int i=0; i < packs.Count; i++)
 			{
 				if(packs.Count <= 7 || (i >= PrevInt(numberPack, 3) && i <= NextInt(numberPack, 3)))
 				{
-					var point2D = camerapack.WorldPointToScreen(packs.ElementAt(i).Key.transform.position);
-					GUI.Color = packs.ElementAt(i).Key.renderer.material.color;
+					var point2D = camerapack.WorldToScreenPoint(packs.ElementAt(i).Key.transform.position);
+					GUI.color = packs.ElementAt(i).Key.renderer.material.color;
 					GUI.Label(new Rect(point2D.x + (decalXLabel*Screen.width), point2D.y + (decalXLabel*Screen.width), wd*Screen.width, ht*Screen.height), packs.ElementAt(i).Value);
 					
 				}
 			}
-			GUI.Color = new Color(1f, 1f, 1f, 1f);
+			GUI.color = new Color(1f, 1f, 1f, 1f);
 		
 			if(activeModule)
 			{
@@ -214,8 +207,8 @@ public class PackZone : MonoBehaviour {
 		packs.ElementAt(PrevInt(start, 2)).Key.renderer.material.color = new Color(1f, 1f, 1f, 0f);
 		
 		for(int i=0; i<packs.Count;i++){
-			var reverse = (i < PrevInt(numberPack, 2) || i > NextInt(numberPack, 2));
-			if((i < PrevInt(numberPack, 2) || i > NextInt(numberPack, 2)))
+			var reverse = PrevInt(numberPack, 2) > NextInt(numberPack, 2);
+			if((!reverse && (i < PrevInt(numberPack, 2) || i > NextInt(numberPack, 2))) || (reverse && (i > PrevInt(numberPack, 2) || i < NextInt(numberPack, 2))))
 			{
 				packs.ElementAt(i).Key.transform.position = packpos[5]; //out
 				packs.ElementAt(i).Key.renderer.material.color = new Color(1f, 1f, 1f, 0f);
@@ -227,17 +220,17 @@ public class PackZone : MonoBehaviour {
 	bool moveCube(float speed, float limit){
 		
 	
-		packs.ElementAt(PrevInt(nextnumberpack, 2)).transform.position = Vector3.Lerp(packs.ElementAt(PrevInt(nextnumberpack, 2)).transform.position, packpos[0], speed);
+		packs.ElementAt(PrevInt(nextnumberPack, 2)).Key.transform.position = Vector3.Lerp(packs.ElementAt(PrevInt(nextnumberPack, 2)).Key.transform.position, packpos[0], speed);
 		
-		packs.ElementAt(PrevInt(nextnumberpack, 1)).transform.position = Vector3.Lerp(packs.ElementAt(PrevInt(nextnumberpack, 1)).transform.position, packpos[1], speed);
+		packs.ElementAt(PrevInt(nextnumberPack, 1)).Key.transform.position = Vector3.Lerp(packs.ElementAt(PrevInt(nextnumberPack, 1)).Key.transform.position, packpos[1], speed);
 		
-		packs.ElementAt(nextnumberpack).transform.position = Vector3.Lerp(packs.ElementAt(nextnumberPack).transform.position, packpos[2], speed);
+		packs.ElementAt(nextnumberPack).Key.transform.position = Vector3.Lerp(packs.ElementAt(nextnumberPack).Key.transform.position, packpos[2], speed);
 		
-		packs.ElementAt(NextInt(nextnumberpack, 1)).transform.position = Vector3.Lerp(packs.ElementAt(NextInt(nextnumberpack, 1)).transform.position, packpos[3], speed);
+		packs.ElementAt(NextInt(nextnumberPack, 1)).Key.transform.position = Vector3.Lerp(packs.ElementAt(NextInt(nextnumberPack, 1)).Key.transform.position, packpos[3], speed);
 		
-		packs.ElementAt(NextInt(nextnumberpack, 2)).transform.position = Vector3.Lerp(packs.ElementAt(NextInt(nextnumberpack, 1)).transform.position, packpos[4], speed);
+		packs.ElementAt(NextInt(nextnumberPack, 2)).Key.transform.position = Vector3.Lerp(packs.ElementAt(NextInt(nextnumberPack, 1)).Key.transform.position, packpos[4], speed);
 		
-		return Math.Abs(packs.ElementAt(nextnumberpack).transform.position.x - packpos[2].x) <= limit;
+		return Math.Abs(packs.ElementAt(nextnumberPack).Key.transform.position.x - packpos[2].x) <= limit;
 	}
 	
 	
@@ -317,7 +310,7 @@ public class PackZone : MonoBehaviour {
 	
 	
 	public string getActivePack(){
-		return packs.ElementAt(nextnumberpack).Value;
+		return packs.ElementAt(nextnumberPack).Value;
 	}
 	
 	public void setActivePack(){

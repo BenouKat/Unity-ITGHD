@@ -60,7 +60,6 @@ public class SongZone : MonoBehaviour {
 		currentstartnumber = 0;
 		
 		songCubePack = new Dictionary<GameObject, string>();
-		LinkCubeSong = new Dictionary<GameObject, string>();
 		
 		createCubeSong();
 		
@@ -105,7 +104,7 @@ public class SongZone : MonoBehaviour {
 					var splitedNameSong = songCubePack[papa.gameObject].Split(';');
 					if(gs.songSelected == null || ((gs.songSelected.First().Value.title + ";" + gs.songSelected.First().Value.subtitle) != splitedNameSong[0] + ";" + splitedNameSong[1]))
 					{
-						gs.songSelected = LoadManager.Instance.FindSong[packSelected][splitedNameSong[2]];
+						gs.songSelected = LoadManager.Instance.FindSong(packSelected, splitedNameSong[2]);
 						gs.getZoneInfo().refreshDifficultyDisplayed();
 						gs.refreshBanner();
 						cubeSelected = papa.gameObject;
@@ -126,7 +125,7 @@ public class SongZone : MonoBehaviour {
 						var splitedNameSong = songCubePack[papa.gameObject].Split(';');
 						if(gs.songSelected == null || ((gs.songSelected.First().Value.title + ";" + gs.songSelected.First().Value.subtitle) != splitedNameSong[0] + ";" + splitedNameSong[1]))
 						{
-							gs.songSelected = LoadManager.Instance.FindSong[packSelected][splitedNameSong[2]];
+							gs.songSelected = LoadManager.Instance.FindSong(packSelected, splitedNameSong[2]);
 							gs.getZoneInfo().refreshDifficultyDisplayed();
 							gs.refreshBanner();
 							cubeSelected = papa.gameObject;
@@ -180,10 +179,10 @@ public class SongZone : MonoBehaviour {
 
 		}else{
 			 
-			camerasong.transform.position = Vector3.Lerp(camerapack.transform.position, new Vector3(camerasong.transform.position.x, decalSongListY*startnumber, camerasong.transform.position.z), Time.deltaTime/speedCameraDefil);
+			camerasong.transform.position = Vector3.Lerp(camerasong.transform.position, new Vector3(camerasong.transform.position.x, decalSongListY*startnumber, camerasong.transform.position.z), Time.deltaTime/speedCameraDefil);
 			
 		}
-		var newpos = camerapack.transform.position.y;
+		var newpos = camerasong.transform.position.y;
 		
 		if(oldpos > newpos){
 		
@@ -203,14 +202,14 @@ public class SongZone : MonoBehaviour {
 			
 		}else if(oldpos < newpos){
 			
-			foreach(var cubeel2 in songCubeOnRender.Where(c => c.Key.active && (c.Key.transform.position.y < camerasong.transform.position.y - decalSongListY*numberToDisplay))){
+			foreach(var cubeel2 in songCubePack.Where(c => c.Key.active && (c.Key.transform.position.y < camerasong.transform.position.y - decalSongListY*numberToDisplay))){
 
 				cubeel2.Key.SetActiveRecursively(false);
 				
 			}
 			
 			
-			foreach(var cubeel in songCubeOnRender.Where(c => !c.Key.active && (c.Key.transform.position.y < camerasong.transform.position.y + 5f) && (c.Key.transform.position.y > camerasong.transform.position.y - decalSongListY*(numberToDisplay - 2)))){
+			foreach(var cubeel in songCubePack.Where(c => !c.Key.active && (c.Key.transform.position.y < camerasong.transform.position.y + 5f) && (c.Key.transform.position.y > camerasong.transform.position.y - decalSongListY*(numberToDisplay - 2)))){
 
 				cubeel.Key.SetActiveRecursively(true);
 				if(startnumber < currentstartnumber) currentstartnumber--;
@@ -292,6 +291,7 @@ public class SongZone : MonoBehaviour {
 		if(search != searchOldValue){
 			if(!String.IsNullOrEmpty(search.Trim()) && LoadManager.Instance.isAllowedToSearch(search)){
 				activeSongList(LoadManager.Instance.ListSong(songList, search.Trim()));
+				gs.getZonePack().onPopout();
 				//custom
 				
 				unFocus();
@@ -300,6 +300,7 @@ public class SongZone : MonoBehaviour {
 				error.displayError = (DataManager.Instance.sortMethod >= Sort.DIFFICULTY && !Int32.TryParse(search, out num));
 			}else if(!LoadManager.Instance.isAllowedToSearch(search) && searchOldValue.Trim().Length > search.Trim().Length){
 				activeSongList(LoadManager.Instance.ListSong()[GetComponent<GeneralScript>().getZonePack().getActivePack()]);
+				gs.getZonePack().onPopin();
 				//recover
 				unFocus();
 				

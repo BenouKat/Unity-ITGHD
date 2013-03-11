@@ -6,6 +6,8 @@ using System;
 
 public class OptionZone : MonoBehaviour {
 	
+	private GeneralScript gs;
+	
 	public GameObject cacheOption;
 	
 	//Option mode
@@ -52,15 +54,17 @@ public class OptionZone : MonoBehaviour {
 	private bool[] isFadingDisplay;
 	private int previousSelected;
 	public float offsetBaseFading;
+	private bool animok;
 	
 	public bool activeModule;
 	// Use this for initialization
 	void Start () {
-	
+		gs = GetComponent<GeneralScript>();
 		activeModule = false;
 		
 		speedmodok = true;
 		rateok = true;
+		animok = true;
 		
 		matCache = cacheOption.renderer.material;
 		
@@ -109,7 +113,7 @@ public class OptionZone : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if(Input.GetKeyDown(KeyCode.Escape) && animok){
+		if(Input.GetKeyDown(KeyCode.Escape) && animok && activeModule){
 			StartCoroutine(endOptionFade());
 			animok = false;
 		}
@@ -127,7 +131,7 @@ public class OptionZone : MonoBehaviour {
 		if(activeModule){
 			for(int i=0;i<stateLoading.Length;i++){
 				if(stateLoading[i]){
-					GUI.DrawTexture(new Rect(posOptionTitle.x*Screen.width, (posOptionTitle.y + offsetYOption*i)*Screen.height, posOptionTitle.width*Screen.width, posOptionTitle.height*Screen.height), tex["Option" + (i+1)]);
+					GUI.DrawTexture(new Rect(posOptionTitle.x*Screen.width, (posOptionTitle.y + offsetYOption*i)*Screen.height, posOptionTitle.width*Screen.width, posOptionTitle.height*Screen.height), gs.tex["Option" + (i+1)]);
 					switch(i){
 					
 						/**
@@ -135,68 +139,68 @@ public class OptionZone : MonoBehaviour {
 						*/
 						case 0:
 							if(!DataManager.Instance.BPMEntryMode){
-								speedmodstring = GUI.TextArea (new Rect(posItem[0].x*Screen.width, posItem[0].y*Screen.height, posItem[0].width*Screen.width, posItem[0].height*Screen.height), speedmodstring.Trim(), 5);
+								gs.speedmodstring = GUI.TextArea (new Rect(posItem[0].x*Screen.width, posItem[0].y*Screen.height, posItem[0].width*Screen.width, posItem[0].height*Screen.height), gs.speedmodstring.Trim(), 5);
 							}else{
-								bpmstring = GUI.TextArea (new Rect(posItem[0].x*Screen.width, posItem[0].y*Screen.height, posItem[0].width*Screen.width, posItem[0].height*Screen.height), bpmstring.Trim(), 5);
-								if(!String.IsNullOrEmpty(bpmstring)){
+								gs.bpmstring = GUI.TextArea (new Rect(posItem[0].x*Screen.width, posItem[0].y*Screen.height, posItem[0].width*Screen.width, posItem[0].height*Screen.height), gs.bpmstring.Trim(), 5);
+								if(!String.IsNullOrEmpty(gs.bpmstring)){
 									double resultbpm;
-									if(System.Double.TryParse(bpmstring, out resultbpm)){
-										var bpmtotest = songSelected.First().Value.bpmToDisplay;
+									if(System.Double.TryParse(gs.bpmstring, out resultbpm)){
+										var bpmtotest = gs.songSelected.First().Value.bpmToDisplay;
 										if(bpmtotest.Contains("->")){
-											speedmodstring = (System.Convert.ToDouble(resultbpm/System.Convert.ToDouble(bpmtotest.Replace(">", "").Split('-')[DataManager.Instance.BPMChoiceMode]))).ToString("0.00");
+											gs.speedmodstring = (System.Convert.ToDouble(resultbpm/System.Convert.ToDouble(bpmtotest.Replace(">", "").Split('-')[DataManager.Instance.BPMChoiceMode]))).ToString("0.00");
 										}else{
-											speedmodstring = (resultbpm/System.Convert.ToDouble(bpmtotest)).ToString("0.00");
+											gs.speedmodstring = (resultbpm/System.Convert.ToDouble(bpmtotest)).ToString("0.00");
 										}
 									}else{
-										speedmodstring = "?";
+										gs.speedmodstring = "?";
 									}
 								}else{
-									speedmodstring = "";
+									gs.speedmodstring = "";
 								}
 							}
-							if(!String.IsNullOrEmpty(speedmodstring)){
+							if(!String.IsNullOrEmpty(gs.speedmodstring)){
 								double result;
-								if(System.Double.TryParse(speedmodstring, out result)){
+								if(System.Double.TryParse(gs.speedmodstring, out result)){
 									if(result >= (double)0.25 && result <= (double)15){
-										speedmodSelected = (float)result;
+										gs.speedmodSelected = (float)result;
 										speedmodok = true;
-										var bpmdisplaying = songSelected.First().Value.bpmToDisplay;
+										var bpmdisplaying = gs.songSelected.First().Value.bpmToDisplay;
 										if(bpmdisplaying.Contains("->")){
-											if(!DataManager.Instance.BPMEntryMode) bpmstring = (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[DataManager.Instance.BPMChoiceMode])*speedmodSelected).ToString("0");
-											bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[0])*speedmodSelected*(1f + (rateSelected/100f))).ToString("0") + "->" + (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[1])*speedmodSelected*(1f + (rateSelected/100f))).ToString("0");
+											if(!DataManager.Instance.BPMEntryMode) gs.bpmstring = (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[DataManager.Instance.BPMChoiceMode])*gs.speedmodSelected).ToString("0");
+											bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[0])*gs.speedmodSelected*(1f + (rateSelected/100f))).ToString("0") + "->" + (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[1])*gs.speedmodSelected*(1f + (rateSelected/100f))).ToString("0");
 										}else{
-											if(!DataManager.Instance.BPMEntryMode) bpmstring = (System.Convert.ToDouble(bpmdisplaying)*speedmodSelected).ToString("0");
-											bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying)*speedmodSelected*(1f + (rateSelected/100f))).ToString("0");
+											if(!DataManager.Instance.BPMEntryMode) gs.bpmstring = (System.Convert.ToDouble(bpmdisplaying)*gs.speedmodSelected).ToString("0");
+											bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying)*gs.speedmodSelected*(1f + (rateSelected/100f))).ToString("0");
 											
 										}
 										
-										GUI.Label(new Rect((posItemLabel[0].x + offsetSpeedRateX)*Screen.width, posItemLabel[0].y*Screen.height, posItemLabel[0].width*Screen.width, posItemLabel[0].height*Screen.height), "Speedmod : x" + speedmodSelected.ToString("0.00") + " (" + bpmdisplaying + " BPM)");
+										GUI.Label(new Rect((posItemLabel[0].x + offsetSpeedRateX)*Screen.width, posItemLabel[0].y*Screen.height, posItemLabel[0].width*Screen.width, posItemLabel[0].height*Screen.height), "Speedmod : x" + gs.speedmodSelected.ToString("0.00") + " (" + bpmdisplaying + " BPM)");
 									}else{
 										GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
 										GUI.Label(new Rect((posItemLabel[0].x + offsetSpeedRateX)*Screen.width, posItemLabel[0].y*Screen.height, posItemLabel[0].width*Screen.width, posItemLabel[0].height*Screen.height), "Speedmod must be between x0.25 and x15");
 										GUI.color = new Color(1f, 1f, 1f, 1f);
 										speedmodok = false;
-										if(!DataManager.Instance.BPMEntryMode) bpmstring = "1";
+										if(!DataManager.Instance.BPMEntryMode) gs.bpmstring = "1";
 									}
 								}else{
 									GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
 									GUI.Label(new Rect((posItemLabel[0].x + offsetSpeedRateX)*Screen.width, posItemLabel[0].y*Screen.height, posItemLabel[0].width*Screen.width, posItemLabel[0].height*Screen.height), "Speedmod is not a valid value");
 									GUI.color = new Color(1f, 1f, 1f, 1f);
 									speedmodok = false;
-									if(!DataManager.Instance.BPMEntryMode) bpmstring = "?";
+									if(!DataManager.Instance.BPMEntryMode) gs.bpmstring = "?";
 								}
 							}else{
 								GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
 								GUI.Label(new Rect((posItemLabel[0].x + offsetSpeedRateX)*Screen.width, posItemLabel[0].y*Screen.height, posItemLabel[0].width*Screen.width, posItemLabel[0].height*Screen.height), "Empty value");
 								GUI.color = new Color(1f, 1f, 1f, 1f);
 								speedmodok = false;
-								if(!DataManager.Instance.BPMEntryMode) bpmstring = "";
+								if(!DataManager.Instance.BPMEntryMode) gs.bpmstring = "";
 							}
 							
 							if(GUI.Button(new Rect((posItem[0].x + offsetXDisplayBPMSwitch)*Screen.width, posItem[0].y*Screen.height, (posItem[0].width + offsetWidthDisplayBPMSV)*Screen.width, posItem[0].height*Screen.height), DataManager.Instance.BPMEntryMode ? "By multip." : "by BPM", "labelGoLittle")){
 								DataManager.Instance.BPMEntryMode = !DataManager.Instance.BPMEntryMode;
 							}
-							if(DataManager.Instance.BPMEntryMode && songSelected.First().Value.bpmToDisplay.Contains("->")){
+							if(DataManager.Instance.BPMEntryMode && gs.songSelected.First().Value.bpmToDisplay.Contains("->")){
 								if(GUI.Button(new Rect((posItem[0].x + offsetXDisplayBPMValue)*Screen.width, posItem[0].y*Screen.height, (posItem[0].width + offsetWidthDisplayBPMSV)*Screen.width, posItem[0].height*Screen.height), 	  DataManager.Instance.BPMChoiceMode == 0 ? "For higher" : "For lower", "labelGoLittle")){
 									DataManager.Instance.BPMChoiceMode++;
 									if(DataManager.Instance.BPMChoiceMode == 2) DataManager.Instance.BPMChoiceMode = 0;
@@ -345,7 +349,7 @@ public class OptionZone : MonoBehaviour {
 							for(int j=0; j<DataManager.Instance.aDisplay.Length; j++){
 								if(displaySelected[j]){
 									GUI.color = new Color(1f, 1f, 1f, alphaDisplay[j]);
-									GUI.DrawTexture(new Rect((posItem[6].x - borderXDisplay + offsetXDisplay*j + selectedImage.x)*Screen.width, (posItem[6].y + selectedImage.y)*Screen.height, selectedImage.width*Screen.width, selectedImage.height*Screen.height), tex["bouton"]);
+									GUI.DrawTexture(new Rect((posItem[6].x - borderXDisplay + offsetXDisplay*j + selectedImage.x)*Screen.width, (posItem[6].y + selectedImage.y)*Screen.height, selectedImage.width*Screen.width, selectedImage.height*Screen.height), gs.tex["bouton"]);
 									GUI.color = new Color(1f, 1f, 1f, 1f);
 								}
 							
@@ -538,11 +542,13 @@ public class OptionZone : MonoBehaviour {
 	public void onPopin()
 	{
 		StartCoroutine(startOptionFade());
+		animok = false;
 	}
 	
 	public void onPopout()
 	{
 		StartCoroutine(endOptionFade());
+		animok = false;
 	}
 	
 	public void instantClose()
@@ -554,5 +560,10 @@ public class OptionZone : MonoBehaviour {
 			}	
 			activeModule = false;
 		}
+	}
+	
+	public bool isRatedSong()
+	{
+		return rateSelected != 0f;
 	}
 }
