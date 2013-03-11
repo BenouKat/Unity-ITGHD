@@ -433,7 +433,7 @@ public class InGameScript : MonoBehaviour {
 		scoreBase = new Dictionary<string, float>();
 		scoreCount = new Dictionary<string, int>();
 		lifeBase = new Dictionary<string, float>();
-		fantasticValue = 100f/(thesong.numberOfStepsWithoutJumps + thesong.numberOfJumps + thesong.numberOfFreezes + thesong.numberOfRolls);
+		fantasticValue = 100f/(thesong.numberOfStepsAbsolute + thesong.numberOfFreezes + thesong.numberOfRolls);
 		foreach(Precision el in Enum.GetValues(typeof(Precision))){
 			if(el != Precision.NONE){
 				scoreBase.Add(el.ToString(), fantasticValue*DataManager.Instance.ScoreWeightValues[el.ToString()]);

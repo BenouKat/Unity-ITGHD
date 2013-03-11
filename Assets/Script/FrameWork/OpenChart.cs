@@ -390,7 +390,7 @@ public class OpenChart{
 							if(countmesure >= 3){
 								numberOfStepsWJ -= countmesure;
 								numberOfStepsAbs -= countmesure - 1;
-								numberOfStepsAbs++;
+								//numberOfStepsAbs++;
 							}
 						}
 					}

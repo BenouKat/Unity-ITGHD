@@ -21,9 +21,11 @@ public class SongZone : MonoBehaviour {
 	public float decalCubeSelected;
 	public float startSongListY; //2f
 	public float decalSongListY; //-3f
+	public Vector2 posXModule;
 	public float decalLabelX;
 	public float decalLabelY;
 	private Vector3 posBaseCameraSong;
+	public float speedPop;
 	private bool popin;
 	private bool popout;
 	
@@ -224,23 +226,23 @@ public class SongZone : MonoBehaviour {
 		//Popin/out
 		if(popin)
 		{
-			camerasong.transform.position = Vector3.Lerp(camerasong.transform.position, new Vector3(camerasong.transform.position.x, posYModule.x, camerasong.transform.position.z), Time.deltaTime/speedPop);
+			camerasong.transform.position = Vector3.Lerp(camerasong.transform.position, new Vector3(camerasong.transform.position.x, posXModule.x, camerasong.transform.position.z), Time.deltaTime/speedPop);
 			
-			if(Math.Abs(camerasong.transform.position.y - posYModule.x <= limite))
+			if(Math.Abs(camerasong.transform.position.x - posXModule.x) <= limite)
 			{
 				popin = false;	
-				camerapack.transform.position = new Vector3(camerasong.transform.position.x, posYModule.x, camerasong.transform.position.z);
+				camerasong.transform.position = new Vector3(camerasong.transform.position.x, posXModule.x, camerasong.transform.position.z);
 			}
 		}
 		
 		if(popout)
 		{
-			camerasong.transform.position = Vector3.Lerp(camerasong.transform.position, new Vector3(camerasong.transform.position.x, posYModule.y, camerasong.transform.position.z), Time.deltaTime/speedPop);
+			camerasong.transform.position = Vector3.Lerp(camerasong.transform.position, new Vector3(camerasong.transform.position.x, posXModule.y, camerasong.transform.position.z), Time.deltaTime/speedPop);
 			
-			if(Math.Abs(camerasong.transform.position.y - posYModule.y <= limite))
+			if(Math.Abs(camerasong.transform.position.x - posXModule.y) <= limite)
 			{
 				popout = false;	
-				camerasong.transform.position = new Vector3(camerasong.transform.position.x, posYModule.y, camerasong.transform.position.z);	
+				camerasong.transform.position = new Vector3(camerasong.transform.position.x, posXModule.y, camerasong.transform.position.z);	
 			}
 		}
 	}
@@ -250,7 +252,7 @@ public class SongZone : MonoBehaviour {
 		var begin = startnumber == 0 ? 0 : startnumber - 1;
 		for(int i=begin; i<numberToDisplay; i++){
 
-				var point2D = cameraSong.WorldPointToScreen(songCubePack.ElementAt(i).Key.transform.position);
+				var point2D = cameraSong.WorldToScreenPoint(songCubePack.ElementAt(i).Key.transform.position);
 				point2D.x += decalLabelX*Screen.width;
 				point2D.y += decalLabelY*Screen.height;
 
@@ -262,7 +264,7 @@ public class SongZone : MonoBehaviour {
 				var alphaText = 1f;
 				if(begin != 0 && i == begin)
 				{
-					alphaText = Math.Abs(cameraSong.transform.position.y - startnumber*decalSongListY + startSongListY);
+					alphaText = Math.Abs(camerasong.transform.position.y - startnumber*decalSongListY + startSongListY);
 					if(decal > 1f)
 					{
 						alphaText = 1f;
@@ -383,6 +385,7 @@ public class SongZone : MonoBehaviour {
 		}
 		for(int i=songList.Count; i < songCubePack.Count; i++)
 		{
+			var key = songCubePack.ElementAt(i).Key;
 			if(key.active) key.SetActiveRecursivly(false);
 		}
 	}
@@ -391,6 +394,7 @@ public class SongZone : MonoBehaviour {
 	{
 		for(int i=0; i < songCubePack.Count; i++)
 		{
+			var key = songCubePack.ElementAt(i).Key;
 			if(key.active) key.SetActiveRecursivly(false);
 		}
 	}
