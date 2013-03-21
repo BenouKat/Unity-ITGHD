@@ -38,10 +38,9 @@ public class OptionZone : MonoBehaviour {
 	private int raceSelected;
 	private bool[] displaySelected;
 	private int deathSelected;
-	
-	private string ratestring;
 	private bool speedmodok;
 	private bool rateok;
+	private string ratestring;
 	
 	//Anim options
 	public float timeFadeOut;
@@ -61,7 +60,6 @@ public class OptionZone : MonoBehaviour {
 	void Start () {
 		gs = GetComponent<GeneralScript>();
 		activeModule = false;
-		
 		speedmodok = true;
 		rateok = true;
 		animok = true;
@@ -128,6 +126,7 @@ public class OptionZone : MonoBehaviour {
 	void OnGUI()
 	{
 		//Option
+		GUI.skin = gs.skin;
 		if(activeModule){
 			for(int i=0;i<stateLoading.Length;i++){
 				if(stateLoading[i]){
@@ -565,5 +564,10 @@ public class OptionZone : MonoBehaviour {
 	public bool isRatedSong()
 	{
 		return rateSelected != 0f;
+	}
+	
+	public bool isReadyToClose()
+	{
+		return speedmodok && rateok;
 	}
 }

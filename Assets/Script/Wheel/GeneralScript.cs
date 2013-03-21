@@ -6,12 +6,15 @@ using System;
 
 public class GeneralScript : MonoBehaviour {
 	
+	
+	//Vérifier si la banner était aussi moche sous Cublast V1
+	//Changer la banner imho : On verra plus tard :)
+	
 	#region variable	
 	//GameObject library
 	
 	public GameObject plane;
 	public GUISkin skin;
-	public LineRenderer separator;
 	
 	public AudioSource songClip;
 	public AudioSource mainThemeClip;
@@ -45,10 +48,9 @@ public class GeneralScript : MonoBehaviour {
 	
 	
 	//General GUI
-	private float totalAlpha;
 	private string textButton;
 	private float timeFade;
-	private ErrorLabel error;
+	
 	
 	public Rect Jouer;
 	public Rect Option;
@@ -56,25 +58,16 @@ public class GeneralScript : MonoBehaviour {
 	
 	//Declancheurs
 	
-	private bool movinOption;
-	private bool OptionMode;
-	private bool movinNormal;
-	private bool movinSong;
-	private bool SongMode;
 	private bool fadedOut;
-	
 	
 	
 	//Move to option mode
 	public float speedMoveOption;
 	public float limiteMoveOption;
-	private float basePositionSeparator = -5.5f;
 	private float offsetXDiff;
 	private float offsetYDiff;
 	private Vector2 departOptionDiff;
 	private Vector2 moveOptionDiff;
-	public Vector2 arriveOptionDiff;
-	private bool animok;
 	
 	
 	
@@ -107,6 +100,8 @@ public class GeneralScript : MonoBehaviour {
 	
 	void Start () {
 		
+		
+		
 		packZone = GetComponent<PackZone>();
 		songZone = GetComponent<SongZone>();
 		infoZone = GetComponent<InfoZone>();
@@ -114,10 +109,8 @@ public class GeneralScript : MonoBehaviour {
 		launchSongZone = GetComponent<LaunchSongZone>();
 		
 		timeFade = 0f;
-		if(!LoadManager.Instance.alreadyLoaded) ProfileManager.Instance.CreateTestProfile();
-		if(!LoadManager.Instance.alreadyLoaded) TextManager.Instance.LoadTextFile();
-		if(!LoadManager.Instance.alreadyLoaded) LoadManager.Instance.Loading();
-		error = GetComponent<ErrorLabel>();
+		
+		
 		
 		
 		tex = new Dictionary<string, Texture2D>();
@@ -149,7 +142,7 @@ public class GeneralScript : MonoBehaviour {
 		
 		
 		
-		actualBanner = new Texture2D(256,512);
+		actualBanner = new Texture2D(256,128);
 		
 		
 		if(!String.IsNullOrEmpty(ProfileManager.Instance.currentProfile.lastSpeedmodUsed)){
@@ -181,22 +174,11 @@ public class GeneralScript : MonoBehaviour {
 		
 		time = 0f;
 		
-		totalAlpha = 0f;
 		
 		
 		
 		
 		alreadyRefresh = true;
-		
-		
-		movinOption = false;
-		OptionMode = false;
-		SongMode = false;
-		movinSong = false;
-		
-		fadedOut = false;
-		
-		animok = true;
 		
 		
 		textButton = "Option";
@@ -209,7 +191,7 @@ public class GeneralScript : MonoBehaviour {
 		
 		
 		
-		
+		fadedOut = false;
 			
 		
 		alreadyFade = false;
@@ -230,7 +212,7 @@ public class GeneralScript : MonoBehaviour {
 		
 		
 
-		
+		GUI.skin = skin;
 		
 	
 		
@@ -244,7 +226,7 @@ public class GeneralScript : MonoBehaviour {
 			//Jouer
 			if(GUI.Button(new Rect(Jouer.x*Screen.width, Jouer.y*Screen.height, Jouer.width*Screen.width, Jouer.height*Screen.height), "Play", "labelGo")){
 				
-				DataManager.Instance.songSelected =  songSelected[getZoneInfo().getActualySelected()];
+				DataManager.Instance.songSelected = songSelected[getZoneInfo().getActualySelected()];
 				DataManager.Instance.difficultySelected = getZoneInfo().getActualySelected();
 				DataManager.Instance.speedmodSelected = speedmodSelected;
 				
@@ -267,7 +249,7 @@ public class GeneralScript : MonoBehaviour {
 			}
 		
 			//Option
-			if(GUI.Button(new Rect(Option.x*Screen.width, Option.y*Screen.height, Option.width*Screen.width, Option.height*Screen.height), textButton, "labelGo") && !movinOption && !movinNormal && animok){
+			if(GUI.Button(new Rect(Option.x*Screen.width, Option.y*Screen.height, Option.width*Screen.width, Option.height*Screen.height), textButton, "labelGo")){
 				if(textButton == "Option"){
 					getZonePack().onPopout();
 					getZoneSong().onPopout();
@@ -275,10 +257,9 @@ public class GeneralScript : MonoBehaviour {
 					getZoneOption().onPopin();
 					textButton = "Back";
 					
-				}else{
+				}else if(getZoneOption().isReadyToClose()){
 					getZoneOption().onPopout();
 				}
-				animok = false;
 			}
 			
 		}
@@ -313,7 +294,7 @@ public class GeneralScript : MonoBehaviour {
 			if(time >= timeBeforeDisplay){
 				plane.renderer.material.mainTexture = actualBanner;
 				var thebanner = songSelected.First().Value.GetBanner(actualBanner);
-				//StartCoroutine(startTheSongUnstreamed());
+				
 				startTheSongStreamed();
 				if(thebanner != null){
 					actualBanner = thebanner;	
@@ -325,6 +306,7 @@ public class GeneralScript : MonoBehaviour {
 				FadeInBanner = true;
 			}else{
 				time += Time.deltaTime;	
+				onFadeOutBanner();
 			}
 		}
 		
@@ -336,7 +318,7 @@ public class GeneralScript : MonoBehaviour {
 				FadeInBanner = false;
 				FadeOutBanner = false;
 			}
-		}else if(FadeOutBanner){
+		}else if(FadeOutBanner && alphaBanner > 0){
 			alphaBanner -= Time.deltaTime/speedFadeAlpha;
 			plane.renderer.material.color = new Color(plane.renderer.material.color.r, plane.renderer.material.color.g, plane.renderer.material.color.b, alphaBanner);
 			if(alphaBanner <= 0){
@@ -352,7 +334,7 @@ public class GeneralScript : MonoBehaviour {
 			
 			
 			
-		if(Input.GetKeyDown(KeyCode.Escape) && !getZoneOption().activeModule){
+		if(Input.GetKeyDown(KeyCode.Escape) && !getZoneOption().activeModule && !fadedOut){
 				fadedOut = true;
 				GetComponent<FadeManager>().FadeIn("mainmenu");	
 		}
@@ -378,7 +360,15 @@ public class GeneralScript : MonoBehaviour {
 	
 	public void refreshBanner()
 	{
+		time = 0f;
 		alreadyRefresh = false;	
+	}
+	
+	public void refreshPackBanner()
+	{
+		alphaBanner = 1f;
+		FadeInBanner = true;
+		plane.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[getZonePack().getActivePack()];
 	}
 	
 	public PackZone getZonePack()

@@ -35,12 +35,10 @@ public class LaunchSongZone : MonoBehaviour {
 	private bool displayLoading;
 	
 	private bool activeModule;
-	private bool startAppear;
 	// Use this for initialization
 	void Start () {
 		gs = GetComponent<GeneralScript>();
 		activeModule = false;
-		startAppear = false;
 		displayLoading = false;
 		time = 0f;
 		alphaSongLaunch = new float[6];
@@ -64,6 +62,7 @@ public class LaunchSongZone : MonoBehaviour {
 	
 	void OnGUI()
 	{
+		GUI.skin = gs.skin;
 		if(activeModule){
 
 				GUI.color = new Color(1f, 1f, 1f, alphaSongLaunch[0]);	

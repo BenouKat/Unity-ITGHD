@@ -42,7 +42,7 @@ public class LoadManager{
 			var path = Directory.GetFiles(el).FirstOrDefault(c => c.Contains(".png") || c.Contains(".jpg") || c.Contains(".jpeg"));
 			if(!String.IsNullOrEmpty(path)){
 				WWW www = new WWW("file://" + path);
-       			Texture2D texTmp = new Texture2D(256, 128);
+       			Texture2D texTmp = new Texture2D(256,128);
 				while(!www.isDone){}
         		www.LoadImageIntoTexture(texTmp);
 				bannerPack.Add(lastDir(el)[length - 1], texTmp);
@@ -169,7 +169,6 @@ public class LoadManager{
 	
 	public Dictionary<string, Dictionary<string, Dictionary<Difficulty, Song>>> ListSong(){
 		return songs;
-		
 	}
 	
 	public Dictionary<string, Dictionary<Difficulty, Song>> ListSong(Dictionary<string, Dictionary<Difficulty, Song>> previousList, string contains){
@@ -182,7 +181,7 @@ public class LoadManager{
 				if(previousList.Count == 0){
 					foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.First().Value.title.ToLower().Contains(contains.ToLower())).Count() > 0)){
 						foreach(var song in packs.Value.Where(r => r.Value.First().Value.title.ToLower().Contains(contains.ToLower()))){
-							finalList.Add(song.Value.First().Value.title + "[" + packs.Key + "]", song.Value);
+							finalList.Add(song.Key + ";" + packs.Key, song.Value);
 						}
 					}
 				}else{
@@ -195,7 +194,7 @@ public class LoadManager{
 				if(previousList.Count == 0){
 					foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.First().Value.title.ToLower().StartsWith(contains.ToLower())).Count() > 0)){
 						foreach(var song in packs.Value.Where(r => r.Value.First().Value.title.ToLower().StartsWith(contains.ToLower()))){
-							finalList.Add(song.Value.First().Value.title + "[" + packs.Key + "]", song.Value);
+							finalList.Add(song.Key + ";" + packs.Key, song.Value);
 						}
 					}
 				}else{
@@ -207,7 +206,7 @@ public class LoadManager{
 				if(previousList.Count == 0){
 					foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.First().Value.artist.ToLower().Contains(contains.ToLower())).Count() > 0)){
 						foreach(var song in packs.Value.Where(r => r.Value.First().Value.artist.ToLower().Contains(contains.ToLower()))){
-							finalList.Add(song.Value.First().Value.title + "[" + packs.Key + "]", song.Value);
+							finalList.Add(song.Key + ";" + packs.Key, song.Value);
 						}
 					}
 				}else{
@@ -220,7 +219,7 @@ public class LoadManager{
 				if(previousList.Count == 0){
 					foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.First().Value.stepartist.ToLower().Contains(contains.ToLower())).Count() > 0)){
 						foreach(var song in packs.Value.Where(r => r.Value.First().Value.stepartist.ToLower().Contains(contains.ToLower()))){
-							finalList.Add(song.Value.First().Value.title + "[" + packs.Key + "]", song.Value);
+							finalList.Add(song.Key + ";" + packs.Key, song.Value);
 						}
 					}
 				}else{
@@ -234,7 +233,7 @@ public class LoadManager{
 				if(Int32.TryParse(contains, out dif)){
 					foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.Count(s => s.Value.level == dif && s.Value.difficulty <= Difficulty.EDIT) > 0).Count() > 0)){
 						foreach(var song in packs.Value.Where(r => r.Value.Count(s => s.Value.level == dif && s.Value.difficulty <= Difficulty.EDIT) > 0)){
-							finalList.Add(song.Value.First().Value.title + "[" + packs.Key + "]", song.Value);
+							finalList.Add(song.Key + ";" + packs.Key, song.Value);
 						}
 					}
 				}
@@ -246,7 +245,7 @@ public class LoadManager{
 				if(Int32.TryParse(contains, out dif2)){
 					foreach(var packs in songs.Where(c => c.Value.Where(d => d.Value.First().Value.bpmToDisplay.Contains(dif2.ToString())).Count() > 0)){
 						foreach(var song in packs.Value.Where(r => r.Value.First().Value.bpmToDisplay.Contains(dif2.ToString()))){
-							finalList.Add(song.Value.First().Value.title + "[" + packs.Key + "]", song.Value);
+							finalList.Add(song.Key + ";" + packs.Key, song.Value);
 						}
 					}
 				}

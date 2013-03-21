@@ -6,6 +6,10 @@ using System;
 
 public class PackZone : MonoBehaviour {
 	
+	//TO DO
+	//Rafraichir la banner de pack
+	//Le défilement va trop vite quand on lock une chanson (Apparemment à cause de la GUI InfoZone)
+	
 	public GameObject miniCubePack;
 	public Camera camerapack;
 	
@@ -38,6 +42,12 @@ public class PackZone : MonoBehaviour {
 	private bool activeModule;
 	// Use this for initialization
 	void Start () {
+		
+		if(!LoadManager.Instance.alreadyLoaded) ProfileManager.Instance.CreateTestProfile();
+		if(!LoadManager.Instance.alreadyLoaded) TextManager.Instance.LoadTextFile();
+		if(!LoadManager.Instance.alreadyLoaded) LoadManager.Instance.Loading();
+		
+		
 		gs = GetComponent<GeneralScript>();
 		popin = false;
 		popout = false;
@@ -48,7 +58,6 @@ public class PackZone : MonoBehaviour {
 		
 		packs = new Dictionary<GameObject, string>();
 		
-		var tempPos = new List<GameObject>();
 		var tempPack = new Dictionary<GameObject, string>();
 		var position = 0;
 		var thePackPosition = -1;
@@ -61,16 +70,17 @@ public class PackZone : MonoBehaviour {
 			
 			position++;
 		}
+		
 
 		if(DataManager.Instance.packSelected != "" && thePackPosition != -1){
-			for(int i=thePackPosition;i<tempPos.Count;i++){
+			for(int i=thePackPosition;i<tempPack.Count;i++){
 				packs.Add(tempPack.ElementAt(i).Key, tempPack.ElementAt(i).Value);
 			}
 			for(int i=0;i<thePackPosition;i++){
 				packs.Add(tempPack.ElementAt(i).Key, tempPack.ElementAt(i).Value);
 			}
 		}else{
-			for(int i=0;i<tempPos.Count;i++){
+			for(int i=0;i<tempPack.Count;i++){
 				packs.Add(tempPack.ElementAt(i).Key, tempPack.ElementAt(i).Value);
 			}
 		}
@@ -115,7 +125,7 @@ public class PackZone : MonoBehaviour {
 		
 		if(popin)
 		{
-			camerapack.transform.position = Vector3.Lerp(camerapack.transform.position, new Vector3(camerapack.transform.position.x, posYModule.x, camerapack.transform.position.z), Time.deltaTime/speedPop);
+			camerapack.transform.position = Vector3.Lerp(camerapack.transform.position, new Vector3(camerapack.transform.position.x, posYModule.x, camerapack.transform.position.z), speedPop*Time.deltaTime);
 			
 			if(Math.Abs(camerapack.transform.position.y - posYModule.x) <= limite)
 			{
@@ -126,7 +136,7 @@ public class PackZone : MonoBehaviour {
 		
 		if(popout)
 		{
-			camerapack.transform.position = Vector3.Lerp(camerapack.transform.position, new Vector3(camerapack.transform.position.x, posYModule.y, camerapack.transform.position.z), Time.deltaTime/speedPop);
+			camerapack.transform.position = Vector3.Lerp(camerapack.transform.position, new Vector3(camerapack.transform.position.x, posYModule.y, camerapack.transform.position.z), speedPop*Time.deltaTime);
 			
 			if(Math.Abs(camerapack.transform.position.y - posYModule.y) <= limite)
 			{
@@ -138,14 +148,16 @@ public class PackZone : MonoBehaviour {
 	
 	void OnGUI()
 	{
+		GUI.skin = gs.skin;
 		if(activeModule){
 			for(int i=0; i < packs.Count; i++)
 			{
 				if(packs.Count <= 7 || (i >= PrevInt(numberPack, 3) && i <= NextInt(numberPack, 3)))
 				{
 					var point2D = camerapack.WorldToScreenPoint(packs.ElementAt(i).Key.transform.position);
+					point2D.y = Screen.height - point2D.y;
 					GUI.color = packs.ElementAt(i).Key.renderer.material.color;
-					GUI.Label(new Rect(point2D.x + (decalXLabel*Screen.width), point2D.y + (decalXLabel*Screen.width), wd*Screen.width, ht*Screen.height), packs.ElementAt(i).Value);
+					GUI.Label(new Rect(point2D.x + (decalXLabel*Screen.width), point2D.y + (decalYLabel*Screen.height), wd*Screen.width, ht*Screen.height), packs.ElementAt(i).Value);
 					
 				}
 			}
@@ -190,7 +202,7 @@ public class PackZone : MonoBehaviour {
 	
 	void organiseCube(int start){
 		
-	
+		//Debug.Log("start : " + start + " // size pack : " + packs.Count + " // size pos : " + packpos.Length);
 		packs.ElementAt(start).Key.transform.position = packpos[2];
 		packs.ElementAt(start).Key.renderer.material.color = new Color(1f, 1f, 1f, 1f);
 		
@@ -206,14 +218,18 @@ public class PackZone : MonoBehaviour {
 		packs.ElementAt(PrevInt(start, 2)).Key.transform.position = packpos[0];
 		packs.ElementAt(PrevInt(start, 2)).Key.renderer.material.color = new Color(1f, 1f, 1f, 0f);
 		
-		for(int i=0; i<packs.Count;i++){
-			var reverse = PrevInt(numberPack, 2) > NextInt(numberPack, 2);
-			if((!reverse && (i < PrevInt(numberPack, 2) || i > NextInt(numberPack, 2))) || (reverse && (i > PrevInt(numberPack, 2) || i < NextInt(numberPack, 2))))
-			{
-				packs.ElementAt(i).Key.transform.position = packpos[5]; //out
-				packs.ElementAt(i).Key.renderer.material.color = new Color(1f, 1f, 1f, 0f);
+		if(packs.Count > 5)
+		{
+			for(int i=0; i<packs.Count;i++){
+				var reverse = PrevInt(start, 2) > NextInt(start, 2);
+				if((!reverse && (i < PrevInt(start, 2) || i > NextInt(start, 2))) || (reverse && (i < PrevInt(start, 2) && i > NextInt(start, 2))))
+				{
+					Debug.Log("out : " + i);
+					packs.ElementAt(i).Key.transform.position = packpos[5]; //out
+					packs.ElementAt(i).Key.renderer.material.color = new Color(1f, 1f, 1f, 0f);
+				}
+				
 			}
-			
 		}
 	}
 	
@@ -297,6 +313,7 @@ public class PackZone : MonoBehaviour {
 	public void onPopin()
 	{
 		popin = true;
+		popout = false;	
 		activeModule = true;
 	}
 	
@@ -304,6 +321,7 @@ public class PackZone : MonoBehaviour {
 	public void onPopout()
 	{
 		popout = true;
+		popin = false;
 		activeModule = false;
 		
 	}

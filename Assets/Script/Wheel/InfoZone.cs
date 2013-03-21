@@ -6,7 +6,10 @@ using System;
 
 public class InfoZone : MonoBehaviour {
 	
-	
+	//TO DO
+	//Ne pas désac les textes de diff
+	//La banner ne va pas assez loin
+	//Tester le popin
 	
 	public Camera cameradiff;
 	public GameObject PSCore;
@@ -16,6 +19,10 @@ public class InfoZone : MonoBehaviour {
 	
 	private Dictionary<Difficulty, GameObject> diffSelected;
 	private Dictionary<Difficulty, Color> diffActiveColor;
+	private float basePosXDifficulty;
+	public float popoutPosXDifficulty;
+	private float[] basePosDifficulty;
+	
 	
 	private Dictionary<int, ParticleSystem> PSDiff;
 	private Dictionary<int, GameObject> RayDiff;
@@ -42,7 +49,10 @@ public class InfoZone : MonoBehaviour {
 	public float decalInfoDiffY;
 	public float decalInfoNumDiffY;
 	
-	public Vector3 recoverPosition;
+	public float decalPSDiffY;
+	public float decalRayDiffY;
+	
+	private Vector3 recoverPosition;
 	public Vector3 posDiffOption;
 	public Vector3 posDiffLaunch;
 	
@@ -99,6 +109,13 @@ public class InfoZone : MonoBehaviour {
 		diffSelected.Add(Difficulty.EXPERT, GameObject.Find("DifficultyEx"));
 		diffSelected.Add(Difficulty.EDIT, GameObject.Find("DifficultyEd"));
 		
+		basePosXDifficulty = diffSelected.First().Value.transform.position.x;
+		basePosDifficulty = new float[6];
+		for(int i=0; i<6; i++)
+		{
+			basePosDifficulty[i] = diffSelected.ElementAt(i).Value.transform.position.y;
+		}
+		
 			
 		diffActiveColor.Add(Difficulty.BEGINNER, diffSelected[Difficulty.BEGINNER].transform.GetChild(0).renderer.material.GetColor("_TintColor"));
 		diffActiveColor.Add(Difficulty.EASY, diffSelected[Difficulty.EASY].transform.GetChild(0).renderer.material.GetColor("_TintColor"));
@@ -114,6 +131,8 @@ public class InfoZone : MonoBehaviour {
 		for(int i=0; i<6;i++){
 			RayDiff.Add(i, (GameObject) RayCore.transform.FindChild(""+i).gameObject);
 		}
+		
+		
 		
 		desactiveDiff();
 		
@@ -159,7 +178,8 @@ public class InfoZone : MonoBehaviour {
 		
 		if(enterOption)
 		{
-			diffSelected[actualySelected].transform.position = Vector3.Lerp(diffSelected[actualySelected].transform.position, posDiffOption, Time.deltaTime/speedMoveDiff);
+			PopoutOthersDiff();
+			diffSelected[actualySelected].transform.position = Vector3.Lerp(diffSelected[actualySelected].transform.position, posDiffOption, Time.deltaTime*speedMoveDiff);
 			if(Vector3.Distance(diffSelected[actualySelected].transform.position, posDiffOption) <= 0.1f)
 			{
 				diffSelected[actualySelected].transform.position = posDiffOption;
@@ -169,8 +189,9 @@ public class InfoZone : MonoBehaviour {
 		
 		if(exitOption)
 		{
-			diffSelected[actualySelected].transform.position = Vector3.Lerp(diffSelected[actualySelected].transform.position, recoverPosition, Time.deltaTime/speedMoveDiff);
-			if(Vector3.Distance(diffSelected[actualySelected].transform.position, recoverPosition) <= 0.1f)
+			
+			diffSelected[actualySelected].transform.position = Vector3.Lerp(diffSelected[actualySelected].transform.position, recoverPosition, Time.deltaTime*speedMoveDiff);
+			if(Vector3.Distance(diffSelected[actualySelected].transform.position, recoverPosition) <= 0.1f && PopinOthersDiff())
 			{
 				diffSelected[actualySelected].transform.position = recoverPosition;
 				exitOption = false;
@@ -179,7 +200,7 @@ public class InfoZone : MonoBehaviour {
 		
 		if(enterLaunch)
 		{
-			diffSelected[actualySelected].transform.position = Vector3.Lerp(diffSelected[actualySelected].transform.position, posDiffLaunch, Time.deltaTime/speedMoveDiff);
+			diffSelected[actualySelected].transform.position = Vector3.Lerp(diffSelected[actualySelected].transform.position, posDiffLaunch, Time.deltaTime*speedMoveDiff);
 			if(Vector3.Distance(diffSelected[actualySelected].transform.position, posDiffLaunch) <= 0.1f)
 			{
 				diffSelected[actualySelected].transform.position = posDiffLaunch;
@@ -192,6 +213,8 @@ public class InfoZone : MonoBehaviour {
 	void OnGUI()
 	{
 		//SongDifficulty
+		GUI.skin = gs.skin;
+		
 		if(gs.songSelected != null){
 			var decalDiffX = decalInfoDiffX*Screen.width;
 			var decalNumDiffX = decalInfoNumDiffX*Screen.width;
@@ -207,7 +230,7 @@ public class InfoZone : MonoBehaviour {
 				if(diffNumber[i] != 0 && (activeModule || (diffNumber[i] == (int)actualySelected)))
 				{
 					var point2D = cameradiff.WorldToScreenPoint(diffSelected[(Difficulty)i].transform.position);
-					
+					point2D.y = Screen.height - point2D.y;
 					GUI.color = new Color(1f, 1f, 1f, 1f);
 					var zoom = 0f;
 					if(onHoverDifficulty  == (Difficulty)i) zoom = diffZoom; 
@@ -340,9 +363,9 @@ public class InfoZone : MonoBehaviour {
 		for(int i=(int)Difficulty.BEGINNER; i<=(int)Difficulty.EDIT; i++){
 			if(gs.songSelected.ContainsKey((Difficulty)i)){
 				
-				diffSelected[(Difficulty)i].transform.position = new Vector3(diffSelected[(Difficulty)i].transform.position.x, DataManager.Instance.posYDiff[countpos], diffSelected[(Difficulty)i].transform.position.z);
-				PSDiff[i].transform.position = new Vector3(PSDiff[i].transform.position.x, DataManager.Instance.posYZoneDiff[countpos], PSDiff[i].transform.position.z);
-				RayDiff[i].transform.position = new Vector3(RayDiff[i].transform.position.x, DataManager.Instance.posYZoneDiff[countpos], RayDiff[i].transform.position.z);
+				diffSelected[(Difficulty)i].transform.position = new Vector3(diffSelected[(Difficulty)i].transform.position.x, basePosDifficulty[countpos], diffSelected[(Difficulty)i].transform.position.z);
+				PSDiff[i].transform.position = new Vector3(PSDiff[i].transform.position.x, basePosDifficulty[countpos] + decalPSDiffY, PSDiff[i].transform.position.z);
+				RayDiff[i].transform.position = new Vector3(RayDiff[i].transform.position.x, basePosDifficulty[countpos] + decalRayDiffY, RayDiff[i].transform.position.z);
 				countpos++;
 				for(int j=0; j<diffSelected[(Difficulty)i].transform.GetChildCount(); j++){
 					if((int.Parse(diffSelected[(Difficulty)i].transform.GetChild(j).name)) <= gs.songSelected[(Difficulty)i].level){
@@ -366,6 +389,31 @@ public class InfoZone : MonoBehaviour {
 			RayDiff[i].transform.Translate(0f, -100f, 0f);
 			diffSelected[(Difficulty)i].transform.Translate(0f, -100f, 0f);
 		}
+	}
+	
+	public void PopoutOthersDiff(){
+		for(int i=(int)Difficulty.BEGINNER; i<=(int)Difficulty.EDIT; i++){
+			if(i != (int)actualySelected)
+			{
+				diffSelected[(Difficulty)i].transform.position = Vector3.Lerp(diffSelected[(Difficulty)i].transform.position, new Vector3(popoutPosXDifficulty, diffSelected[(Difficulty)i].transform.position.y, diffSelected[(Difficulty)i].transform.position.z), speedMoveDiff*Time.deltaTime);
+			}
+		}
+	}
+	
+	public bool PopinOthersDiff(){
+		var arrived = false;
+		for(int i=(int)Difficulty.BEGINNER; i<=(int)Difficulty.EDIT; i++){
+			if(i != (int)actualySelected)
+			{
+				diffSelected[(Difficulty)i].transform.position = Vector3.Lerp(diffSelected[(Difficulty)i].transform.position, new Vector3(basePosXDifficulty, diffSelected[(Difficulty)i].transform.position.y, diffSelected[(Difficulty)i].transform.position.z), speedMoveDiff*Time.deltaTime);
+				if(Math.Abs(diffSelected[(Difficulty)i].transform.position.x - basePosXDifficulty) <= 0.1)
+				{
+					arrived = true;
+					diffSelected[(Difficulty)i].transform.position = new Vector3(basePosXDifficulty, diffSelected[(Difficulty)i].transform.position.y, diffSelected[(Difficulty)i].transform.position.z);
+				}
+			}
+		}
+		return arrived;
 	}
 	
 	public void refreshNumberDiff(){
@@ -431,7 +479,7 @@ public class InfoZone : MonoBehaviour {
 		for(int i=0;i<diffSelected.Count;i++){
 			if(i != (int)actualySelected)
 			{
-				diffSelected.ElementAt(i).Value.transform.Translate(0f, -200f, 0f);
+				diffSelected.ElementAt(i).Value.transform.Translate(0f, -100f, 0f);
 			}
 		}
 		graph.enabled = false;
