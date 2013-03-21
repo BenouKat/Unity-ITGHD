@@ -42,7 +42,7 @@ public class LoadManager{
 			var path = Directory.GetFiles(el).FirstOrDefault(c => c.Contains(".png") || c.Contains(".jpg") || c.Contains(".jpeg"));
 			if(!String.IsNullOrEmpty(path)){
 				WWW www = new WWW("file://" + path);
-       			Texture2D texTmp = new Texture2D(256,128);
+       			Texture2D texTmp = new Texture2D(512,256);
 				while(!www.isDone){}
         		www.LoadImageIntoTexture(texTmp);
 				bannerPack.Add(lastDir(el)[length - 1], texTmp);
@@ -98,7 +98,7 @@ public class LoadManager{
 			var path = Directory.GetFiles(el).FirstOrDefault(c => c.Contains(".png") || c.Contains(".jpg") || c.Contains(".jpeg"));
 			if(!String.IsNullOrEmpty(path)){
 				WWW www = new WWW("file://" + path);
-       			Texture2D texTmp = new Texture2D(256, 128);
+       			Texture2D texTmp = new Texture2D(512, 256);
 				while(!www.isDone){}
         		www.LoadImageIntoTexture(texTmp);
 				bannerPack.Add(lastDir(el)[length - 1], texTmp);

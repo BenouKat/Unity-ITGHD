@@ -41,7 +41,7 @@ public class SongZone : MonoBehaviour {
 	
 	private Dictionary<string, Dictionary<Difficulty, Song>> songList;
 	private Dictionary<string, Dictionary<Difficulty, Song>> searchList;
-	private bool locked;
+	public bool locked;
 	private ErrorLabel error;
 	
 	
@@ -93,7 +93,7 @@ public class SongZone : MonoBehaviour {
 	void Update () {
 	
 		
-		if(activeModule)
+		if(activeModule && !gs.getZoneInfo().isExiting())
 		{
 			//Selection
 			Ray ray = camerasong.ScreenPointToRay(Input.mousePosition);	
@@ -382,6 +382,7 @@ public class SongZone : MonoBehaviour {
 		gs.getZoneInfo().disableDifficultyDisplayed();
 		gs.songSelected = null;
 		gs.onFadeOutBanner();
+		gs.shutSong();
 		locked = false;
 		if(particleOnPlay != null)
 		{
@@ -396,7 +397,7 @@ public class SongZone : MonoBehaviour {
 		startnumber = 0;
 		currentstartnumber = 0;
 		camerasong.transform.position = posBaseCameraSong;
-		gs.refreshPackBanner();
+		
 		
 		for(int i=0; i < songList.Count; i++)
 		{

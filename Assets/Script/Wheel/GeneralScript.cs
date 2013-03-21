@@ -7,9 +7,6 @@ using System;
 public class GeneralScript : MonoBehaviour {
 	
 	
-	//Vérifier si la banner était aussi moche sous Cublast V1
-	//Changer la banner imho : On verra plus tard :)
-	
 	#region variable	
 	//GameObject library
 	
@@ -45,7 +42,10 @@ public class GeneralScript : MonoBehaviour {
 	private float alphaBanner;
 	private bool FadeOutBanner;
 	private bool FadeInBanner;
-	
+	public Vector3 posBannerOption;
+	public Vector3 recoverPosBanner;
+	public Vector3 posBannerSong;
+	public Vector3 scaleBannerSong;
 	
 	//General GUI
 	private string textButton;
@@ -68,13 +68,6 @@ public class GeneralScript : MonoBehaviour {
 	private float offsetYDiff;
 	private Vector2 departOptionDiff;
 	private Vector2 moveOptionDiff;
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	//General Update
@@ -142,8 +135,9 @@ public class GeneralScript : MonoBehaviour {
 		
 		
 		
-		actualBanner = new Texture2D(256,128);
+		actualBanner = new Texture2D(512,256);
 		
+		recoverPosBanner = plane.transform.position;
 		
 		if(!String.IsNullOrEmpty(ProfileManager.Instance.currentProfile.lastSpeedmodUsed)){
 			speedmodstring = ProfileManager.Instance.currentProfile.lastSpeedmodUsed;
@@ -404,6 +398,11 @@ public class GeneralScript : MonoBehaviour {
 	public void onFadeOutBanner()
 	{
 		FadeOutBanner = true;	
+	}
+	
+	public void shutSong()
+	{
+		songClip.Stop();	
 	}
 	
 	#region sound

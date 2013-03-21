@@ -6,10 +6,6 @@ using System;
 
 public class InfoZone : MonoBehaviour {
 	
-	//TO DO
-	//Ne pas désac les textes de diff
-	//La banner ne va pas assez loin
-	//Tester le popin
 	
 	public Camera cameradiff;
 	public GameObject PSCore;
@@ -180,9 +176,11 @@ public class InfoZone : MonoBehaviour {
 		{
 			PopoutOthersDiff();
 			diffSelected[actualySelected].transform.position = Vector3.Lerp(diffSelected[actualySelected].transform.position, posDiffOption, Time.deltaTime*speedMoveDiff);
+			gs.plane.transform.position = Vector3.Lerp(gs.plane.transform.position, gs.posBannerOption, Time.deltaTime*speedMoveDiff);
 			if(Vector3.Distance(diffSelected[actualySelected].transform.position, posDiffOption) <= 0.1f)
 			{
 				diffSelected[actualySelected].transform.position = posDiffOption;
+				gs.plane.transform.position = gs.posBannerOption;
 				enterOption = false;
 			}
 		}
@@ -191,9 +189,12 @@ public class InfoZone : MonoBehaviour {
 		{
 			
 			diffSelected[actualySelected].transform.position = Vector3.Lerp(diffSelected[actualySelected].transform.position, recoverPosition, Time.deltaTime*speedMoveDiff);
-			if(Vector3.Distance(diffSelected[actualySelected].transform.position, recoverPosition) <= 0.1f && PopinOthersDiff())
+			gs.plane.transform.position = Vector3.Lerp(gs.plane.transform.position, gs.recoverPosBanner, Time.deltaTime*speedMoveDiff);
+			
+			if(PopinOthersDiff() && Vector3.Distance(diffSelected[actualySelected].transform.position, recoverPosition) <= 0.1f && Vector3.Distance(gs.plane.transform.position, gs.recoverPosBanner) <= 0.1f)
 			{
 				diffSelected[actualySelected].transform.position = recoverPosition;
+				gs.plane.transform.position = gs.recoverPosBanner;
 				exitOption = false;
 			}
 		}
@@ -201,9 +202,14 @@ public class InfoZone : MonoBehaviour {
 		if(enterLaunch)
 		{
 			diffSelected[actualySelected].transform.position = Vector3.Lerp(diffSelected[actualySelected].transform.position, posDiffLaunch, Time.deltaTime*speedMoveDiff);
-			if(Vector3.Distance(diffSelected[actualySelected].transform.position, posDiffLaunch) <= 0.1f)
+			gs.plane.transform.position = Vector3.Lerp(gs.plane.transform.position, gs.posBannerSong, Time.deltaTime*speedMoveDiff);
+			gs.plane.transform.localScale = Vector3.Lerp(gs.plane.transform.localScale, gs.scaleBannerSong, Time.deltaTime*speedMoveDiff*2f);
+			
+			if(Vector3.Distance(diffSelected[actualySelected].transform.position, posDiffLaunch) <= 0.1f && Vector3.Distance(gs.plane.transform.position, gs.posBannerSong) <= 0.1f)
 			{
 				diffSelected[actualySelected].transform.position = posDiffLaunch;
+				gs.plane.transform.position = gs.posBannerSong;
+				gs.plane.transform.localScale = gs.scaleBannerSong;
 				enterLaunch = false;
 			}
 		}
@@ -227,7 +233,7 @@ public class InfoZone : MonoBehaviour {
 			var diffheight = posNumberDiff.height*Screen.height;
 			
 			for(int i=0; i<=(int)Difficulty.EDIT; i++){
-				if(diffNumber[i] != 0 && (activeModule || (diffNumber[i] == (int)actualySelected)))
+				if(diffNumber[i] != 0 && (activeModule || (i == (int)actualySelected)))
 				{
 					var point2D = cameradiff.WorldToScreenPoint(diffSelected[(Difficulty)i].transform.position);
 					point2D.y = Screen.height - point2D.y;
@@ -239,14 +245,13 @@ public class InfoZone : MonoBehaviour {
 					GUI.color = new Color(DataManager.Instance.diffColor[i].r, DataManager.Instance.diffColor[i].g, DataManager.Instance.diffColor[i].b, 1f);
 					GUI.Label(new Rect(point2D.x + decalNumDiffX , point2D.y + decalNumDiffY, diffwidth, diffheight), gs.songSelected[(Difficulty)i].level.ToString(), "numberdiff");
 				}
-				
 			}
-			GUI.color = new Color(1f, 1f, 1f, 1f);
-			GUI.DrawTexture(new Rect(posGraph.x*Screen.width, posGraph.y*Screen.height, posGraph.width*Screen.width, posGraph.height*Screen.height), gs.tex["graph"]);
 		}
 		
 		//Song Info
 		if(gs.songSelected != null && activeModule){ 
+			
+			GUI.color = new Color(1f, 1f, 1f, 1f);
 			
 			var theSong = gs.songSelected[actualySelected];
 			//BPM
@@ -300,6 +305,10 @@ public class InfoZone : MonoBehaviour {
 						gs.tex["Failed"]);
 				}
 			}
+			
+			GUI.color = new Color(1f, 1f, 1f, 1f);
+			GUI.DrawTexture(new Rect(posGraph.x*Screen.width, posGraph.y*Screen.height, posGraph.width*Screen.width, posGraph.height*Screen.height), gs.tex["graph"]);
+		
 			
 		}
 		
@@ -504,6 +513,11 @@ public class InfoZone : MonoBehaviour {
 	public bool isFail()
 	{
 		return isScoreFail;
+	}
+	
+	public bool isExiting()
+	{
+		return exitOption;
 	}
 	
 }

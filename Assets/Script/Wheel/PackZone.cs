@@ -169,14 +169,22 @@ public class PackZone : MonoBehaviour {
 					nextnumberPack = PrevInt(numberPack, 1);
 					organiseCube(numberPack);
 					setActivePack();
-					gs.refreshBanner();
+					if(!gs.getZoneSong().locked)
+					{
+						gs.refreshPackBanner();
+						gs.refreshBanner();
+					}
 					movinBackward = true;
 				}
 				if(GUI.Button(new Rect(posBackward.x*Screen.width, posBackward.y*Screen.height + ecart*Screen.height, posBackward.width*Screen.width, posBackward.height*Screen.height),"","Backward") && !movinBackward && !movinForward ){
 					nextnumberPack = PrevInt(numberPack, 3);
 					organiseCube(nextnumberPack);
 					setActivePack();
-					gs.refreshBanner();
+					if(!gs.getZoneSong().locked)
+					{
+						gs.refreshPackBanner();
+						gs.refreshBanner();
+					}
 					numberPack = nextnumberPack;
 				}
 				
@@ -185,14 +193,22 @@ public class PackZone : MonoBehaviour {
 					nextnumberPack = NextInt(numberPack, 1);
 					organiseCube(numberPack);
 					setActivePack();
-					gs.refreshBanner();
+					if(!gs.getZoneSong().locked)
+					{
+						gs.refreshPackBanner();
+						gs.refreshBanner();
+					}
 					movinForward = true;
 				}
 				if(GUI.Button(new Rect(posForward.x*Screen.width, posForward.y*Screen.height + ecart*Screen.height, posForward.width*Screen.width, posForward.height*Screen.height),"","Forward") && !movinBackward && !movinForward){
 					nextnumberPack = NextInt(numberPack, 3);
 					organiseCube(nextnumberPack);
 					setActivePack();
-					gs.refreshBanner();
+					if(!gs.getZoneSong().locked)
+					{
+						gs.refreshPackBanner();
+						gs.refreshBanner();
+					}
 					numberPack = nextnumberPack;
 				}
 			}
@@ -224,7 +240,6 @@ public class PackZone : MonoBehaviour {
 				var reverse = PrevInt(start, 2) > NextInt(start, 2);
 				if((!reverse && (i < PrevInt(start, 2) || i > NextInt(start, 2))) || (reverse && (i < PrevInt(start, 2) && i > NextInt(start, 2))))
 				{
-					Debug.Log("out : " + i);
 					packs.ElementAt(i).Key.transform.position = packpos[5]; //out
 					packs.ElementAt(i).Key.renderer.material.color = new Color(1f, 1f, 1f, 0f);
 				}
