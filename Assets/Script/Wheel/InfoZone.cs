@@ -216,10 +216,9 @@ public class InfoZone : MonoBehaviour {
 		
 	}
 	
-	void OnGUI()
+	public void GUIModule()
 	{
 		//SongDifficulty
-		GUI.skin = gs.skin;
 		
 		if(gs.songSelected != null){
 			var decalDiffX = decalInfoDiffX*Screen.width;
@@ -518,6 +517,11 @@ public class InfoZone : MonoBehaviour {
 	public bool isExiting()
 	{
 		return exitOption;
+	}
+	
+	public bool isEntering()
+	{
+		return enterOption;	
 	}
 	
 }

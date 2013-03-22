@@ -123,10 +123,9 @@ public class OptionZone : MonoBehaviour {
 	}
 	
 	
-	void OnGUI()
+	public void GUIModule()
 	{
 		//Option
-		GUI.skin = gs.skin;
 		if(activeModule){
 			for(int i=0;i<stateLoading.Length;i++){
 				if(stateLoading[i]){
@@ -428,6 +427,11 @@ public class OptionZone : MonoBehaviour {
 	
 	IEnumerator startOptionFade(){
 		
+		activeModule = true;
+		while(gs.getZoneInfo().isEntering())
+		{
+			yield return new WaitForSeconds(Time.deltaTime);	
+		}
 		var posInit = cacheOption.transform.position;
 		cacheOption.active = true;
 		for(int i=0;i<stateLoading.Length;i++){
@@ -442,7 +446,7 @@ public class OptionZone : MonoBehaviour {
 		cacheOption.active = false;
 		cacheOption.transform.position = posInit;
 		animok = true;
-		activeModule = true;
+		
 	}
 	
 	IEnumerator endOptionFade(){
@@ -465,6 +469,7 @@ public class OptionZone : MonoBehaviour {
 		gs.getZonePack().onPopin();
 		gs.getZoneSong().onPopin();
 		gs.getZoneInfo().onExitOption();
+		gs.changeButtonText("Options");
 		activeModule = false;
 	}
 	
@@ -569,5 +574,10 @@ public class OptionZone : MonoBehaviour {
 	public bool isReadyToClose()
 	{
 		return speedmodok && rateok;
+	}
+	
+	public bool isOkToAnim()
+	{
+		return animok;	
 	}
 }

@@ -175,7 +175,7 @@ public class GeneralScript : MonoBehaviour {
 		alreadyRefresh = true;
 		
 		
-		textButton = "Option";
+		textButton = "Options";
 		
 		alphaBanner = 1f;
 		
@@ -209,10 +209,19 @@ public class GeneralScript : MonoBehaviour {
 		GUI.skin = skin;
 		
 	
-		
+		packZone.GUIModule();
+		GUI.color = new Color(1f, 1f, 1f, 1f);
+		songZone.GUIModule();
+		GUI.color = new Color(1f, 1f, 1f, 1f);
+		infoZone.GUIModule();
+		GUI.color = new Color(1f, 1f, 1f, 1f);
+		optionZone.GUIModule();
+		GUI.color = new Color(1f, 1f, 1f, 1f);
+		launchSongZone.GUIModule();
+		GUI.color = new Color(1f, 1f, 1f, 1f);
 		#region optionPlayGUI
 		//Option/jouer
-		if(songSelected != null){
+		if(songSelected != null && !launchSongZone.activeModule){
 		
 			
 		
@@ -243,20 +252,21 @@ public class GeneralScript : MonoBehaviour {
 			}
 		
 			//Option
-			if(GUI.Button(new Rect(Option.x*Screen.width, Option.y*Screen.height, Option.width*Screen.width, Option.height*Screen.height), textButton, "labelGo")){
-				if(textButton == "Option"){
+			if(GUI.Button(new Rect(Option.x*Screen.width, Option.y*Screen.height, Option.width*Screen.width, Option.height*Screen.height), textButton, "labelGo") && getZoneOption().isOkToAnim() && !getZoneInfo().isExiting()){
+				if(textButton == "Options"){
 					getZonePack().onPopout();
 					getZoneSong().onPopout();
 					getZoneInfo().onEnterOption();
 					getZoneOption().onPopin();
 					textButton = "Back";
 					
-				}else if(getZoneOption().isReadyToClose()){
+				}else if(getZoneOption().isReadyToClose() && getZoneOption().isOkToAnim()){
 					getZoneOption().onPopout();
 				}
 			}
 			
 		}
+		
 		
 		
 		#endregion
@@ -267,7 +277,10 @@ public class GeneralScript : MonoBehaviour {
 	
 	}
 	
-	
+	public void changeButtonText(string text)
+	{
+		textButton = text;	
+	}
 	
 	void Update(){
 		

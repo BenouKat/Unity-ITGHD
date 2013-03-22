@@ -146,9 +146,8 @@ public class PackZone : MonoBehaviour {
 		}
 	}
 	
-	void OnGUI()
+	public void GUIModule()
 	{
-		GUI.skin = gs.skin;
 		if(activeModule){
 			for(int i=0; i < packs.Count; i++)
 			{

@@ -118,7 +118,9 @@ public class SongZone : MonoBehaviour {
 							gs.songSelected = LoadManager.Instance.FindSong(String.IsNullOrEmpty(packSelected) ? splitedNameSong[3] : packSelected, splitedNameSong[2]);
 							gs.getZoneInfo().refreshDifficultyDisplayed();
 							gs.refreshBanner();
+							onCubeSelected(true);
 							cubeSelected = papa.gameObject;
+							onCubeSelected(false);
 						}
 						particleOnPlay = thepart;
 						particleOnPlay.active = true;
@@ -140,7 +142,9 @@ public class SongZone : MonoBehaviour {
 								gs.songSelected = LoadManager.Instance.FindSong(String.IsNullOrEmpty(packSelected) ? splitedNameSong[3] : packSelected, splitedNameSong[2]);
 								gs.getZoneInfo().refreshDifficultyDisplayed();
 								gs.refreshBanner();
+								onCubeSelected(true);
 								cubeSelected = papa.gameObject;
+								onCubeSelected(false);
 							}
 							particleOnPlay = thepart;
 							particleOnPlay.active = true;
@@ -260,9 +264,8 @@ public class SongZone : MonoBehaviour {
 		}
 	}
 	
-	void OnGUI()
+	public void GUIModule()
 	{
-		GUI.skin = gs.skin;
 		if(activeModule)
 		{
 			var begin = currentstartnumber;
@@ -378,6 +381,7 @@ public class SongZone : MonoBehaviour {
 	
 	void unFocus()
 	{
+		onCubeSelected(true);
 		cubeSelected = null;
 		gs.getZoneInfo().disableDifficultyDisplayed();
 		gs.songSelected = null;
@@ -387,6 +391,17 @@ public class SongZone : MonoBehaviour {
 		if(particleOnPlay != null)
 		{
 			particleOnPlay.active = false;	
+		}
+	}
+	
+	void onCubeSelected(bool reverse)
+	{
+		if(reverse)
+		{
+			
+		}else
+		{
+			
 		}
 	}
 	
@@ -414,6 +429,7 @@ public class SongZone : MonoBehaviour {
 			}else
 			{
 				key.transform.FindChild("Selection").gameObject.active = false;
+				
 			}
 		}
 		for(int i=songList.Count; i < songCubePack.Count; i++)
