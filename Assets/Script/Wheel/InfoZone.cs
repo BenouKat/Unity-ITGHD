@@ -6,7 +6,6 @@ using System;
 
 public class InfoZone : MonoBehaviour {
 	
-	
 	public Camera cameradiff;
 	public GameObject PSCore;
 	public GameObject RayCore;
@@ -16,7 +15,7 @@ public class InfoZone : MonoBehaviour {
 	private Dictionary<Difficulty, GameObject> diffSelected;
 	private Dictionary<Difficulty, Color> diffActiveColor;
 	private float basePosXDifficulty;
-	public float popoutPosXDifficulty;
+	public float popoutPosXDifficulty = 30f;
 	private float[] basePosDifficulty;
 	
 	
@@ -31,50 +30,50 @@ public class InfoZone : MonoBehaviour {
 	
 	
 	//Difficulty
-	public Rect posDifficulty;
+	public Rect posDifficulty = new Rect(0.415f, 0.35f, 0.15f, 0.15f);
 	private int[] diffNumber;
-	public Rect posNumberDiff;
+	public Rect posNumberDiff = new Rect(0.56f, 0.41f, 0.1f, 0.1f);
 	
 	private Difficulty actualySelected;
 	private Difficulty trulySelected;
 	private Difficulty onHoverDifficulty;
 	
-	public float diffZoom;
-	public float decalInfoDiffX;
-	public float decalInfoNumDiffX;
-	public float decalInfoDiffY;
-	public float decalInfoNumDiffY;
+	public float diffZoom = 0.01f;
+	public float decalInfoDiffX = -0.155f;
+	public float decalInfoNumDiffX = 0.145f;
+	public float decalInfoDiffY = -0.065f;
+	public float decalInfoNumDiffY = 0f;
 	
-	public float decalPSDiffY;
-	public float decalRayDiffY;
+	public float decalPSDiffY = -0.3f;
+	public float decalRayDiffY = -0.4f;
 	
 	private Vector3 recoverPosition;
-	public Vector3 posDiffOption;
-	public Vector3 posDiffLaunch;
+	public Vector3 posDiffOption = new Vector3(-18f, 13f, 2f);
+	public Vector3 posDiffLaunch = new Vector3(-4f, -12f, 2f);
 	
-	public float speedMoveDiff;
+	public float speedMoveDiff = 5f;
 	
 	//InfoSong
-	public Rect posGraph;
-	public Rect posInfo;
-	public Rect posInfo2;
-	public Rect posInfo3;
-	public Rect posInfo4;
-	public Rect posInfo5;
-	public Rect posMaxinten;
-	public float offsetInfo;
-	public float departGraphY;
-	public float topGraphY;
-	public float departGraphX;
-	public float topGraphX;
-	public Rect BPMDisplay;
-	public Rect artistnstepDisplay;
+	public Rect posGraph = new Rect(0.75f, 0.43f, 0.25f, 0.1f);
+	public Rect posInfo = new Rect(0.76f, 0.55f, 0.3f, 0.2f);
+	public Rect posInfo2 = new Rect(0.89f, 0.55f, 0.3f, 0.2f);
+	public Rect posInfo3 = new Rect(0.76f, 0.65f, 0.3f, 0.2f);
+	public Rect posInfo4 = new Rect(0.88f, 0.7225f, 0.3f, 0.2f);
+	public Rect posInfo5 = new Rect(0.76f, 0.8f, 0.3f, 0.2f);
+	public Rect posMaxinten = new Rect(0.755f, 0.4f, 0.3f, 0.2f);
+	public float offsetInfo = 0.035f;
+	public float departGraphY = -0.7f;
+	public float topGraphY = 2f;
+	public float departGraphX = 14f;
+	public float topGraphX = 26f;
+	public Rect BPMDisplay = new Rect(0.43f, 0.25f, 0.1f, 0.2f);
+	public Rect artistnstepDisplay = new Rect(0.44f, 0.34f, 0.5f, 0.2f);
 	private double score;
 	private double bestfriendscore;
 	private string bestnamefriendscore;
 	private bool isScoreFail;
-	public Rect posNote;
-	public Rect posSpecialNote;
+	public Rect posNote = new Rect(0.85f, 0.2f, 0.1f, 0.15f);
+	public Rect posSpecialNote = new Rect(0.82f, 0.18f, 0.2f, 0.2f);
 	
 	
 	private bool enterOption;

@@ -40,6 +40,7 @@ public class NetworkScript : MonoBehaviour {
 	void Start () {
 		TestShort();
 		cls = GetComponent<ConnectingLANScene>();
+		GetComponent<ChatScript>().activeChat(false);
 	}
 	
 	// Update is called once per frame
@@ -254,15 +255,15 @@ public class NetworkScript : MonoBehaviour {
 	[RPC]
 	public void notifyPlayerForProfile(string name, string id, NetworkPlayer playerAsked)
 	{
-		var playerCalled = LANManager.Instance.players.FirstOrDefault(c => c.Value.name == name && c.Value.idFile == id).Key;
-		if(playerCalled != null)
+		var playerCalled = LANManager.Instance.players.FirstOrDefault(c => c.Value.name == name && c.Value.idFile == id);
+		if(playerCalled.Equals(default(KeyValuePair<NetworkPlayer,CublastPlayer>)))
 		{
-			if(playerCalled.ToString() == "0") //Server
+			if(playerCalled.Key.ToString() == "0") //Server
 			{
 				networkView.RPC("getPlayerProfile", playerAsked, ProfileManager.Instance.getProfileStream());	
 			}else
 			{
-				networkView.RPC ("sendProfile", playerCalled, playerAsked);	
+				networkView.RPC ("sendProfile", playerCalled.Key, playerAsked);	
 			}
 			
 		}

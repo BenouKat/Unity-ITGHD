@@ -15,7 +15,6 @@ public class GeneralScript : MonoBehaviour {
 	
 	public AudioSource songClip;
 	public AudioSource mainThemeClip;
-	public ParticleSystem Line1;
 	public ParticleSystem Fond1;
 	
 	private PackZone packZone;
@@ -38,22 +37,22 @@ public class GeneralScript : MonoBehaviour {
 	
 	//Banner
 	private Texture2D actualBanner;
-	public float speedFadeAlpha;
+	public float speedFadeAlpha = 1f;
 	private float alphaBanner;
 	private bool FadeOutBanner;
 	private bool FadeInBanner;
-	public Vector3 posBannerOption;
+	public Vector3 posBannerOption = new Vector3(0f, 12f, 20f);
 	public Vector3 recoverPosBanner;
-	public Vector3 posBannerSong;
-	public Vector3 scaleBannerSong;
+	public Vector3 posBannerSong = new Vector3(0f, 10f, 20f);
+	public Vector3 scaleBannerSong = new Vector3(3f, 1f, 0.8f);
 	
 	//General GUI
 	private string textButton;
 	private float timeFade;
 	
 	
-	public Rect Jouer;
-	public Rect Option;
+	public Rect Jouer = new Rect(0.75f, 0.92f, 0.12f, 0.05f);
+	public Rect Option = new Rect(0.875f, 0.92f, 0.12f, 0.05f);
 	
 	
 	//Declancheurs
@@ -62,8 +61,8 @@ public class GeneralScript : MonoBehaviour {
 	
 	
 	//Move to option mode
-	public float speedMoveOption;
-	public float limiteMoveOption;
+	public float speedMoveOption = 0.2f;
+	public float limiteMoveOption = 0.05f;
 	private float offsetXDiff;
 	private float offsetYDiff;
 	private Vector2 departOptionDiff;
@@ -71,14 +70,14 @@ public class GeneralScript : MonoBehaviour {
 	
 	
 	//General Update
-	public float timeBeforeDisplay;
+	public float timeBeforeDisplay = 0.4f;
 	private float time;
 	private bool alreadyRefresh;
 	private bool alreadyFade;
 	
 	//Sound
 	AudioClip actualClip;
-	public float speedAudioVolume;
+	public float speedAudioVolume = 1.5f;
 	
 	#endregion
 	// Use this for initialization
@@ -125,7 +124,8 @@ public class GeneralScript : MonoBehaviour {
 		tex.Add("Option8", (Texture2D) Resources.Load("Race"));
 		tex.Add("Option9", (Texture2D) Resources.Load("Death"));
 		tex.Add("Black", (Texture2D) Resources.Load("black"));
-		
+		tex.Add("Cache", (Texture2D) Resources.Load("CacheNameWheel"));
+		tex.Add("ChoiceBar", (Texture2D) Resources.Load("ChoiceDisplay"));
 		tex.Add("Failed", (Texture2D) Resources.Load("Fail"));
 		tex.Add("BAD", (Texture2D) Resources.Load("NoteBAD"));
 		tex.Add("C", (Texture2D) Resources.Load("NoteC"));
@@ -199,6 +199,8 @@ public class GeneralScript : MonoBehaviour {
 		if(DataManager.Instance.quickMode){
 			speedMoveOption = 0.01f;
 		}
+		
+		refreshPackBanner();
 	}
 	
 	// Update is called once per frame

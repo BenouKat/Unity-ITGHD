@@ -59,12 +59,19 @@ public class ManageGameObject : MonoBehaviour {
 		if(go.GetComponent("ArrowScript") != null) go.GetComponent<ArrowScript>().enabled = false;
 		if(go.transform.GetChildCount() > 0)
 		{
+			if(go.transform.renderer != null)
+			{
+				go.transform.renderer.enabled = false;	
+			}
 			for(int i=0; i < go.transform.GetChildCount(); i++)
 			{
 				go.transform.GetChild(i).renderer.enabled = false;	
 			}
+		}else
+		{
+			go.transform.renderer.enabled = false;
 		}
-		go.transform.renderer.enabled = false;
+		
 	}
 	
 	public void activeGameObject(GameObject go)
@@ -72,12 +79,19 @@ public class ManageGameObject : MonoBehaviour {
 		if(go.GetComponent("ArrowScript") != null) go.GetComponent<ArrowScript>().enabled = true;
 		if(go.transform.GetChildCount() > 0)
 		{
+			if(go.transform.renderer != null)
+			{
+				go.transform.renderer.enabled = false;	
+			}
 			for(int i=0; i < go.transform.GetChildCount(); i++)
 			{
 				go.transform.GetChild(i).renderer.enabled = true;	
 			}
+		}else
+		{
+			go.transform.renderer.enabled = true;
 		}
-		go.transform.renderer.enabled = true;
+		
 	}
 
 }

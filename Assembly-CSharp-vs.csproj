@@ -64,8 +64,15 @@
      <Compile Include="Assets\Script\FrameWork\VersionDeserializationBinder.cs" />
      <Compile Include="Assets\Script\LAN\ChatScript.cs" />
      <Compile Include="Assets\Script\LAN\ConnectingLANScene.cs" />
+     <Compile Include="Assets\Script\LAN\GeneralScriptLAN.cs" />
+     <Compile Include="Assets\Script\LAN\InfoZoneLAN.cs" />
+     <Compile Include="Assets\Script\LAN\LaunchSongZoneLAN.cs" />
      <Compile Include="Assets\Script\LAN\NetworkScript.cs" />
+     <Compile Include="Assets\Script\LAN\NetworkWheelScript.cs" />
      <Compile Include="Assets\Script\LAN\OpeningLANScene.cs" />
+     <Compile Include="Assets\Script\LAN\OptionZoneLAN.cs" />
+     <Compile Include="Assets\Script\LAN\PackZoneLAN.cs" />
+     <Compile Include="Assets\Script\LAN\SongZoneLAN.cs" />
      <Compile Include="Assets\Script\MainMenu\ArrowFake.cs" />
      <Compile Include="Assets\Script\MainMenu\FakeChart.cs" />
      <Compile Include="Assets\Script\MainMenu\MainMenu.cs" />

@@ -72,7 +72,11 @@ public class MineScript : MonoBehaviour {
 				igs.removeMineFromList(associatedArrow, state);
 			}
 		}else{
-			igs.desactiveGameObjectMissed(associatedArrow.goArrow, associatedArrow.goFreeze, associatedArrow.distanceDisappear);
+			if(igs.desactiveGameObjectMissed(associatedArrow.goArrow, associatedArrow.goFreeze, associatedArrow.distanceDisappear))
+			{
+				this.enabled = false;
+			}
+			
 		}
 		
 	}

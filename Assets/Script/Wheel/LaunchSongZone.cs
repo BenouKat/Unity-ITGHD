@@ -18,19 +18,18 @@ public class LaunchSongZone : MonoBehaviour {
 	//moveToSong
 	private Vector2 departSongDiff;
 	private Vector2 moveSongDiff;
-	public Vector2 arriveSongDiff;
-	public Rect posSongTitle;
-	public Rect posSubTitle;
-	public Rect posArtist;
-	public Rect posStepArtist;
-	public Rect posBestScore;
-	public Rect posTopProfileScore;
+	public Rect posSongTitle = new Rect(0.225f, 0.35f, 0.5f, 0.1f);
+	public Rect posSubTitle = new Rect(0.3f, 0.42f, 0.5f, 0.1f);
+	public Rect posArtist = new Rect(0.225f, 0.475f, 0.5f, 0.1f);
+	public Rect posStepArtist = new Rect(0.225f, 0.55f, 0.5f, 0.1f);
+	public Rect posBestScore = new Rect(0.38f, 0.65f, 0.5f, 0.1f);
+	public Rect posTopProfileScore = new Rect(0.38f, 0.72f, 0.5f, 0.1f);
 	private float[] alphaSongLaunch;
-	public float speedAlphaSongLaunch;
+	public float speedAlphaSongLaunch = 0.2f;
 	private float alphaBlack;
-	public float speedAlphaBlack;
+	public float speedAlphaBlack = 1f;
 	private float time;
-	public Rect posLabelLoading;
+	public Rect posLabelLoading = new Rect(0f, 0.95f, 0.2f, 0.2f);
 	
 	private bool displayLoading;
 	
@@ -120,7 +119,6 @@ public class LaunchSongZone : MonoBehaviour {
 	
 	public void activate()
 	{
-		gs.Line1.Stop ();
 		gs.Fond1.gameObject.active = false;
 		Explode1.Play();
 		Explode2.Play();

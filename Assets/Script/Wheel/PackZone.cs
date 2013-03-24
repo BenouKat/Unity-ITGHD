@@ -6,10 +6,7 @@ using System;
 
 public class PackZone : MonoBehaviour {
 	
-	//TO DO
-	//Rafraichir la banner de pack
-	//Le défilement va trop vite quand on lock une chanson (Apparemment à cause de la GUI InfoZone)
-	
+
 	public GameObject miniCubePack;
 	public Camera camerapack;
 	
@@ -18,18 +15,19 @@ public class PackZone : MonoBehaviour {
 	//PackList
 	private int numberPack;
 	private int nextnumberPack;
-	public Vector3[] packpos; //pos base = new Vector3(0f, 13, 20f)
-	public Vector2 posYModule; //x : low, Y : high
-	public float speedPop;
-	public float decalYLabel;
-	public float decalXLabel;
-	public float wd;
-	public float ht;
-	public Rect posBackward;
-	public Rect posForward;
-	public float ecart;
-	public float speedMove;
-	public float limite;
+	public Vector3[] packpos = new Vector3[6]{new Vector3(-30f, 13f, 20f), new Vector3(-15f, 13f, 20f), new Vector3(0f, 13f, 20f),
+	new Vector3(15f, 13f, 20f), new Vector3(30f, 13f, 20f), new Vector3(50f, 13f, 20f)};
+	public Vector2 posYModule = new Vector2(0f, -30f);
+	public float speedPop = 3f;
+	public float decalYLabel = 0.05f;
+	public float decalXLabel = -0.075f;
+	public float wd = 0.15f;
+	public float ht = 0.2f;
+	public Rect posBackward = new Rect(0.01f, 0.02f, 0.05f, 0.075f);
+	public Rect posForward = new Rect(0.94f, 0.02f, 0.05f, 0.075f);
+	public float ecart = 0.1f;
+	public float speedMove = 0.05f;
+	public float limite = 0.1f;
 	private bool popin;
 	private bool popout;
 	
@@ -46,7 +44,6 @@ public class PackZone : MonoBehaviour {
 		if(!LoadManager.Instance.alreadyLoaded) ProfileManager.Instance.CreateTestProfile();
 		if(!LoadManager.Instance.alreadyLoaded) TextManager.Instance.LoadTextFile();
 		if(!LoadManager.Instance.alreadyLoaded) LoadManager.Instance.Loading();
-		
 		
 		gs = GetComponent<GeneralScript>();
 		popin = false;

@@ -62,7 +62,11 @@ public class ArrowScript : MonoBehaviour {
 			
 			
 		}else if(missed){
-			igs.desactiveGameObjectMissed(associatedArrow.goArrow, associatedArrow.goFreeze, associatedArrow.distanceDisappear);
+			if(igs.desactiveGameObjectMissed(associatedArrow.goArrow, associatedArrow.goFreeze, associatedArrow.distanceDisappear))
+			{
+				this.enabled = false;
+			}
+			
 		}
 	}
 	

@@ -1926,21 +1926,30 @@ public class InGameScript : MonoBehaviour {
 		if(go.GetComponent("ArrowScript") != null) go.GetComponent<ArrowScript>().enabled = false;
 		if(go.transform.GetChildCount() > 0)
 		{
+			if(go.transform.renderer != null)
+			{
+				go.transform.renderer.enabled = false;	
+			}
 			for(int i=0; i < go.transform.GetChildCount(); i++)
 			{
 				go.transform.GetChild(i).renderer.enabled = false;	
 			}
+		}else
+		{
+			go.transform.renderer.enabled = false;
 		}
-		go.transform.renderer.enabled = false;
+		
 	}
 	
-	public void desactiveGameObjectMissed(GameObject go, GameObject gofreeze, float distance)
+	public bool desactiveGameObjectMissed(GameObject go, GameObject gofreeze, float distance)
 	{
 		if((go.transform.position.y - distance) >= arrowTarget[0].position.y)
 		{
 			desactivateGameObject(go);
 			if(gofreeze != null) desactivateGameObject(gofreeze);
+			return true;
 		}
+		return false;
 	}
 	
 	

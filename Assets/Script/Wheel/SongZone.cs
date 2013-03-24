@@ -18,25 +18,26 @@ public class SongZone : MonoBehaviour {
 	private string packSelected;
 	private string packLocked;
 	private GameObject cubeSelected;
-	public float decalCubeSelected;
-	public float startSongListY; //2f
-	public float decalSongListY; //-3f
-	public Vector2 posXModule;
-	public float decalLabelX;
-	public float decalLabelY;
-	public float limite;
+	public float decalCubeSelected = 2f;
+	public float startSongListY = 5f; //2f
+	public float decalSongListY = 3f; //-3f
+	public Vector2 posXModule = new Vector2(0f, 30f);
+	public float decalLabelX = 0.05f;
+	public float decalLabelY = -0.015f;
+	public float limite = 0.1f;
 	private Vector3 posBaseCameraSong;
-	public float speedPop;
+	public float speedPop = 3f;
 	private bool popin;
 	private bool popout;
 	
-	public Rect posSonglist;
+	public Rect posSonglist = new Rect(0.05f, 0.36f, 0.5f, 0.2f);
+	public Rect posCache = new Rect(0.03f, -0.026f, 0.3f, 0.1f);
 	private GameObject particleOnPlay;
-	public int numberToDisplay;
+	public int numberToDisplay = 7;
 	private int startnumber;
 	private int currentstartnumber;
-	public float speedCameraDefil;
-	public float offsetSubstitle;
+	public float speedCameraDefil = 0.2f;
+	public float offsetSubstitle = 0.04f;
 	private bool customSearch;
 	
 	private Dictionary<string, Dictionary<Difficulty, Song>> songList;
@@ -46,11 +47,11 @@ public class SongZone : MonoBehaviour {
 	
 	
 	//Search Bar
-	public Rect SearchBarPos;
+	public Rect SearchBarPos = new Rect(0.15f, 0.22f, 0.25f, 0.05f);
 	
 	private string search;
 	private string searchOldValue;
-	public Rect posSwitchSearch;
+	public Rect posSwitchSearch = new Rect(-0.01f, 0.21f, 0.16f, 0.08f);
 	
 	private bool activeModule;
 	// Use this for initialization
@@ -77,7 +78,7 @@ public class SongZone : MonoBehaviour {
 		searchOldValue = "";
 		songList = new Dictionary<string, Dictionary<Difficulty, Song>>();
 		
-		activeSongList(GetComponent<GeneralScript>().getZonePack().getActivePack());
+		activeSongList(gs.getZonePack().getActivePack());
 		
 		if(DataManager.Instance.mousePosition != -1){
 			startnumber = DataManager.Instance.mousePosition;
@@ -118,9 +119,7 @@ public class SongZone : MonoBehaviour {
 							gs.songSelected = LoadManager.Instance.FindSong(String.IsNullOrEmpty(packSelected) ? splitedNameSong[3] : packSelected, splitedNameSong[2]);
 							gs.getZoneInfo().refreshDifficultyDisplayed();
 							gs.refreshBanner();
-							onCubeSelected(true);
 							cubeSelected = papa.gameObject;
-							onCubeSelected(false);
 						}
 						particleOnPlay = thepart;
 						particleOnPlay.active = true;
@@ -142,9 +141,7 @@ public class SongZone : MonoBehaviour {
 								gs.songSelected = LoadManager.Instance.FindSong(String.IsNullOrEmpty(packSelected) ? splitedNameSong[3] : packSelected, splitedNameSong[2]);
 								gs.getZoneInfo().refreshDifficultyDisplayed();
 								gs.refreshBanner();
-								onCubeSelected(true);
 								cubeSelected = papa.gameObject;
-								onCubeSelected(false);
 							}
 							particleOnPlay = thepart;
 							particleOnPlay.active = true;
@@ -270,6 +267,15 @@ public class SongZone : MonoBehaviour {
 		{
 			var begin = currentstartnumber;
 			
+			if(cubeSelected != null)
+			{
+				var point2DCubeS = camerasong.WorldToScreenPoint(cubeSelected.transform.position);
+				point2DCubeS.x += posCache.x*Screen.width;
+				point2DCubeS.y = Screen.height - point2DCubeS.y;
+				point2DCubeS.y += posCache.y*Screen.width;
+				GUI.DrawTexture(new Rect(point2DCubeS.x, point2DCubeS.y, posCache.width*Screen.width, posCache.height*Screen.height), gs.tex["Cache"]);
+			}
+			
 			for(int i=begin; (i<numberToDisplay + currentstartnumber) && i<songList.Count; i++){
 	
 					var point2D = camerasong.WorldToScreenPoint(songCubePack.ElementAt(i).Key.transform.position);
@@ -296,8 +302,10 @@ public class SongZone : MonoBehaviour {
 					
 					GUI.color = new Color(1f, 1f, 1f, alphaText);
 					GUI.Label(new Rect(point2D.x, point2D.y, posSonglist.width*Screen.width, posSonglist.height*Screen.height), title, "songlabel");
-					GUI.Label(new Rect(point2D.x, point2D.y + (offsetSubstitle*Screen.height) +1f, posSonglist.width*Screen.width, posSonglist.height*Screen.height), subtitle, "infosong");
+					GUI.Label(new Rect(point2D.x, point2D.y + (offsetSubstitle*Screen.height), posSonglist.width*Screen.width, posSonglist.height*Screen.height), subtitle, "infosong");
 			}
+			
+			
 			
 			
 			if(GUI.Button(new Rect(posSwitchSearch.x*Screen.width, posSwitchSearch.y*Screen.height, posSwitchSearch.width*Screen.width, posSwitchSearch.height*Screen.height), sortToString(DataManager.Instance.sortMethod), "labelGoLittle")){
@@ -336,7 +344,7 @@ public class SongZone : MonoBehaviour {
 					var	num = 0;
 					error.displayError = (DataManager.Instance.sortMethod >= Sort.DIFFICULTY && !Int32.TryParse(search, out num));
 				}else if(!LoadManager.Instance.isAllowedToSearch(search) && searchOldValue.Trim().Length > search.Trim().Length){
-					activeSongList(GetComponent<GeneralScript>().getZonePack().getActivePack());
+					activeSongList(gs.getZonePack().getActivePack());
 					gs.getZonePack().onPopin();
 					customSearch = false;
 					//recover
@@ -381,7 +389,6 @@ public class SongZone : MonoBehaviour {
 	
 	void unFocus()
 	{
-		onCubeSelected(true);
 		cubeSelected = null;
 		gs.getZoneInfo().disableDifficultyDisplayed();
 		gs.songSelected = null;
@@ -391,17 +398,6 @@ public class SongZone : MonoBehaviour {
 		if(particleOnPlay != null)
 		{
 			particleOnPlay.active = false;	
-		}
-	}
-	
-	void onCubeSelected(bool reverse)
-	{
-		if(reverse)
-		{
-			
-		}else
-		{
-			
 		}
 	}
 	

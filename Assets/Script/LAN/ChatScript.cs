@@ -25,6 +25,8 @@ public class ChatScript : MonoBehaviour {
 	private float valueDecal;
 	public float speedDecalChatWindow;
 	
+	public bool callSongList = false;
+	
 	
 	
 	private string tmpDialog;
@@ -36,7 +38,6 @@ public class ChatScript : MonoBehaviour {
 		chatActive = false;
 		popinChatTrigger = false;
 		popoutChatTrigger = false;
-		activateChat = false;
 		dialogListed = new List<string>();
 	}
 	
@@ -78,8 +79,16 @@ public class ChatScript : MonoBehaviour {
 				if(chatActive)
 				{
 					popoutChatTrigger = true;
+					if(callSongList)
+					{
+						GetComponent<SongZoneLAN>().onPopin();
+					}
 				}else{
 					popinChatTrigger = true;
+					if(callSongList)
+					{
+						GetComponent<SongZoneLAN>().onPopout();
+					}
 				}
 			}
 		}

@@ -12,24 +12,28 @@ public class OptionZone : MonoBehaviour {
 	
 	//Option mode
 	private bool[] stateLoading;
-	public float timeOption;
-	public Rect posOptionTitle;
-	public float offsetYOption;
+	public float timeOption = 0.1f;
+	public Rect posOptionTitle = new Rect(0.1f, 0.2325f, 0.12f, 0.07f);
+	public float offsetYOption = 0.067f;
 	public LineRenderer[] optionSeparator;
 	private Material matCache;
 	private float fadeAlphaOptionTitle;
 	
 	//Option mode Items
-	public Rect[] posItem;
-	public Rect[] posItemLabel;
-	public Rect selectedImage;
-	public float offsetXDisplayBPMSwitch;
-	public float offsetXDisplayBPMValue;
-	public float offsetWidthDisplayBPMSV;
-	public float offsetXDisplay;
-	public float borderXDisplay;
-	public float offsetSpeedRateX;
-	public float ecartForBack;
+	public Rect[] posItem = new Rect[9]{new Rect(0.3f, 0.2425f, 0.05f, 0.05f), new Rect(0.3f, 0.3075f, 0.05f, 0.05f), new Rect(0.45f, 0.38f, 0.05f, 0.05f),
+		new Rect(0.45f, 0.445f, 0.05f, 0.05f), new Rect(0.45f, 0.51f, 0.05f, 0.05f), new Rect(0.45f, 0.575f, 0.05f, 0.05f),
+		new Rect(0.15f, 0.655f, 0.05f, 0.05f), new Rect(0.45f, 0.71f, 0.05f, 0.05f), new Rect(0.45f, 0.775f, 0.05f, 0.05f)};
+	public Rect[] posItemLabel = new Rect[9]{new Rect(0.22f, 0.25f, 0.5f, 0.5f), new Rect(0.22f, 0.32f, 0.5f, 0.5f), new Rect(0.22f, 0.385f, 0.5f, 0.5f),
+		new Rect(0.22f, 0.45f, 0.5f, 0.5f), new Rect(0.22f, 0.515f, 0.5f, 0.5f), new Rect(0.22f, 0.58f, 0.5f, 0.5f),
+		new Rect(0f, 0f, 0f, 0f), new Rect(0.22f, 0.715f, 0.5f, 0.5f), new Rect(0.22f, 0.78f, 0.5f, 0.5f)};
+	public Rect selectedImage = new Rect(0.0015f, 0f, 0.05f, 0.05f);
+	public float offsetXDisplayBPMSwitch = 0.35f;
+	public float offsetXDisplayBPMValue = 0.46f;
+	public float offsetWidthDisplayBPMSV = 0.08f;
+	public float offsetXDisplay = 0.065f;
+	public float borderXDisplay = -0.08f;
+	public float offsetSpeedRateX = 0f;
+	public float ecartForBack = 0.15f;
 	private float rateSelected;
 	private Judge scoreJudgeSelected;
 	private Judge hitJudgeSelected;
@@ -43,8 +47,8 @@ public class OptionZone : MonoBehaviour {
 	private string ratestring;
 	
 	//Anim options
-	public float timeFadeOut;
-	public float timeFadeOutDisplay;
+	public float timeFadeOut = 0.15f;
+	public float timeFadeOutDisplay = 0.15f;
 	private float[] alphaText;
 	private float[] alphaDisplay;
 	private float[] offsetFading;
@@ -52,7 +56,7 @@ public class OptionZone : MonoBehaviour {
 	private bool[] isFading;
 	private bool[] isFadingDisplay;
 	private int previousSelected;
-	public float offsetBaseFading;
+	public float offsetBaseFading = 0.05f;
 	private bool animok;
 	
 	public bool activeModule;
@@ -347,7 +351,7 @@ public class OptionZone : MonoBehaviour {
 							for(int j=0; j<DataManager.Instance.aDisplay.Length; j++){
 								if(displaySelected[j]){
 									GUI.color = new Color(1f, 1f, 1f, alphaDisplay[j]);
-									GUI.DrawTexture(new Rect((posItem[6].x - borderXDisplay + offsetXDisplay*j + selectedImage.x)*Screen.width, (posItem[6].y + selectedImage.y)*Screen.height, selectedImage.width*Screen.width, selectedImage.height*Screen.height), gs.tex["bouton"]);
+									GUI.DrawTexture(new Rect((posItem[6].x - borderXDisplay + offsetXDisplay*j + selectedImage.x)*Screen.width, (posItem[6].y + selectedImage.y)*Screen.height, selectedImage.width*Screen.width, selectedImage.height*Screen.height), gs.tex["ChoiceBar"]);
 									GUI.color = new Color(1f, 1f, 1f, 1f);
 								}
 							
@@ -512,7 +516,7 @@ public class OptionZone : MonoBehaviour {
 		isFadingDisplay[i] = true;
 		
 		if(reverse){
-			alphaDisplay[i] = 0.5f;
+			alphaDisplay[i] = 1f;
 			while(alphaDisplay[i] > 0){
 				alphaDisplay[i] -= Time.deltaTime/timeFadeOutDisplay;
 				yield return new WaitForFixedUpdate();
@@ -520,11 +524,11 @@ public class OptionZone : MonoBehaviour {
 			alphaDisplay[i] = 0f;
 		}else{
 			alphaDisplay[i] = 0f;
-			while(alphaDisplay[i] < 0.5f){
+			while(alphaDisplay[i] < 1f){
 				alphaDisplay[i] += Time.deltaTime/timeFadeOutDisplay;
 				yield return new WaitForFixedUpdate();
 			}
-			alphaDisplay[i] = 0.5f;
+			alphaDisplay[i] = 1f;
 		}
 		
 		isFadingDisplay[i] = false;
