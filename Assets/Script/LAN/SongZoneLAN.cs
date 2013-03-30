@@ -53,7 +53,7 @@ public class SongZoneLAN : MonoBehaviour {
 	private string searchOldValue;
 	public Rect posSwitchSearch = new Rect(-0.01f, 0.21f, 0.16f, 0.08f);
 	
-	private bool activeModule;
+	public bool activeModule;
 	// Use this for initialization
 	void Start () {
 		gs = GetComponent<GeneralScriptLAN>();

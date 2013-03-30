@@ -73,9 +73,21 @@ public class GeneralScriptLAN : MonoBehaviour {
 	private bool alreadyRefresh;
 	private bool alreadyFade;
 	
+	//Vote
+	public bool inVoteMode;
+	public Rect labelVote;
+	public Rect buttonYes;
+	public Rect buttonNo;
+	private bool alreadyVote;
+	
 	//Sound
 	AudioClip actualClip;
 	public float speedAudioVolume = 1.5f;
+	
+	private NetworkWheelScript nws;
+	public bool pickSetted;
+	public bool launchProposition;
+	private bool isReadyWithOptions;
 	
 	#endregion
 	// Use this for initialization
@@ -89,9 +101,12 @@ public class GeneralScriptLAN : MonoBehaviour {
 	}
 	
 	void Start () {
-		
-		
-		
+		launchProposition = false;
+		pickSetted = false;
+		inVoteMode = false;
+		alreadyVote = false;
+		isReadyWithOptions = false;
+		nws = GetComponent<NetworkWheelScript>();
 		packZone = GetComponent<PackZoneLAN>();
 		songZone = GetComponent<SongZoneLAN>();
 		infoZone = GetComponent<InfoZoneLAN>();
@@ -99,8 +114,6 @@ public class GeneralScriptLAN : MonoBehaviour {
 		launchSongZone = GetComponent<LaunchSongZoneLAN>();
 		
 		timeFade = 0f;
-		
-		
 		
 		
 		tex = new Dictionary<string, Texture2D>();
@@ -132,7 +145,6 @@ public class GeneralScriptLAN : MonoBehaviour {
 		tex.Add("S", (Texture2D) Resources.Load("NoteS"));
 		
 		
-		
 		actualBanner = new Texture2D(512,256);
 		
 		recoverPosBanner = plane.transform.position;
@@ -158,36 +170,17 @@ public class GeneralScriptLAN : MonoBehaviour {
 		}
 		
 		
-		
-		
 		actualClip = new AudioClip();
 		
-		
-		
 		time = 0f;
-		
-		
-		
-		
-		
 		alreadyRefresh = true;
-		
 		alphaBanner = 1f;
-		
-		
 		FadeOutBanner = false;
 		FadeInBanner = false;
-		
-		
-		
 		fadedOut = false;
-			
-		
 		alreadyFade = false;
-			
-		
-		
-		
+		inVoteMode = false;
+
 		refreshPackBanner();
 		
 		GetComponent<ChatScript>().activeChat(true);
@@ -195,6 +188,15 @@ public class GeneralScriptLAN : MonoBehaviour {
 		//quickMode a déplacer aussi
 		if(DataManager.Instance.quickMode){
 			speedMoveOption = 0.01f;
+		}
+		
+		LANManager.Instance.statut = LANStatut.SELECTSONG;
+		if(!LANManager.Instance.isCreator)
+		{
+			nws.sendStatut(Network.player, (int)LANStatut.SELECTSONG);
+		}else
+		{
+			LANManager.Instance.players.ElementAt(0).Value.statut = LANStatut.SELECTSONG;	
 		}
 	}
 	
@@ -218,36 +220,50 @@ public class GeneralScriptLAN : MonoBehaviour {
 		GUI.color = new Color(1f, 1f, 1f, 1f);
 		#region optionPlayGUI
 		//Option/jouer
-		if(songSelected != null && !launchSongZone.activeModule){
+		if(songSelected != null && pickSetted && !launchSongZone.activeModule && !nws.isSearching && !launchProposition && !inVoteMode && !getZoneOption().activeModule){
+
+			if(GUI.Button(new Rect(Jouer.x*Screen.width, Jouer.y*Screen.height, Jouer.width*Screen.width, Jouer.height*Screen.height), LANManager.Instance.isPicker ? "Select" : "Suggest", "labelGo")){
+				launchProposition = true;
+				var theSelected = songSelected[getZoneInfo().getActualySelected()];
+				if(LANManager.Instance.isCreator)
+				{
+					nws.callSong(Network.player, theSelected.title, theSelected.subtitle, theSelected.numberOfSteps, (int)theSelected.difficulty, theSelected.level);
+				}else
+				{
+					networkView.RPC ("callSong", RPCMode.Server, theSelected.title, theSelected.subtitle, theSelected.numberOfSteps, (int)theSelected.difficulty, theSelected.level);	
+				}
+			}
 		
-			
+		}
 		
-			
-			//Jouer
-			if(GUI.Button(new Rect(Jouer.x*Screen.width, Jouer.y*Screen.height, Jouer.width*Screen.width, Jouer.height*Screen.height), "Play", "labelGo")){
-				
-				DataManager.Instance.songSelected = songSelected[getZoneInfo().getActualySelected()];
-				DataManager.Instance.difficultySelected = getZoneInfo().getActualySelected();
-				DataManager.Instance.speedmodSelected = speedmodSelected;
-				
-				getZoneOption().fillDataManager();
-				
-				DataManager.Instance.packSelected = getZonePack().getActivePack();
-				DataManager.Instance.mousePosition = getZoneSong().getStartNumber();
-				
-				///Save prefs
-				ProfileManager.Instance.currentProfile.lastSpeedmodUsed = speedmodstring;
-				ProfileManager.Instance.currentProfile.lastBPM = bpmstring;
-				ProfileManager.Instance.currentProfile.inBPMMode = DataManager.Instance.BPMEntryMode;
-				
-				getZonePack().onPopout();
-				getZoneSong().onPopout();
-				getZoneInfo().onEnterLaunch();
-				getZoneOption().instantClose();
-				getZoneLaunchSong().activate();
-				
+		if(getZoneOption().activeModule && !isReadyWithOptions)
+		{
+			if(GUI.Button(new Rect(Jouer.x*Screen.width, Jouer.y*Screen.height, Jouer.width*Screen.width, Jouer.height*Screen.height), "Ready", "labelGo")){
+				isReadyWithOptions = true;
+				networkView.RPC("getPlayerReady", RPCMode.Server, Network.player);
 			}
 			
+		}
+		
+		if(inVoteMode)
+		{
+			GUI.Label(new Rect(labelVote.x*Screen.width, labelVote.y*Screen.height, labelVote.width*Screen.width, labelVote.height*Screen.height), alreadyVote ? TextManager.Instance.texts["LAN"]["VOTEOK"] : TextManager.Instance.texts["LAN"]["VOTEAsk"]);
+		
+			if(GUI.Button(new Rect(buttonYes.x*Screen.width, buttonYes.y*Screen.height, buttonYes.width*Screen.width, buttonYes.height*Screen.height), "Accept"))
+			{
+				networkView.RPC("getResultVote", RPCMode.Server, Network.player, 1);
+				GetComponent<ChatScript>().sendDirectMessage(ProfileManager.Instance.currentProfile.name, TextManager.Instance.texts["LAN"]["VOTEValid"]);
+				alreadyVote = true;
+			}
+			
+			if(GUI.Button(new Rect(buttonNo.x*Screen.width, buttonNo.y*Screen.height, buttonNo.width*Screen.width, buttonNo.height*Screen.height), "Accept"))
+			{
+				networkView.RPC("getResultVote", RPCMode.Server, Network.player, 2);
+				GetComponent<ChatScript>().sendDirectMessage(ProfileManager.Instance.currentProfile.name, TextManager.Instance.texts["LAN"]["VOTEFail"]);
+				alreadyVote = true;
+			}
+		
+		
 		}
 		
 		
@@ -271,11 +287,37 @@ public class GeneralScriptLAN : MonoBehaviour {
 	
 	void Update(){
 		
-		if(!alreadyFade && timeFade > 0.1f){
+		if(LANManager.Instance.isCreator)
+		{
+			if(nws.isSearching)
+			{
+				nws.isSongAvailable();
+			}
+			
+			
+		}
+		
+		
+		//Init when everybody is ready
+		if(!alreadyFade){
+			
 			GetComponent<FadeManager>().FadeOut();
 			alreadyFade = true;
-		}else{
+			
+		}else if(!alreadyFade){
 			timeFade += Time.deltaTime;	
+		}
+	
+		if(!pickSetted && LANManager.Instance.isCreator && nws.isPlayerStatutReady(LANStatut.SELECTSONG))
+		{
+			nws.setPicker();
+			networkView.RPC("notifyReadyToChoose", RPCMode.Others);
+			pickSetted = true;
+		}
+		
+		if(LANManager.Instance.isCreator && getZoneOption().activeModule)
+		{
+			nws.refreshOptionMode();	
 		}
 		#region MoveToOptionUpdate
 	
@@ -350,6 +392,68 @@ public class GeneralScriptLAN : MonoBehaviour {
 			
 		#endregion
 		
+	}
+	
+	public void popinVoteMode()
+	{
+		
+		if(getZoneSong().activeModule)
+		{
+			getZoneSong().onPopout();
+		}
+		if(GetComponent<ChatScript>().isActive())
+		{
+			GetComponent<ChatScript>().popinChat();	
+		}
+		getZonePack().onPopout();
+		getZoneInfo().setActualySelected(nws.lastSongChecked.Key);
+		getZoneInfo().disableDiffHover();
+		songSelected = nws.lastSongChecked.Value;
+		if(LANManager.Instance.isPicker)
+		{
+			alreadyVote = true;	
+		}
+	}
+	
+	public void popoutVoteMode()
+	{
+	
+		getZoneSong().onPopin();
+		GetComponent<ChatScript>().popoutChat();	
+		getZonePack().onPopin();
+		getZoneInfo().enableDiffHover();
+		songSelected = null;
+		alreadyVote = false;
+	}
+	
+	public void popinOption()
+	{
+		getZonePack().onPopout();
+		getZoneSong().onPopout();
+		getZoneInfo().onEnterOption();
+		getZoneOption().onPopin();
+		GetComponent<ChatScript>().activeChat(false);
+	}
+	
+	public void play()
+	{
+		
+		DataManager.Instance.speedmodSelected = speedmodSelected;
+		
+		getZoneOption().fillDataManager();
+		
+		DataManager.Instance.songSelected = songSelected[DataManager.Instance.difficultySelected];
+		
+		DataManager.Instance.packSelected = getZonePack().getActivePack();
+		DataManager.Instance.mousePosition = getZoneSong().getStartNumber();
+		
+		///Save prefs
+		ProfileManager.Instance.currentProfile.lastSpeedmodUsed = speedmodstring;
+		ProfileManager.Instance.currentProfile.lastBPM = bpmstring;
+		ProfileManager.Instance.currentProfile.inBPMMode = DataManager.Instance.BPMEntryMode;
+		
+		getZoneOption().instantClose();
+		getZoneLaunchSong().activate();
 	}
 	
 	public void refreshBanner()

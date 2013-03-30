@@ -344,6 +344,7 @@ public class ConnectingLANScene : MonoBehaviour {
 				{
 					if(GUI.Button(new Rect(posButtonDifficulty.x*Screen.width, posButtonDifficulty.y*Screen.height, posButtonDifficulty.width*Screen.width, posButtonDifficulty.height*Screen.height), "Switch") && locked){	
 						LANManager.Instance.players[hitNet[playerSelected]].difficultyMode = (LANManager.Instance.players[hitNet[playerSelected]].difficultyMode == 0 ? 1 : 0);
+						networkView.RPC("changeRightDifficulty", hitNet[playerSelected], LANManager.Instance.players[hitNet[playerSelected]].difficultyMode == 1);
 					}
 				}
 				
@@ -408,6 +409,7 @@ public class ConnectingLANScene : MonoBehaviour {
 					if(someoneNotReady)
 					{
 						//launch	
+						//Ne pas oublier LANManager.statut = LANStatut.SELECTSONG
 					}
 				}
 			}

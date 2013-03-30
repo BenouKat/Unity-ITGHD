@@ -284,7 +284,7 @@ public class DataManager{
 		aRace[10] = "FEC Race";
 		
 		aDisplay[0] = "No mine";
-		aDisplay[1] = "No jump"; // doesn't work
+		aDisplay[1] = "No jump"; 
 		aDisplay[2] = "No hands";
 		aDisplay[3] = "No freeze";
 		aDisplay[4] = "No judge";

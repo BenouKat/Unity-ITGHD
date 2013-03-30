@@ -167,6 +167,22 @@ public class LoadManager{
 		return songs[pack][song];
 	}
 	
+	public KeyValuePair<Difficulty, Dictionary<Difficulty, Song>> FindSong(SongInfoProfil sip)
+	{
+		for(int i=0; i<songs.Count; i++)
+		{
+			for(int j=0; j<songs.ElementAt(i).Value.Count; j++)
+			{
+				var thesong = songs.ElementAt(i).Value.ElementAt(j).Value.FirstOrDefault(c => c.Value.sip.CompareId(sip));
+				if(thesong.Equals(default(KeyValuePair<Difficulty, Song>)))
+				{
+					return new KeyValuePair<Difficulty, Dictionary<Difficulty, Song>>(thesong.Key, songs.ElementAt(i).Value.ElementAt(j).Value);	
+				}
+			}
+		}
+		return default(KeyValuePair<Difficulty, Dictionary<Difficulty, Song>>);
+	}
+	
 	public Dictionary<string, Dictionary<string, Dictionary<Difficulty, Song>>> ListSong(){
 		return songs;
 	}
@@ -308,15 +324,6 @@ public class LoadManager{
 			}
 		}
 		
-		
-		//TESTING
-		/*
-		packName = "MotaBlob" + 
-			(UnityEngine.Random.value < 0.5 ? ";PackOneTwo" : "") +
-				(UnityEngine.Random.value < 0.5 ? ";PackTwoThree" : "") +
-				(UnityEngine.Random.value < 0.5 ? ";PackFourFive" : "") +
-				(UnityEngine.Random.value < 0.5 ? ";PackSixSex" : "") +
-				(UnityEngine.Random.value < 0.5 ? ";PackFinalBeam" : "");*/
 		return packName;
 	}
 	

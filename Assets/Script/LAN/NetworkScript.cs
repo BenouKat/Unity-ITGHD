@@ -38,9 +38,10 @@ public class NetworkScript : MonoBehaviour {
 	}
 	// Use this for initialization
 	void Start () {
-		TestShort();
+		//TestShort();
 		cls = GetComponent<ConnectingLANScene>();
 		GetComponent<ChatScript>().activeChat(false);
+		LANManager.Instance.statut = LANStatut.ROOM;
 	}
 	
 	// Update is called once per frame
@@ -91,6 +92,7 @@ public class NetworkScript : MonoBehaviour {
 		cls.addHitNet(Network.player);
 		GetComponent<ChatScript>().activeChat(true);
 		LANManager.Instance.dataArrived = true;
+		LANManager.Instance.getTheRightToChange = LANManager.Instance.songDiffSystem == 1;
 		cls.stateScene = LANConnexionState.INITIALIZESCENE;
 	}
 	
@@ -106,7 +108,7 @@ public class NetworkScript : MonoBehaviour {
 		}
 		
 		networkView.RPC("sendInfoPartyToPlayer", RPCMode.Others, (int)LANManager.Instance.modeLANselected, LANManager.Instance.roundNumber, LANManager.Instance.hostSystem, LANManager.Instance.songDiffSystem);
-		
+		networkView.RPC("changeRightDifficulty", player, LANManager.Instance.songDiffSystem == 1);
 		cls.addHitNet(player);
 	}
 	
@@ -256,7 +258,7 @@ public class NetworkScript : MonoBehaviour {
 	public void notifyPlayerForProfile(string name, string id, NetworkPlayer playerAsked)
 	{
 		var playerCalled = LANManager.Instance.players.FirstOrDefault(c => c.Value.name == name && c.Value.idFile == id);
-		if(playerCalled.Equals(default(KeyValuePair<NetworkPlayer,CublastPlayer>)))
+		if(!playerCalled.Equals(default(KeyValuePair<NetworkPlayer,CublastPlayer>)))
 		{
 			if(playerCalled.Key.ToString() == "0") //Server
 			{
@@ -296,5 +298,18 @@ public class NetworkScript : MonoBehaviour {
 	{
 		var name = ProfileManager.Instance.saveProfileStream(profile);	
 		GetComponent<ChatScript>().sendDirectMessage("Info", ProfileManager.Instance.currentProfile.name + " " + name + " profile");
+	}
+	
+	[RPC]
+	void gameIsLaunched()
+	{
+		LANManager.Instance.errorToDisplay = "This server is actually in game. Please retry later.";
+		cls.stateScene = LANConnexionState.FAIL;
+	}
+	
+	[RPC]
+	void changeRightDifficulty(bool rights)
+	{
+		LANManager.Instance.getTheRightToChange = rights;
 	}
 }

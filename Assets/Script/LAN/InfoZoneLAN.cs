@@ -345,6 +345,32 @@ public class InfoZoneLAN : MonoBehaviour {
 		return actualySelected;	
 	}
 	
+	public void setActualySelected(Difficulty diff)
+	{
+		PSDiff[(int)actualySelected].gameObject.active = false;
+		actualySelected = diff;
+		trulySelected = diff;
+		PSDiff[(int)actualySelected].gameObject.active = true;
+		displayGraph();
+		verifyScore();	
+	}
+	
+	public void disableDiffHover()
+	{
+		for(int i=0; i<RayDiff.Count; i++)
+		{
+			RayDiff.ElementAt(i).Value.active = false;	
+		}
+	}
+	
+	public void enableDiffHover()
+	{
+		for(int i=0; i<RayDiff.Count; i++)
+		{
+			RayDiff.ElementAt(i).Value.active = true;	
+		}
+	}
+	
 	public void activeDiffPS(){
 		if(gs.songSelected.ContainsKey(trulySelected)){
 			actualySelected = trulySelected;	

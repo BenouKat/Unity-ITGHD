@@ -11,6 +11,10 @@ public class LANManager{
 	
 	public bool isCreator;
 	
+	public LANStatut statut;
+	
+	public bool isPicker;
+	
 	public string actualIP;
 	public int actualPort;
 	
@@ -32,10 +36,14 @@ public class LANManager{
 	//2 - Random
 	public int hostSystem;
 	
+	public int turn;
+	
 	//0 - All Same
 	//1 - All Different
 	//2 - Select players
 	public int songDiffSystem;
+	
+	public bool getTheRightToChange;
 	
 	
 	public bool dataArrived;
@@ -85,6 +93,9 @@ public class LANManager{
 	
 	public void init(){
 		modeLANselected = LANMode.NONE;
+		getTheRightToChange = false;
+		isPicker = false;
+		turn = 0;
 		players = new Dictionary<NetworkPlayer, CublastPlayer>();
 		numberOfPlayersConnected = 0;
 		roundNumber = 5;

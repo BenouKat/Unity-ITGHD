@@ -34,7 +34,7 @@ public class OptionZoneLAN : MonoBehaviour {
 	public float borderXDisplay = -0.08f;
 	public float offsetSpeedRateX = 0f;
 	public float ecartForBack = 0.15f;
-	private float rateSelected;
+	private int difficultySelected;
 	private Judge scoreJudgeSelected;
 	private Judge hitJudgeSelected;
 	private Judge lifeJudgeSelected;
@@ -81,7 +81,19 @@ public class OptionZoneLAN : MonoBehaviour {
 		
 		DataManager.Instance.BPMEntryMode = ProfileManager.Instance.currentProfile.inBPMMode;
 		
-		rateSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.rateSelected : 0f;
+		var diffChoice = 0;
+		var found = false;
+		for(int i=0; i < gs.songSelected.Count && !found; i++)
+		{
+			if(gs.songSelected.ElementAt(i).Key == gs.getZoneInfo().getActualySelected())
+			{
+				found = true;
+			}else
+			{
+				diffChoice++;
+			}
+		}
+		difficultySelected = diffChoice;
 		scoreJudgeSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.scoreJudgeSelected : Judge.NORMAL;
 		hitJudgeSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.hitJudgeSelected : Judge.NORMAL;
 		lifeJudgeSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.lifeJudgeSelected : Judge.NORMAL;
@@ -91,7 +103,6 @@ public class OptionZoneLAN : MonoBehaviour {
 		
 		
 		
-		ratestring = rateSelected.ToString("00");
 		
 		
 		alphaText = new float[stateLoading.Length];
@@ -169,10 +180,10 @@ public class OptionZoneLAN : MonoBehaviour {
 										var bpmdisplaying = gs.songSelected.First().Value.bpmToDisplay;
 										if(bpmdisplaying.Contains("->")){
 											if(!DataManager.Instance.BPMEntryMode) gs.bpmstring = (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[DataManager.Instance.BPMChoiceMode])*gs.speedmodSelected).ToString("0");
-											bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[0])*gs.speedmodSelected*(1f + (rateSelected/100f))).ToString("0") + "->" + (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[1])*gs.speedmodSelected*(1f + (rateSelected/100f))).ToString("0");
+											bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[0])*gs.speedmodSelected).ToString("0") + "->" + (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[1])*gs.speedmodSelected).ToString("0");
 										}else{
 											if(!DataManager.Instance.BPMEntryMode) gs.bpmstring = (System.Convert.ToDouble(bpmdisplaying)*gs.speedmodSelected).ToString("0");
-											bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying)*gs.speedmodSelected*(1f + (rateSelected/100f))).ToString("0");
+											bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying)*gs.speedmodSelected).ToString("0");
 											
 										}
 										
@@ -212,35 +223,34 @@ public class OptionZoneLAN : MonoBehaviour {
 						break;
 						
 						/**
-							RATE
+							DIFFICULTY
 						*/
 						case 1:
-							
-							ratestring = GUI.TextArea (new Rect(posItem[1].x*Screen.width, posItem[1].y*Screen.height, posItem[1].width*Screen.width, posItem[1].height*Screen.height), ratestring.Trim(), 4);
-							if(!String.IsNullOrEmpty(ratestring)){
-								int rateresult = 0;
-								if(System.Int32.TryParse(ratestring, out rateresult)){
-									if(rateresult >= -90 && rateresult <= 100){
-										rateSelected = rateresult;
-										rateok = true;
-										GUI.Label(new Rect((posItemLabel[1].x + offsetSpeedRateX)*Screen.width, posItemLabel[1].y*Screen.height, posItemLabel[1].width*Screen.width, posItemLabel[1].height*Screen.height), "Rate : " + rateSelected.ToString("00") + "%");
+							GUI.color = new Color(1f, 1f, 1f, alphaText[1]);
+							GUI.DrawTexture(new Rect(posItemLabel[1].x*Screen.width, (posItemLabel[1].y - offsetFading[1])*Screen.height, posItemLabel[1].width*Screen.width, posItemLabel[1].height*Screen.height), gs.tex[((Difficulty)gs.songSelected.ElementAt(difficultySelected).Key).ToString()]);
+							GUI.color = new Color(1f, 1f, 1f, 1 - alphaText[1]);
+							if(isFading[1]) GUI.Label(new Rect(posItemLabel[1].x*Screen.width, (posItemLabel[1].y + offsetPreviousFading[1])*Screen.height, posItemLabel[1].width*Screen.width, posItemLabel[1].height*Screen.height), gs.tex[((Difficulty)previousSelected).ToString()]);
+							GUI.color = new Color(1f, 1f, 1f, 1f);
+							if(gs.songSelected.Count > 1)
+							{
+								if(GUI.Button(new Rect((posItem[1].x - ecartForBack)*Screen.width, posItem[1].y*Screen.height, posItem[1].width*Screen.width, posItem[1].height*Screen.height), "", "LBackward")){
+									previousSelected = difficultySelected;
+									if(difficultySelected == 0){
+										difficultySelected = gs.songSelected.Count - 1;
 									}else{
-										GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
-										GUI.Label(new Rect((posItemLabel[1].x + offsetSpeedRateX)*Screen.width, posItemLabel[1].y*Screen.height, posItemLabel[1].width*Screen.width, posItemLabel[1].height*Screen.height), "Rate must be between -90% and +100%");
-										GUI.color = new Color(1f, 1f, 1f, 1f);
-										rateok = false;
+										difficultySelected--;
 									}
-								}else{
-									GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
-									GUI.Label(new Rect((posItemLabel[1].x + offsetSpeedRateX)*Screen.width, posItemLabel[1].y*Screen.height, posItemLabel[1].width*Screen.width, posItemLabel[1].height*Screen.height), "Rate is not a valid value");
-									GUI.color = new Color(1f, 1f, 1f, 1f);
-									rateok = false;
+									StartCoroutine(OptionAnim(1, true));
 								}
-							}else{
-								GUI.color = new Color(1f, 0.2f, 0.2f, 1f);
-								GUI.Label(new Rect((posItemLabel[1].x + offsetSpeedRateX)*Screen.width, posItemLabel[1].y*Screen.height, posItemLabel[1].width*Screen.width, posItemLabel[1].height*Screen.height), "Empty Value");
-								GUI.color = new Color(1f, 1f, 1f, 1f);
-								rateok = false;
+								if(GUI.Button(new Rect((posItem[1].x + ecartForBack)*Screen.width, posItem[1].y*Screen.height, posItem[1].width*Screen.width, posItem[1].height*Screen.height), "", "LForward")){
+									previousSelected = difficultySelected;
+									if(difficultySelected == gs.songSelected.Count - 1){
+										difficultySelected = 0;
+									}else{
+										difficultySelected++;
+									}
+									StartCoroutine(OptionAnim(1, false));
+								}
 							}
 							
 						break;
@@ -281,7 +291,7 @@ public class OptionZoneLAN : MonoBehaviour {
 							GUI.color = new Color(1f, 1f, 1f, 1 - alphaText[3]);
 							if(isFading[3]) GUI.Label(new Rect(posItemLabel[3].x*Screen.width, (posItemLabel[3].y + offsetPreviousFading[3])*Screen.height, posItemLabel[3].width*Screen.width, posItemLabel[3].height*Screen.height), DataManager.Instance.dicHitJudge[(Judge)previousSelected], "bpmdisplay");
 							GUI.color = new Color(1f, 1f, 1f, 1f);
-							if(hitJudgeSelected > Judge.BEGINNER){
+							if(hitJudgeSelected > Judge.NORMAL){
 								if(GUI.Button(new Rect((posItem[3].x - ecartForBack)*Screen.width, posItem[3].y*Screen.height, posItem[3].width*Screen.width, posItem[3].height*Screen.height), "", "LBackward")){
 									previousSelected = (int)hitJudgeSelected;
 									hitJudgeSelected--;
@@ -305,7 +315,7 @@ public class OptionZoneLAN : MonoBehaviour {
 							GUI.color = new Color(1f, 1f, 1f, 1 - alphaText[4]);
 							if(isFading[4]) GUI.Label(new Rect(posItemLabel[4].x*Screen.width, (posItemLabel[4].y + offsetPreviousFading[4])*Screen.height, posItemLabel[4].width*Screen.width, posItemLabel[4].height*Screen.height), DataManager.Instance.dicScoreJudge[(Judge)previousSelected], "bpmdisplay");
 							GUI.color = new Color(1f, 1f, 1f, 1f);
-							if(scoreJudgeSelected > Judge.BEGINNER){
+							if(scoreJudgeSelected > Judge.NORMAL){
 								if(GUI.Button(new Rect((posItem[4].x - ecartForBack)*Screen.width, posItem[4].y*Screen.height, posItem[4].width*Screen.width, posItem[4].height*Screen.height), "", "LBackward")){
 									previousSelected = (int)scoreJudgeSelected;
 									scoreJudgeSelected--;
@@ -329,7 +339,7 @@ public class OptionZoneLAN : MonoBehaviour {
 							GUI.color = new Color(1f, 1f, 1f, 1 - alphaText[5]);
 							if(isFading[5]) GUI.Label(new Rect(posItemLabel[5].x*Screen.width, (posItemLabel[5].y + offsetPreviousFading[5])*Screen.height, posItemLabel[5].width*Screen.width, posItemLabel[5].height*Screen.height), DataManager.Instance.dicLifeJudge[(Judge)previousSelected], "bpmdisplay");
 							GUI.color = new Color(1f, 1f, 1f, 1f);
-							if(lifeJudgeSelected > Judge.BEGINNER){
+							if(lifeJudgeSelected > Judge.NORMAL){
 								if(GUI.Button(new Rect((posItem[5].x - ecartForBack)*Screen.width, posItem[5].y*Screen.height, posItem[5].width*Screen.width, posItem[5].height*Screen.height), "", "LBackward")){
 									previousSelected = (int)lifeJudgeSelected;
 									lifeJudgeSelected--;
@@ -348,7 +358,7 @@ public class OptionZoneLAN : MonoBehaviour {
 							DISPLAY
 						*/
 						case 6:
-							for(int j=0; j<DataManager.Instance.aDisplay.Length; j++){
+							for(int j=4; j<DataManager.Instance.aDisplay.Length; j++){
 								if(displaySelected[j]){
 									GUI.color = new Color(1f, 1f, 1f, alphaDisplay[j]);
 									GUI.DrawTexture(new Rect((posItem[6].x - borderXDisplay + offsetXDisplay*j + selectedImage.x)*Screen.width, (posItem[6].y + selectedImage.y)*Screen.height, selectedImage.width*Screen.width, selectedImage.height*Screen.height), gs.tex["ChoiceBar"]);
@@ -359,62 +369,6 @@ public class OptionZoneLAN : MonoBehaviour {
 									displaySelected[j] = !displaySelected[j];
 									StartCoroutine(OptionAnimDisplay(j, !displaySelected[j]));
 								}
-							}
-						break;
-						/**
-							RACE
-						*/
-						case 7:
-							GUI.color = new Color(1f, 1f, 1f, alphaText[7]);
-							GUI.Label(new Rect(posItemLabel[7].x*Screen.width, (posItemLabel[7].y - offsetFading[7])*Screen.height, posItemLabel[7].width*Screen.width, posItemLabel[7].height*Screen.height), DataManager.Instance.aRace[raceSelected], "bpmdisplay");
-							GUI.color = new Color(1f, 1f, 1f, 1 - alphaText[7]);
-							if(isFading[7]) GUI.Label(new Rect(posItemLabel[7].x*Screen.width, (posItemLabel[7].y + offsetPreviousFading[7])*Screen.height, posItemLabel[7].width*Screen.width, posItemLabel[7].height*Screen.height), DataManager.Instance.aRace[previousSelected], "bpmdisplay");
-							GUI.color = new Color(1f, 1f, 1f, 1f);
-							if(GUI.Button(new Rect((posItem[7].x - ecartForBack)*Screen.width, posItem[7].y*Screen.height, posItem[7].width*Screen.width, posItem[7].height*Screen.height), "", "LBackward")){
-								previousSelected = raceSelected;
-								if(raceSelected == 0){
-									raceSelected = DataManager.Instance.aRace.Length - 1;
-								}else{
-									raceSelected--;
-								}
-								StartCoroutine(OptionAnim(7, true));
-							}
-							if(GUI.Button(new Rect((posItem[7].x + ecartForBack)*Screen.width, posItem[7].y*Screen.height, posItem[7].width*Screen.width, posItem[7].height*Screen.height), "", "LForward")){
-								previousSelected = raceSelected;
-								if(raceSelected == DataManager.Instance.aRace.Length - 1){
-									raceSelected = 0;
-								}else{
-									raceSelected++;
-								}
-								StartCoroutine(OptionAnim(7, false));
-							}
-						break;
-						/**
-							DEATH
-						*/
-						case 8:
-							GUI.color = new Color(1f, 1f, 1f, alphaText[8]);
-							GUI.Label(new Rect(posItemLabel[8].x*Screen.width, (posItemLabel[8].y - offsetFading[8])*Screen.height, posItemLabel[8].width*Screen.width, posItemLabel[8].height*Screen.height), DataManager.Instance.aDeath[deathSelected], "bpmdisplay");
-							GUI.color = new Color(1f, 1f, 1f, 1 - alphaText[8]);
-							if(isFading[8]) GUI.Label(new Rect(posItemLabel[8].x*Screen.width, (posItemLabel[8].y + offsetPreviousFading[8])*Screen.height, posItemLabel[8].width*Screen.width, posItemLabel[8].height*Screen.height), DataManager.Instance.aDeath[previousSelected], "bpmdisplay");
-							GUI.color = new Color(1f, 1f, 1f, 1f);
-							if(GUI.Button(new Rect((posItem[8].x - ecartForBack)*Screen.width, posItem[8].y*Screen.height, posItem[8].width*Screen.width, posItem[8].height*Screen.height), "", "LBackward")){
-								previousSelected = deathSelected;
-								if(deathSelected == 0){
-									deathSelected = DataManager.Instance.aDeath.Length - 1; 
-								}else{
-									deathSelected--;
-								}
-								StartCoroutine(OptionAnim(8, true));
-							}
-							if(GUI.Button(new Rect((posItem[8].x + ecartForBack)*Screen.width, posItem[8].y*Screen.height, posItem[8].width*Screen.width, posItem[8].height*Screen.height), "", "LForward")){
-								previousSelected = deathSelected;
-								if(deathSelected == DataManager.Instance.aDeath.Length - 1){
-									deathSelected = 0;
-								}else{
-									deathSelected++;
-								}
-								StartCoroutine(OptionAnim(8, false));
 							}
 						break;
 					
@@ -536,7 +490,8 @@ public class OptionZoneLAN : MonoBehaviour {
 	
 	public void fillDataManager()
 	{
-		DataManager.Instance.rateSelected = rateSelected;
+		DataManager.Instance.rateSelected = 0f;
+		DataManager.Instance.difficultySelected = gs.songSelected.ElementAt(difficultySelected).Key;
 		DataManager.Instance.skinSelected = skinSelected;
 		DataManager.Instance.scoreJudgeSelected = scoreJudgeSelected;
 		DataManager.Instance.hitJudgeSelected = hitJudgeSelected;
@@ -571,7 +526,7 @@ public class OptionZoneLAN : MonoBehaviour {
 	
 	public bool isRatedSong()
 	{
-		return rateSelected != 0f;
+		return false;
 	}
 	
 	public bool isReadyToClose()

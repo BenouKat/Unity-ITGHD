@@ -13,6 +13,8 @@ public class ChatScript : MonoBehaviour {
 	
 	private bool activateChat;
 	
+	private bool lockButton;
+	
 	//GUI 
 	public GUISkin skin;
 	public Rect posTextField;
@@ -38,6 +40,7 @@ public class ChatScript : MonoBehaviour {
 		chatActive = false;
 		popinChatTrigger = false;
 		popoutChatTrigger = false;
+		lockButton = false;
 		dialogListed = new List<string>();
 	}
 	
@@ -74,7 +77,7 @@ public class ChatScript : MonoBehaviour {
 				tmpDialog = "";
 			}
 			
-			if(GUI.Button(new Rect(posButtonHideChat.x*Screen.width, posButtonHideChat.y*Screen.height, posButtonHideChat.width*Screen.width, posButtonHideChat.height*Screen.height), chatActive ? "Hide" : "Chat"))
+			if(GUI.Button(new Rect(posButtonHideChat.x*Screen.width, posButtonHideChat.y*Screen.height, posButtonHideChat.width*Screen.width, posButtonHideChat.height*Screen.height), chatActive ? "Hide" : "Chat") && !lockButton)
 			{
 				if(chatActive)
 				{
@@ -109,6 +112,7 @@ public class ChatScript : MonoBehaviour {
 	[RPC]
 	public void addLine(string name, string text)
 	{
+
 		dialog += name + " : " + text + "\n";
 		dialogListed.Add(name + " : " + text + "\n");
 		if(dialogListed.Count > maxSentenceCount)
@@ -116,6 +120,7 @@ public class ChatScript : MonoBehaviour {
 			dialog = dialog.Remove(0, dialogListed.ElementAt(0).Length);
 			dialogListed.RemoveAt(0);
 		}
+		
 	}
 	
 	public void cleanText()
@@ -150,5 +155,15 @@ public class ChatScript : MonoBehaviour {
 	public void activeChat(bool activate)
 	{
 		activateChat = activate;
+	}
+	
+	public bool isActive()
+	{
+		return chatActive;	
+	}
+	
+	public void setLockButton(bool lockbut)
+	{
+		lockButton = lockbut;	
 	}
 }

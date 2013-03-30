@@ -20,12 +20,25 @@ public class CublastPlayer{
 	
 	public bool isReady;
 	
+	public LANStatut statut;
+	
+	//0 - Data not arrived
+	//1 - Ok
+	//2 - Ko
+	public int songChecked;
+	
+	//0 - Data not arrived
+	//1 - Ok
+	//2 - Ko
+	public int vote;
+	
 	public CublastPlayer(string name, string idFile)
 	{
 		this.name = name;
 		this.idFile = idFile;
 		this.difficultyMode = 0;
 		this.isReady = false;
+		this.statut = LANStatut.ROOM;
 	}
 	
 	public CublastPlayer(string name, int vict, bool ready, string idFile)
@@ -35,5 +48,6 @@ public class CublastPlayer{
 		this.victoryOnline = vict;
 		this.difficultyMode = 0;
 		this.isReady = ready;
+		this.statut = LANStatut.ROOM;
 	}
 }

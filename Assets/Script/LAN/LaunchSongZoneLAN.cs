@@ -6,6 +6,10 @@ using System;
 
 public class LaunchSongZoneLAN : MonoBehaviour {
 	
+	
+	//Prevoir quelque chose de différent
+	
+	
 	private GeneralScriptLAN gs;
 	
 	public ParticleSystem Explode1;

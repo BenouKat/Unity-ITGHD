@@ -121,3 +121,14 @@ public enum LANConnexionState
 	NONE
 	
 }
+
+public enum LANStatut
+{
+	ROOM,
+	SELECTSONG,
+	VOTESONG,
+	OPTIONSONG,
+	GAME,
+	RESULT,
+	NONE
+}
