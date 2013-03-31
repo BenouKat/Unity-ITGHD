@@ -1,13 +1,13 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Managers\LoadManager.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\LAN\GeneralScriptLAN.cs">
     <Files>
-      <File FileName="Assets\Script\LAN\NetworkWheelScript.cs" Line="376" Column="5" />
+      <File FileName="Assets\Script\LAN\GeneralScriptLAN.cs" Line="263" Column="5" />
+      <File FileName="Assets\Script\LAN\NetworkWheelScript.cs" Line="180" Column="19" />
       <File FileName="Assets\Script\Managers\DataManager.cs" Line="287" Column="28" />
       <File FileName="Assets\Script\Managers\LANManager.cs" Line="96" Column="31" />
       <File FileName="Assets\Script\LAN\ConnectingLANScene.cs" Line="347" Column="143" />
-      <File FileName="Assets\Script\LAN\GeneralScriptLAN.cs" Line="231" Column="10" />
-      <File FileName="Assets\Script\LAN\OptionZoneLAN.cs" Line="529" Column="16" />
+      <File FileName="Assets\Script\LAN\OptionZoneLAN.cs" Line="494" Column="67" />
       <File FileName="Assets\Script\Wheel\GeneralScript.cs" Line="234" Column="5" />
       <File FileName="Assets\Script\LAN\LaunchSongZoneLAN.cs" Line="12" Column="2" />
       <File FileName="Assets\Script\LAN\ChatScript.cs" Line="165" Column="19" />
@@ -24,10 +24,10 @@
               <Node name="Script" expanded="True">
                 <Node name="Chart" expanded="True" />
                 <Node name="FrameWork" expanded="True" />
-                <Node name="LAN" expanded="True" />
-                <Node name="Managers" expanded="True">
-                  <Node name="LoadManager.cs" selected="True" />
+                <Node name="LAN" expanded="True">
+                  <Node name="GeneralScriptLAN.cs" selected="True" />
                 </Node>
+                <Node name="Managers" expanded="True" />
                 <Node name="Score" expanded="True" />
                 <Node name="Wheel" expanded="True" />
               </Node>

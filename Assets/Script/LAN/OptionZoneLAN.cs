@@ -81,19 +81,7 @@ public class OptionZoneLAN : MonoBehaviour {
 		
 		DataManager.Instance.BPMEntryMode = ProfileManager.Instance.currentProfile.inBPMMode;
 		
-		var diffChoice = 0;
-		var found = false;
-		for(int i=0; i < gs.songSelected.Count && !found; i++)
-		{
-			if(gs.songSelected.ElementAt(i).Key == gs.getZoneInfo().getActualySelected())
-			{
-				found = true;
-			}else
-			{
-				diffChoice++;
-			}
-		}
-		difficultySelected = diffChoice;
+		difficultySelected = (int)gs.getZoneInfo().getActualySelected();
 		scoreJudgeSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.scoreJudgeSelected : Judge.NORMAL;
 		hitJudgeSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.hitJudgeSelected : Judge.NORMAL;
 		lifeJudgeSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.lifeJudgeSelected : Judge.NORMAL;
@@ -503,6 +491,7 @@ public class OptionZoneLAN : MonoBehaviour {
 	
 	public void onPopin()
 	{
+		difficultySelected = (int)gs.getZoneInfo().getActualySelected();
 		StartCoroutine(startOptionFade());
 		animok = false;
 	}

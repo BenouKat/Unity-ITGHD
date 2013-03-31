@@ -101,18 +101,25 @@ public class GeneralScriptLAN : MonoBehaviour {
 	}
 	
 	void Start () {
+		
 		launchProposition = false;
 		pickSetted = false;
 		inVoteMode = false;
 		alreadyVote = false;
 		isReadyWithOptions = false;
+		/*
+		 * DEBUG
+		 */
+		inVoteMode = true;
+		LANManager.Instance.isCreator = false;
+		//--------
 		nws = GetComponent<NetworkWheelScript>();
 		packZone = GetComponent<PackZoneLAN>();
 		songZone = GetComponent<SongZoneLAN>();
 		infoZone = GetComponent<InfoZoneLAN>();
 		optionZone = GetComponent<OptionZoneLAN>();
 		launchSongZone = GetComponent<LaunchSongZoneLAN>();
-		
+		packZone.onPopout();
 		timeFade = 0f;
 		
 		
@@ -179,7 +186,6 @@ public class GeneralScriptLAN : MonoBehaviour {
 		FadeInBanner = false;
 		fadedOut = false;
 		alreadyFade = false;
-		inVoteMode = false;
 
 		refreshPackBanner();
 		
@@ -193,7 +199,7 @@ public class GeneralScriptLAN : MonoBehaviour {
 		LANManager.Instance.statut = LANStatut.SELECTSONG;
 		if(!LANManager.Instance.isCreator)
 		{
-			nws.sendStatut(Network.player, (int)LANStatut.SELECTSONG);
+			//nws.sendStatut(Network.player, (int)LANStatut.SELECTSONG);
 		}else
 		{
 			LANManager.Instance.players.ElementAt(0).Value.statut = LANStatut.SELECTSONG;	
@@ -247,16 +253,16 @@ public class GeneralScriptLAN : MonoBehaviour {
 		
 		if(inVoteMode)
 		{
-			GUI.Label(new Rect(labelVote.x*Screen.width, labelVote.y*Screen.height, labelVote.width*Screen.width, labelVote.height*Screen.height), alreadyVote ? TextManager.Instance.texts["LAN"]["VOTEOK"] : TextManager.Instance.texts["LAN"]["VOTEAsk"]);
+			GUI.Label(new Rect(labelVote.x*Screen.width, labelVote.y*Screen.height, labelVote.width*Screen.width, labelVote.height*Screen.height), alreadyVote ? TextManager.Instance.texts["LAN"]["VOTEOK"] : TextManager.Instance.texts["LAN"]["VOTEAsk"], "songlabel");
 		
-			if(GUI.Button(new Rect(buttonYes.x*Screen.width, buttonYes.y*Screen.height, buttonYes.width*Screen.width, buttonYes.height*Screen.height), "Accept"))
+			if(GUI.Button(new Rect(buttonYes.x*Screen.width, buttonYes.y*Screen.height, buttonYes.width*Screen.width, buttonYes.height*Screen.height), "Accept", "labelGo"))
 			{
 				networkView.RPC("getResultVote", RPCMode.Server, Network.player, 1);
 				GetComponent<ChatScript>().sendDirectMessage(ProfileManager.Instance.currentProfile.name, TextManager.Instance.texts["LAN"]["VOTEValid"]);
 				alreadyVote = true;
 			}
 			
-			if(GUI.Button(new Rect(buttonNo.x*Screen.width, buttonNo.y*Screen.height, buttonNo.width*Screen.width, buttonNo.height*Screen.height), "Accept"))
+			if(GUI.Button(new Rect(buttonNo.x*Screen.width, buttonNo.y*Screen.height, buttonNo.width*Screen.width, buttonNo.height*Screen.height), "Deny", "labelGo"))
 			{
 				networkView.RPC("getResultVote", RPCMode.Server, Network.player, 2);
 				GetComponent<ChatScript>().sendDirectMessage(ProfileManager.Instance.currentProfile.name, TextManager.Instance.texts["LAN"]["VOTEFail"]);
