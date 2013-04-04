@@ -35,6 +35,7 @@ public class OptionZoneLAN : MonoBehaviour {
 	public float offsetSpeedRateX = 0f;
 	public float ecartForBack = 0.15f;
 	private int difficultySelected;
+	private Dictionary<Difficulty, Song> songSelectedSorted;
 	private Judge scoreJudgeSelected;
 	private Judge hitJudgeSelected;
 	private Judge lifeJudgeSelected;
@@ -81,7 +82,7 @@ public class OptionZoneLAN : MonoBehaviour {
 		
 		DataManager.Instance.BPMEntryMode = ProfileManager.Instance.currentProfile.inBPMMode;
 		
-		difficultySelected = (int)gs.getZoneInfo().getActualySelected();
+		difficultySelected = 0;
 		scoreJudgeSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.scoreJudgeSelected : Judge.NORMAL;
 		hitJudgeSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.hitJudgeSelected : Judge.NORMAL;
 		lifeJudgeSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.lifeJudgeSelected : Judge.NORMAL;
@@ -215,16 +216,16 @@ public class OptionZoneLAN : MonoBehaviour {
 						*/
 						case 1:
 							GUI.color = new Color(1f, 1f, 1f, alphaText[1]);
-							GUI.DrawTexture(new Rect(posItemLabel[1].x*Screen.width, (posItemLabel[1].y - offsetFading[1])*Screen.height, posItemLabel[1].width*Screen.width, posItemLabel[1].height*Screen.height), gs.tex[((Difficulty)gs.songSelected.ElementAt(difficultySelected).Key).ToString()]);
+							GUI.DrawTexture(new Rect(posItemLabel[1].x*Screen.width, (posItemLabel[1].y - offsetFading[1])*Screen.height, posItemLabel[1].width*Screen.width, posItemLabel[1].height*Screen.height), gs.tex[(songSelectedSorted.ElementAt(difficultySelected).Key).ToString()]);
 							GUI.color = new Color(1f, 1f, 1f, 1 - alphaText[1]);
 							if(isFading[1]) GUI.Label(new Rect(posItemLabel[1].x*Screen.width, (posItemLabel[1].y + offsetPreviousFading[1])*Screen.height, posItemLabel[1].width*Screen.width, posItemLabel[1].height*Screen.height), gs.tex[((Difficulty)previousSelected).ToString()]);
 							GUI.color = new Color(1f, 1f, 1f, 1f);
-							if(gs.songSelected.Count > 1)
+							if(songSelectedSorted.Count > 1 && LANManager.Instance.getTheRightToChange)
 							{
 								if(GUI.Button(new Rect((posItem[1].x - ecartForBack)*Screen.width, posItem[1].y*Screen.height, posItem[1].width*Screen.width, posItem[1].height*Screen.height), "", "LBackward")){
 									previousSelected = difficultySelected;
 									if(difficultySelected == 0){
-										difficultySelected = gs.songSelected.Count - 1;
+										difficultySelected = songSelectedSorted.Count - 1;
 									}else{
 										difficultySelected--;
 									}
@@ -232,7 +233,7 @@ public class OptionZoneLAN : MonoBehaviour {
 								}
 								if(GUI.Button(new Rect((posItem[1].x + ecartForBack)*Screen.width, posItem[1].y*Screen.height, posItem[1].width*Screen.width, posItem[1].height*Screen.height), "", "LForward")){
 									previousSelected = difficultySelected;
-									if(difficultySelected == gs.songSelected.Count - 1){
+									if(difficultySelected == songSelectedSorted.Count - 1){
 										difficultySelected = 0;
 									}else{
 										difficultySelected++;
@@ -479,7 +480,7 @@ public class OptionZoneLAN : MonoBehaviour {
 	public void fillDataManager()
 	{
 		DataManager.Instance.rateSelected = 0f;
-		DataManager.Instance.difficultySelected = gs.songSelected.ElementAt(difficultySelected).Key;
+		DataManager.Instance.difficultySelected = songSelectedSorted.ElementAt(difficultySelected).Key;
 		DataManager.Instance.skinSelected = skinSelected;
 		DataManager.Instance.scoreJudgeSelected = scoreJudgeSelected;
 		DataManager.Instance.hitJudgeSelected = hitJudgeSelected;
@@ -491,7 +492,19 @@ public class OptionZoneLAN : MonoBehaviour {
 	
 	public void onPopin()
 	{
-		difficultySelected = (int)gs.getZoneInfo().getActualySelected();
+		songSelectedSorted = gs.songSelected.Where(c => !c.Key.ToString().StartsWith("D")).OrderBy(c => (int)c.Key).ToDictionary(c => c.Key, c => c.Value);
+		var diffChoose = 0;
+		for(int i=0; i<(int)Difficulty.EDIT; i++)
+		{
+			if((Difficulty)i == gs.getZoneInfo().getActualySelected())
+			{
+				difficultySelected = diffChoose;	
+			}
+			if(songSelectedSorted.ContainsKey((Difficulty)i))
+			{
+				diffChoose++;	
+			}
+		}
 		StartCoroutine(startOptionFade());
 		animok = false;
 	}

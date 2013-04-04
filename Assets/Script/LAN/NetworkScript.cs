@@ -35,10 +35,12 @@ public class NetworkScript : MonoBehaviour {
 	void TestShort()
 	{
 		ProfileManager.Instance.CreateTestProfile();
+		LoadManager.Instance.Loading();
+		
 	}
 	// Use this for initialization
 	void Start () {
-		//TestShort();
+		TestShort();
 		cls = GetComponent<ConnectingLANScene>();
 		GetComponent<ChatScript>().activeChat(false);
 		LANManager.Instance.statut = LANStatut.ROOM;
@@ -298,6 +300,15 @@ public class NetworkScript : MonoBehaviour {
 	{
 		var name = ProfileManager.Instance.saveProfileStream(profile);	
 		GetComponent<ChatScript>().sendDirectMessage("Info", ProfileManager.Instance.currentProfile.name + " " + name + " profile");
+	}
+	
+	[RPC]
+	void launchGame()
+	{
+		//mettre une anim avant
+		//TEMPORAIRE
+		LANManager.Instance.statut = LANStatut.SELECTSONG;
+		Application.LoadLevel("LANWheel");
 	}
 	
 	[RPC]

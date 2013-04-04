@@ -1,17 +1,15 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\LAN\GeneralScriptLAN.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\LAN\OptionZoneLAN.cs">
     <Files>
-      <File FileName="Assets\Script\LAN\GeneralScriptLAN.cs" Line="263" Column="5" />
-      <File FileName="Assets\Script\LAN\NetworkWheelScript.cs" Line="180" Column="19" />
-      <File FileName="Assets\Script\Managers\DataManager.cs" Line="287" Column="28" />
-      <File FileName="Assets\Script\Managers\LANManager.cs" Line="96" Column="31" />
-      <File FileName="Assets\Script\LAN\ConnectingLANScene.cs" Line="347" Column="143" />
-      <File FileName="Assets\Script\LAN\OptionZoneLAN.cs" Line="494" Column="67" />
-      <File FileName="Assets\Script\Wheel\GeneralScript.cs" Line="234" Column="5" />
-      <File FileName="Assets\Script\LAN\LaunchSongZoneLAN.cs" Line="12" Column="2" />
-      <File FileName="Assets\Script\LAN\ChatScript.cs" Line="165" Column="19" />
-      <File FileName="Assets\Script\Managers\LoadManager.cs" Line="185" Column="2" />
+      <File FileName="Assets\Script\LAN\GeneralScriptLAN.cs" Line="421" Column="30" />
+      <File FileName="Assets\Script\LAN\NetworkWheelScript.cs" Line="352" Column="59" />
+      <File FileName="Assets\Script\LAN\ChatScript.cs" Line="166" Column="28" />
+      <File FileName="Assets\Script\LAN\OptionZoneLAN.cs" Line="222" Column="46" />
+      <File FileName="Assets\Script\LAN\NetworkScript.cs" Line="97" Column="85" />
+      <File FileName="Assets\Script\LAN\InfoZoneLAN.cs" Line="218" Column="25" />
+      <File FileName="Assets\Script\LAN\SongZoneLAN.cs" Line="410" Column="137" />
+      <File FileName="Assets\Script\LAN\OpeningLANScene.cs" Line="566" Column="44" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -25,7 +23,7 @@
                 <Node name="Chart" expanded="True" />
                 <Node name="FrameWork" expanded="True" />
                 <Node name="LAN" expanded="True">
-                  <Node name="GeneralScriptLAN.cs" selected="True" />
+                  <Node name="OptionZoneLAN.cs" selected="True" />
                 </Node>
                 <Node name="Managers" expanded="True" />
                 <Node name="Score" expanded="True" />

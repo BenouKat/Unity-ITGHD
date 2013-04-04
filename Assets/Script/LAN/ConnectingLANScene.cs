@@ -406,10 +406,10 @@ public class ConnectingLANScene : MonoBehaviour {
 							someoneNotReady = true;
 						}
 					}
-					if(someoneNotReady)
+					if(!someoneNotReady)
 					{
 						//launch	
-						//Ne pas oublier LANManager.statut = LANStatut.SELECTSONG
+						networkView.RPC("launchGame", RPCMode.All);
 					}
 				}
 			}

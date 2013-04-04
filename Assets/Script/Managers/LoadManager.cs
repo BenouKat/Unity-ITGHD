@@ -174,7 +174,7 @@ public class LoadManager{
 			for(int j=0; j<songs.ElementAt(i).Value.Count; j++)
 			{
 				var thesong = songs.ElementAt(i).Value.ElementAt(j).Value.FirstOrDefault(c => c.Value.sip.CompareId(sip));
-				if(thesong.Equals(default(KeyValuePair<Difficulty, Song>)))
+				if(!thesong.Equals(default(KeyValuePair<Difficulty, Song>)))
 				{
 					return new KeyValuePair<Difficulty, Dictionary<Difficulty, Song>>(thesong.Key, songs.ElementAt(i).Value.ElementAt(j).Value);	
 				}

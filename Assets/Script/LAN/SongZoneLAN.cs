@@ -407,7 +407,7 @@ public class SongZoneLAN : MonoBehaviour {
 		songList = LoadManager.Instance.ListSong()[pack];
 		startnumber = 0;
 		currentstartnumber = 0;
-		camerasong.transform.position = posBaseCameraSong;
+		camerasong.transform.position = activeModule ? posBaseCameraSong : new Vector3(posXModule.y, posBaseCameraSong.y, posBaseCameraSong.z);
 		
 		
 		for(int i=0; i < songList.Count; i++)
@@ -442,7 +442,7 @@ public class SongZoneLAN : MonoBehaviour {
 		songList = pack;
 		startnumber = 0;
 		currentstartnumber = 0;
-		camerasong.transform.position = posBaseCameraSong;
+		camerasong.transform.position = activeModule ? posBaseCameraSong : new Vector3(posXModule.y, posBaseCameraSong.y, posBaseCameraSong.z);
 		
 		if(songList.Count > songCubePack.Count)
 		{

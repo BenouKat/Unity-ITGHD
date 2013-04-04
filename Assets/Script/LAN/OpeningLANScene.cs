@@ -559,9 +559,12 @@ public class OpeningLANScene : MonoBehaviour {
 		}else
 		{
 			LANManager.Instance.isCreator = true;
-			LANManager.Instance.modeLANselected = (LANMode)optionSelected;
 			LANManager.Instance.roundNumber = System.Convert.ToInt32(roundValue);
 			LANManager.Instance.modeLANselected = (LANMode)finalSelected;
+			if(finalSelected == 0) //ffa
+			{
+				LANManager.Instance.songDiffSystem = 1;
+			}
 		}
 		
 		Application.LoadLevel("LANSelection");

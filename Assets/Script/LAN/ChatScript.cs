@@ -152,6 +152,20 @@ public class ChatScript : MonoBehaviour {
 		}
 	}
 	
+	public void forcePopinChat()
+	{
+		popoutChatTrigger = false;
+		chatActive = false;
+		popinChatTrigger = true;
+	}
+	
+	public void forcePopoutChat()
+	{
+		popinChatTrigger = false;
+		chatActive = true;
+		popoutChatTrigger = true;
+	}
+	
 	public void activeChat(bool activate)
 	{
 		activateChat = activate;

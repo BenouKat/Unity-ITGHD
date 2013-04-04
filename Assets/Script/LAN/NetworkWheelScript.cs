@@ -187,6 +187,13 @@ public class NetworkWheelScript : MonoBehaviour {
 	void setVoteMode(bool vote)
 	{
 		GetComponent<GeneralScriptLAN>().inVoteMode = vote;	
+		GetComponent<GeneralScriptLAN>().releaseHiddenVote = false;	
+	}
+	
+	[RPC]
+	void releaseVote()
+	{
+		GetComponent<GeneralScriptLAN>().releaseHiddenVote = true;	
 	}
 	
 	//Server only
@@ -215,14 +222,14 @@ public class NetworkWheelScript : MonoBehaviour {
 			}
 		}
 		networkView.RPC("setSearching", RPCMode.Others, false);
-		if(playerSearching.ToString() != "0")
+		setSearching(false);
+		if(playerSearching.ToString() == "0")
 		{
 			getResultSearch(getKo);
 		}else
 		{
 			networkView.RPC ("getResultSearch", playerSearching, getKo);	
 		}
-		setSearching(false);
 		return;
 	}
 	
@@ -238,39 +245,40 @@ public class NetworkWheelScript : MonoBehaviour {
 			if(numberKo == 0)
 			{
 				String textInfo = TextManager.Instance.texts["LAN"]["NETWORKWheelVoteSuccess"];
-				if(String.IsNullOrEmpty(lastSongChecked.Value[lastSongChecked.Key].subtitle))
+				if(!String.IsNullOrEmpty(lastSongChecked.Value[lastSongChecked.Key].subtitle))
 				{
-					textInfo = textInfo.Replace("SUBTITLE", lastSongChecked.Value[lastSongChecked.Key].subtitle);
+					textInfo = textInfo.Replace("SUBTTL", lastSongChecked.Value[lastSongChecked.Key].subtitle);
 				}else
 				{
-					textInfo = textInfo.Replace("- ", "");
+					textInfo = textInfo.Replace("- SUBTTL", "");
 				}
 				textInfo = textInfo.Replace("TITLE", lastSongChecked.Value[lastSongChecked.Key].title).Replace("DIFFICULTY", lastSongChecked.Key.ToString()).Replace("LVL", lastSongChecked.Value[lastSongChecked.Key].level.ToString());
 				GetComponent<ChatScript>().sendDirectMessage(ProfileManager.Instance.currentProfile.name, textInfo);
 			}else
 			{
-				String textInfo = TextManager.Instance.texts["LAN"]["NETWORKWheelVoteFailed"];
-				if(String.IsNullOrEmpty(lastSongChecked.Value[lastSongChecked.Key].subtitle))
+				String textInfo = LANManager.Instance.isPicker ? TextManager.Instance.texts["LAN"]["NETWORKWheelRealVoteFailed"] : TextManager.Instance.texts["LAN"]["NETWORKWheelVoteFailed"];
+				if(!String.IsNullOrEmpty(lastSongChecked.Value[lastSongChecked.Key].subtitle))
 				{
-					textInfo = textInfo.Replace("SUBTITLE", lastSongChecked.Value[lastSongChecked.Key].subtitle);
+					textInfo = textInfo.Replace("SUBTTL", lastSongChecked.Value[lastSongChecked.Key].subtitle);
 				}else
 				{
-					textInfo = textInfo.Replace("- ", "");
+					textInfo = textInfo.Replace("- SUBTTL", "");
 				}
-				textInfo = textInfo.Replace("TITLE", lastSongChecked.Value[lastSongChecked.Key].title).Replace("NUMBERFAILED", numberKo.ToString());
+				textInfo = textInfo.Replace("TITLE", lastSongChecked.Value[lastSongChecked.Key].title).Replace("NUMBERFAIL", numberKo.ToString());
 				GetComponent<ChatScript>().sendDirectMessage(ProfileManager.Instance.currentProfile.name, textInfo);
 			}
 		}else
 		{
+			networkView.RPC ("releaseVote", RPCMode.All);
 			GetComponent<GeneralScriptLAN>().launchProposition = false;
 			
-			String textInfo = TextManager.Instance.texts["LAN"]["NETWORKWheelVoteSuccess"];
-			if(String.IsNullOrEmpty(lastSongChecked.Value[lastSongChecked.Key].subtitle))
+			String textInfo = TextManager.Instance.texts["LAN"]["NETWORKWheelRealVoteSuccess"];
+			if(!String.IsNullOrEmpty(lastSongChecked.Value[lastSongChecked.Key].subtitle))
 			{
-				textInfo = textInfo.Replace("SUBTITLE", lastSongChecked.Value[lastSongChecked.Key].subtitle);
+				textInfo = textInfo.Replace("SUBTTL", lastSongChecked.Value[lastSongChecked.Key].subtitle);
 			}else
 			{
-				textInfo = textInfo.Replace("- ", "");
+				textInfo = textInfo.Replace("- SUBTTL", "");
 			}
 			textInfo = textInfo.Replace("TITLE", lastSongChecked.Value[lastSongChecked.Key].title).Replace("DIFFICULTY", lastSongChecked.Key.ToString()).Replace("LVL", lastSongChecked.Value[lastSongChecked.Key].level.ToString());
 			textInfo += "\n" + TextManager.Instance.texts["LAN"]["NETWORKWheelPickerVote"];
@@ -321,7 +329,7 @@ public class NetworkWheelScript : MonoBehaviour {
 	}
 	
 	//Server only
-	void refreshVoteMode()
+	public void refreshVoteMode()
 	{
 		var getKo = 0;
 		for(int i=0; i<LANManager.Instance.players.Count; i++)
@@ -339,7 +347,7 @@ public class NetworkWheelScript : MonoBehaviour {
 		networkView.RPC("setVoteMode", RPCMode.All, false);
 		if(getKo > 0)
 		{
-			GetComponent<ChatScript>().sendDirectMessage("Info", TextManager.Instance.texts["LAN"]["VOTEFinalFail"]);
+			GetComponent<ChatScript>().sendDirectMessage("Info", TextManager.Instance.texts["LAN"]["VOTEFailFinal"]);
 			goInVoteMode(false);
 			networkView.RPC("goInVoteMode", RPCMode.Others, false);
 		}else
