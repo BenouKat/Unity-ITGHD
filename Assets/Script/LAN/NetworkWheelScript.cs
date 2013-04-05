@@ -323,7 +323,7 @@ public class NetworkWheelScript : MonoBehaviour {
 	
 	//Only server
 	[RPC]
-	void getResultVote(NetworkPlayer player, int result)
+	public void getResultVote(NetworkPlayer player, int result)
 	{
 		LANManager.Instance.players[player].vote = result;
 	}
@@ -370,7 +370,7 @@ public class NetworkWheelScript : MonoBehaviour {
 	}
 	
 	[RPC]
-	void getPlayerReady(NetworkPlayer player)
+	public void getPlayerReady(NetworkPlayer player)
 	{
 		LANManager.Instance.players[player].isReady = true;
 	}

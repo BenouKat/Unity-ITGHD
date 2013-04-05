@@ -333,6 +333,31 @@ public class InfoZoneLAN : MonoBehaviour {
 		graph.enabled = true;
 	}
 	
+	public void refreshDifficultyDisplayedVote()
+	{
+		for(int i=0; i<(int)Difficulty.EDIT; i++)
+		{
+			if(PSDiff[i].gameObject.active)
+			{
+				PSDiff[i].gameObject.active = false;	
+			}
+		}
+		refreshNumberDiff();
+		activeDiff();
+		disableDiffHover();
+		PSDiff[(int)actualySelected].gameObject.active = true;
+		displayGraph();
+		verifyScore();
+		graph.enabled = true;
+	}
+	
+	public void disableDifficultyDisplayedVote()
+	{
+		desactiveDiff();
+		enableDiffHover();
+		graph.enabled = false;
+	}
+	
 	public void disableDifficultyDisplayed()
 	{
 		graph.enabled = false;

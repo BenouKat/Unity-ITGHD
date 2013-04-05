@@ -29,7 +29,9 @@ public class ChatScript : MonoBehaviour {
 	
 	public bool callSongList = false;
 	
-	
+	private bool newMessage;
+	private float time;
+	public float speedclignNewMessage;
 	
 	private string tmpDialog;
 	// Use this for initialization
@@ -41,6 +43,7 @@ public class ChatScript : MonoBehaviour {
 		popinChatTrigger = false;
 		popoutChatTrigger = false;
 		lockButton = false;
+		time = 0f;
 		dialogListed = new List<string>();
 	}
 	
@@ -75,6 +78,15 @@ public class ChatScript : MonoBehaviour {
 			{
 				networkView.RPC("addLine", RPCMode.All, ProfileManager.Instance.currentProfile.name, tmpDialog);
 				tmpDialog = "";
+			}
+			
+			if(newMessage)
+			{
+				GUI.color = new Color(1f, 1f, 1f - Mathf.PingPong(time, 0.75f), 1f);
+				time += Time.deltaTime*speedclignNewMessage;
+			}else
+			{
+				GUI.color = new Color(1f, 1f, 1f, 1f);	
 			}
 			
 			if(GUI.Button(new Rect(posButtonHideChat.x*Screen.width, posButtonHideChat.y*Screen.height, posButtonHideChat.width*Screen.width, posButtonHideChat.height*Screen.height), chatActive ? "Hide" : "Chat") && !lockButton)
@@ -120,6 +132,7 @@ public class ChatScript : MonoBehaviour {
 			dialog = dialog.Remove(0, dialogListed.ElementAt(0).Length);
 			dialogListed.RemoveAt(0);
 		}
+		newMessage = !chatActive;
 		
 	}
 	
@@ -143,6 +156,7 @@ public class ChatScript : MonoBehaviour {
 	
 	public void popinChat()
 	{
+		newMessage = false;
 		if(valueDecal > 0.01f){
 			valueDecal = Mathf.Lerp(valueDecal, 0f, speedDecalChatWindow*Time.deltaTime);	
 		}else{

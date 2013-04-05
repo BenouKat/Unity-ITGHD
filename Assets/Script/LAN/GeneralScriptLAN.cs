@@ -241,7 +241,14 @@ public class GeneralScriptLAN : MonoBehaviour {
 		{
 			if(GUI.Button(new Rect(Jouer.x*Screen.width, Jouer.y*Screen.height, Jouer.width*Screen.width, Jouer.height*Screen.height), "Ready", "labelGo")){
 				isReadyWithOptions = true;
-				networkView.RPC("getPlayerReady", RPCMode.Server, Network.player);
+				if(LANManager.Instance.isCreator)
+				{
+					nws.getPlayerReady(Network.player);
+				}else
+				{
+					networkView.RPC("getPlayerReady", RPCMode.Server, Network.player);
+				}
+				
 			}
 			
 		}
@@ -254,14 +261,26 @@ public class GeneralScriptLAN : MonoBehaviour {
 			{
 				if(GUI.Button(new Rect(buttonYes.x*Screen.width, buttonYes.y*Screen.height, buttonYes.width*Screen.width, buttonYes.height*Screen.height), "Accept", "labelGo"))
 				{
-					networkView.RPC("getResultVote", RPCMode.Server, Network.player, 1);
+					if(LANManager.Instance.isCreator)
+					{
+						nws.getResultVote(Network.player, 1);
+					}else
+					{
+						networkView.RPC("getResultVote", RPCMode.Server, Network.player, 1);
+					}
 					GetComponent<ChatScript>().sendDirectMessage(ProfileManager.Instance.currentProfile.name, TextManager.Instance.texts["LAN"]["VOTEValid"]);
 					alreadyVote = true;
 				}
 				
 				if(GUI.Button(new Rect(buttonNo.x*Screen.width, buttonNo.y*Screen.height, buttonNo.width*Screen.width, buttonNo.height*Screen.height), "Deny", "labelGo"))
 				{
-					networkView.RPC("getResultVote", RPCMode.Server, Network.player, 2);
+					if(LANManager.Instance.isCreator)
+					{
+						nws.getResultVote(Network.player, 2);
+					}else
+					{
+						networkView.RPC("getResultVote", RPCMode.Server, Network.player, 2);
+					}
 					GetComponent<ChatScript>().sendDirectMessage(ProfileManager.Instance.currentProfile.name, TextManager.Instance.texts["LAN"]["VOTEFail"]);
 					alreadyVote = true;
 				}
@@ -417,9 +436,7 @@ public class GeneralScriptLAN : MonoBehaviour {
 		songSelected = nws.lastSongChecked.Value;
 		getZoneSong().locked = true;
 		getZoneInfo().setActualySelected(nws.lastSongChecked.Key);
-		getZoneInfo().refreshNumberDiff();
-		getZoneInfo().activeDiff();
-		getZoneInfo().disableDiffHover();
+		getZoneInfo().refreshDifficultyDisplayedVote();
 		refreshBanner();
 		if(LANManager.Instance.isPicker)
 		{
@@ -433,8 +450,7 @@ public class GeneralScriptLAN : MonoBehaviour {
 		GetComponent<ChatScript>().forcePopoutChat();
 		GetComponent<ChatScript>().setLockButton(false);
 		getZonePack().onPopin();
-		getZoneInfo().desactiveDiff();
-		getZoneInfo().enableDiffHover();
+		getZoneInfo().disableDifficultyDisplayedVote();
 		getZoneSong().locked = false;
 		songSelected = null;
 		alreadyVote = false;
