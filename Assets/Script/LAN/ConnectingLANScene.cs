@@ -321,10 +321,11 @@ public class ConnectingLANScene : MonoBehaviour {
 	{
 		if(LANManager.Instance.isCreator)
 		{
+			var localText = LANManager.Instance.actualIP.Contains("192.168") ? "\n(Local address)" : "";
 			GUI.color = new Color(0f, 0f, 0f, 1f);
-			GUI.Label(new Rect(posMyIp.x*Screen.width + 1, posMyIp.y*Screen.height + 1, posMyIp.width*Screen.width, posMyIp.height*Screen.height), "Share your IP :\n" + LANManager.Instance.actualIP + ":" + LANManager.Instance.actualPort, "big");
+			GUI.Label(new Rect(posMyIp.x*Screen.width + 1, posMyIp.y*Screen.height + 1, posMyIp.width*Screen.width, posMyIp.height*Screen.height), "Share your IP :\n" + LANManager.Instance.actualIP + ":" + LANManager.Instance.actualPort + localText, "big");
 			GUI.color = new Color(1f, 1f, 1f, 1f);
-			GUI.Label(new Rect(posMyIp.x*Screen.width, posMyIp.y*Screen.height, posMyIp.width*Screen.width, posMyIp.height*Screen.height), "Share your IP :\n" + LANManager.Instance.actualIP + ":" + LANManager.Instance.actualPort, "big");
+			GUI.Label(new Rect(posMyIp.x*Screen.width, posMyIp.y*Screen.height, posMyIp.width*Screen.width, posMyIp.height*Screen.height), "Share your IP :\n" + LANManager.Instance.actualIP + ":" + LANManager.Instance.actualPort + localText, "big");
 		}
 	}
 	
@@ -427,6 +428,7 @@ public class ConnectingLANScene : MonoBehaviour {
 		
 		if(GUI.Button(new Rect(posQuitButton.x*Screen.width, posQuitButton.y*Screen.height, posQuitButton.width*Screen.width, posQuitButton.height*Screen.height), "Quit")){
 			Network.Disconnect();
+			LANManager.Instance.players.Clear();
 			fm.FadeIn("LAN");	
 		}
 		

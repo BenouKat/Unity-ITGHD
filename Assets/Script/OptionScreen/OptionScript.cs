@@ -159,7 +159,7 @@ public class OptionScript : MonoBehaviour {
 		quickMode = DataManager.Instance.quickMode;
 		padMode = DataManager.Instance.dancepadMode;
 		cacheMode = DataManager.Instance.useTheCacheSystem;
-		portPref = LANManager.Instance.portRequest.ToString();
+		portPref = LANManager.Instance.actualPort.ToString();
 		
 		generalVolume = DataManager.Instance.generalVolume * 100f;
 		
@@ -267,7 +267,7 @@ public class OptionScript : MonoBehaviour {
 			
 		//Network
 			case "Network":
-			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["NETWORK_CHOICE"]);
+			GUI.Label(new Rect(posLabelOption.x*Screen.width + 1, posLabelOption.y*Screen.height + 1, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["NETWORK_PORT"]);
 			
 			//GUI.Label(new Rect(posLabelListChoice.x*Screen.width + 1, posLabelListChoice.y*Screen.height + 1, posLabelListChoice.width*Screen.width, posLabelListChoice.height*Screen.height), networkValue[(int)PDT], "centeredLabel");
 			break;
@@ -400,7 +400,7 @@ public class OptionScript : MonoBehaviour {
 			
 		//Network
 			case "Network":
-			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["NETWORK_CHOICE"]);
+			GUI.Label(new Rect(posLabelOption.x*Screen.width, posLabelOption.y*Screen.height, posLabelOption.width*Screen.width, posLabelOption.height*Screen.height), textOption["NETWORK_PORT"]);
 			
 			/*
 			if(GUI.Button(new Rect(posLabelListChoice.x*Screen.width + offsetBetweenLabel*Screen.width + sizeArrowButton.x*Screen.width, posLabelListChoice.y*Screen.height + sizeArrowButton.y*Screen.height, sizeArrowButton.width*Screen.width, sizeArrowButton.height*Screen.height), "", "rightArrow")){
@@ -417,7 +417,7 @@ public class OptionScript : MonoBehaviour {
 			*/
 			//Faire une anim ?
 			
-			portPref = GUI.TextField(new Rect(posTextFieldOption.x*Screen.width, posTextFieldOption.y*Screen.height + offsetLabelYOption*Screen.height, posTextFieldOption.width*Screen.width, posTextFieldOption.height*Screen.height), portPref, 5);
+			portPref = GUI.TextField(new Rect(posTextFieldOption.x*Screen.width, posTextFieldOption.y*Screen.height, posTextFieldOption.width*Screen.width, posTextFieldOption.height*Screen.height), portPref, 5);
 		
 			break;
 			
@@ -954,7 +954,7 @@ public class OptionScript : MonoBehaviour {
 		DataManager.Instance.enableDepthOfField = enableDOF;
 		DataManager.Instance.antiAliasing = antiAliasing;
 		
-		LANManager.Instance.portRequest = System.Convert.ToInt32(portPref);
+		LANManager.Instance.actualPort = System.Convert.ToInt32(portPref);
 		DataManager.Instance.useTheCacheSystem = cacheMode;
 		DataManager.Instance.dancepadMode = padMode;
 		DataManager.Instance.quickMode = quickMode;
@@ -978,7 +978,7 @@ public class OptionScript : MonoBehaviour {
 		quickMode = DataManager.Instance.quickMode;
 		padMode = DataManager.Instance.dancepadMode;
 		cacheMode = DataManager.Instance.useTheCacheSystem;
-		portPref = LANManager.Instance.portRequest.ToString();
+		portPref = LANManager.Instance.actualPort.ToString();
 		
 		generalVolume = DataManager.Instance.generalVolume * 100f;
 		

@@ -200,8 +200,8 @@ public class LANManager{
 			foreach(var banPlayer in banned)
 			{
 				packText += TextManager.Instance.texts["LAN"]["NETWORKPackFail"];
-				packText.Replace("FIRST_NAME", banPlayer.Key);
-				packText.Replace("OTHER_NAMES", banPlayer.Value.Replace(";", ", "));
+				packText = packText.Replace("FIRST_NAME", banPlayer.Key);
+				packText = packText.Replace("OTHER_NAMES", banPlayer.Value.Replace(";", ", "));
 				packText += "\n";
 			}
 			

@@ -48,7 +48,7 @@ public class NetworkScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-
+		
 	}
 	
 	void OnApplicationQuit()
@@ -58,6 +58,7 @@ public class NetworkScript : MonoBehaviour {
 	
 	public void StartNetwork()
 	{
+		
 		if(LANManager.Instance.isCreator)
 		{
 			var nce = Network.InitializeServer(8, LANManager.Instance.actualPort, false);
@@ -72,7 +73,8 @@ public class NetworkScript : MonoBehaviour {
 	}
 	
 	void OnServerInitialized()
-	{
+	{		
+		
 		if(Network.player.externalIP.Contains("UNASSIGNED"))
 		{
 			if(Network.player.ipAddress == "0.0.0.0")
