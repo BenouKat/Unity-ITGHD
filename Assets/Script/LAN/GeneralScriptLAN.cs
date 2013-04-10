@@ -324,8 +324,7 @@ public class GeneralScriptLAN : MonoBehaviour {
 		}
 		
 		
-		//Init when everybody is ready
-		if(!alreadyFade){
+		if(!alreadyFade && timeFade >= 0.1f){
 			
 			GetComponent<FadeManager>().FadeOut();
 			alreadyFade = true;

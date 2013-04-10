@@ -104,16 +104,22 @@ public class NetworkScript : MonoBehaviour {
 	void OnPlayerConnected(NetworkPlayer player)
 	{
 		
-		Debug.Log(player.externalIP + " : " + player.externalPort + " connected");
-		
-		if(!LANManager.Instance.players.ContainsKey(player))
+		if(LANManager.Instance.statut == LANStatut.ROOM)
 		{
-			LANManager.Instance.players.Add(player, new CublastPlayer("Waiting...", ""));
+			Debug.Log(player.externalIP + " : " + player.externalPort + " connected");
+			
+			if(!LANManager.Instance.players.ContainsKey(player))
+			{
+				LANManager.Instance.players.Add(player, new CublastPlayer("Waiting...", ""));
+			}
+			
+			networkView.RPC("sendInfoPartyToPlayer", RPCMode.Others, (int)LANManager.Instance.modeLANselected, LANManager.Instance.roundNumber, LANManager.Instance.hostSystem, LANManager.Instance.songDiffSystem);
+			networkView.RPC("changeRightDifficulty", player, LANManager.Instance.songDiffSystem == 1);
+			cls.addHitNet(player);
+		}else
+		{
+			networkView.RPC("gameIsLaunched", player);	
 		}
-		
-		networkView.RPC("sendInfoPartyToPlayer", RPCMode.Others, (int)LANManager.Instance.modeLANselected, LANManager.Instance.roundNumber, LANManager.Instance.hostSystem, LANManager.Instance.songDiffSystem);
-		networkView.RPC("changeRightDifficulty", player, LANManager.Instance.songDiffSystem == 1);
-		cls.addHitNet(player);
 	}
 	
 	//server side
@@ -307,10 +313,10 @@ public class NetworkScript : MonoBehaviour {
 	[RPC]
 	void launchGame()
 	{
-		//mettre une anim avant
-		//TEMPORAIRE
-		LANManager.Instance.statut = LANStatut.SELECTSONG;
-		Application.LoadLevel("LANWheel");
+		cls.halo.gameObject.SetActiveRecursively(true);
+		cls.cubeMid.gameObject.active = true;
+		LANManager.Instance.statut = LANStatut.ANIMENTERING;
+		cls.stateScene = LANConnexionState.ANIMENTERING;
 	}
 	
 	[RPC]

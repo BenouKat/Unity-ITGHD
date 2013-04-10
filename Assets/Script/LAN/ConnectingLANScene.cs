@@ -8,6 +8,7 @@ public class ConnectingLANScene : MonoBehaviour {
 	public GameObject cubeLoading;
 	public GameObject cubePlayers;
 	public GameObject cubePlayersPosition;
+	public GameObject cubePlayerPositionFinal;
 	public GameObject hiddenPart;
 	
 	//for server
@@ -70,6 +71,16 @@ public class ConnectingLANScene : MonoBehaviour {
 	public Rect posQuitButton;
 	public Rect posLaunchGameButton;
 	
+	//ENTERING SCENE
+	public float startSpeedRotation;
+	public float timeSlowRotation;
+	public float timeEnd;
+	private float countForTimeEnd;
+	public float speedMoveHalo;
+	public ParticleSystem halo;
+	public ParticleSystem cubeMid;
+	public Rect finalModePos;
+	
 	// Use this for initialization
 	void Start () {
 		
@@ -91,12 +102,13 @@ public class ConnectingLANScene : MonoBehaviour {
 		locked = false;
 		somethingSelected = false;
 		isReady = false;
-		
+		countForTimeEnd = 0f;
 		tex = new Dictionary<string, Texture2D>();
 		tex.Add("mode0", (Texture2D) Resources.Load("LANFFA"));
 		tex.Add("mode1", (Texture2D) Resources.Load("LANScoreTournament"));
 		tex.Add("mode2", (Texture2D) Resources.Load("LANPointTournament"));
 		tex.Add("mode3", (Texture2D) Resources.Load("LANElimination"));
+		tex.Add("black", (Texture2D) Resources.Load("black"));
 		
 		if(LANManager.Instance.isCreator)
 		{
@@ -108,6 +120,7 @@ public class ConnectingLANScene : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		
 		switch(stateScene)
 		{
 		case LANConnexionState.LOADING:
@@ -121,6 +134,9 @@ public class ConnectingLANScene : MonoBehaviour {
 			break;
 		case LANConnexionState.FAIL:
 			break;
+		case LANConnexionState.ANIMENTERING:
+			UpdateEnteringScene();
+			break;
 		default:
 			break;
 		}
@@ -128,6 +144,7 @@ public class ConnectingLANScene : MonoBehaviour {
 
 	void UpdateLoading()
 	{
+		
 		if(actualColor >= 1f && sens > 0f)
 		{
 			sens = -1f;
@@ -249,9 +266,27 @@ public class ConnectingLANScene : MonoBehaviour {
 		}else if(!somethingSelected && alphaDescription > 0f){
 			alphaDescription -= speedAlphaDescription*Time.deltaTime;
 		}
-		//Pouvoir selectioner les profiles
-		//Passage de la souris = pseudo
-		//Locking quand on clic
+	}
+	
+	void UpdateEnteringScene()
+	{
+		
+		if(countForTimeEnd >= timeEnd)
+		{
+			LANManager.Instance.statut = LANStatut.SELECTSONG;
+			Application.LoadLevel("LANWheel");
+		}
+		
+		for(int i=0; i < cubePlayerPositionFinal.transform.GetChildCount(); i++)
+		{
+			cubePlayers.transform.GetChild(i).position = Vector3.Lerp(cubePlayers.transform.GetChild(i).position, cubePlayerPositionFinal.transform.GetChild(i).position, speedTranslationCubes*Time.deltaTime);
+		}
+		cubePlayerPositionFinal.transform.Rotate(new Vector3(startSpeedRotation*Time.deltaTime, 0f, 0f));
+		startSpeedRotation = Mathf.Lerp(startSpeedRotation, 0, timeSlowRotation*Time.deltaTime);
+		
+		halo.transform.Translate(-speedMoveHalo*Time.deltaTime, 0f, 0f);
+		
+		countForTimeEnd += Time.deltaTime;
 	}
 	
 	void OnGUI()
@@ -275,10 +310,28 @@ public class ConnectingLANScene : MonoBehaviour {
 			OnGUIInfoParty();
 			OnGUIIdle();
 			break;
+		case LANConnexionState.ANIMENTERING:
+			OnGUIAnimEntering();
+			break;
 		default:
 			break;
 		}
 		
+	}
+	
+	void OnGUIAnimEntering()
+	{
+		
+		if(countForTimeEnd >= time - 4f)
+		{
+			GUI.color = new Color(1f, 1f, 1f, countForTimeEnd <= timeEnd - 3f ? 1f - (timeEnd - 3f - countForTimeEnd) : 1f);
+			GUI.DrawTexture(new Rect(finalModePos.x*Screen.width, finalModePos.y*Screen.height, finalModePos.width*Screen.width, finalModePos.height*Screen.height), tex["mode" + (int)LANManager.Instance.modeLANselected]);
+		}
+		if(countForTimeEnd >= timeEnd - 1.5f)
+		{
+			GUI.color = new Color(1f, 1f, 1f, countForTimeEnd <= timeEnd - 0.5f ? 1f - (timeEnd - 0.5f - countForTimeEnd) : 1f);
+			GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), tex["black"]);
+		}
 	}
 	
 	void OnGUILoading()

@@ -118,6 +118,7 @@ public enum LANConnexionState
 	SETPLAYERPERFS,
 	IDLE,
 	FAIL,
+	ANIMENTERING,
 	NONE
 	
 }
@@ -125,9 +126,8 @@ public enum LANConnexionState
 public enum LANStatut
 {
 	ROOM,
+	ANIMENTERING,
 	SELECTSONG,
-	VOTESONG,
-	OPTIONSONG,
 	GAME,
 	RESULT,
 	NONE
