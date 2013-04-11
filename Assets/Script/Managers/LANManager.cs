@@ -210,5 +210,26 @@ public class LANManager{
 		
 		return packText;
 	}
+	
+	
+	public List<CublastPlayer> getLeaderboard()
+	{
+		var playerSorted = players.OrderBy(c => c.Value.getScoreNumeric());
+		var leaderboard = new List<CublastPlayer>();
+		for(int i=0; i < playerSorted.Count; i++)
+		{
+			leaderboard.Add(playerSorted.ElementAt(i).Value);
+		}
+		return leaderboard;
+	}
+	
+	public string parseLeaderboardToString(List<CublastPlayer> lb)
+	{
+		var stringParse = "";
+		for(int i=0; i<lb; i++)
+		{
+			
+		}
+	}
 
 }

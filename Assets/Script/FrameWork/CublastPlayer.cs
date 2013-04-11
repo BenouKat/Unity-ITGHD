@@ -11,13 +11,16 @@ public class CublastPlayer{
 	
 	public int difficultyMode;
 	
+	//In Score tournament or Elimination
 	public double scores;
 	
+	//In Free For All or Point Tournament
 	public int points;
 	
 	//Only server will access this data
 	public string packName;
 	
+	//Only server will access this data
 	public bool isReady;
 	
 	public LANStatut statut;
@@ -39,6 +42,8 @@ public class CublastPlayer{
 		this.difficultyMode = 0;
 		this.isReady = false;
 		this.statut = LANStatut.ROOM;
+		this.points = 0;
+		this.scores = 0;
 	}
 	
 	public CublastPlayer(string name, int vict, bool ready, string idFile)
@@ -50,4 +55,31 @@ public class CublastPlayer{
 		this.isReady = ready;
 		this.statut = LANStatut.ROOM;
 	}
+	
+	public string getScore()
+	{
+		switch(LANManager.Instance.modeLANselected)
+		{
+		case LANMode.FFA:
+			return points + " rounds";
+		case LANMode.SCORETOURN:
+			return scores + "%";
+		case LANMode.POINTTOURN:
+			return points + " pts";
+		case LANMode.ELIMINATION:
+			return scores + "%";
+		default:
+			return "null";
+		}
+	}
+	
+	public double getScoreNumeric()
+	{
+		if(LANManager.Instance.modeLANselected == LANMode.FFA || LANManager.Instance.modeLANselected == LANMode.POINTTOURN)
+		{
+			return System.Convert.ToDouble(points);	
+		}
+		return scores;
+	}
+	
 }
