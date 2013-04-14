@@ -396,6 +396,12 @@ public class NetworkWheelScript : MonoBehaviour {
 	{
 		GetComponent<GeneralScriptLAN>().play();
 	}
+	
+	[RPC]
+	public void getLeaderboard(string lb)
+	{
+		GetComponent<LaunchSongZoneLAN>().setLeaderboard(lb);
+	}
 
 
 }

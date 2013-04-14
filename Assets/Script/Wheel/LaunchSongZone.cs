@@ -99,7 +99,7 @@ public class LaunchSongZone : MonoBehaviour {
 			}
 		}
 		
-		if(time > 1f){
+		if(time > 2f){
 			if(alphaBlack < 1f){
 				alphaBlack += Time.deltaTime/speedAlphaBlack;	
 				gs.songClip.volume -= Time.deltaTime/speedAlphaBlack;	

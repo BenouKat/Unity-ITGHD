@@ -48,6 +48,8 @@ public class LANManager{
 	
 	public bool dataArrived;
 	
+	public int actualRound;
+	
 	//INSTANCE
 	private static LANManager instance;
 	
@@ -103,6 +105,8 @@ public class LANManager{
 		
 		actualIP = "";
 		actualPort = 0;
+		
+		actualRound = 1;
 		
 		IPRequest = "";
 		portRequest = 0;
@@ -214,9 +218,9 @@ public class LANManager{
 	
 	public List<CublastPlayer> getLeaderboard()
 	{
-		var playerSorted = players.OrderBy(c => c.Value.getScoreNumeric());
+		var playerSorted = players.OrderByDescending(c => c.Value.getScoreNumeric());
 		var leaderboard = new List<CublastPlayer>();
-		for(int i=0; i < playerSorted.Count; i++)
+		for(int i=0; i < playerSorted.Count(); i++)
 		{
 			leaderboard.Add(playerSorted.ElementAt(i).Value);
 		}
@@ -226,10 +230,16 @@ public class LANManager{
 	public string parseLeaderboardToString(List<CublastPlayer> lb)
 	{
 		var stringParse = "";
-		for(int i=0; i<lb; i++)
+		for(int i=0; i<lb.Count; i++)
 		{
-			
+			stringParse += lb.ElementAt(i).name + ";" + lb.ElementAt(i).idFile + ";" + lb.ElementAt(i).getScore();
+			if(i != lb.Count - 1)
+			{
+				stringParse += ":";
+			}
 		}
+		
+		return stringParse;
 	}
 
 }

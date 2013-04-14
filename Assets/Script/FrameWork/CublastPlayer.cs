@@ -54,6 +54,8 @@ public class CublastPlayer{
 		this.difficultyMode = 0;
 		this.isReady = ready;
 		this.statut = LANStatut.ROOM;
+		this.points = 0;
+		this.scores = 0;
 	}
 	
 	public string getScore()

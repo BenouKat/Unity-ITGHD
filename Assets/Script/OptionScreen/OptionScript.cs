@@ -145,6 +145,7 @@ public class OptionScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		
+		if(!LoadManager.Instance.alreadyLoaded) TextManager.Instance.LoadTextFile();
 		tex = new Dictionary<string, Texture2D>();
 		tex.Add("labelbg", (Texture2D) Resources.Load("GUIBarMini"));
 		tex.Add("black", (Texture2D) Resources.Load("black"));

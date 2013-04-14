@@ -40,7 +40,7 @@ public class NetworkScript : MonoBehaviour {
 	}
 	// Use this for initialization
 	void Start () {
-		TestShort();
+		//TestShort();
 		cls = GetComponent<ConnectingLANScene>();
 		GetComponent<ChatScript>().activeChat(false);
 		LANManager.Instance.statut = LANStatut.ROOM;
@@ -315,6 +315,7 @@ public class NetworkScript : MonoBehaviour {
 	{
 		cls.halo.gameObject.SetActiveRecursively(true);
 		cls.cubeMid.gameObject.active = true;
+		GetComponent<ChatScript>().activeChat(false);
 		LANManager.Instance.statut = LANStatut.ANIMENTERING;
 		cls.stateScene = LANConnexionState.ANIMENTERING;
 	}

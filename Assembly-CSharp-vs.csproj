@@ -76,8 +76,10 @@
      <Compile Include="Assets\Script\MainMenu\ArrowFake.cs" />
      <Compile Include="Assets\Script\MainMenu\FakeChart.cs" />
      <Compile Include="Assets\Script\MainMenu\MainMenu.cs" />
+     <Compile Include="Assets\Script\MainMenu\MoveCircle.cs" />
      <Compile Include="Assets\Script\MainMenu\MoveCubeBackground.cs" />
      <Compile Include="Assets\Script\MainMenu\MoveCubePack.cs" />
+     <Compile Include="Assets\Script\MainMenu\MoveMeteore.cs" />
      <Compile Include="Assets\Script\Managers\DataManager.cs" />
      <Compile Include="Assets\Script\Managers\EnumManager.cs" />
      <Compile Include="Assets\Script\Managers\FadeManager.cs" />

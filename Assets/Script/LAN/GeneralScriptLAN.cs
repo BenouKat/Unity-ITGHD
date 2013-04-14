@@ -462,6 +462,14 @@ public class GeneralScriptLAN : MonoBehaviour {
 		getZoneInfo().onEnterOption();
 		getZoneOption().onPopin();
 		GetComponent<ChatScript>().activeChat(false);
+		if(LANManager.Instance.isCreator)
+		{
+			var lb = LANManager.Instance.parseLeaderboardToString(LANManager.Instance.getLeaderboard());
+			networkView.RPC("getLeaderboard", RPCMode.Others, lb);
+			nws.getLeaderboard(lb);
+		
+		}
+		
 	}
 	
 	public void play()

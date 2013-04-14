@@ -115,11 +115,6 @@ public class OptionZoneLAN : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if(Input.GetKeyDown(KeyCode.Escape) && animok && activeModule){
-			StartCoroutine(endOptionFade());
-			animok = false;
-		}
-		
 		if(matCache.color.a > 0f){
 			fadeAlphaOptionTitle -= Time.deltaTime/timeOption;
 			matCache.color = new Color(matCache.color.r, matCache.color.g, matCache.color.b, fadeAlphaOptionTitle);
@@ -229,6 +224,7 @@ public class OptionZoneLAN : MonoBehaviour {
 									}else{
 										difficultySelected--;
 									}
+									gs.getZoneInfo().changeDifficultyInOption(songSelectedSorted.ElementAt(difficultySelected).Key);
 									StartCoroutine(OptionAnim(1, true));
 								}
 								if(GUI.Button(new Rect((posItem[1].x + ecartForBack)*Screen.width, posItem[1].y*Screen.height, posItem[1].width*Screen.width, posItem[1].height*Screen.height), "", "LForward")){
@@ -238,6 +234,7 @@ public class OptionZoneLAN : MonoBehaviour {
 									}else{
 										difficultySelected++;
 									}
+									gs.getZoneInfo().changeDifficultyInOption(songSelectedSorted.ElementAt(difficultySelected).Key);
 									StartCoroutine(OptionAnim(1, false));
 								}
 							}
@@ -396,29 +393,6 @@ public class OptionZoneLAN : MonoBehaviour {
 		
 	}
 	
-	IEnumerator endOptionFade(){
-		
-		var posInit = cacheOption.transform.position;
-		cacheOption.transform.Translate(0f, -16f, 0f);
-		cacheOption.active = true;
-		for(int i=stateLoading.Length-1;i>=0;i--){
-			matCache.color = new Color(matCache.color.r, matCache.color.g, matCache.color.b, 1f);
-			stateLoading[i] = false;
-			if(i == stateLoading.Length-1) optionSeparator[optionSeparator.Length-1].enabled = false;
-			optionSeparator[i].enabled = false;
-			fadeAlphaOptionTitle = 1f;
-			yield return new WaitForSeconds(timeOption);
-			cacheOption.transform.Translate(0f, 2f, 0f);
-		}
-		cacheOption.active = false;
-		cacheOption.transform.position = posInit;
-		animok = true;
-		gs.getZonePack().onPopin();
-		gs.getZoneSong().onPopin();
-		gs.getZoneInfo().onExitOption();
-		activeModule = false;
-	}
-	
 	IEnumerator OptionAnim(int i, bool reverse){
 		isFading[i] = true;
 		
@@ -506,12 +480,6 @@ public class OptionZoneLAN : MonoBehaviour {
 			}
 		}
 		StartCoroutine(startOptionFade());
-		animok = false;
-	}
-	
-	public void onPopout()
-	{
-		StartCoroutine(endOptionFade());
 		animok = false;
 	}
 	

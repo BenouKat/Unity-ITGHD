@@ -184,20 +184,6 @@ public class InfoZoneLAN : MonoBehaviour {
 			}
 		}
 		
-		if(exitOption)
-		{
-			
-			diffSelected[actualySelected].transform.position = Vector3.Lerp(diffSelected[actualySelected].transform.position, recoverPosition, Time.deltaTime*speedMoveDiff);
-			gs.plane.transform.position = Vector3.Lerp(gs.plane.transform.position, gs.recoverPosBanner, Time.deltaTime*speedMoveDiff);
-			
-			if(PopinOthersDiff() && Vector3.Distance(diffSelected[actualySelected].transform.position, recoverPosition) <= 0.1f && Vector3.Distance(gs.plane.transform.position, gs.recoverPosBanner) <= 0.1f)
-			{
-				diffSelected[actualySelected].transform.position = recoverPosition;
-				gs.plane.transform.position = gs.recoverPosBanner;
-				exitOption = false;
-			}
-		}
-		
 		if(enterLaunch)
 		{
 			diffSelected[actualySelected].transform.position = Vector3.Lerp(diffSelected[actualySelected].transform.position, posDiffLaunch, Time.deltaTime*speedMoveDiff);
@@ -511,20 +497,15 @@ public class InfoZoneLAN : MonoBehaviour {
 		for(int i=0;i<RayDiff.Count;i++){
 			RayDiff[i].active = false;	
 		}
-		recoverPosition = diffSelected[actualySelected].transform.position;
 		graph.enabled = false;
 		activeModule = false;
 	}
 	
-	public void onExitOption()
+	public void changeDifficultyInOption(Difficulty selected)
 	{
-		exitOption = true;
-		PSDiff[(int)actualySelected].gameObject.active = true;
-		for(int i=0;i<RayDiff.Count;i++){
-			RayDiff[i].active = true;	
-		}
-		graph.enabled = true;
-		activeModule = true;
+		diffSelected[actualySelected].transform.position = diffSelected[selected].transform.position;
+		actualySelected = selected;
+		diffSelected[actualySelected].transform.position = posDiffOption;
 	}
 	
 	public void onEnterLaunch()
