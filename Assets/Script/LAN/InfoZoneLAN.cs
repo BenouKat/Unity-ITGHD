@@ -78,7 +78,6 @@ public class InfoZoneLAN : MonoBehaviour {
 	
 	private bool enterOption;
 	private bool enterLaunch;
-	private bool exitOption;
 	
 	
 	private bool activeModule;
@@ -543,11 +542,6 @@ public class InfoZoneLAN : MonoBehaviour {
 	public bool isFail()
 	{
 		return isScoreFail;
-	}
-	
-	public bool isExiting()
-	{
-		return exitOption;
 	}
 	
 	public bool isEntering()

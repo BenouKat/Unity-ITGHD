@@ -29,7 +29,9 @@ public class OptionZone : MonoBehaviour {
 	public Rect selectedImage = new Rect(0.0015f, 0f, 0.05f, 0.05f);
 	public float offsetXDisplayBPMSwitch = 0.35f;
 	public float offsetXDisplayBPMValue = 0.46f;
+	public float offsetYDisplayBPMSV = -0.02f;
 	public float offsetWidthDisplayBPMSV = 0.08f;
+	public float offsetHeightDisplayBPMSV = 0.03f;
 	public float offsetXDisplay = 0.065f;
 	public float borderXDisplay = -0.08f;
 	public float offsetSpeedRateX = 0f;
@@ -199,11 +201,11 @@ public class OptionZone : MonoBehaviour {
 								if(!DataManager.Instance.BPMEntryMode) gs.bpmstring = "";
 							}
 							
-							if(GUI.Button(new Rect((posItem[0].x + offsetXDisplayBPMSwitch)*Screen.width, posItem[0].y*Screen.height, (posItem[0].width + offsetWidthDisplayBPMSV)*Screen.width, posItem[0].height*Screen.height), DataManager.Instance.BPMEntryMode ? "By multip." : "by BPM", "labelGoLittle")){
+							if(GUI.Button(new Rect((posItem[0].x + offsetXDisplayBPMSwitch)*Screen.width, (posItem[0].y + offsetYDisplayBPMSV)*Screen.height, (posItem[0].width + offsetWidthDisplayBPMSV)*Screen.width, (posItem[0].height + offsetHeightDisplayBPMSV)*Screen.height), DataManager.Instance.BPMEntryMode ? "By multip." : "by BPM", "labelGoLittle")){
 								DataManager.Instance.BPMEntryMode = !DataManager.Instance.BPMEntryMode;
 							}
 							if(DataManager.Instance.BPMEntryMode && gs.songSelected.First().Value.bpmToDisplay.Contains("->")){
-								if(GUI.Button(new Rect((posItem[0].x + offsetXDisplayBPMValue)*Screen.width, posItem[0].y*Screen.height, (posItem[0].width + offsetWidthDisplayBPMSV)*Screen.width, posItem[0].height*Screen.height), 	  DataManager.Instance.BPMChoiceMode == 0 ? "For higher" : "For lower", "labelGoLittle")){
+								if(GUI.Button(new Rect((posItem[0].x + offsetXDisplayBPMValue)*Screen.width, (posItem[0].y + offsetYDisplayBPMSV)*Screen.height, (posItem[0].width + offsetWidthDisplayBPMSV)*Screen.width, (posItem[0].height + offsetHeightDisplayBPMSV)*Screen.height), DataManager.Instance.BPMChoiceMode == 0 ? "For higher" : "For lower", "labelGoLittle")){
 									DataManager.Instance.BPMChoiceMode++;
 									if(DataManager.Instance.BPMChoiceMode == 2) DataManager.Instance.BPMChoiceMode = 0;
 								}

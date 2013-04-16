@@ -443,7 +443,7 @@ public class ConnectingLANScene : MonoBehaviour {
 				GetComponent<ChatScript>().sendDirectMessage("Info", LANManager.Instance.returnPackAvailableText());
 			}
 			
-			if(LANManager.Instance.players.Count > 1)
+			if(LANManager.Instance.players.Count > 0)
 			{
 				if(GUI.Button(new Rect(posLaunchGameButton.x*Screen.width, posLaunchGameButton.y*Screen.height, 
 					posLaunchGameButton.width*Screen.width, posLaunchGameButton.height*Screen.height), "Start"))

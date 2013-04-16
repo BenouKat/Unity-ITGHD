@@ -56,6 +56,11 @@ public class InGameScript : MonoBehaviour {
 	public float speedmodRate = 2f; //speedmod ajustation 
 	private float rateSelected;
 	
+	private double bpsForActualFrame;
+	private float moveForActualFrame;
+	private Vector3 posMoveArrow;
+	private float divMoveArrow;
+	
 	//Temps pour le lachement de freeze
 	public float unfrozed = 0.350f;
 	
@@ -88,6 +93,9 @@ public class InGameScript : MonoBehaviour {
 	public float stateSpeed; //-1 : fast, 0 : rien, 1 : slow
 	private bool changeColorSlow = false;
 	private bool changeColorFast = false;
+	private float div;
+	private float col;
+	private float colp;
 	
 	//LIFE
 	private float life;
@@ -186,8 +194,7 @@ public class InGameScript : MonoBehaviour {
 	private int nextBump;
 	private List<double> Bumps;
 	public float speedBumps;
-	
-	
+		
 	//Input Bump
 	public float speedBumpInput;
 	private float scaleBase;
@@ -252,6 +259,14 @@ public class InGameScript : MonoBehaviour {
 	public AudioClip comboSound;
 	public AudioSource secondAudioSource;
 	public AudioSource mainAudioSource;
+	
+	//POOL
+	private Rect poolRect = new Rect(0f, 0f, 0f, 0f);
+	private Color poolColor = new Color(0f, 0f, 0f, 0f);
+	private Vector3 poolVector = new Vector3(0f, 0f, 0f);
+	private float poolFloat = 0f;
+	private Arrow poolArrow;
+	
 	//DEBUG
 	//private int iwashere;
 	#endregion
@@ -621,6 +636,7 @@ public class InGameScript : MonoBehaviour {
 		infoDifficultyLevelCalc = new Rect(infoLevelDifficulty.x*Screen.width, infoLevelDifficulty.y*Screen.height, infoLevelDifficulty.width*Screen.width, infoLevelDifficulty.height*Screen.height);
 		infoDifficultyLevelCalcShadow = new Rect(infoLevelDifficulty.x*Screen.width + 1, infoLevelDifficulty.y*Screen.height + 1, infoLevelDifficulty.width*Screen.width, infoLevelDifficulty.height*Screen.height);
 		
+		GC.Collect();
 	}
 	
 	
@@ -636,7 +652,7 @@ public class InGameScript : MonoBehaviour {
 		GUI.skin = skin;
 		GUI.depth = 2;
 		//fake stuff
-		GUI.Label(new Rect(0.9f*Screen.width, 0.05f*Screen.height, 200f, 200f), fps.ToString());		
+		GUI.Label(fillRect(0.9f*Screen.width, 0.05f*Screen.height, 200f, 200f), fps.ToString());		
 		//end fake stuff
 		GUI.DrawTexture(infoDifficultyCalc, TextureBase["DIFFICULTY"]);
 		
@@ -652,8 +668,8 @@ public class InGameScript : MonoBehaviour {
 		
 		if(timeDisplayScore < limitDisplayScore && !clear){
 
-			GUI.color = new Color(1f, 1f, 1f, alpha);
-			GUI.DrawTexture(new Rect(posScore.x*Screen.width - zoom, posScore.y*Screen.height, posScore.width*Screen.width + zoom*2, posScore.height*Screen.height), TextureBase[scoreToDisplay.ToString()]); 
+			GUI.color = fillColor(1f, 1f, 1f, alpha);
+			GUI.DrawTexture(fillRect(posScore.x*Screen.width - zoom, posScore.y*Screen.height, posScore.width*Screen.width + zoom*2, posScore.height*Screen.height), TextureBase[scoreToDisplay.ToString()]); 
 		}
 		
 		GUI.color = white;
@@ -662,19 +678,18 @@ public class InGameScript : MonoBehaviour {
 				
 			for(int i=0;i<5;i++){
 				if((i == 3 && displaying[3] == 0 && displaying[4] == 0) || (i == 4 && displaying[4] == 0)) break;
-				GUI.DrawTexture(new Rect((posPercent.x + ecart*(4-i))*Screen.width, posPercent.y*Screen.height,  posPercent.width*Screen.width,  posPercent.height*Screen.height), TextureBase["S" + displaying[i]]);
-				
+				GUI.DrawTexture(fillRect((posPercent.x + ecart*(4-i))*Screen.width, posPercent.y*Screen.height,  posPercent.width*Screen.width,  posPercent.height*Screen.height), TextureBase["S" + displaying[i]]);
 			}
-			GUI.DrawTexture(new Rect((posPercent.x + ((ecart*2)+(ecart/2f)))*Screen.width, posPercent.y*Screen.height,  posPercent.width*Screen.width, posPercent.height*Screen.height), TextureBase["DOT"]);
-			GUI.DrawTexture(new Rect((posPercent.x + ecart*5)*Screen.width + posPercent.width, posPercent.y*Screen.height, posPercent.width*Screen.width, posPercent.height*Screen.height), TextureBase["PERCENT"]);
+			GUI.DrawTexture(fillRect((posPercent.x + ((ecart*2)+(ecart/2f)))*Screen.width, posPercent.y*Screen.height,  posPercent.width*Screen.width, posPercent.height*Screen.height), TextureBase["DOT"]);
+			GUI.DrawTexture(fillRect((posPercent.x + ecart*5)*Screen.width + posPercent.width, posPercent.y*Screen.height, posPercent.width*Screen.width, posPercent.height*Screen.height), TextureBase["PERCENT"]);
 		}
 		
 		if(!displayValue[8]){
 			if(combo >= 5f){
 				//var czoom = zoom/4f;
-				GUI.color = new Color(theColorCombo.r , theColorCombo.g, theColorCombo.b, alphaCombo);
+				GUI.color = fillColor(theColorCombo.r , theColorCombo.g, theColorCombo.b, alphaCombo);
 				for(int i=0; i<thetab.Length; i++){
-					GUI.DrawTexture(new Rect((posCombo.x + ((ecartCombo*(thetab.Length-(i+1))/2f) -ecartCombo*((float)i/2f)))*Screen.width, 
+					GUI.DrawTexture(fillRect((posCombo.x + ((ecartCombo*(thetab.Length-(i+1))/2f) -ecartCombo*((float)i/2f)))*Screen.width, 
 					posCombo.y*Screen.height, posCombo.width*Screen.width, posCombo.height*Screen.height), TextureBase["C" + thetab[i]]);
 				}
 			}
@@ -850,7 +865,7 @@ public class InGameScript : MonoBehaviour {
 			BumpsBPM();
 			
 			//Fail/Clear part
-			
+			//Changer ça :) ################################################################
 			if(thesong.duration < timetotalchart && !fail && !clear){
 				if(life > 0f){
 					clear = true;
@@ -979,7 +994,7 @@ public class InGameScript : MonoBehaviour {
 		
 		for(int i=0; i<4; i++){
 			if(arrowTarget[i].transform.localScale.x < scaleBase){
-				arrowTarget[i].transform.localScale += new Vector3(Time.deltaTime*speedBumpInput, Time.deltaTime*speedBumpInput, Time.deltaTime*speedBumpInput);
+				arrowTarget[i].transform.localScale += fillVector(Time.deltaTime*speedBumpInput, Time.deltaTime*speedBumpInput, Time.deltaTime*speedBumpInput);
 			}
 		}
 		
@@ -993,8 +1008,8 @@ public class InGameScript : MonoBehaviour {
 		}*/
 		
 		if(matArrowModel.color.r > 0.5f){
-			var m = 0.5f*Time.deltaTime/speedBumps;
-			matArrowModel.color -= new Color(m,m,m, 0f);
+			poolFloat = 0.5f*Time.deltaTime/speedBumps;
+			matArrowModel.color -= fillColor(poolFloat,poolFloat,poolFloat, 0f);
 		}
 		
 		/*
@@ -1007,13 +1022,13 @@ public class InGameScript : MonoBehaviour {
 		
 		
 		if(stateSpeed > 0){
-			slow.renderer.material.color = new Color(1f, 0f, 0f, 0.5f);
+			slow.renderer.material.color = fillColor(1f, 0f, 0f, 0.5f);
 			if(!slowandfast[0].gameObject.active) slowandfast[0].gameObject.active = true;
 			slowandfast[0].Play();
 			stateSpeed = 0f;
 			changeColorSlow = true;
 		}else if(stateSpeed < 0){
-			fast.renderer.material.color = new Color(1f, 0f, 0f, 0.5f);
+			fast.renderer.material.color = fillColor(1f, 0f, 0f, 0.5f);
 			if(!slowandfast[1].gameObject.active) slowandfast[1].gameObject.active = true;
 			slowandfast[1].Play();
 			stateSpeed = 0f;
@@ -1021,16 +1036,16 @@ public class InGameScript : MonoBehaviour {
 		}
 		
 		if(changeColorFast){
-			var div = Time.deltaTime/ClignSpeed;
-			var col = fast.renderer.material.color.r - div;
-			var colp = fast.renderer.material.color.g + div;
-			fast.renderer.material.color = new Color(col, colp, colp, 0.5f);
+			div = Time.deltaTime/ClignSpeed;
+			col = fast.renderer.material.color.r - div;
+			colp = fast.renderer.material.color.g + div;
+			fast.renderer.material.color = fillColor(col, colp, colp, 0.5f);
 			if(col <= 0.5f) changeColorFast = false;
 		}else if(changeColorSlow){
-			var div = Time.deltaTime/ClignSpeed;
-			var col = slow.renderer.material.color.r - div;
-			var colp = slow.renderer.material.color.g + div;
-			slow.renderer.material.color = new Color(col, colp, colp, 0.5f);
+			div = Time.deltaTime/ClignSpeed;
+			col = slow.renderer.material.color.r - div;
+			colp = slow.renderer.material.color.g + div;
+			slow.renderer.material.color = fillColor(col, colp, colp, 0.5f);
 			if(col <= 0.5f) changeColorSlow = false;
 		}
 		
@@ -1041,13 +1056,13 @@ public class InGameScript : MonoBehaviour {
 				
 				if((colorCombo <= 0.3f && signCombo == -1) || (colorCombo >= 1f && signCombo == 1) ){ signCombo *= -1; }
 				colorCombo += signCombo*Time.deltaTime/speedCombofade;
-				theColorCombo = new Color(1f, 1f, colorCombo, 1f);
+				theColorCombo = fillColor(1f, 1f, colorCombo, 1f);
 				alreadytaged = false;
 				break;
 			case ComboType.FULLFANTASTIC:
 				if((colorCombo <= 0.3f && signCombo == -1) || (colorCombo >= 1f && signCombo == 1) ){ signCombo *= -1; }
 				colorCombo += signCombo*Time.deltaTime/speedCombofade;
-				theColorCombo = new Color(colorCombo, 1f, 1f, 1f);
+				theColorCombo = fillColor(colorCombo, 1f, 1f, 1f);
 				alreadytaged = false;
 				break;
 			}
@@ -1065,18 +1080,18 @@ public class InGameScript : MonoBehaviour {
 	
 	void MoveArrows(){
 	
-		var bps = thesong.getBPS(actualBPM);
-		var move = -((float)(bps*timechart))*speedmod +  changeBPM;
-		TMainCamera.position = new Vector3(3f, move - 5, -10f);
+		bpsForActualFrame = thesong.getBPS(actualBPM);
+		moveForActualFrame = -((float)(bpsForActualFrame*timechart))*speedmod +  changeBPM;
+		TMainCamera.position = fillVector(3f, moveForActualFrame - 5, -10f);
 
 		foreach(var el in arrowFrozen.Keys){
-			var pos = el.goArrow.transform.position;
-			el.goArrow.transform.position = new Vector3(pos.x, move, pos.z);
-			pos = el.goArrow.transform.position;
-			var div = ((el.posEnding.y - pos.y)/2f);
-			el.goFreeze.transform.position = new Vector3(el.goFreeze.transform.position.x, (pos.y + div) , el.goFreeze.transform.position.z);
-			el.goFreeze.transform.localScale = new Vector3(1f, -div, 0.1f);
-			el.goFreeze.transform.GetChild(0).transform.localScale = new Vector3((el.posEnding.y - pos.y)/(el.posEnding.y - el.posBegining.y), 1f, 0.1f);
+			posMoveArrow = el.goArrow.transform.position;
+			el.goArrow.transform.position = fillVector(posMoveArrow.x, moveForActualFrame, posMoveArrow.z);
+			posMoveArrow = el.goArrow.transform.position;
+			divMoveArrow = ((el.posEnding.y - posMoveArrow.y)/2f);
+			el.goFreeze.transform.position = fillVector(el.goFreeze.transform.position.x, (posMoveArrow.y + divMoveArrow) , el.goFreeze.transform.position.z);
+			el.goFreeze.transform.localScale = fillVector(1f, -divMoveArrow, 0.1f);
+			el.goFreeze.transform.GetChild(0).transform.localScale = fillVector((el.posEnding.y - posMoveArrow.y)/(el.posEnding.y - el.posBegining.y), 1f, 0.1f);
 			el.changeColorFreeze(arrowFrozen[el], unfrozed);
 		}
 	}
@@ -1084,10 +1099,10 @@ public class InGameScript : MonoBehaviour {
 	
 	void MoveCameraBefore(){
 	
-		var bps = thesong.getBPS(actualBPM);
+		bpsForActualFrame = thesong.getBPS(actualBPM);
 		//var move = -((float)(bps*(-(1.5 - oneSecond - startTheSong)))*speedmod);
-		var move = ((float)(bps*((oneSecond - 1.5f + (startTheSong < 0f ? startTheSong : 0f))))*speedmod);
-		TMainCamera.position = new Vector3(3f, - 5 - move, -10f);
+		moveForActualFrame = ((float)(bpsForActualFrame*((oneSecond - 1.5f + (startTheSong < 0f ? startTheSong : 0f))))*speedmod);
+		TMainCamera.position = fillVector(3f, - 5 - moveForActualFrame, -10f);
 	}
 	
 	
@@ -1098,8 +1113,8 @@ public class InGameScript : MonoBehaviour {
 			if(keybpms <= timetotalchart){
 				valuebpms = thesong.bpms.ElementAt(nextSwitchBPM).Value;
 				//iwashere = 1;
-				var bps = thesong.getBPS(actualBPM);
-				changeBPM += -((float)(bps*(timechart - (float)(timetotalchart - keybpms))))*speedmod;
+				bpsForActualFrame = thesong.getBPS(actualBPM);
+				changeBPM += -((float)(bpsForActualFrame*(timechart - (float)(timetotalchart - keybpms))))*speedmod;
 				timebpm += (double)timechart - (timetotalchart - keybpms);
 				timechart = (float)(timetotalchart - keybpms);
 				actualBPM = valuebpms;
@@ -1771,6 +1786,35 @@ public class InGameScript : MonoBehaviour {
 	#endregion
 	
 	#region util
+	public Rect fillRect(float x, float y, float w, float h)
+	{
+		poolRect.x = x;
+		poolRect.y = y;
+		poolRect.width = w;
+		poolRect.height = h;
+		
+		return poolRect;
+	}
+	
+	public Color fillColor(float r, float g, float b, float a)
+	{
+		poolColor.r = r;
+		poolColor.g = g;
+		poolColor.b = b;
+		poolColor.a = a;
+		
+		return poolColor;
+	}
+	
+	public Vector3 fillVector(float x, float y, float z)
+	{
+		poolVector.x = x;
+		poolVector.y = y;
+		poolVector.z = z;
+		
+		return poolVector;
+	}
+	
 	public void GainScoreAndLife(string s){
 		if(!fail){
 			if(lifeBase[s] <= 0 || combo >= DataManager.Instance.regenComboAfterMiss){

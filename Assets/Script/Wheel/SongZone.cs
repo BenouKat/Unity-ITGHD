@@ -515,17 +515,17 @@ public class SongZone : MonoBehaviour {
 	string sortToString(Sort s){
 		switch(s){
 			case Sort.NAME:
-				return "Name contain : ";
+				return "Title content";
 			case Sort.STARTWITH:
-				return "Name start : ";
+				return "Title start";
 			case Sort.ARTIST:
-				return "Artist : ";
+				return "Artist";
 			case Sort.STEPARTIST:
-				return "Stepartist : ";
+				return "Stepartist";
 			case Sort.DIFFICULTY:
-				return "Difficulty : ";
+				return "Difficulty";
 			case Sort.BPM:
-				return "BPM : ";
+				return "BPM";
 			default:
 				return "ERROR";
 		}

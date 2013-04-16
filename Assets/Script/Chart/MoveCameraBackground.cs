@@ -15,9 +15,8 @@ public class MoveCameraBackground : MonoBehaviour {
 	private float xdiff;
 	private float ydiff;
 	private float zdiff;
-	private float truex;
-	private float truey;
-	private float truez;
+	
+	private Vector3 poolVector = new Vector3(0f, 0f, 0f);
 	// Use this for initialization
 	void Start () {
 		timeT = timeBeforeChange;
@@ -29,9 +28,6 @@ public class MoveCameraBackground : MonoBehaviour {
 		xdiff = 0f;
 		ydiff = 0f;
 		zdiff = 0f;
-		truex = 0f;
-		truey = 0f;
-		truez = 0f;
 	}
 	
 	// Update is called once per frame
@@ -45,10 +41,10 @@ public class MoveCameraBackground : MonoBehaviour {
 			xdiff = Mathf.Abs(x - rotationPoint.x);
 			ydiff = Mathf.Abs(y - rotationPoint.y);
 			zdiff = Mathf.Abs(z - rotationPoint.z);
-			truex = xdiff <= 1f ? x : x - (xdiff - 1f);
-			truey = ydiff <= 1f ? y : y - (ydiff - 1f);
-			truez = zdiff <= 1f ? z : z - (zdiff - 1f);
-			rotationPoint = new Vector3(truex , truey , truez);
+			poolVector.x = xdiff <= 1f ? x : x - (xdiff - 1f);
+			poolVector.y = ydiff <= 1f ? y : y - (ydiff - 1f);
+			poolVector.z = zdiff <= 1f ? z : z - (zdiff - 1f);
+			rotationPoint = poolVector;
 			
 		}
 		timeT += Time.deltaTime;

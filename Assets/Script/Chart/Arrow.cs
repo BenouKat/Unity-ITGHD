@@ -24,6 +24,14 @@ public class Arrow {
 	
 	public List<Arrow> neighboors;
 	
+	//Pool
+	private Color typeFreeze = new Color(0.4f, 0.4f, 0.4f, 1f);
+	private Color typeRoll = new Color(0.4f, 0.4f, 0f, 1f);
+	private Color typeFreezeNormal = new Color(1f, 1f, 1f, 1f);
+	private Color typeRollNormal = new Color(1f, 1f, 0f, 1f);
+	private Color col = new Color(0f, 0f, 0f, 0f);
+	private float poolValueFreeze;
+	
 	
 	public Arrow(GameObject go, ArrowType at, double passedTime){
 		alreadyValid = false;
@@ -44,33 +52,43 @@ public class Arrow {
 		goFreeze = freeze;
 		EndFreeze = particule;
 		posEnding = pos;
-		var col = goFreeze.transform.GetChild(0).renderer.material.color;
+		col = goFreeze.transform.GetChild(0).renderer.material.color;
 		if(arrowType == ArrowType.FREEZE) {
-			goFreeze.renderer.material.color = new Color(0.4f, 0.4f, 0.4f, 1f);
+			goFreeze.renderer.material.color = typeFreeze;
 		}else{
-			goFreeze.renderer.material.color = new Color(0.4f, 0.4f, 0f, 1f);
+			goFreeze.renderer.material.color = typeRoll;
 		}
-		goFreeze.transform.GetChild(0).renderer.material.color = new Color(col.r, col.g, col.b, 0f);
+		col.a = 0f;
+		goFreeze.transform.GetChild(0).renderer.material.color = col;
 		distanceDisappear = distanceDisappearBase + ((goFreeze.transform.localScale.y)*2f);
 	}
 	
 	
 	public void displayFrozenBar(){
-		var col = goFreeze.transform.GetChild(0).renderer.material.color;
-		goFreeze.transform.GetChild(0).renderer.material.color = new Color(col.r, col.g, col.b, 0.6f);	
+		col = goFreeze.transform.GetChild(0).renderer.material.color;
+		col.a = 0.6f;
+		goFreeze.transform.GetChild(0).renderer.material.color = col;	
 		if(arrowType == ArrowType.FREEZE) {
-			goFreeze.renderer.material.color = new Color(1f, 1f, 1f, 1f);
+			goFreeze.renderer.material.color = typeFreezeNormal;
 		}else{
-			goFreeze.renderer.material.color = new Color(1f, 1f, 0f, 1f);
+			goFreeze.renderer.material.color = typeRollNormal;
 		}
 	}
 	
 	public void changeColorFreeze(float valueFreeze, float maxValue){	
-		var val = (Mathf.Pow(valueFreeze, 0.5f)/Mathf.Pow(maxValue, 0.5f));
+		poolValueFreeze = (Mathf.Pow(valueFreeze, 0.5f)/Mathf.Pow(maxValue, 0.5f));
 		if(arrowType == ArrowType.FREEZE) {
-			goFreeze.renderer.material.color = new Color(1f - val*1.5f, 1f - val*1.5f, 1f - val*1.5f, 1f);
+			col.r = 1f - poolValueFreeze*1.5f;
+			col.g = 1f - poolValueFreeze*1.5f;
+			col.b = 1f - poolValueFreeze*1.5f;
+			col.a = 1f;
+			goFreeze.renderer.material.color = col;
 		}else{
-			goFreeze.renderer.material.color = new Color(1f - val*1.5f, 1f - val*1.5f, 0f, 1f);
+			col.r = 1f - poolValueFreeze*1.5f;
+			col.g = 1f - poolValueFreeze*1.5f;
+			col.b = 0;
+			col.a = 1f;
+			goFreeze.renderer.material.color = col;
 		}
 		
 	}

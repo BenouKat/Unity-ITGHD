@@ -30,6 +30,10 @@ public class LifeBar : MonoBehaviour {
 	
 	private float numberStep;
 	
+	//Pool variable
+	private Color poolColor = new Color(0f, 0f, 0f, 1f);
+	private int poolIndex = 0;
+	
 	void Start () {
 		matCube = new Material[lifebar.Length];
 		decals = new float[lifebar.Length];
@@ -62,28 +66,28 @@ public class LifeBar : MonoBehaviour {
 	void FixedUpdate () {
 		
 		if(realLife != objectivLife){
-			var r = 0f;
-			var g = 0f;
-			var b = 0f;
+			poolColor.r = 0f;
+			poolColor.g = 0f;
+			poolColor.b = 0f;
 			if(realLife < 50f){
-				r = 1f;
-				g = realLife <= 25f ? 0f : (realLife - 25f)/25f;
-				b = 0f;
+				poolColor.r = 1f;
+				poolColor.g = realLife <= 25f ? 0f : (realLife - 25f)/25f;
+				poolColor.b = 0f;
 			}else
 			if(realLife >= 50f && realLife < 75f){
-				r = 1 - ((realLife - 50f)/25f);
-				g = 1f;
-				b = 0f;
+				poolColor.r = 1 - ((realLife - 50f)/25f);
+				poolColor.g = 1f;
+				poolColor.b = 0f;
 			}else
 			
 			if(realLife >= 75f){
-				r = 0f;
-				g = 1f;
-				b = (realLife - 75f)/26f;
+				poolColor.r = 0f;
+				poolColor.g = 1f;
+				poolColor.b = (realLife - 75f)/26f;
 			}
 			
 			for(int i=0; i<lifebar.Length; i++){
-				matCube[i].color = new Color(r,g,b, 1f);
+				matCube[i].color = poolColor;
 			}
 			//matLifeBar.color = new Color(r,g,b, 1f);
 			
@@ -91,10 +95,10 @@ public class LifeBar : MonoBehaviour {
 				lifebar[0].transform.localScale = baseScale[0]*(realLife/25f);
 				lifebar[1].transform.localScale = baseScale[1]*0f;
 			}else if(realLife < 100f){
-				var index = (int)((realLife - 25f)/numberStep) + 1;
-				lifebar[index - 1].transform.localScale = baseScale[index - 1];
-				lifebar[index].transform.localScale = baseScale[index]*(((realLife - 25f)%numberStep)/numberStep);
-				if(index != lifebar.Length - 1) lifebar[index + 1].transform.localScale = baseScale[index + 1]*0f;
+				poolIndex = (int)((realLife - 25f)/numberStep) + 1;
+				lifebar[poolIndex - 1].transform.localScale = baseScale[poolIndex - 1];
+				lifebar[poolIndex].transform.localScale = baseScale[poolIndex]*(((realLife - 25f)%numberStep)/numberStep);
+				if(poolIndex != lifebar.Length - 1) lifebar[poolIndex + 1].transform.localScale = baseScale[poolIndex + 1]*0f;
 			}else{
 				lifebar[lifebar.Length - 1].transform.localScale = baseScale[lifebar.Length - 1];
 			}

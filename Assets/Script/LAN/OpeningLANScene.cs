@@ -65,6 +65,7 @@ public class OpeningLANScene : MonoBehaviour {
 	public Rect posBackSongDiff;
 	public Rect posForwSongDiff;
 	public Rect errorInfo;
+	public Rect cacheInfo;
 	
 	//Join entering
 	public Rect posJoiningLabel;
@@ -123,6 +124,7 @@ public class OpeningLANScene : MonoBehaviour {
 		tex.Add("option2", (Texture2D) Resources.Load("LANPointTournament"));
 		tex.Add("option3", (Texture2D) Resources.Load("LANElimination"));
 		tex.Add("black", (Texture2D) Resources.Load("black"));
+		tex.Add("cache", (Texture2D) Resources.Load("CacheNameWheel"));
 		
 		sens = -1f;
 		sensShininess = -1f;
@@ -184,8 +186,10 @@ public class OpeningLANScene : MonoBehaviour {
 				
 			}
 			
-			GUI.color = new Color(1f, 1f, 1f, 1f);
 			
+			
+			GUI.color = new Color(1f, 1f, 1f, 1f);
+			GUI.DrawTexture(new Rect(cacheInfo.x*Screen.width, cacheInfo.y*Screen.height, cacheInfo.width*Screen.width, cacheInfo.height*Screen.height), tex["cache"]);
 			GUI.Label(new Rect(infoOption.x*Screen.width, infoOption.y*Screen.height, infoOption.width*Screen.width, infoOption.height*Screen.height), TextManager.Instance.texts["LAN"]["MENUJoinOption" + optionJoinSelected]);
 		}
 		
@@ -216,7 +220,7 @@ public class OpeningLANScene : MonoBehaviour {
 			}
 			
 			GUI.color = new Color(1f, 1f, 1f, 1f);
-			
+			GUI.DrawTexture(new Rect(cacheInfo.x*Screen.width, cacheInfo.y*Screen.height, cacheInfo.width*Screen.width, cacheInfo.height*Screen.height), tex["cache"]);
 			GUI.Label(new Rect(infoOptionReverse.x*Screen.width, infoOptionReverse.y*Screen.height, infoOptionReverse.width*Screen.width, infoOptionReverse.height*Screen.height), TextManager.Instance.texts["LAN"]["MENUOption" + optionSelected]);
 		
 		}

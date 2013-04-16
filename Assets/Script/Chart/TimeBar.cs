@@ -31,6 +31,8 @@ public class TimeBar : MonoBehaviour {
 	
 	private bool activeCombo;
 	
+	private Vector3 poolVector;
+	
 	void Start () {
 		lerpColor = 1f;
 		psLowCombo.Play();
@@ -68,7 +70,10 @@ public class TimeBar : MonoBehaviour {
 	
 	public void updateTimeBar(float timetotal){
 		if(timetotal >= timeBegin){
-			cursorTimeObject.position = new Vector3(cursorTimeObject.position.x, beginY + ecartWithBeginY*((timetotal - timeBegin)/(timeEnd - timeBegin)), cursorTimeObject.position.z);
+			poolVector.x = cursorTimeObject.position.x;
+			poolVector.y = beginY + ecartWithBeginY*((timetotal - timeBegin)/(timeEnd - timeBegin));
+			poolVector.z = cursorTimeObject.position.z;
+			cursorTimeObject.position = poolVector;
 		}
 	}
 	

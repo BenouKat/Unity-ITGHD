@@ -94,7 +94,7 @@ public class SongZoneLAN : MonoBehaviour {
 	void Update () {
 	
 		
-		if(activeModule && !gs.getZoneInfo().isExiting())
+		if(activeModule)
 		{
 			//Selection
 			Ray ray = camerasong.ScreenPointToRay(Input.mousePosition);	
@@ -515,9 +515,9 @@ public class SongZoneLAN : MonoBehaviour {
 	string sortToString(Sort s){
 		switch(s){
 			case Sort.NAME:
-				return "Name contain : ";
+				return "Title content";
 			case Sort.STARTWITH:
-				return "Name start : ";
+				return "Title start";
 			case Sort.ARTIST:
 				return "Artist : ";
 			case Sort.STEPARTIST:

@@ -4,53 +4,73 @@ using System.Collections.Generic;
 using System.Linq;
 
 public class ManageGameObject : MonoBehaviour {
-
-	public Dictionary<float, GameObject> listarrow;
+	
+	private Dictionary<float, GameObject> listArrowTemp;
+	private GameObject[] listArrow;
+	private float[] listPos;
+	private int poolIndex;
+	private int totalCount;
 	
 	public Transform cameraTransform;
 	
 	public float zoneAppear = 10f;
-// Use this for initialization
+
+	
+	
+	// Use this for initialization
 	void Awake () {
-		listarrow = new Dictionary<float, GameObject>();
+		listArrowTemp = new Dictionary<float, GameObject>();
 	}
 	
 	
+	//Trouver un autre systeme ?
 	void FixedUpdate() {
-		if(listarrow.Any()){
-			var next = listarrow.First();
-			if(next.Key > (cameraTransform.position.y - zoneAppear)){
-				activeGameObject(next.Value);
-				listarrow.Remove(next.Key);
+		if(poolIndex < totalCount){
+			while(listPos[poolIndex] > (cameraTransform.position.y - zoneAppear) && poolIndex < totalCount)
+			{
+				activeGameObject(listArrow[poolIndex]);
+				poolIndex++;
 			}
-			
 		}
 	}
 	
 	
 	public void DoTheStartSort(){
-		listarrow.OrderByDescending(c => c.Key);
-		for(int i=0; i<listarrow.Count; i++){
-			if(listarrow.ElementAt(i).Key > (cameraTransform.position.y - zoneAppear)){
-				activeGameObject(listarrow.ElementAt(i).Value);
-				listarrow.Remove(listarrow.ElementAt(i).Key);
+		listArrowTemp.OrderByDescending(c => c.Key);
+		for(int i=0; i<listArrowTemp.Count; i++){
+			if(listArrowTemp.ElementAt(i).Key > (cameraTransform.position.y - zoneAppear)){
+				activeGameObject(listArrowTemp.ElementAt(i).Value);
+				listArrowTemp.Remove(listArrowTemp.ElementAt(i).Key);
 				i--;
 			}
 		}
-	
+		
+		listArrow = new GameObject[listArrowTemp.Count];
+		listPos = new float[listArrowTemp.Count];
+		
+		for(int i=0; i<listArrowTemp.Count; i++)
+		{
+			listArrow[i] = listArrowTemp.ElementAt(i).Value;
+			listPos[i] = listArrowTemp.ElementAt(i).Key;
+		}
+		
+		totalCount = listArrowTemp.Count;
+		listArrowTemp.Clear();
+		
+		poolIndex = 0;
 	}
 	
 	
 	public void Add(GameObject go){
 		var ypos = go.transform.position.y;
 		var counter = 0;
-		while(listarrow.ContainsKey(ypos) && counter < 10){
+		while(listArrowTemp.ContainsKey(ypos) && counter < 10){
 			ypos -= 0.01f;
 			counter++;
 		}
-		if(!listarrow.ContainsKey(ypos)){
+		if(!listArrowTemp.ContainsKey(ypos)){
 			supressGameObject(go);
-			listarrow.Add(ypos, go);
+			listArrowTemp.Add(ypos, go);
 		}
 	}
 	

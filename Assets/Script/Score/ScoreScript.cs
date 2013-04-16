@@ -852,7 +852,7 @@ public class ScoreScript : MonoBehaviour {
 		}
 		DataManager.Instance.skyboxIndexSelected = rand;
 			
-		DataManager.Instance.songSelected = LoadManager.Instance.FindSong("Digital Adventures", "Abracadabra")[Difficulty.EXPERT];
+		DataManager.Instance.songSelected = LoadManager.Instance.FindSong("Discovery Pack - Adventure", "!")[Difficulty.EXPERT];
 		DataManager.Instance.scoreEarned = 98.00f;
 		
 		DataManager.Instance.precAverage = new List<double>();
