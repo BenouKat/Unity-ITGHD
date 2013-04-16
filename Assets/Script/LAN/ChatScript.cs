@@ -9,7 +9,7 @@ public class ChatScript : MonoBehaviour {
 	private string dialog;
 	private List<string> dialogListed;
 	
-	public int maxSentenceCount;
+	public int maxCharCount;
 	
 	private bool activateChat;
 	
@@ -66,9 +66,11 @@ public class ChatScript : MonoBehaviour {
 		{
 			GUI.skin = skin;
 	
+			//Voir ici pour le customStyle
+	
 			GUI.TextArea(new Rect(posTextArea.x*Screen.width + (decalChatWindow.x*valueDecal)*Screen.width, 
 				posTextArea.y*Screen.height + (decalChatWindow.y*valueDecal)*Screen.height, 
-				posTextArea.width*Screen.width, posTextArea.height*Screen.height), dialog, 1000);
+				posTextArea.width*Screen.width, posTextArea.height*Screen.height), dialog, 2000);
 			
 			tmpDialog = GUI.TextField(new Rect(posTextField.x*Screen.width + (decalChatWindow.x*valueDecal)*Screen.width, 
 				posTextField.y*Screen.height + (decalChatWindow.y*valueDecal)*Screen.height, 
@@ -127,7 +129,7 @@ public class ChatScript : MonoBehaviour {
 
 		dialog += name + " : " + text + "\n";
 		dialogListed.Add(name + " : " + text + "\n");
-		if(dialogListed.Count > maxSentenceCount)
+		while(dialog.Length > maxCharCount)
 		{
 			dialog = dialog.Remove(0, dialogListed.ElementAt(0).Length);
 			dialogListed.RemoveAt(0);
