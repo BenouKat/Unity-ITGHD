@@ -648,9 +648,6 @@ public class InGameScript : MonoBehaviour {
 		infoDifficultyLevelCalc = new Rect(infoLevelDifficulty.x*Screen.width, infoLevelDifficulty.y*Screen.height, infoLevelDifficulty.width*Screen.width, infoLevelDifficulty.height*Screen.height);
 		infoDifficultyLevelCalcShadow = new Rect(infoLevelDifficulty.x*Screen.width + 1, infoLevelDifficulty.y*Screen.height + 1, infoLevelDifficulty.width*Screen.width, infoLevelDifficulty.height*Screen.height);
 		
-		//A tester !
-		GUI.skin = skin;
-		GUI.depth = 2;
 	}
 	
 	
@@ -663,6 +660,8 @@ public class InGameScript : MonoBehaviour {
 	//only for FPS
 	void OnGUI(){
 		
+		GUI.skin = skin;
+		GUI.depth = 2;
 		
 		//fake stuff
 		GUI.Label(fillRect(0.9f*Screen.width, 0.05f*Screen.height, 200f, 200f), fps.ToString());		

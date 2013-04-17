@@ -347,11 +347,11 @@ public class OptionZoneLAN : MonoBehaviour {
 							for(int j=4; j<DataManager.Instance.aDisplay.Length; j++){
 								if(displaySelected[j]){
 									GUI.color = new Color(1f, 1f, 1f, alphaDisplay[j]);
-									GUI.DrawTexture(new Rect((posItem[6].x - borderXDisplay + offsetXDisplay*j + selectedImage.x)*Screen.width, (posItem[6].y + selectedImage.y)*Screen.height, selectedImage.width*Screen.width, selectedImage.height*Screen.height), gs.tex["ChoiceBar"]);
+									GUI.DrawTexture(new Rect((posItem[6].x - borderXDisplay + offsetXDisplay*(j-2) + selectedImage.x)*Screen.width, (posItem[6].y + selectedImage.y)*Screen.height, selectedImage.width*Screen.width, selectedImage.height*Screen.height), gs.tex["ChoiceBar"]);
 									GUI.color = new Color(1f, 1f, 1f, 1f);
 								}
 							
-								if(GUI.Button(new Rect((posItem[6].x - borderXDisplay + offsetXDisplay*j)*Screen.width, posItem[6].y*Screen.height, posItem[6].width*Screen.width, posItem[6].height*Screen.height), DataManager.Instance.aDisplay[j], "labelNormal") && !isFadingDisplay[j]){
+								if(GUI.Button(new Rect((posItem[6].x - borderXDisplay + offsetXDisplay*(j-2))*Screen.width, posItem[6].y*Screen.height, posItem[6].width*Screen.width, posItem[6].height*Screen.height), DataManager.Instance.aDisplay[j], "labelNormal") && !isFadingDisplay[j]){
 									displaySelected[j] = !displaySelected[j];
 									StartCoroutine(OptionAnimDisplay(j, !displaySelected[j]));
 								}

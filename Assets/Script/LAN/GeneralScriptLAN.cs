@@ -129,14 +129,12 @@ public class GeneralScriptLAN : MonoBehaviour {
 		tex.Add("graph", (Texture2D) Resources.Load("graph"));
 		tex.Add("bouton", (Texture2D) Resources.Load("Button"));
 		tex.Add("Option1", (Texture2D) Resources.Load("Speedmod"));
-		tex.Add("Option2", (Texture2D) Resources.Load("Rate"));
+		tex.Add("Option2", (Texture2D) Resources.Load("Difficulty"));
 		tex.Add("Option3", (Texture2D) Resources.Load("Skin"));
 		tex.Add("Option4", (Texture2D) Resources.Load("HitJudge"));
 		tex.Add("Option5", (Texture2D) Resources.Load("ScoreJudge"));
 		tex.Add("Option6", (Texture2D) Resources.Load("LifeJudge"));
 		tex.Add("Option7", (Texture2D) Resources.Load("Display"));
-		tex.Add("Option8", (Texture2D) Resources.Load("Race"));
-		tex.Add("Option9", (Texture2D) Resources.Load("Death"));
 		tex.Add("Black", (Texture2D) Resources.Load("black"));
 		tex.Add("Cache", (Texture2D) Resources.Load("CacheNameWheel"));
 		tex.Add("ChoiceBar", (Texture2D) Resources.Load("ChoiceDisplay"));

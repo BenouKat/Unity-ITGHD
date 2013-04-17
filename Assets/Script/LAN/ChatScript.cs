@@ -9,7 +9,7 @@ public class ChatScript : MonoBehaviour {
 	private string dialog;
 	private List<string> dialogListed;
 	
-	public int maxCharCount;
+	public int maxLineCount;
 	
 	private bool activateChat;
 	
@@ -129,7 +129,7 @@ public class ChatScript : MonoBehaviour {
 
 		dialog += name + " : " + text + "\n";
 		dialogListed.Add(name + " : " + text + "\n");
-		while(dialog.Length > maxCharCount)
+		if(dialogListed.Count > maxLineCount)
 		{
 			dialog = dialog.Remove(0, dialogListed.ElementAt(0).Length);
 			dialogListed.RemoveAt(0);
