@@ -25,12 +25,10 @@ public class ManageGameObject : MonoBehaviour {
 	
 	//Trouver un autre systeme ?
 	void FixedUpdate() {
-		if(poolIndex < totalCount){
-			while(listPos[poolIndex] > (cameraTransform.position.y - zoneAppear) && poolIndex < totalCount)
-			{
-				activeGameObject(listArrow[poolIndex]);
-				poolIndex++;
-			}
+		while(poolIndex < totalCount && listPos[poolIndex] > (cameraTransform.position.y - zoneAppear) && poolIndex < totalCount)
+		{
+			activeGameObject(listArrow[poolIndex]);
+			poolIndex++;
 		}
 	}
 	

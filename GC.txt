@@ -1,0 +1,19 @@
+VerifyKeyInput: 2Kb
+ComboStop : Dictionary resize
+GainScoreAnd.. : Single.ToString(), String.Concat(), String.Replace(), Convert.ToInt32()
+LifeBar.ChangeBar() : ParicleSystem.Stop()
+displayPrec() : timeToPrec() : First(), Where(), Count()
+precToTime() : GetItem()
+GainCombo() : Int32.ToString() + String.Concat()
+
+
+VerifyBPMnSTOP() 80B
+MoveArrow(t) 40B
+desactivateGameObject() 0.7KB (GetChild 100B)
+
+OnGui :
+Get Skin
+String.Concat()
+Int32.ToString()
+Int32.ToString()
+In64.ToString()
