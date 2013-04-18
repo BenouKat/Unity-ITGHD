@@ -14,6 +14,8 @@ public class FadeManager : MonoBehaviour {
 	
 	public bool startFeded;
 	
+	public bool disableWhenFinish;
+	
 	public int depth = -20;
 	
 	private string levelToLoad;
@@ -47,7 +49,11 @@ public class FadeManager : MonoBehaviour {
 				GUI.DrawTexture(new Rect(posFadex*Screen.width, 0f, Screen.width*2f, Screen.height), fade);
 				posFadex += Time.deltaTime/speedFade;
 				if(posFadex >= 1f){
-					fs = FadeState.NONE;	
+					fs = FadeState.NONE;
+					if(disableWhenFinish)
+					{
+						this.enabled = false;	
+					}
 				}
 				break;
 			case FadeState.DISPLAY:

@@ -177,8 +177,7 @@ public class Song {
 	}
 	
 	public double getBPS(double bpmValue){
-		double bps = bpmValue/(double)60.0;
-		return bps;
+		return bpmValue/(double)60.0;
 	}
 	
 	public void setDifficulty(string dif){

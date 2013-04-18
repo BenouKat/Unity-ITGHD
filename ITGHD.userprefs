@@ -2,12 +2,12 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Chart\InGameScript.cs">
     <Files>
-      <File FileName="Assets\Script\Chart\InGameScript.cs" Line="807" Column="15" />
+      <File FileName="Assets\Script\Chart\InGameScript.cs" Line="1539" Column="48" />
       <File FileName="Assets\Script\LAN\GeneralScriptLAN.cs" Line="137" Column="61" />
       <File FileName="Assets\Script\LAN\OptionZoneLAN.cs" Line="355" Column="51" />
       <File FileName="Assets\Script\LAN\ChatScript.cs" Line="130" Column="23" />
       <File FileName="Assets\Script\LAN\NetworkScript.cs" Line="43" Column="3" />
-      <File FileName="Assets\Script\Managers\FadeManager.cs" Line="33" Column="2" />
+      <File FileName="Assets\Script\Managers\FadeManager.cs" Line="55" Column="28" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">

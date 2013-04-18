@@ -45,6 +45,8 @@ public class InGameScript : MonoBehaviour {
 	private double valuebpms;
 	private double keystops;
 	private double valuestops;
+	private int countBPM;
+	private int countSTOP;
 	
 	private int nextSwitchBPM; //Prochain changement de bpm
 	private int nextSwitchStop;
@@ -113,6 +115,8 @@ public class InGameScript : MonoBehaviour {
 	
 	//PassToDataManager
 	private List<double> precAverage;
+	private List<double> timeOfCombo;
+	private List<int> numberCombo;
 	private Dictionary<double, int> timeCombo;
 	private Dictionary<double, double> lifeGraph;
 	public double firstEx;
@@ -156,6 +160,9 @@ public class InGameScript : MonoBehaviour {
 	
 	//GUI
 	private Dictionary<string, Texture2D> TextureBase;
+	private Dictionary<Precision, Texture2D> TexturePrec;
+	private List<Texture2D> TextureScore;
+	private List<Texture2D> TextureCombo;
 	private float wd;
 	private float hg;
 	private float hgt;
@@ -188,7 +195,7 @@ public class InGameScript : MonoBehaviour {
 	private int[] outComboTab = new int[5];
 	private string outComboString;
 	private int tabLenght = 0;
-	private IEnumerable<KeyValuePair<Precision, double>> precFounded;
+	private KeyValuePair<Precision, double> precFounded;
 	
 	//DISPLAY
 	private Color bumpColor;
@@ -392,6 +399,9 @@ public class InGameScript : MonoBehaviour {
 		timechart = 0f;//-(float)thesong.offset;
 		timetotalchart = (double)0;
 		
+		countBPM = thesong.bpms.Count;
+		countSTOP = thesong.stops.Count;
+		
 		
 		arrowFrozen = new Dictionary<Arrow, float>();
 		keyToRemove = new List<Arrow>();
@@ -417,6 +427,8 @@ public class InGameScript : MonoBehaviour {
 		
 		precAverage = new List<double>();
 		timeCombo = new Dictionary<double, int>();
+		timeOfCombo = new List<double>();
+		numberCombo = new List<int>();
 		lifeGraph = new Dictionary<double, double>();
 		
 		TMainCamera = MainCamera.transform;
@@ -424,15 +436,18 @@ public class InGameScript : MonoBehaviour {
 		
 		//Textures
 		TextureBase = new Dictionary<string, Texture2D>();
-		TextureBase.Add("FANTASTIC", (Texture2D) Resources.Load("Fantastic"));
-		TextureBase.Add("EXCELLENT", (Texture2D) Resources.Load("Excellent"));
-		TextureBase.Add("GREAT", (Texture2D) Resources.Load("Great"));
-		TextureBase.Add("DECENT", (Texture2D) Resources.Load("Decent"));
-		TextureBase.Add("WAYOFF", (Texture2D) Resources.Load("Wayoff"));
-		TextureBase.Add("MISS", (Texture2D) Resources.Load("Miss"));
+		TexturePrec = new Dictionary<Precision, Texture2D>();
+		TextureScore = new List<Texture2D>();
+		TextureCombo = new List<Texture2D>();
+		TexturePrec.Add(Precision.FANTASTIC, (Texture2D) Resources.Load("Fantastic"));
+		TexturePrec.Add(Precision.EXCELLENT, (Texture2D) Resources.Load("Excellent"));
+		TexturePrec.Add(Precision.GREAT, (Texture2D) Resources.Load("Great"));
+		TexturePrec.Add(Precision.DECENT, (Texture2D) Resources.Load("Decent"));
+		TexturePrec.Add(Precision.WAYOFF, (Texture2D) Resources.Load("Wayoff"));
+		TexturePrec.Add(Precision.MISS, (Texture2D) Resources.Load("Miss"));
 		for(int i=0; i<10; i++){
-			TextureBase.Add("S" + i, (Texture2D) Resources.Load("Numbers/S" + i));
-			TextureBase.Add("C" + i, (Texture2D) Resources.Load("Numbers/C" + i));
+			TextureScore.Add((Texture2D) Resources.Load("Numbers/S" + i));
+			TextureCombo.Add((Texture2D) Resources.Load("Numbers/C" + i));
 		}
 		
 		TextureBase.Add("PERCENT", (Texture2D) Resources.Load("Numbers/Percent"));
@@ -681,7 +696,7 @@ public class InGameScript : MonoBehaviour {
 		if(timeDisplayScore < limitDisplayScore && !clear){
 
 			GUI.color = fillColor(1f, 1f, 1f, alpha);
-			GUI.DrawTexture(fillRect(posScore.x*Screen.width - zoom, posScore.y*Screen.height, posScore.width*Screen.width + zoom*2, posScore.height*Screen.height), TextureBase[scoreToDisplay.ToString()]); 
+			GUI.DrawTexture(fillRect(posScore.x*Screen.width - zoom, posScore.y*Screen.height, posScore.width*Screen.width + zoom*2, posScore.height*Screen.height), TexturePrec[scoreToDisplay]); 
 		}
 		
 		GUI.color = white;
@@ -690,7 +705,7 @@ public class InGameScript : MonoBehaviour {
 				
 			for(int i=0;i<5;i++){
 				if((i == 3 && displaying[3] == 0 && displaying[4] == 0) || (i == 4 && displaying[4] == 0)) break;
-				GUI.DrawTexture(fillRect((posPercent.x + ecart*(4-i))*Screen.width, posPercent.y*Screen.height,  posPercent.width*Screen.width,  posPercent.height*Screen.height), TextureBase["S" + displaying[i]]);
+				GUI.DrawTexture(fillRect((posPercent.x + ecart*(4-i))*Screen.width, posPercent.y*Screen.height,  posPercent.width*Screen.width,  posPercent.height*Screen.height), TextureScore[displaying[i]]);
 			}
 			GUI.DrawTexture(fillRect((posPercent.x + ((ecart*2)+(ecart/2f)))*Screen.width, posPercent.y*Screen.height,  posPercent.width*Screen.width, posPercent.height*Screen.height), TextureBase["DOT"]);
 			GUI.DrawTexture(fillRect((posPercent.x + ecart*5)*Screen.width + posPercent.width, posPercent.y*Screen.height, posPercent.width*Screen.width, posPercent.height*Screen.height), TextureBase["PERCENT"]);
@@ -702,7 +717,7 @@ public class InGameScript : MonoBehaviour {
 				GUI.color = fillColor(theColorCombo.r , theColorCombo.g, theColorCombo.b, alphaCombo);
 				for(int i=0; i<tabLenght; i++){
 					GUI.DrawTexture(fillRect((posCombo.x + ((ecartCombo*(tabLenght-(i+1))/2f) -ecartCombo*((float)i/2f)))*Screen.width, 
-					posCombo.y*Screen.height, posCombo.width*Screen.width, posCombo.height*Screen.height), TextureBase["C" + thetab[i]]);
+					posCombo.y*Screen.height, posCombo.width*Screen.width, posCombo.height*Screen.height), TextureCombo[thetab[i]]);
 				}
 			}
 		}
@@ -1120,7 +1135,7 @@ public class InGameScript : MonoBehaviour {
 	
 	void VerifyBPMnSTOP(){
 		//BPM change verify
-		if(nextSwitchBPM < thesong.bpms.Count){
+		if(nextSwitchBPM < countBPM){
 			keybpms = thesong.bpms.ElementAt(nextSwitchBPM).Key;
 			if(keybpms <= timetotalchart){
 				valuebpms = thesong.bpms.ElementAt(nextSwitchBPM).Value;
@@ -1135,7 +1150,7 @@ public class InGameScript : MonoBehaviour {
 		}
 		
 		//Stop verif
-		if(nextSwitchStop < thesong.stops.Count)
+		if(nextSwitchStop < countSTOP)
 		{
 			keystops = thesong.stops.ElementAt(nextSwitchStop).Key;
 			if(keystops <= timetotalchart){
@@ -1520,6 +1535,7 @@ public class InGameScript : MonoBehaviour {
 		
 		if(Input.GetKeyDown(KeyCode.Escape) && thesong.duration*0.75f > timetotalchart){
 			if(!clear && !fail){
+				GetComponent<FadeManager>().enabled = true;
 				GetComponent<FadeManager>().FadeIn("solo");
 			}
 		}
@@ -1905,7 +1921,7 @@ public class InGameScript : MonoBehaviour {
 	int[] scoreDecoupe(){
 		outScoreString = score.ToString("000.00").Replace(".","");
 		for(int i=0;i<5;i++){
-			outScoreTab[i] = System.Convert.ToInt32(""+outScoreString[4-i]);
+			outScoreTab[i] = System.Convert.ToInt32(outScoreString[4-i]);
 		}
 		
 		
@@ -1916,24 +1932,20 @@ public class InGameScript : MonoBehaviour {
 	
 	int[] comboDecoupe(){
 		outComboString = combo.ToString();
-		for(int i=0;i<5;i++){
-			if(i < outComboString.Length)
-			{
-				outComboTab[i] = System.Convert.ToInt32(""+outComboString[outComboString.Length-1-i]);
-			}else
-			{
-				outComboTab[i] = -1;
-			}
-			
-		}
 		tabLenght = outComboString.Length;
+		for(int i=0;i<tabLenght;i++){
+			outComboTab[i] = System.Convert.ToInt32(outComboString[tabLenght-1-i]);
+		}
+		
 		
 		return outComboTab;
 	}
 
 	public void ComboStop(bool miss){
 		theTimeBar.breakPS();
-		if(!timeCombo.ContainsKey(timetotalchart)) timeCombo.Add(timetotalchart, combo);
+		//timeCombo.Add(timetotalchart, combo);
+		timeOfCombo.Add(timetotalchart);
+		numberCombo.Add(combo);
 		combo = 0;	
 		if(ct != ComboType.NONE){
 			switch(ct){
@@ -1969,21 +1981,20 @@ public class InGameScript : MonoBehaviour {
 	
 	void desactivateGameObject(GameObject go)
 	{
-		if(go.GetComponent("ArrowScript") != null) go.GetComponent<ArrowScript>().enabled = false;
-		if(go.transform.GetChildCount() > 0)
+		//prev : GetComponent("ArrowScript");
+		if(go.GetComponent<ArrowScript>() != null)
 		{
-			if(go.transform.renderer != null)
-			{
-				go.transform.renderer.enabled = false;	
-			}
-			for(int i=0; i < go.transform.GetChildCount(); i++)
-			{
-				go.transform.GetChild(i).renderer.enabled = false;	
-			}
-		}else
-		{
-			go.transform.renderer.enabled = false;
+			go.GetComponent<ArrowScript>().enabled = false;
 		}
+		if(go.transform.renderer != null)
+		{
+			go.transform.renderer.enabled = false;	
+		}
+		for(int i=0; i < go.transform.GetChildCount(); i++)
+		{
+			go.transform.GetChild(i).renderer.enabled = false;	
+		}
+		
 		
 	}
 	
@@ -2002,6 +2013,10 @@ public class InGameScript : MonoBehaviour {
 	void SendDataToDatamanager(){
 		DataManager.Instance.scoreEarned = score;
 		DataManager.Instance.precAverage = precAverage;
+		for(int i=0; i<timeOfCombo.Count; i++)
+		{
+			timeCombo.Add(timeOfCombo[i], numberCombo[i]);	
+		}
 		timeCombo.Add(timetotalchart, combo);
 		DataManager.Instance.timeCombo = timeCombo;
 		DataManager.Instance.lifeGraph = lifeGraph;
@@ -2058,9 +2073,14 @@ public class InGameScript : MonoBehaviour {
 	
 	Precision timeToPrec(double prec){
 	
-		precFounded = DataManager.Instance.PrecisionValues.Where(c => (prec <= c.Value));
+		precFounded = DataManager.Instance.PrecisionValues.FirstOrDefault(c => (prec <= c.Value));
+		
+		return precFounded.Equals(default(KeyValuePair<Precision, double>)) ? Precision.MISS : precFounded.Key;
+		
+		
+		/*precFounded = DataManager.Instance.PrecisionValues.Where(c => (prec <= c.Value));
 		if(precFounded.Count() > 0) return precFounded.First().Key;
-		return Precision.MISS;
+		return Precision.MISS;*/
 		
 		
 	}
@@ -2072,49 +2092,49 @@ public class InGameScript : MonoBehaviour {
 	
 	public Arrow findNextUpArrow(){
 
-		return arrowUpList.First();
+		return arrowUpList[0];
 			
 	}
 	
 	public Arrow findNextDownArrow(){
 
-		return arrowDownList.First();
+		return arrowDownList[0];
 			
 	}
 	
 	public Arrow findNextLeftArrow(){
 
-		return arrowLeftList.First();
+		return arrowLeftList[0];
 			
 	}
 	
 	public Arrow findNextRightArrow(){
 
-		return arrowRightList.First();
+		return arrowRightList[0];
 			
 	}
 	
 	public Arrow findNextUpMine(){
 
-		return mineUpList.First();
+		return mineUpList[0];
 			
 	}
 	
 	public Arrow findNextDownMine(){
 
-		return mineDownList.First();
+		return mineDownList[0];
 			
 	}
 	
 	public Arrow findNextLeftMine(){
 
-		return mineLeftList.First();
+		return mineLeftList[0];
 			
 	}
 	
 	public Arrow findNextRightMine(){
 
-		return mineRightList.First();
+		return mineRightList[0];
 			
 	}
 	//Remove key from arrow list
