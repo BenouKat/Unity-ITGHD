@@ -89,7 +89,9 @@ public class GeneralScriptLAN : MonoBehaviour {
 	public bool pickSetted;
 	public bool launchProposition;
 	private bool isReadyWithOptions;
-	
+	private bool quitAsked;
+	public float speedAlphaQuitAsked; 
+	private float alphaQuitAsked;
 	#endregion
 	// Use this for initialization
 	
@@ -109,7 +111,8 @@ public class GeneralScriptLAN : MonoBehaviour {
 		releaseHiddenVote = false;
 		alreadyVote = false;
 		isReadyWithOptions = false;
-		
+		quitAsked = false;
+		alphaQuitAsked = 0f;
 		nws = GetComponent<NetworkWheelScript>();
 		packZone = GetComponent<PackZoneLAN>();
 		songZone = GetComponent<SongZoneLAN>();
@@ -286,7 +289,27 @@ public class GeneralScriptLAN : MonoBehaviour {
 		
 		}
 		
-		
+		if(quitAsked)
+		{
+			GUI.Color = new Color(1f, 1f, 1f, alphaQuitAsked);
+			GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), tex["Black"]);
+			
+			GUI.Color = new Color(1f, 0.1f, 0.1f, 1f);
+			GUI.Label = GUI.Label(new Rect(labelVote.x*Screen.width, (labelVote.y - 0.4f)*Screen.height , labelVote.width*Screen.width, labelVote.height*Screen.height), TextManager.Instance.texts["LAN"]["QUIT"], "centeredBigLabel");
+			
+			GUI.Color = new Color(1f, 1f, 1f, 1f);
+			if(GUI.Button(new Rect(buttonYes.x*Screen.width, (buttonYes.y - 0.4f)*Screen.height, buttonYes.width*Screen.width, buttonYes.height*Screen.height), "Stay", "labelGo"))
+			{
+				quitAsked = false;
+			}
+				
+			GUI.Color = new Color(1f, 0.1f, 0.1f, 1f);
+			if(GUI.Button(new Rect(buttonNo.x*Screen.width, (buttonNo.y - 0.4f)*Screen.height, buttonNo.width*Screen.width, buttonNo.height*Screen.height), "Quit", "labelGo"))
+			{
+				Network.Disconnect();
+				Application.LoadLevel("LAN");
+			}
+		}
 		
 		#endregion
 		
@@ -342,6 +365,20 @@ public class GeneralScriptLAN : MonoBehaviour {
 		{
 			nws.refreshOptionMode();	
 		}
+		
+		if(Input.GetKeyDown(KeyCode.ESCAPE) && !quitAsked && !getZoneOption().activeModule && !inVoteMode)
+		{
+			quitAsked = true;
+		}
+		
+		if(quitAsked && alphaQuitAsked <= 0.8f)
+		{
+			alphaQuitAsked += speedAlphaQuitAsked*Time.deltaTime;
+		}else if(!quitAsked && alphaQuitAsked > 0f)
+		{
+			alphaQuitAsked -= speedAlphaQuitAsked*Time.deltaTime;
+		}
+		
 		#region MoveToOptionUpdate
 	
 		

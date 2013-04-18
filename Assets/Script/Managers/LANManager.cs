@@ -24,6 +24,7 @@ public class LANManager{
 	public float numberOfPlayersConnected;
 	
 	public string errorToDisplay;
+	public bool rejectedByServer;
 	
 	//For server
 	public Dictionary<NetworkPlayer, CublastPlayer> players;
@@ -94,6 +95,7 @@ public class LANManager{
 	
 	
 	public void init(){
+		rejectedByServer = false;
 		modeLANselected = LANMode.NONE;
 		getTheRightToChange = false;
 		isPicker = false;

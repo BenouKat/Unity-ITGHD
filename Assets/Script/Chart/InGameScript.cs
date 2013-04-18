@@ -2092,49 +2092,49 @@ public class InGameScript : MonoBehaviour {
 	
 	public Arrow findNextUpArrow(){
 
-		return arrowUpList[0];
+		return arrowUpList.First();
 			
 	}
 	
 	public Arrow findNextDownArrow(){
 
-		return arrowDownList[0];
+		return arrowDownList.First();
 			
 	}
 	
 	public Arrow findNextLeftArrow(){
 
-		return arrowLeftList[0];
+		return arrowLeftList.First();
 			
 	}
 	
 	public Arrow findNextRightArrow(){
 
-		return arrowRightList[0];
+		return arrowRightList.First();
 			
 	}
 	
 	public Arrow findNextUpMine(){
 
-		return mineUpList[0];
+		return mineUpList.First();
 			
 	}
 	
 	public Arrow findNextDownMine(){
 
-		return mineDownList[0];
+		return mineDownList.First();
 			
 	}
 	
 	public Arrow findNextLeftMine(){
 
-		return mineLeftList[0];
+		return mineLeftList.First();
 			
 	}
 	
 	public Arrow findNextRightMine(){
 
-		return mineRightList[0];
+		return mineRightList.First();
 			
 	}
 	//Remove key from arrow list

@@ -158,7 +158,7 @@ public class NetworkScript : MonoBehaviour {
 	void OnDisconnectedFromServer(NetworkDisconnection info)
 	{
 		GetComponent<ChatScript>().activeChat(false);
-		LANManager.Instance.errorToDisplay = info.ToString();
+		LANManager.Instance.errorToDisplay = TextManager.Instance.texts["LAN"]["DISCONNECTED"] + "/n" + info.ToString();
 		cls.stateScene = LANConnexionState.FAIL;
 	}
 	

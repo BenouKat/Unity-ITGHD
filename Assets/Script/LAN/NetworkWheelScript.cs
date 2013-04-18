@@ -38,13 +38,23 @@ public class NetworkWheelScript : MonoBehaviour {
 		GetComponent<ChatScript>().sendDirectMessage("Info", nameDisconnected + " has left the game");
 		
 		LANManager.Instance.players.Remove(player);
+		
+		if(player.Count <= 1)
+		{
+			LANManager.Instance.rejectedByServer = true;
+			LANManager.Instance.errorToDisplay = TextManager.Instance.texts["LAN"]["ALONE"];
+			Network.Disconnect();
+			Application.LoadLevel("LAN");
+		}
 	}
 	
 	
 	void OnDisconnectedFromServer(NetworkDisconnection info)
 	{
-		//Load LAN scene level
-		//Display an error
+		LANManager.Instance.rejectedByServer = true;
+		LANManager.Instance.errorToDisplay = TextManager.Instance.texts["LAN"]["DISCONNECTED"] + "/n" + info.ToString();
+		Network.Disconnect();
+		Application.LoadLevel("LAN");
 	}
 	
 	//Only called by server from players

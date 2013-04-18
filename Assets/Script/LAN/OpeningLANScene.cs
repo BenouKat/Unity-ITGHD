@@ -11,6 +11,7 @@ public class OpeningLANScene : MonoBehaviour {
 		MODECHOOSE,
 		OPTIONCHOOSE,
 		JOINENTERING,
+		ERROR,
 		NONE
 	}
 	
@@ -105,6 +106,8 @@ public class OpeningLANScene : MonoBehaviour {
 	private bool activeTransitionBack;
 	private float sensRotationCam;
 	private bool activeRoomTransition;
+	public Rect ErrorPos;
+	public Rect ErrorButtonPos;
 	
 	public Dictionary<string, Texture2D> tex;
 	
@@ -133,7 +136,7 @@ public class OpeningLANScene : MonoBehaviour {
 		optionSelected = -1;
 		finalSelected = -1;
 		alphaClign = 1f;
-		stateLAN = StateLAN.JOINCHOOSE;
+		stateLAN = LANManager.Instance.rejectedByServer ? StateLAN.ERROR : StateLAN.JOINCHOOSE;
 		alphaOption = 0f;
 		alphaTitle = 0f;
 		alphaDisappearTitle = 1f;
@@ -155,6 +158,9 @@ public class OpeningLANScene : MonoBehaviour {
 		GUI.skin = skin;
 		GUI.depth = -1;
 		switch(stateLAN){
+		case StateLAN.ERROR:
+			OnGUIError();
+			break;
 		case StateLAN.JOINCHOOSE:
 			OnGUIChoose();
 			break;
@@ -169,6 +175,21 @@ public class OpeningLANScene : MonoBehaviour {
 			break;
 		}
 	}
+	
+	void OnGUIError()
+	{
+		GUI.color(1f, 1f, 1f, 0.8f);
+		GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), tex["black"]);	
+		
+		GUI.color(1f, 1f, 1f, 1f);
+		GUI.Label(new Rect(ErrorPos.x*Screen.width, ErrorPos.y*Screen.height, ErrorPos.width*Screen.width, ErrorPos.height*Screen.height), LANManager.Instance.errorToDisplay);
+		if(GUI.Button(new Rect(ErrorButtonPos.x*Screen.width, ErrorButtonPos.y*Screen.height, ErrorButtonPos.width*Screen.width, ErrorButtonPos.height*Screen.height), "Close")
+		{
+			LANManager.Instance.errorToDisplay = "";
+			LANManager.Instance.rejectedByServer = false;
+			stateLAN = StateLAN.JOINCHOOSE;
+		}
+	]
 	
 	void OnGUIChoose()
 	{
@@ -387,7 +408,7 @@ public class OpeningLANScene : MonoBehaviour {
 		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);	
 		RaycastHit hit;
 				
-		if(Physics.Raycast(ray, out hit))
+		if(Physics.Raycast(ray, out hit) && stateLAN != StateLAN.ERROR)
 		{
 			var theGo = hit.transform.gameObject;
 			if(theGo != null && theGo.tag == "MenuItem")
