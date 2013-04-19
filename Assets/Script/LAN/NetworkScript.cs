@@ -40,7 +40,7 @@ public class NetworkScript : MonoBehaviour {
 	}
 	// Use this for initialization
 	void Start () {
-		TestShort();
+		//TestShort();
 		cls = GetComponent<ConnectingLANScene>();
 		GetComponent<ChatScript>().activeChat(false);
 		LANManager.Instance.statut = LANStatut.ROOM;

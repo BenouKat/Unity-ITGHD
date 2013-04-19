@@ -1921,7 +1921,7 @@ public class InGameScript : MonoBehaviour {
 	int[] scoreDecoupe(){
 		outScoreString = score.ToString("000.00").Replace(".","");
 		for(int i=0;i<5;i++){
-			outScoreTab[i] = System.Convert.ToInt32(outScoreString[4-i]);
+			outScoreTab[i] = System.Convert.ToInt32(outScoreString[4-i].ToString());
 		}
 		
 		
@@ -1934,7 +1934,7 @@ public class InGameScript : MonoBehaviour {
 		outComboString = combo.ToString();
 		tabLenght = outComboString.Length;
 		for(int i=0;i<tabLenght;i++){
-			outComboTab[i] = System.Convert.ToInt32(outComboString[tabLenght-1-i]);
+			outComboTab[i] = System.Convert.ToInt32(outComboString[tabLenght-1-i].ToString());
 		}
 		
 		
