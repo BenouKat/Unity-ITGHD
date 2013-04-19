@@ -108,7 +108,7 @@ public class LANManager{
 		actualIP = "";
 		actualPort = 0;
 		
-		actualRound = 1;
+		actualRound = 0;
 		
 		IPRequest = "";
 		portRequest = 0;

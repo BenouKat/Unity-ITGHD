@@ -65,6 +65,7 @@ public class ChatScript : MonoBehaviour {
 		if(activateChat)
 		{
 			GUI.skin = skin;
+			GUI.depth = 100;
 	
 			//Voir ici pour le customStyle
 	
@@ -98,13 +99,19 @@ public class ChatScript : MonoBehaviour {
 					popoutChatTrigger = true;
 					if(callSongList)
 					{
-						GetComponent<SongZoneLAN>().onPopin();
+						if(!GetComponent<GeneralScriptLAN>().getZoneOption().activeModule)
+						{
+							GetComponent<SongZoneLAN>().onPopin();
+						}
 					}
 				}else{
 					popinChatTrigger = true;
 					if(callSongList)
 					{
-						GetComponent<SongZoneLAN>().onPopout();
+						if(!GetComponent<GeneralScriptLAN>().getZoneOption().activeModule)
+						{
+							GetComponent<SongZoneLAN>().onPopout();
+						}
 					}
 				}
 			}

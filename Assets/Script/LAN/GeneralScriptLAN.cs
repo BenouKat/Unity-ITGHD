@@ -53,10 +53,6 @@ public class GeneralScriptLAN : MonoBehaviour {
 	public Rect Jouer = new Rect(0.75f, 0.92f, 0.12f, 0.05f);
 	
 	
-	//Declancheurs
-	
-	private bool fadedOut;
-	
 	
 	//Move to option mode
 	public float speedMoveOption = 0.2f;
@@ -89,9 +85,12 @@ public class GeneralScriptLAN : MonoBehaviour {
 	public bool pickSetted;
 	public bool launchProposition;
 	private bool isReadyWithOptions;
-	private bool quitAsked;
+	public bool quitAsked;
 	public float speedAlphaQuitAsked; 
 	private float alphaQuitAsked;
+	
+	public float refreshSendStatut;
+	private float timeSendStatut;
 	#endregion
 	// Use this for initialization
 	
@@ -104,7 +103,7 @@ public class GeneralScriptLAN : MonoBehaviour {
 	}
 	
 	void Start () {
-		
+		timeSendStatut = refreshSendStatut;
 		launchProposition = false;
 		pickSetted = false;
 		inVoteMode = false;
@@ -181,7 +180,6 @@ public class GeneralScriptLAN : MonoBehaviour {
 		alphaBanner = 1f;
 		FadeOutBanner = false;
 		FadeInBanner = false;
-		fadedOut = false;
 		alreadyFade = false;
 
 		refreshPackBanner();
@@ -193,12 +191,9 @@ public class GeneralScriptLAN : MonoBehaviour {
 		}
 		
 		LANManager.Instance.statut = LANStatut.SELECTSONG;
-		if(!LANManager.Instance.isCreator)
+		if(LANManager.Instance.isCreator)
 		{
-			networkView.RPC("sendStatut", RPCMode.Server, Network.player, (int)LANStatut.SELECTSONG);
-		}else
-		{
-			LANManager.Instance.players.ElementAt(0).Value.statut = LANStatut.SELECTSONG;	
+			LANManager.Instance.players.ElementAt(0).Value.statut = LANStatut.SELECTSONG;
 		}
 	}
 	
@@ -291,20 +286,20 @@ public class GeneralScriptLAN : MonoBehaviour {
 		
 		if(quitAsked)
 		{
-			GUI.Color = new Color(1f, 1f, 1f, alphaQuitAsked);
+			GUI.color = new Color(1f, 1f, 1f, alphaQuitAsked);
 			GUI.DrawTexture(new Rect(0f, 0f, Screen.width, Screen.height), tex["Black"]);
 			
-			GUI.Color = new Color(1f, 0.1f, 0.1f, 1f);
-			GUI.Label = GUI.Label(new Rect(labelVote.x*Screen.width, (labelVote.y - 0.4f)*Screen.height , labelVote.width*Screen.width, labelVote.height*Screen.height), TextManager.Instance.texts["LAN"]["QUIT"], "centeredBigLabel");
+			GUI.color = new Color(1f, 0.1f, 0.1f, 1f);
+			GUI.Label(new Rect(labelVote.x*Screen.width, (labelVote.y + 0.4f)*Screen.height , labelVote.width*Screen.width, labelVote.height*Screen.height), TextManager.Instance.texts["LAN"]["QUIT"], "centeredBigLabel");
 			
-			GUI.Color = new Color(1f, 1f, 1f, 1f);
-			if(GUI.Button(new Rect(buttonYes.x*Screen.width, (buttonYes.y - 0.4f)*Screen.height, buttonYes.width*Screen.width, buttonYes.height*Screen.height), "Stay", "labelGo"))
+			GUI.color = new Color(1f, 1f, 1f, 1f);
+			if(GUI.Button(new Rect(buttonYes.x*Screen.width, (buttonYes.y + 0.5f)*Screen.height, buttonYes.width*Screen.width, buttonYes.height*Screen.height), "Stay", "labelGo"))
 			{
 				quitAsked = false;
 			}
 				
-			GUI.Color = new Color(1f, 0.1f, 0.1f, 1f);
-			if(GUI.Button(new Rect(buttonNo.x*Screen.width, (buttonNo.y - 0.4f)*Screen.height, buttonNo.width*Screen.width, buttonNo.height*Screen.height), "Quit", "labelGo"))
+			GUI.color = new Color(1f, 0.1f, 0.1f, 1f);
+			if(GUI.Button(new Rect(buttonNo.x*Screen.width, (buttonNo.y + 0.5f)*Screen.height, buttonNo.width*Screen.width, buttonNo.height*Screen.height), "Quit", "labelGo"))
 			{
 				Network.Disconnect();
 				Application.LoadLevel("LAN");
@@ -319,16 +314,10 @@ public class GeneralScriptLAN : MonoBehaviour {
 	
 	}
 	
-	public void launchOption()
-	{
-		getZonePack().onPopout();
-		getZoneSong().onPopout();
-		getZoneInfo().onEnterOption();
-		getZoneOption().onPopin();
-		GetComponent<ChatScript>().activeChat(false);
-	}
-	
 	void Update(){
+		
+		
+		
 		
 		if(LANManager.Instance.isCreator)
 		{
@@ -342,6 +331,17 @@ public class GeneralScriptLAN : MonoBehaviour {
 				nws.refreshVoteMode();	
 			}
 			
+		}else{
+			if(!pickSetted)
+			{
+				if(timeSendStatut >= refreshSendStatut)
+				{
+					networkView.RPC("sendStatut", RPCMode.Server, Network.player, (int)LANStatut.SELECTSONG);	
+					timeSendStatut = 0f;
+				}else{
+					timeSendStatut += Time.deltaTime;
+				}
+			}
 		}
 		
 		
@@ -366,7 +366,7 @@ public class GeneralScriptLAN : MonoBehaviour {
 			nws.refreshOptionMode();	
 		}
 		
-		if(Input.GetKeyDown(KeyCode.ESCAPE) && !quitAsked && !getZoneOption().activeModule && !inVoteMode)
+		if(Input.GetKeyDown(KeyCode.Escape) && !quitAsked && !getZoneOption().activeModule && !inVoteMode)
 		{
 			quitAsked = true;
 		}
@@ -424,16 +424,6 @@ public class GeneralScriptLAN : MonoBehaviour {
 		
 		
 		#endregion
-		
-		
-		
-			
-			
-			
-		if(Input.GetKeyDown(KeyCode.Escape) && !getZoneOption().activeModule && !fadedOut){
-				fadedOut = true;
-				GetComponent<FadeManager>().FadeIn("mainmenu");	
-		}
 			
 			
 			
@@ -496,7 +486,8 @@ public class GeneralScriptLAN : MonoBehaviour {
 		getZoneSong().onPopout();
 		getZoneInfo().onEnterOption();
 		getZoneOption().onPopin();
-		GetComponent<ChatScript>().activeChat(false);
+		GetComponent<ChatScript>().forcePopoutChat();
+		GetComponent<ChatScript>().setLockButton(false);
 		if(LANManager.Instance.isCreator)
 		{
 			var lb = LANManager.Instance.parseLeaderboardToString(LANManager.Instance.getLeaderboard());
@@ -524,6 +515,7 @@ public class GeneralScriptLAN : MonoBehaviour {
 		ProfileManager.Instance.currentProfile.lastBPM = bpmstring;
 		ProfileManager.Instance.currentProfile.inBPMMode = DataManager.Instance.BPMEntryMode;
 		
+		GetComponent<ChatScript>().activeChat(false);
 		getZoneOption().instantClose();
 		getZoneLaunchSong().activate();
 	}
@@ -590,7 +582,6 @@ public class GeneralScriptLAN : MonoBehaviour {
 		while(!thewww.isDone){
 			yield return new WaitForFixedUpdate();
 		}
-		Debug.Log ("coucou");
 		actualClip = thewww.GetAudioClip(false, false, AudioType.OGGVORBIS);
 		thewww.Dispose();
 		songClip.clip = actualClip;

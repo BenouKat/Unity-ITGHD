@@ -178,18 +178,18 @@ public class OpeningLANScene : MonoBehaviour {
 	
 	void OnGUIError()
 	{
-		GUI.color(1f, 1f, 1f, 0.8f);
+		GUI.color = new Color(1f, 1f, 1f, 0.8f);
 		GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), tex["black"]);	
 		
-		GUI.color(1f, 1f, 1f, 1f);
+		GUI.color = new Color(1f, 1f, 1f, 1f);
 		GUI.Label(new Rect(ErrorPos.x*Screen.width, ErrorPos.y*Screen.height, ErrorPos.width*Screen.width, ErrorPos.height*Screen.height), LANManager.Instance.errorToDisplay);
-		if(GUI.Button(new Rect(ErrorButtonPos.x*Screen.width, ErrorButtonPos.y*Screen.height, ErrorButtonPos.width*Screen.width, ErrorButtonPos.height*Screen.height), "Close")
+		if(GUI.Button(new Rect(ErrorButtonPos.x*Screen.width, ErrorButtonPos.y*Screen.height, ErrorButtonPos.width*Screen.width, ErrorButtonPos.height*Screen.height), "Close"))
 		{
 			LANManager.Instance.errorToDisplay = "";
 			LANManager.Instance.rejectedByServer = false;
 			stateLAN = StateLAN.JOINCHOOSE;
 		}
-	]
+	}
 	
 	void OnGUIChoose()
 	{

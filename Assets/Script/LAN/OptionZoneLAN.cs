@@ -29,7 +29,9 @@ public class OptionZoneLAN : MonoBehaviour {
 	public Rect selectedImage = new Rect(0.0015f, 0f, 0.05f, 0.05f);
 	public float offsetXDisplayBPMSwitch = 0.35f;
 	public float offsetXDisplayBPMValue = 0.46f;
+	public float offsetYDisplayBPMSV = -0.02f;
 	public float offsetWidthDisplayBPMSV = 0.08f;
+	public float offsetHeightDisplayBPMSV = 0.03f;
 	public float offsetXDisplay = 0.065f;
 	public float borderXDisplay = -0.08f;
 	public float offsetSpeedRateX = 0f;
@@ -72,7 +74,7 @@ public class OptionZoneLAN : MonoBehaviour {
 		matCache = cacheOption.renderer.material;
 		
 		fadeAlphaOptionTitle = 1f;
-		stateLoading = new bool[9];
+		stateLoading = new bool[7];
 		displaySelected = new bool[DataManager.Instance.aDisplay.Length];
 		for(int i=0;i<stateLoading.Length-1;i++) stateLoading[i] = false;
 		for(int j=0;j<DataManager.Instance.aDisplay.Length;j++) displaySelected[j] = DataManager.Instance.songSelected != null ? DataManager.Instance.displaySelected[j] : false;
@@ -96,8 +98,8 @@ public class OptionZoneLAN : MonoBehaviour {
 		
 		alphaText = new float[stateLoading.Length];
 		isFading = new bool[stateLoading.Length];
-		alphaDisplay = new float[stateLoading.Length];
-		isFadingDisplay = new bool[stateLoading.Length];
+		alphaDisplay = new float[DataManager.Instance.aDisplay.Length];
+		isFadingDisplay = new bool[DataManager.Instance.aDisplay.Length];
 		offsetFading = new float[stateLoading.Length];
 		offsetPreviousFading = new float[stateLoading.Length];
 		for(int i=0;i<stateLoading.Length;i++) offsetFading[i] = 0f;
@@ -124,6 +126,7 @@ public class OptionZoneLAN : MonoBehaviour {
 	
 	public void GUIModule()
 	{
+		GUI.depth = 20;
 		//Option
 		if(activeModule){
 			for(int i=0;i<stateLoading.Length;i++){
@@ -194,11 +197,11 @@ public class OptionZoneLAN : MonoBehaviour {
 								if(!DataManager.Instance.BPMEntryMode) gs.bpmstring = "";
 							}
 							
-							if(GUI.Button(new Rect((posItem[0].x + offsetXDisplayBPMSwitch)*Screen.width, posItem[0].y*Screen.height, (posItem[0].width + offsetWidthDisplayBPMSV)*Screen.width, posItem[0].height*Screen.height), DataManager.Instance.BPMEntryMode ? "By multip." : "by BPM", "labelGoLittle")){
+							if(GUI.Button(new Rect((posItem[0].x + offsetXDisplayBPMSwitch)*Screen.width, (posItem[0].y + offsetYDisplayBPMSV)*Screen.height, (posItem[0].width + offsetWidthDisplayBPMSV)*Screen.width, (posItem[0].height + offsetHeightDisplayBPMSV)*Screen.height), DataManager.Instance.BPMEntryMode ? "By multip." : "by BPM", "labelGoLittle")){
 								DataManager.Instance.BPMEntryMode = !DataManager.Instance.BPMEntryMode;
 							}
 							if(DataManager.Instance.BPMEntryMode && gs.songSelected.First().Value.bpmToDisplay.Contains("->")){
-								if(GUI.Button(new Rect((posItem[0].x + offsetXDisplayBPMValue)*Screen.width, posItem[0].y*Screen.height, (posItem[0].width + offsetWidthDisplayBPMSV)*Screen.width, posItem[0].height*Screen.height), 	  DataManager.Instance.BPMChoiceMode == 0 ? "For higher" : "For lower", "labelGoLittle")){
+								if(GUI.Button(new Rect((posItem[0].x + offsetXDisplayBPMValue)*Screen.width, (posItem[0].y + offsetYDisplayBPMSV)*Screen.height, (posItem[0].width + offsetWidthDisplayBPMSV)*Screen.width, (posItem[0].height + offsetHeightDisplayBPMSV)*Screen.height), DataManager.Instance.BPMChoiceMode == 0 ? "For higher" : "For lower", "labelGoLittle")){
 									DataManager.Instance.BPMChoiceMode++;
 									if(DataManager.Instance.BPMChoiceMode == 2) DataManager.Instance.BPMChoiceMode = 0;
 								}
@@ -347,11 +350,11 @@ public class OptionZoneLAN : MonoBehaviour {
 							for(int j=4; j<DataManager.Instance.aDisplay.Length; j++){
 								if(displaySelected[j]){
 									GUI.color = new Color(1f, 1f, 1f, alphaDisplay[j]);
-									GUI.DrawTexture(new Rect((posItem[6].x - borderXDisplay + offsetXDisplay*(j-2) + selectedImage.x)*Screen.width, (posItem[6].y + selectedImage.y)*Screen.height, selectedImage.width*Screen.width, selectedImage.height*Screen.height), gs.tex["ChoiceBar"]);
+									GUI.DrawTexture(new Rect((posItem[6].x - borderXDisplay + offsetXDisplay*(j-3) + selectedImage.x)*Screen.width, (posItem[6].y + selectedImage.y)*Screen.height, selectedImage.width*Screen.width, selectedImage.height*Screen.height), gs.tex["ChoiceBar"]);
 									GUI.color = new Color(1f, 1f, 1f, 1f);
 								}
 							
-								if(GUI.Button(new Rect((posItem[6].x - borderXDisplay + offsetXDisplay*(j-2))*Screen.width, posItem[6].y*Screen.height, posItem[6].width*Screen.width, posItem[6].height*Screen.height), DataManager.Instance.aDisplay[j], "labelNormal") && !isFadingDisplay[j]){
+								if(GUI.Button(new Rect((posItem[6].x - borderXDisplay + offsetXDisplay*(j-3))*Screen.width, posItem[6].y*Screen.height, posItem[6].width*Screen.width, posItem[6].height*Screen.height), DataManager.Instance.aDisplay[j], "labelNormal") && !isFadingDisplay[j]){
 									displaySelected[j] = !displaySelected[j];
 									StartCoroutine(OptionAnimDisplay(j, !displaySelected[j]));
 								}

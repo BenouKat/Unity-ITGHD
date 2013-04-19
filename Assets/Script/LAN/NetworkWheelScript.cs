@@ -13,6 +13,12 @@ public class NetworkWheelScript : MonoBehaviour {
 	public bool isRefreshVote;
 	
 	public NetworkPlayer playerSearching;
+	
+	void Awake()
+	{
+		Network.SetSendingEnabled(0, true);
+		Network.isMessageQueueRunning = true;
+	}
 	// Use this for initialization
 	void Start () {
 		
@@ -39,7 +45,7 @@ public class NetworkWheelScript : MonoBehaviour {
 		
 		LANManager.Instance.players.Remove(player);
 		
-		if(player.Count <= 1)
+		if(LANManager.Instance.players.Count <= 1)
 		{
 			LANManager.Instance.rejectedByServer = true;
 			LANManager.Instance.errorToDisplay = TextManager.Instance.texts["LAN"]["ALONE"];
@@ -51,10 +57,16 @@ public class NetworkWheelScript : MonoBehaviour {
 	
 	void OnDisconnectedFromServer(NetworkDisconnection info)
 	{
-		LANManager.Instance.rejectedByServer = true;
-		LANManager.Instance.errorToDisplay = TextManager.Instance.texts["LAN"]["DISCONNECTED"] + "/n" + info.ToString();
-		Network.Disconnect();
-		Application.LoadLevel("LAN");
+		if(!LANManager.Instance.rejectedByServer)
+		{
+			LANManager.Instance.rejectedByServer = !GetComponent<GeneralScriptLAN>().quitAsked;
+			LANManager.Instance.errorToDisplay = TextManager.Instance.texts["LAN"]["DISCONNECTED"] + info.ToString();
+			if(LANManager.Instance.rejectedByServer)
+			{
+				Application.LoadLevel("LAN");
+			}
+		}
+		
 	}
 	
 	//Only called by server from players

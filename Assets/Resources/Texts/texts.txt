@@ -111,6 +111,8 @@ Vous avez été deconnecté du serveur :;
 <QUIT>;
 Voulez-vous vraiment quitter la partie ?
 Quitter une salle est une action DEFINITIVE;
+<ALONE>;
+Deconnection automatique par manque de joueur;
 [ErrorMainMenuMessage];
 <Story>;
 Le mode Story sera accessible à partir de la version 4 du jeu.;

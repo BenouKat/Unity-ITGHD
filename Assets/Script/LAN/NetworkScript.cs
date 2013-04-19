@@ -68,7 +68,12 @@ public class NetworkScript : MonoBehaviour {
 			}
 		}else
 		{
-			Network.Connect(LANManager.Instance.IPRequest, LANManager.Instance.portRequest);
+			var nce = Network.Connect(LANManager.Instance.IPRequest, LANManager.Instance.portRequest);
+			LANManager.Instance.errorToDisplay = LANManager.errorToString(nce);
+			if(!String.IsNullOrEmpty(LANManager.Instance.errorToDisplay))
+			{
+				cls.stateScene = LANConnexionState.FAIL;	
+			}
 		}
 	}
 	

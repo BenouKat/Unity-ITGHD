@@ -273,7 +273,10 @@ public class ConnectingLANScene : MonoBehaviour {
 		
 		if(countForTimeEnd >= timeEnd)
 		{
+			Network.SetSendingEnabled(0, false);
+			Network.isMessageQueueRunning = false;
 			LANManager.Instance.statut = LANStatut.SELECTSONG;
+			Network.SetLevelPrefix(8); //Numero du level à mettre
 			Application.LoadLevel("LANWheel");
 		}
 		
@@ -443,7 +446,7 @@ public class ConnectingLANScene : MonoBehaviour {
 				GetComponent<ChatScript>().sendDirectMessage("Info", LANManager.Instance.returnPackAvailableText());
 			}
 			
-			if(LANManager.Instance.players.Count > 0)
+			if(LANManager.Instance.players.Count > 1)
 			{
 				if(GUI.Button(new Rect(posLaunchGameButton.x*Screen.width, posLaunchGameButton.y*Screen.height, 
 					posLaunchGameButton.width*Screen.width, posLaunchGameButton.height*Screen.height), "Start"))
