@@ -394,6 +394,7 @@ public class NetworkWheelScript : MonoBehaviour {
 	[RPC]
 	public void getPlayerReady(NetworkPlayer player)
 	{
+		GetComponent<ChatScript>().sendDirectMessage("Info", LANManager.Instance.players[player].name + " is ready");
 		LANManager.Instance.players[player].isReady = true;
 	}
 	

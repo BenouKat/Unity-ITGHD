@@ -118,7 +118,7 @@ public class OpeningLANScene : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		TestShort();
+		//TestShort();
 		tex = new Dictionary<string, Texture2D>();
 		tex.Add("join0", (Texture2D) Resources.Load("LANCreate"));
 		tex.Add("join1", (Texture2D) Resources.Load("LANJoin"));

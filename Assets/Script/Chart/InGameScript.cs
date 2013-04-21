@@ -118,15 +118,12 @@ public class InGameScript : MonoBehaviour {
 	private List<double> timeOfCombo;
 	private List<int> numberCombo;
 	private Dictionary<double, int> timeCombo;
+	private List<double> timeOfLife;
+	private List<double> numberLife;
 	private Dictionary<double, double> lifeGraph;
 	public double firstEx;
 	public double firstGreat;
 	public double firstMisteak;
-	
-	//FPS
-	private long _count;
-	private long fps;
-	private float _timer;
 	
 	//CHART
 	private List<Arrow> arrowLeftList;
@@ -159,6 +156,7 @@ public class InGameScript : MonoBehaviour {
 	
 	
 	//GUI
+	
 	private Dictionary<string, Texture2D> TextureBase;
 	private Dictionary<Precision, Texture2D> TexturePrec;
 	private List<Texture2D> TextureScore;
@@ -196,6 +194,24 @@ public class InGameScript : MonoBehaviour {
 	private string outComboString;
 	private int tabLenght = 0;
 	private KeyValuePair<Precision, double> precFounded;
+	
+	
+	//NEW GUI
+	public UILabel comboLabel;
+	public Color dangerColor;
+	public Color dangerOutlineColor;
+	public Color FFCColor;
+	public Color FFCOutlineColor;
+	public Color FPCColor;
+	public Color FPCOutlineColor;
+	public Color maxColor;
+	public Color maxOutlineColor;
+	public Color normalColor;
+	public Color normalOutlineColor;
+	public UILabel scoreLabel;
+	public UILabel scoreBeatLabel;
+	public Color beatColor;
+	public float recordScore;
 	
 	//DISPLAY
 	private Color bumpColor;
@@ -393,8 +409,6 @@ public class InGameScript : MonoBehaviour {
 		actualstop = (double)0;
 		changeBPM = 0;
 		
-		_count = 0L;
-		
 		timebpm = (double)0;
 		timechart = 0f;//-(float)thesong.offset;
 		timetotalchart = (double)0;
@@ -429,12 +443,16 @@ public class InGameScript : MonoBehaviour {
 		timeCombo = new Dictionary<double, int>();
 		timeOfCombo = new List<double>();
 		numberCombo = new List<int>();
+		
 		lifeGraph = new Dictionary<double, double>();
+		timeOfLife = new List<double>();
+		numberLife = new List<double>();
 		
 		TMainCamera = MainCamera.transform;
 		MoveCameraBefore();
 		
 		//Textures
+		/*
 		TextureBase = new Dictionary<string, Texture2D>();
 		TexturePrec = new Dictionary<Precision, Texture2D>();
 		TextureScore = new List<Texture2D>();
@@ -460,7 +478,7 @@ public class InGameScript : MonoBehaviour {
 		TextureBase.Add("FEC", (Texture2D) Resources.Load("FEC"));
 		TextureBase.Add("FFC", (Texture2D) Resources.Load("FFC"));
 		TextureBase.Add("PERFECT", (Texture2D) Resources.Load("Perfect"));
-		TextureBase.Add("DIFFICULTY", (Texture2D) Resources.Load(Enum.GetName(typeof(Difficulty), (thesong.difficulty)).ToLower()));
+		TextureBase.Add("DIFFICULTY", (Texture2D) Resources.Load(Enum.GetName(typeof(Difficulty), (thesong.difficulty)).ToLower()));*/
 		
 		//stuff
 		scoreToDisplay = Precision.NONE;
@@ -493,7 +511,9 @@ public class InGameScript : MonoBehaviour {
 		
 		
 		life = 50f;
-		lifeGraph.Add(0, life);
+		//lifeGraph.Add(0, life);
+		timeOfLife.Add(0);
+		numberLife.Add(life);
 		score = 0f;
 		scoreInverse = 100f;
 		firstEx = -1;
@@ -529,8 +549,8 @@ public class InGameScript : MonoBehaviour {
 		hgt = posPercent.height*254;*/
 		//ecart = 92f;
 		
-		displaying = scoreDecoupe();
-		thetab = comboDecoupe();
+		scoreRefresh();
+		comboRefresh();
 		
 		
 		//Fail and clear
@@ -657,12 +677,13 @@ public class InGameScript : MonoBehaviour {
 			fast.renderer.enabled = false;
 		}
 		
+		/*
 		infoSongCalc = new Rect(infoSong.x*Screen.width, infoSong.y*Screen.height, infoSong.width*Screen.width, infoSong.height*Screen.height);
 		infoSongCalcShadow = new Rect(infoSong.x*Screen.width + 1, infoSong.y*Screen.height + 1, infoSong.width*Screen.width, infoSong.height*Screen.height);
 		infoDifficultyCalc = new Rect(infoDifficulty.x*Screen.width, infoDifficulty.y*Screen.height, infoDifficulty.width*Screen.width, infoDifficulty.height*Screen.height);
 		infoDifficultyLevelCalc = new Rect(infoLevelDifficulty.x*Screen.width, infoLevelDifficulty.y*Screen.height, infoLevelDifficulty.width*Screen.width, infoLevelDifficulty.height*Screen.height);
 		infoDifficultyLevelCalcShadow = new Rect(infoLevelDifficulty.x*Screen.width + 1, infoLevelDifficulty.y*Screen.height + 1, infoLevelDifficulty.width*Screen.width, infoLevelDifficulty.height*Screen.height);
-		
+		*/
 	}
 	
 	
@@ -672,7 +693,7 @@ public class InGameScript : MonoBehaviour {
 	}
 	
 	
-	//only for FPS
+	/*
 	void OnGUI(){
 		
 		GUI.skin = skin;
@@ -804,23 +825,13 @@ public class InGameScript : MonoBehaviour {
 			
 		}
 		
-	}
+	}*/
 	
 	
 	
 	
 	// Update is called once per frame
 	void Update () {
-		
-		
-		//FPS
-		_count++;
-		_timer += Time.deltaTime;
-		if(_timer >= 1f){
-			fps = _count;
-			_count = 0L;
-			_timer = 0;
-		}
 		
 		if((!dead && oneSecond >= 1.5f) || clear){
 			//timetotal for this frame
@@ -1189,8 +1200,9 @@ public class InGameScript : MonoBehaviour {
 			zoom = 0;
 		}
 		
-		if(alphaCombo > 0.5){
-			alphaCombo -= Time.deltaTime/speedAlphaCombo;	
+		if(comboLabel.color.a > 0.73f)
+		{
+			comboLabel.color = fillColor(comboLabel.color.r, comboLabel.color.g, comboLabel.color.b, comboLabel.color.a - Time.deltaTime*speedAlphaCombo);
 		}
 		
 		timeDisplayScore += Time.deltaTime;
@@ -1844,7 +1856,9 @@ public class InGameScript : MonoBehaviour {
 				}else if(life < 0f){
 					life = 0f;	
 				}
-				if(!lifeGraph.ContainsKey(timetotalchart)) lifeGraph.Add(timetotalchart, life);
+				//if(!lifeGraph.ContainsKey(timetotalchart)) lifeGraph.Add(timetotalchart, life);
+				timeOfLife.Add(timetotalchart);
+				numberLife.Add(life);
 				theLifeBar.ChangeBar(life);
 			}
 			score += scoreBase[s];
@@ -1855,7 +1869,7 @@ public class InGameScript : MonoBehaviour {
 			}else if(score < 0f){
 				score = 0f;	
 			}
-			displaying = scoreDecoupe();
+			scoreRefresh();
 		}
 		
 		if(life <= 0f || scoreInverse < targetScoreInverse){
@@ -1909,8 +1923,33 @@ public class InGameScript : MonoBehaviour {
 				ct = ComboType.NONE;
 			}
 		}
-		thetab = comboDecoupe();
-		theTimeBar.updatePS(ct, combo);
+		
+		
+		if(comboLabel.color == dangerColor && (combo >= 25f || ct == ComboType.NONE))
+		{
+			theTimeBar.updatePS(ct, combo);
+			comboLabel.color = normalColor;
+			comboLabel.effectColor = normalOutlineColor;
+		}else if(combo >= 100 && comboLabel.color == normalColor)
+		{
+			switch(ct)
+			{
+			case ComboType.FULLFANTASTIC:
+				comboLabel.color = FFCColor;
+				comboLabel.effectColor = FFCOutlineColor;
+				break;
+			case ComboType.FULLEXCELLENT:
+				comboLabel.color = FPCColor;
+				comboLabel.effectColor = FPCOutlineColor;
+				break;
+			case ComboType.FULLCOMBO:
+				comboLabel.color = maxColor;
+				comboLabel.effectColor = maxOutlineColor;
+				break;
+			}
+		}
+		comboLabel.color = fillColor(comboLabel.color.r, comboLabel.color.g, comboLabel.color.b, 1f);
+		comboRefresh();
 		theTimeBar.HitBar(prec);
 		if(isFullExComboRace && ct == ComboType.FULLCOMBO){
 			//Debug.Log("Fail at FEC race");
@@ -1918,27 +1957,15 @@ public class InGameScript : MonoBehaviour {
 		}
 	}
 	
-	int[] scoreDecoupe(){
-		outScoreString = score.ToString("000.00").Replace(".","");
-		for(int i=0;i<5;i++){
-			outScoreTab[i] = System.Convert.ToInt32(outScoreString[4-i].ToString());
-		}
+	void scoreRefresh(){
 		
-		
-		return outScoreTab;
+		scoreLabel.text = score.ToString("000.00");
 		
 	}
 	
 	
-	int[] comboDecoupe(){
-		outComboString = combo.ToString();
-		tabLenght = outComboString.Length;
-		for(int i=0;i<tabLenght;i++){
-			outComboTab[i] = System.Convert.ToInt32(outComboString[tabLenght-1-i].ToString());
-		}
-		
-		
-		return outComboTab;
+	void comboRefresh(){
+		comboLabel.text = combo.ToString();
 	}
 
 	public void ComboStop(bool miss){
@@ -1965,8 +1992,9 @@ public class InGameScript : MonoBehaviour {
 				
 			ct = ComboType.NONE;
 		}
-		
-		thetab = comboDecoupe();
+		comboLabel.color = dangerColor;
+		comboLabel.effectColor = dangerOutlineColor;
+		comboRefresh();
 		if(isFullComboRace || isFullExComboRace){
 			//Debug.Log ("Fail at combo race");
 			fail = true;
@@ -2015,10 +2043,14 @@ public class InGameScript : MonoBehaviour {
 		DataManager.Instance.precAverage = precAverage;
 		for(int i=0; i<timeOfCombo.Count; i++)
 		{
-			timeCombo.Add(timeOfCombo[i], numberCombo[i]);	
+			if(!timeCombo.ContainsKey(timeOfCombo[i])) timeCombo.Add(timeOfCombo[i], numberCombo[i]);	
 		}
 		timeCombo.Add(timetotalchart, combo);
 		DataManager.Instance.timeCombo = timeCombo;
+		for(int i=0; i<timeOfLife.Count; i++)
+		{
+			if(!timeCombo.ContainsKey(timeOfLife[i])) lifeGraph.Add(timeOfLife[i], numberLife[i]);	
+		}
 		DataManager.Instance.lifeGraph = lifeGraph;
 		DataManager.Instance.firstEx = firstEx;
 		DataManager.Instance.firstGreat = firstGreat;

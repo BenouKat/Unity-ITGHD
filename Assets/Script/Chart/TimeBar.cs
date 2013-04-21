@@ -31,6 +31,8 @@ public class TimeBar : MonoBehaviour {
 	
 	private bool activeCombo;
 	
+	public UILabel labelTime;
+	
 	private Vector3 poolVector;
 	
 	void Start () {
@@ -49,7 +51,6 @@ public class TimeBar : MonoBehaviour {
 			lerpColor += Time.deltaTime*speedLerpColor;
 			hitBarMaterial.color = Color.Lerp(hitBarMaterial.color, black, lerpColor);
 			hitBar2Material.color = Color.Lerp(hitBar2Material.color, black, lerpColor);
-			cubeHitBarMaterial.color =  Color.Lerp(cubeHitBarMaterial.color, white, lerpColor);
 		}
 		
 		
@@ -59,13 +60,13 @@ public class TimeBar : MonoBehaviour {
 	public void HitBar(Precision prec){
 		hitBarMaterial.color = DataManager.Instance.precColor[(int)prec];
 		hitBar2Material.color = DataManager.Instance.precColor[(int)prec];
-		cubeHitBarMaterial.color = DataManager.Instance.precColor[(int)prec];
 		lerpColor = 0f;
 	}
 	
 	public void setDuration(float begin, float end){
 		timeBegin = begin;
 		timeEnd = end;
+		refreshLabel(end);
 	}
 	
 	public void updateTimeBar(float timetotal){
@@ -74,6 +75,7 @@ public class TimeBar : MonoBehaviour {
 			poolVector.y = beginY + ecartWithBeginY*((timetotal - timeBegin)/(timeEnd - timeBegin));
 			poolVector.z = cursorTimeObject.position.z;
 			cursorTimeObject.position = poolVector;
+			refreshLabel(timeEnd - timetotal);
 		}
 	}
 	
@@ -112,6 +114,17 @@ public class TimeBar : MonoBehaviour {
 			psBadCombo.Play();
 			if(!psCrashCombo.gameObject.active) psCrashCombo.gameObject.active = true;
 			psCrashCombo.Play();
+		}
+	}
+	
+	public void refreshLabel(float timeArgs)
+	{
+		if(timeArgs >= 0f)
+		{
+			labelTime.text = (timeArgs/60f).ToString("0") + ":" + (timeArgs%60).ToString("00");
+		}else
+		{
+			labelTime.text = "0:00";	
 		}
 	}
 	

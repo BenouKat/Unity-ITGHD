@@ -66,8 +66,8 @@ public class ChatScript : MonoBehaviour {
 		{
 			GUI.skin = skin;
 			GUI.depth = 100;
-	
-			//Voir ici pour le customStyle
+			
+			GUI.skin.textArea.alignment = TextAnchor.LowerLeft;
 	
 			GUI.TextArea(new Rect(posTextArea.x*Screen.width + (decalChatWindow.x*valueDecal)*Screen.width, 
 				posTextArea.y*Screen.height + (decalChatWindow.y*valueDecal)*Screen.height, 

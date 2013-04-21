@@ -5,14 +5,16 @@ public class LifeBar : MonoBehaviour {
 
 	
 	public GameObject[] lifebar;
+	public GameObject Ring;
 	public Material matLifeBar;
 	private Material[] matCube;
-	private float[] decals;
 	
 	public float speedBrillance;
 	public float maxBrillance;
 	public float lowBrillance;
 	public Vector3[] baseScale;
+	
+	public float speedClignDanger;
 	
 	public ParticleSystem psMaxLife;
 	public ParticleSystem psLifeUp;
@@ -28,16 +30,31 @@ public class LifeBar : MonoBehaviour {
 	private bool lifeMaxPlayin;
 	private bool lifeLowPlayin;
 	
+	private bool turnActivated;
+	
+	public float speedTurn;
+	public float speedTurnMax;
+	
 	private float numberStep;
+	
+	public UISprite lifeHUD;
+	public UILabel lifeInfo;
+	
+	public Color colorMax;
+	public Color colorNormal;
+	public Color colorOutlineDanger;
+	public Color colorDanger;
+	private Color white = new Color(1f, 1f, 1f, 1f);
 	
 	//Pool variable
 	private Color poolColor = new Color(0f, 0f, 0f, 1f);
 	private int poolIndex = 0;
+	private Vector3 poolVector = new Vector3(0f, 0f, 0f);
+	private float lerpDanger;
 	
 	void Start () {
 		matCube = new Material[lifebar.Length];
-		decals = new float[lifebar.Length];
-		
+		lerpDanger = 0f;
 		realLife = 40f;
 		objectivLife = 50f;
 		numberStep = (75f/(float)(lifebar.Length - 1));
@@ -45,7 +62,6 @@ public class LifeBar : MonoBehaviour {
 		
 		for(int i=0; i<lifebar.Length; i++){
 			matCube[i] = lifebar[i].renderer.material;
-			decals[i] = maxBrillance - ((float)i/(float)lifebar.Length - 1f)*maxBrillance;
 			if(i < index){
 				lifebar[i].transform.localScale = baseScale[i];
 			}else if(i > index){
@@ -92,24 +108,70 @@ public class LifeBar : MonoBehaviour {
 			//matLifeBar.color = new Color(r,g,b, 1f);
 			
 			if(realLife <= 25f){
+				lifeInfo.color = colorDanger;
+				lifeInfo.effectColor = colorOutlineDanger;
 				lifebar[0].transform.localScale = baseScale[0]*(realLife/25f);
 				lifebar[1].transform.localScale = baseScale[1]*0f;
 			}else if(realLife < 100f){
+				lifeInfo.color = white;
+				lifeInfo.effectColor = colorNormal;
 				poolIndex = (int)((realLife - 25f)/numberStep) + 1;
 				lifebar[poolIndex - 1].transform.localScale = baseScale[poolIndex - 1];
 				lifebar[poolIndex].transform.localScale = baseScale[poolIndex]*(((realLife - 25f)%numberStep)/numberStep);
 				if(poolIndex != lifebar.Length - 1) lifebar[poolIndex + 1].transform.localScale = baseScale[poolIndex + 1]*0f;
 			}else{
+				lifeInfo.color = white;
+				lifeInfo.effectColor = colorMax;
 				lifebar[lifebar.Length - 1].transform.localScale = baseScale[lifebar.Length - 1];
+			}
+			
+			if(realLife >= 100f)
+			{
+				if(!turnActivated && Ring.transform.eulerAngles.x < 60f)
+				{
+					poolVector.x = 60f;
+					poolVector.y = Ring.transform.eulerAngles.y;
+					poolVector.z = Ring.transform.eulerAngles.z;
+					Ring.transform.eulerAngles = Vector3.Lerp(Ring.transform.eulerAngles, poolVector, speedTurnMax*Time.deltaTime);
+					if(Ring.transform.eulerAngles.x > 59.99f)
+					{
+						turnActivated = true;
+						Ring.transform.eulerAngles = poolVector;
+					}
+				}
+				Ring.transform.Rotate(0f, 0f, speedTurn*Time.deltaTime);
+			}else if(turnActivated)
+			{
+				poolVector.x = 0f;
+				poolVector.y = Ring.transform.eulerAngles.y;
+				poolVector.z = 0f;
+				Ring.transform.eulerAngles = Vector3.Lerp(Ring.transform.eulerAngles, poolVector, speedTurnMax*Time.deltaTime);
+				if(Vector3.Distance(Ring.transform.eulerAngles, poolVector) < 0.01f)
+				{
+					turnActivated = false;
+					Ring.transform.eulerAngles = poolVector;
+				}
 			}
 			
 			realLife = Mathf.Lerp(realLife, objectivLife, thelerp);
 			if(Mathf.Abs(realLife - objectivLife) < limit) realLife = objectivLife;
+			
+			lifeInfo.text = realLife < 100f ? realLife.ToString("00") + "%" : "SYNC";
+			
+			if(realLife <= 25f)
+			{
+				lifeHUD.color = Color.Lerp(white, colorDanger, Mathf.PingPong(lerpDanger, 1f));
+				lerpDanger += speedClignDanger*Time.deltaTime;
+			}else if(lerpDanger != 0f)
+			{
+				lifeHUD.color = white;
+				lerpDanger = 0f;
+			}
+				
 		}
 		
-		for(int i=0; i<matCube.Length; i++){
-			matCube[i].SetFloat("_Shininess", lowBrillance + Mathf.PingPong((Time.time*speedBrillance) + decals[i], maxBrillance - lowBrillance) + 0.001f);
-		}
+		matCube[0].SetFloat("_Shininess", lowBrillance + Mathf.PingPong((Time.time*speedBrillance), maxBrillance - lowBrillance) + 0.001f);
+		
 	}
 	
 	
