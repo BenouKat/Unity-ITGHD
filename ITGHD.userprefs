@@ -1,14 +1,12 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\LAN\ChatScript.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Chart\TimeBar.cs">
     <Files>
-      <File FileName="Assets\Script\Chart\LifeBar.cs" Line="123" Column="28" />
-      <File FileName="Assets\Script\Chart\InGameScript.cs" Line="334" Column="21" />
-      <File FileName="Assets\Script\Chart\TimeBar.cs" Line="83" Column="20" />
-      <File FileName="Assets\Script\LAN\NetworkWheelScript.cs" Line="390" Column="3" />
-      <File FileName="Assets\Script\Wheel\GeneralScript.cs" Line="505" Column="4" />
-      <File FileName="Assets\Script\Managers\DataManager.cs" Line="75" Column="16" />
-      <File FileName="Assets\Script\LAN\ChatScript.cs" Line="70" Column="55" />
+      <File FileName="Assets\Script\Wheel\GeneralScript.cs" Line="462" Column="54" />
+      <File FileName="Assets\Script\Chart\InGameScript.cs" Line="1888" Column="51" />
+      <File FileName="Assets\Script\Managers\DataManager.cs" Line="188" Column="51" />
+      <File FileName="Assets\Script\Wheel\InfoZone.cs" Line="292" Column="169" />
+      <File FileName="Assets\Script\Chart\TimeBar.cs" Line="69" Column="3" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -19,11 +17,11 @@
                 <Node name="Texts" expanded="True" />
               </Node>
               <Node name="Script" expanded="True">
-                <Node name="Chart" expanded="True" />
-                <Node name="FrameWork" expanded="True" />
-                <Node name="LAN" expanded="True">
-                  <Node name="ChatScript.cs" selected="True" />
+                <Node name="Chart" expanded="True">
+                  <Node name="TimeBar.cs" selected="True" />
                 </Node>
+                <Node name="FrameWork" expanded="True" />
+                <Node name="LAN" expanded="True" />
                 <Node name="Managers" expanded="True" />
                 <Node name="OptionScreen" expanded="True" />
                 <Node name="Score" expanded="True" />

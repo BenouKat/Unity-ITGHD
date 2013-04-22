@@ -459,6 +459,7 @@ public class GeneralScript : MonoBehaviour {
 		var kv = ProfileManager.Instance.FindTheBestScore(songSelected[getZoneInfo().getActualySelected()].sip);
 		var bestfriendscore = kv.Key;
 		var bestnamefriendscore = kv.Value;
+		DataManager.Instance.recordScore = bestfriendscore;
 		var isScoreFail = false;
 		
 		var mystats = ProfileManager.Instance.FindTheSongStat(songSelected[getZoneInfo().getActualySelected()].sip);

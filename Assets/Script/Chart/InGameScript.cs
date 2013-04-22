@@ -210,8 +210,10 @@ public class InGameScript : MonoBehaviour {
 	public Color normalOutlineColor;
 	public UILabel scoreLabel;
 	public UILabel scoreBeatLabel;
-	public Color beatColor;
-	public float recordScore;
+	public Color normalbeatColor;
+	public Color idlebeatColor;
+	public Color beatthebeatColor;
+	public double recordScore;
 	
 	//DISPLAY
 	private Color bumpColor;
@@ -320,6 +322,7 @@ public class InGameScript : MonoBehaviour {
 		isFullExComboRace = DataManager.Instance.raceSelected == 10;
 		targetScoreInverse = DataManager.Instance.giveTargetScoreOfRace(DataManager.Instance.raceSelected);
 		typeOfDeath = DataManager.Instance.deathSelected;
+		recordScore = DataManager.Instance.recordScore;
 		KeyCodeDown = DataManager.Instance.KeyCodeDown;
 		KeyCodeUp = DataManager.Instance.KeyCodeUp;
 		KeyCodeLeft = DataManager.Instance.KeyCodeLeft;
@@ -675,6 +678,16 @@ public class InGameScript : MonoBehaviour {
 			}
 			slow.renderer.enabled = false;
 			fast.renderer.enabled = false;
+		}
+		
+		
+		if(recordScore != -1)
+		{
+			scoreBeatLabel.text = recordScore.ToString("00.00") + "%";	
+			scoreBeatLabel.effectColor = normalbeatColor;
+		}else{
+			scoreBeatLabel.tag = "--%";
+			scoreBeatLabel.effectColor = idlebeatColor;
 		}
 		
 		/*
@@ -1870,6 +1883,10 @@ public class InGameScript : MonoBehaviour {
 				score = 0f;	
 			}
 			scoreRefresh();
+			if(score >= recordScore && scoreBeatLabel.color == normalbeatColor)
+			{
+				scoreBeatLabel.effectColor = beatthebeatColor;
+			}
 		}
 		
 		if(life <= 0f || scoreInverse < targetScoreInverse){
@@ -1959,7 +1976,7 @@ public class InGameScript : MonoBehaviour {
 	
 	void scoreRefresh(){
 		
-		scoreLabel.text = score.ToString("000.00");
+		scoreLabel.text = score.ToString("00.00") + "%";
 		
 	}
 	

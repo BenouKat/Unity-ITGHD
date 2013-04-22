@@ -29,6 +29,9 @@ public class TimeBar : MonoBehaviour {
 	public ParticleSystem psBadCombo;
 	public ParticleSystem psCrashCombo;
 	
+	private float lerpClign;
+	public float speedClign;
+	
 	private bool activeCombo;
 	
 	public UILabel labelTime;
@@ -37,6 +40,7 @@ public class TimeBar : MonoBehaviour {
 	
 	void Start () {
 		lerpColor = 1f;
+		lerpClign = 0f;
 		psLowCombo.Play();
 		activeCombo = true;
 		hitBarMaterial = hitBar.renderer.material;
@@ -53,7 +57,15 @@ public class TimeBar : MonoBehaviour {
 			hitBar2Material.color = Color.Lerp(hitBar2Material.color, black, lerpColor);
 		}
 		
-		
+		if(psFFC.gameObject.active)
+		{
+			lerpClign += Time.deltaTime*speedClign;
+			cubeHitBarMaterial.color = Color.Lerp(DataManager.Instance.precColor[0], white, Mathf.PingPong(lerpClign, 1));
+		}else if(psFEC.gameObject.active)
+		{
+			lerpClign += Time.deltaTime*speedClign;
+			cubeHitBarMaterial.color = Color.Lerp(DataManager.Instance.precColor[1], white, Mathf.PingPong(lerpClign, 1));
+		}
 	}
 	
 	
@@ -114,6 +126,7 @@ public class TimeBar : MonoBehaviour {
 			psBadCombo.Play();
 			if(!psCrashCombo.gameObject.active) psCrashCombo.gameObject.active = true;
 			psCrashCombo.Play();
+			cubeHitBarMaterial.color = white;
 		}
 	}
 	
