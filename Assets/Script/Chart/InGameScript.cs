@@ -214,6 +214,13 @@ public class InGameScript : MonoBehaviour {
 	public Color idlebeatColor;
 	public Color beatthebeatColor;
 	public double recordScore;
+	public UISprite judgeSprite;
+	public Vector3 baseScaleJudgeSprite;
+	public float zoomPower;
+	public float speedZoomDecrease;
+	private float actualZoom;
+	public UISprite clearFail;
+	public UISprite blackSprite;
 	
 	//DISPLAY
 	private Color bumpColor;
@@ -689,6 +696,9 @@ public class InGameScript : MonoBehaviour {
 			scoreBeatLabel.tag = "--%";
 			scoreBeatLabel.effectColor = idlebeatColor;
 		}
+		
+		judgeSprite.enabled = false;
+		baseScaleJudgeSprite = judgeSprite.transform.localScale;
 		
 		/*
 		infoSongCalc = new Rect(infoSong.x*Screen.width, infoSong.y*Screen.height, infoSong.width*Screen.width, infoSong.height*Screen.height);
@@ -2115,9 +2125,10 @@ public class InGameScript : MonoBehaviour {
 	
 	
 	public void displayPrec(double prec){
-		timeDisplayScore = 0f;
-		zoom = baseZoom;
-		scoreToDisplay = timeToPrec(prec);
+		
+		actualZoom = zoomPower;
+		judgeSprite.name = timeToPrec(prec).ToString();
+		judgeSprite.transform.localScale = baseScaleJudgeSprite*actualZoom;
 	}
 	
 	Precision timeToPrec(double prec){
