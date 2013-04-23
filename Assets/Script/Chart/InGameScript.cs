@@ -78,12 +78,10 @@ public class InGameScript : MonoBehaviour {
 	//DISPLAY PREC
 	
 	//Temps pour l'affichage des scores
-	public float limitDisplayScore = 2f;
-	private float timeDisplayScore = 0f;
-	public float timeClignotementFantastic = 0.05f;
+	
 	public float baseZoom = 20f;
 	public float vitesseZoom = 0.1f;
-	private bool sensFantastic;
+	
 	private float alpha;
 	private float zoom;
 	private Precision scoreToDisplay;
@@ -221,6 +219,12 @@ public class InGameScript : MonoBehaviour {
 	private float actualZoom;
 	public UISprite clearFail;
 	public UISprite blackSprite;
+	public float limitDisplayScore = 2f;
+	private float timeDisplayScore = 0f;
+	public float speedClignotementFantastic = 20f;
+	public float alphaFantasticLimit = 0.8f;
+	public float speedClignotementFail = 20f;
+	public float alphaFailLimit = 0.9f;
 	
 	//DISPLAY
 	private Color bumpColor;
@@ -700,6 +704,9 @@ public class InGameScript : MonoBehaviour {
 		judgeSprite.enabled = false;
 		baseScaleJudgeSprite = judgeSprite.transform.localScale;
 		
+		clearFail.enabled = false;
+		blackSprite = false;
+		
 		/*
 		infoSongCalc = new Rect(infoSong.x*Screen.width, infoSong.y*Screen.height, infoSong.width*Screen.width, infoSong.height*Screen.height);
 		infoSongCalcShadow = new Rect(infoSong.x*Screen.width + 1, infoSong.y*Screen.height + 1, infoSong.width*Screen.width, infoSong.height*Screen.height);
@@ -942,11 +949,6 @@ public class InGameScript : MonoBehaviour {
 						secondAudioSource.PlayOneShot(comboSound); 
 					}
 					oneSecond = 0f;
-					failalpha = 0f;
-					buttonfailalpha = 0f;
-					passalpha = 1f;
-					alpha = 1f;
-					sensFantastic = true;
 				}
 			}
 			
@@ -963,16 +965,15 @@ public class InGameScript : MonoBehaviour {
 					CameraBackground.GetComponent<MoveCameraBackground>().enabled = false;
 					TMainCamera.GetComponent<GrayscaleEffect>().enabled = true;
 					oneSecond = 0f;
-					alpha = 1f;
-					sensFantastic = true;
 					GetComponent<DebugOffset>().enabled = true;
 				}
 			}else if(clear){
 				oneSecond += Time.deltaTime;
 				if(mainAudioSource.volume > 0) mainAudioSource.volume -= Time.deltaTime/speedFadeAudio;
 					
-				if(!appearFailok){
-					StartCoroutine(swipTexture(false, posClear.height, 0f));
+				if(!appearClearok){
+					
+					//FC / FEC / FFC
 					var contains = perfect ? "Perf" : (fullFantCombo ? "FFC" : (fullExCombo ? "FEC" : ( fullCombo ? "FBC" : "noPS")) );
 					if(!contains.Contains("noPS")){
 						particleComboCam.gameObject.active = true;
@@ -982,21 +983,16 @@ public class InGameScript : MonoBehaviour {
 						}
 					}
 					
-					appearFailok = true;
+					appearClearok = true;
 					
 				}
+				//Faire le "swip"
 				if(oneSecond > timeClearDisappear){
-					
-				}
-				if(oneSecond > timeClearDisappear){
-					if(passalpha > 0) passalpha -= Time.deltaTime;
-					if(failalpha >= 1){
+					//Quand le fondu est ok
 							SendDataToDatamanager();
 							Application.LoadLevel("ScoreScene");
-					} 
-					failalpha += Time.deltaTime/speedAlphaFailFade;
+					}
 				}
-				ClignCombo();
 			}
 			
 			
@@ -1005,29 +1001,14 @@ public class InGameScript : MonoBehaviour {
 			oneSecond += Time.deltaTime;
 			if(!dead) MoveCameraBefore();
 			if(dead){
-				if(oneSecond > timeFailAppear && !disappearFailok){
-					//zoomfail += Time.deltaTime/speedzoom;
-					secondAudioSource.volume += Time.deltaTime/speedAlphaFailFade;
-					if(failalpha < 1) failalpha += Time.deltaTime/speedAlphaFailFade;
-					if(failalpha >= 1 && buttonfailalpha < 1) buttonfailalpha += Time.deltaTime/speedbuttonfailalpha;
-					ClignFailed();
-				}
-				if(!appearFailok && oneSecond > timeFailAppear + 1){
-					StartCoroutine(swipTexture(false, posFail.height, 0f));
-					appearFailok = true;
-					cacheFailed = false;
-				}
-				if(!disappearFailok && (deadAndRetry || deadAndGiveUp)){
-					StartCoroutine(swipTexture(true, posFail.height, 0.5f));
-					disappearFailok = true;
-					timeFailDisappear = oneSecond;
-				}
-				if(disappearFailok && oneSecond < (timeFailDisappear + 1f) && buttonfailalpha > 0){
-					buttonfailalpha -= Time.deltaTime/speedbuttonfailalpha;
-					secondAudioSource.volume -= Time.deltaTime/speedbuttonfailalpha;
-				}
-				if(disappearFailok && oneSecond > (timeFailDisappear + 1f) ){
-					secondAudioSource.Stop();
+			
+				//Etape 1 : Faire apparaitre le fail
+				//Etape 2 : Faire apparaitre le fondu noir
+				//Etape 3 : Faire apparaitre les boutons et le texte
+				//Etape 4 : Attendre le choix utilisateur
+				//Etape 5 : Faire disparaitre le fail et le reste en fondu
+				//Etape 6 : Changement
+				
 					SendDataToDatamanager();
 					if(deadAndRetry){
 						Application.LoadLevel("ChartScene");
@@ -1035,8 +1016,6 @@ public class InGameScript : MonoBehaviour {
 						Application.LoadLevel("ScoreScene");
 					}
 					
-					
-				}
 			}else if(oneSecond >= 0.5f && !scenechartfaded){
 				GetComponent<FadeManager>().FadeOut();
 				scenechartfaded = true;
@@ -1206,21 +1185,19 @@ public class InGameScript : MonoBehaviour {
 	#region GUI
 	void RefreshGUIPart(){
 		if(scoreToDisplay == Precision.FANTASTIC){
-			if(sensFantastic){
-				alpha -= 0.2f*Time.deltaTime/timeClignotementFantastic;
-				sensFantastic = alpha > 0.8f;
-			}else{
-				alpha += 0.2f*Time.deltaTime/timeClignotementFantastic;
-				sensFantastic = alpha >= 1f;
-			}
+				judgeSprite.color = fillColor(judgeSprite.color.r, judgeSprite.color.g, judgeSprite.color.b, alphaFantasticLimit + Mathf.PingPong(Time.time*speedClignotementFantastic, 1f - alphaFantasticLimit));
 		}else{
-			alpha = 1f;
+			judgeSprite.color = fillColor(judgeSprite.color.r, judgeSprite.color.g, judgeSprite.color.b, 1f);
 		}
 		
-		if(zoom > 0 && scoreToDisplay != Precision.DECENT && scoreToDisplay != Precision.WAYOFF){
-			zoom -= baseZoom*Time.deltaTime/vitesseZoom;
-		}else{
-			zoom = 0;
+		if(judgeSprite.enabled && timeDisplayScore > limitDisplayScore)
+		{
+			judgeSprite.enabled = false;
+		}
+		
+		if(actualZoom > 1f){
+			actualZoom -= speedZoomDecrease*Time.deltaTime;
+			judgeSprite.transform.localScale = baseScaleJudgeSprite*actualZoom;
 		}
 		
 		if(comboLabel.color.a > 0.73f)
@@ -1241,19 +1218,7 @@ public class InGameScript : MonoBehaviour {
 			sensFantastic = alpha >= 1f;
 		}
 		
-		
-	}
-	
-	void ClignCombo(){
-		if(sensFantastic){
-			alpha -= 0.2f*Time.deltaTime/timeClignotementFantastic;
-			sensFantastic = alpha > 0.8f;
-		}else{
-			alpha += 0.2f*Time.deltaTime/timeClignotementFantastic;
-			sensFantastic = alpha >= 1f;
-		}
-		
-		
+		clearFail.color = fillColor(clearFail.color.r, clearFail.color.g, clearFail.color.b, alphaFailLimit + Mathf.PingPong(Time.time*speedClignotementFail, 1f - alphaFailLimit));
 	}
 	#endregion
 	
@@ -2125,8 +2090,15 @@ public class InGameScript : MonoBehaviour {
 	
 	
 	public void displayPrec(double prec){
+		judgeSprite.enabled = true;
+		if(scoreToDisplay != Precision.DECENT && scoreToDisplay != Precision.WAYOFF)
+		{
+			actualZoom = zoomPower;
+		}else
+		{
+			actualZoom = 1f;
+		}
 		
-		actualZoom = zoomPower;
 		judgeSprite.name = timeToPrec(prec).ToString();
 		judgeSprite.transform.localScale = baseScaleJudgeSprite*actualZoom;
 	}
