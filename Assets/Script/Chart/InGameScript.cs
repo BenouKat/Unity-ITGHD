@@ -218,13 +218,21 @@ public class InGameScript : MonoBehaviour {
 	public float speedZoomDecrease;
 	private float actualZoom;
 	public UISprite clearFail;
+	private Vector3 normalScaleClearFail;
+	private float scaleProgressClearFail;
+	public float speedScaleClearFail;
 	public UISprite blackSprite;
+	private float alphaBlackSprite;
+	public float speedAlphaBlackSprite;
 	public float limitDisplayScore = 2f;
 	private float timeDisplayScore = 0f;
 	public float speedClignotementFantastic = 20f;
 	public float alphaFantasticLimit = 0.8f;
 	public float speedClignotementFail = 20f;
 	public float alphaFailLimit = 0.9f;
+	public float TEMPO_FailAppear;
+	public float TEMPO_BlackAppear;
+	public float TEMPO_ButtonAppear;
 	
 	//DISPLAY
 	private Color bumpColor;
@@ -287,8 +295,8 @@ public class InGameScript : MonoBehaviour {
 	public Rect posClear;
 	public Rect posRetry;
 	public Rect posGiveUp;
-	private bool appearFailok;
-	private bool disappearFailok;
+	private bool appearClearok;
+	private bool disappearClearok;
 	public float speedAlphaFailFade;
 	private float failalpha;
 	private float buttonfailalpha;
@@ -497,7 +505,6 @@ public class InGameScript : MonoBehaviour {
 		//stuff
 		scoreToDisplay = Precision.NONE;
 		timeDisplayScore = Mathf.Infinity;
-		sensFantastic = true;
 		alpha = 1f;
 		scenechartfaded = false;
 		
@@ -576,8 +583,8 @@ public class InGameScript : MonoBehaviour {
 		perfect = false;
 		dead = false;
 		zwip = 0;
-		appearFailok = false;
-		disappearFailok = false;
+		appearClearok = false;
+		disappearClearok = false;
 		zoomfail = 0f;
 		failalpha = 0f;
 		passalpha = 0f;
@@ -705,7 +712,10 @@ public class InGameScript : MonoBehaviour {
 		baseScaleJudgeSprite = judgeSprite.transform.localScale;
 		
 		clearFail.enabled = false;
-		blackSprite = false;
+		blackSprite.enabled = false;
+		
+		scaleProgressClearFail = 0f;
+		alphaBlackSprite = 0f;
 		
 		/*
 		infoSongCalc = new Rect(infoSong.x*Screen.width, infoSong.y*Screen.height, infoSong.width*Screen.width, infoSong.height*Screen.height);
@@ -955,6 +965,15 @@ public class InGameScript : MonoBehaviour {
 			if(fail){
 				if((typeOfDeath != 2 && (typeOfDeath == 0 || comboMisses >= 30)) || thesong.duration < timetotalchart){
 					dead = true;
+					
+					clearFail.enabled = true;
+					clearFail.name = "Failed";
+					blackSprite.enabled = true;
+					normalScaleClearFail = clearFail.transform.localScale;
+					clearFail.transform.localScale = fillVector(clearFail.transform.localScale.x/10f, clearFail.transform.localScale.y*10f, clearFail.transform.localScale.z);
+					clearFail.color = fillColor (clearFail.color.r, clearFail.color.g, clearFail.color.b, 0f);
+					
+					
 					mainAudioSource.Stop ();
 					mainAudioSource.volume = 1f;
 					mainAudioSource.PlayOneShot(failedSound);
@@ -983,15 +1002,29 @@ public class InGameScript : MonoBehaviour {
 						}
 					}
 					
+					clearFail.enabled = true;
+					blackSprite.enabled = true;
+					normalScaleClearFail = clearFail.transform.localScale;
+					clearFail.transform.localScale = fillVector(clearFail.transform.localScale.x/10f, clearFail.transform.localScale.y*10f, clearFail.transform.localScale.z);
+					clearFail.color = fillColor (clearFail.color.r, clearFail.color.g, clearFail.color.b, 0f);
 					appearClearok = true;
 					
+				}else if(scaleProgressClearFail < 1f){
+					scaleProgressClearFail += speedScaleClearFail*Time.deltaTime;
+					clearFail.transform.localScale = Vector3.Lerp(clearFail.transform.localScale, normalScaleClearFail, scaleProgressClearFail > 1f ? 1f : scaleProgressClearFail);
+					clearFail.color = fillColor (clearFail.color.r, clearFail.color.g, clearFail.color.b, scaleProgressClearFail*4f > 1f ? 1f : scaleProgressClearFail*4f);
+				
 				}
-				//Faire le "swip"
+				
 				if(oneSecond > timeClearDisappear){
-					//Quand le fondu est ok
+					if(alphaBlackSprite >= 1f)
+					{
 							SendDataToDatamanager();
 							Application.LoadLevel("ScoreScene");
 					}
+					alphaBlackSprite += speedAlphaBlackSprite*Time.deltaTime;
+					blackSprite.color = fillColor(blackSprite.color.r, blackSprite.color.g, blackSprite.color.b, alphaBlackSprite);
+					clearFail.color = fillColor (clearFail.color.r, clearFail.color.g, clearFail.color.b, 1f - alphaBlackSprite);
 				}
 			}
 			
@@ -1003,19 +1036,32 @@ public class InGameScript : MonoBehaviour {
 			if(dead){
 			
 				//Etape 1 : Faire apparaitre le fail
+				if(scaleProgressClearFail < 1f){
+					scaleProgressClearFail += speedScaleClearFail*Time.deltaTime;
+					clearFail.transform.localScale = Vector3.Lerp(clearFail.transform.localScale, normalScaleClearFail, scaleProgressClearFail > 1f ? 1f : scaleProgressClearFail);
+					clearFail.color = fillColor (clearFail.color.r, clearFail.color.g, clearFail.color.b, scaleProgressClearFail*4f > 1f ? 1f : scaleProgressClearFail*4f);
+				}
 				//Etape 2 : Faire apparaitre le fondu noir
+				else if(alphaBlackSprite < 1f)
+				{
+					if(oneSecond >= TEMPO_BlackAppear)
+					{
+						alphaBlackSprite += speedAlphaBlackSprite*Time.deltaTime;
+						blackSprite.color = fillColor(blackSprite.color.r, blackSprite.color.g, blackSprite.color.b, alphaBlackSprite);
+					}
+				}
 				//Etape 3 : Faire apparaitre les boutons et le texte
 				//Etape 4 : Attendre le choix utilisateur
 				//Etape 5 : Faire disparaitre le fail et le reste en fondu
 				//Etape 6 : Changement
-				
+				else{
 					SendDataToDatamanager();
 					if(deadAndRetry){
 						Application.LoadLevel("ChartScene");
 					}else if(deadAndGiveUp){
 						Application.LoadLevel("ScoreScene");
 					}
-					
+				}
 			}else if(oneSecond >= 0.5f && !scenechartfaded){
 				GetComponent<FadeManager>().FadeOut();
 				scenechartfaded = true;
@@ -1210,14 +1256,6 @@ public class InGameScript : MonoBehaviour {
 	}
 	
 	void ClignFailed(){
-		if(sensFantastic){
-			alpha -= 0.1f*Time.deltaTime/timeClignotementFantastic;
-			sensFantastic = alpha > 0.9f;
-		}else{
-			alpha += 0.1f*Time.deltaTime/timeClignotementFantastic;
-			sensFantastic = alpha >= 1f;
-		}
-		
 		clearFail.color = fillColor(clearFail.color.r, clearFail.color.g, clearFail.color.b, alphaFailLimit + Mathf.PingPong(Time.time*speedClignotementFail, 1f - alphaFailLimit));
 	}
 	#endregion
