@@ -182,7 +182,7 @@ public class ProfileManager{
 			}
 		}
 		
-		if(others > 0) name += "\n(and " + others + ")";
+		if(others > 0) name += "\n(+ " + others + ")";
 		return new KeyValuePair<double, string>(score, name);
 		
 	}

@@ -2,11 +2,8 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Chart\InGameScript.cs">
     <Files>
-      <File FileName="Assets\Script\Chart\InGameScript.cs" Line="1054" Column="24" />
-      <File FileName="Assets\Script\Wheel\GeneralScript.cs" Line="462" Column="54" />
-      <File FileName="Assets\Script\Managers\DataManager.cs" Line="188" Column="51" />
-      <File FileName="Assets\Script\Wheel\InfoZone.cs" Line="292" Column="169" />
-      <File FileName="Assets\Script\Chart\TimeBar.cs" Line="69" Column="3" />
+      <File FileName="Assets\Script\Chart\InGameScript.cs" Line="727" Column="90" />
+      <File FileName="Assets\Script\Chart\TimeBar.cs" Line="137" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">

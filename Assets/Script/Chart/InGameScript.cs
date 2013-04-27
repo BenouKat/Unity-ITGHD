@@ -25,8 +25,8 @@ public class InGameScript : MonoBehaviour {
 	private Material matArrowModel;
 	public GameObject lifeBar;
 	public GameObject timeBar;
-	public GameObject slow;
-	public GameObject fast;
+	//public GameObject slow;
+	//public GameObject fast;
 	public Camera particleComboCam;
 	
 	private LifeBar theLifeBar;
@@ -233,6 +233,23 @@ public class InGameScript : MonoBehaviour {
 	public float TEMPO_FailAppear;
 	public float TEMPO_BlackAppear;
 	public float TEMPO_ButtonAppear;
+	public UILabel LabelDescriptionSong;
+	public UILabel LabelDescriptionMaster;
+	public UISprite SpriteLevelText;
+	public UILabel LabelLevelNumber;
+	public GameObject buttonRetry;
+	private UISlicedSprite bkgrRetry;
+	private UILabel lblRetry;
+	public GameObject buttonGiveUp;
+	private UISlicedSprite bkgrGiveUp;
+	private UILabel lblGiveUp;
+	public GameObject inputSpeedmod;
+	private UISlicedSprite bkgrInput;
+	private UILabel lblInput;
+	public UILabel labelSpeedmod;
+	private float alphaButtonDie;
+	public float speedAlphaButtonDie;
+	
 	
 	//DISPLAY
 	private Color bumpColor;
@@ -600,6 +617,9 @@ public class InGameScript : MonoBehaviour {
 		if(stepartist.Length > 30) stepartist = stepartist.Remove(30, stepartist.Length - 30) + "...";
 		infoToDisplay = title + "\n" + artist + "\n"  + stepartist + "\n\n";
 		
+		LabelDescriptionSong.text = infoToDisplay;
+		
+		infoToDisplay = "";
 		var mystat = ProfileManager.Instance.FindTheSongStat(thesong.sip);
 		if(mystat != null)
 		{
@@ -621,7 +641,11 @@ public class InGameScript : MonoBehaviour {
 		}else{
 			infoToDisplay += "No friends score entry\n";
 		}
-		levelToDisplay = thesong.level;
+		
+		LabelDescriptionMaster.text = infoToDisplay;
+		
+		LabelLevelNumber.text = thesong.level.ToString();
+		LabelLevelNumber.color = DataManager.Instance.diffColor[(int)thesong.difficulty];
 		
 		
 		//Transformation display
@@ -688,23 +712,25 @@ public class InGameScript : MonoBehaviour {
 			for(int i=0;i<timeBar.transform.childCount; i++){
 				timeBar.transform.GetChild(i).renderer.enabled = false;	
 			}
-			for(int i=0;i<fast.transform.childCount; i++){
+			/*for(int i=0;i<fast.transform.childCount; i++){
 				fast.transform.GetChild(i).renderer.enabled = false;	
 			}
 			for(int i=0;i<slow.transform.childCount; i++){
 				slow.transform.GetChild(i).renderer.enabled = false;	
 			}
 			slow.renderer.enabled = false;
-			fast.renderer.enabled = false;
+			fast.renderer.enabled = false;*/
 		}
 		
 		
+		
+		SpriteLevelText.name = Enum.GetName(typeof(Difficulty), (thesong.difficulty)).ToLower();
 		if(recordScore != -1)
 		{
 			scoreBeatLabel.text = recordScore.ToString("00.00") + "%";	
 			scoreBeatLabel.effectColor = normalbeatColor;
 		}else{
-			scoreBeatLabel.tag = "--%";
+			scoreBeatLabel.text = "--%";
 			scoreBeatLabel.effectColor = idlebeatColor;
 		}
 		
@@ -716,6 +742,15 @@ public class InGameScript : MonoBehaviour {
 		
 		scaleProgressClearFail = 0f;
 		alphaBlackSprite = 0f;
+		
+		bkgrGiveUp = buttonGiveUp.transform.FindChild("Background").GetComponent<UISlicedSprite>();
+		lblGiveUp = buttonGiveUp.transform.FindChild("Label").GetComponent<UILabel>();
+		
+		bkgrRetry = buttonRetry.transform.FindChild("Background").GetComponent<UISlicedSprite>();
+		lblRetry = buttonRetry.transform.FindChild("Label").GetComponent<UILabel>();
+		
+		bkgrInput = inputSpeedmod.transform.FindChild("Background").GetComponent<UISlicedSprite>();
+		lblInput = inputSpeedmod.transform.FindChild("Label").GetComponent<UILabel>();
 		
 		/*
 		infoSongCalc = new Rect(infoSong.x*Screen.width, infoSong.y*Screen.height, infoSong.width*Screen.width, infoSong.height*Screen.height);
@@ -972,7 +1007,10 @@ public class InGameScript : MonoBehaviour {
 					normalScaleClearFail = clearFail.transform.localScale;
 					clearFail.transform.localScale = fillVector(clearFail.transform.localScale.x/10f, clearFail.transform.localScale.y*10f, clearFail.transform.localScale.z);
 					clearFail.color = fillColor (clearFail.color.r, clearFail.color.g, clearFail.color.b, 0f);
-					
+					buttonRetry.SetActiveRecursively(true);
+					buttonGiveUp.SetActiveRecursively(true);
+					inputSpeedmod.SetActiveRecursively(true);
+					labelSpeedmod.enabled = true;
 					
 					mainAudioSource.Stop ();
 					mainAudioSource.volume = 1f;
@@ -1049,10 +1087,32 @@ public class InGameScript : MonoBehaviour {
 						alphaBlackSprite += speedAlphaBlackSprite*Time.deltaTime;
 						blackSprite.color = fillColor(blackSprite.color.r, blackSprite.color.g, blackSprite.color.b, alphaBlackSprite);
 					}
-				}
 				//Etape 3 : Faire apparaitre les boutons et le texte
-				//Etape 4 : Attendre le choix utilisateur
+				}else if(!deadAndGiveUp && !deadAndRetry && alphaButtonDie < 1f){
+					alphaButtonDie += speedAlphaButtonDie*Time.deltaTime;
+					bkgrRetry.color = fillColor(bkgrRetry.color.r, bkgrRetry.color.g, bkgrRetry.color.b, alphaButtonDie);
+					lblRetry.color = fillColor(lblRetry.color.r, lblRetry.color.g, lblRetry.color.b, alphaButtonDie);
+					bkgrGiveUp.color = fillColor(bkgrGiveUp.color.r, bkgrGiveUp.color.g, bkgrGiveUp.color.b, alphaButtonDie);
+					lblGiveUp.color = fillColor(lblGiveUp.color.r, lblGiveUp.color.g, lblGiveUp.color.b, alphaButtonDie);
+					bkgrInput.color = fillColor(bkgrInput.color.r, bkgrInput.color.g, bkgrInput.color.b, alphaButtonDie);
+					lblInput.color = fillColor(lblInput.color.r, lblInput.color.g, lblInput.color.b, alphaButtonDie);
+					labelSpeedmod.color = fillColor(labelSpeedmod.color.r, labelSpeedmod.color.g, labelSpeedmod.color.b, alphaButtonDie);
+				}else if(!deadAndGiveUp && !deadAndRetry){
+					//wait
 				//Etape 5 : Faire disparaitre le fail et le reste en fondu
+				}else if(alphaButtonDie > 0f)
+				{
+					
+					bkgrRetry.color += fillColor(bkgrRetry.color.r, bkgrRetry.color.g, bkgrRetry.color.b, alphaButtonDie);
+					lblRetry.color += fillColor(lblRetry.color.r, lblRetry.color.g, lblRetry.color.b, alphaButtonDie);
+					bkgrGiveUp.color += fillColor(bkgrGiveUp.color.r, bkgrGiveUp.color.g, bkgrGiveUp.color.b, alphaButtonDie);
+					lblGiveUp.color += fillColor(lblGiveUp.color.r, lblGiveUp.color.g, lblGiveUp.color.b, alphaButtonDie);
+					bkgrInput.color += fillColor(bkgrInput.color.r, bkgrInput.color.g, bkgrInput.color.b, alphaButtonDie);
+					lblInput.color += fillColor(lblInput.color.r, lblInput.color.g, lblInput.color.b, alphaButtonDie);
+					labelSpeedmod.color += fillColor(labelSpeedmod.color.r, labelSpeedmod.color.g, labelSpeedmod.color.b, alphaButtonDie);
+					blackSprite.color = fillColor(blackSprite.color.r, blackSprite.color.g, blackSprite.color.b, alphaButtonDie);
+					alphaButtonDie -= speedAlphaButtonDie*Time.deltaTime;
+				}
 				//Etape 6 : Changement
 				else{
 					SendDataToDatamanager();
@@ -1107,7 +1167,7 @@ public class InGameScript : MonoBehaviour {
 		theTimeBar.updateTimeBar((float)timetotalchart);
 		
 		
-		if(stateSpeed > 0){
+		/*if(stateSpeed > 0){
 			slow.renderer.material.color = fillColor(1f, 0f, 0f, 0.5f);
 			if(!slowandfast[0].gameObject.active) slowandfast[0].gameObject.active = true;
 			slowandfast[0].Play();
@@ -1119,9 +1179,9 @@ public class InGameScript : MonoBehaviour {
 			slowandfast[1].Play();
 			stateSpeed = 0f;
 			changeColorFast = true;
-		}
+		}*/
 		
-		if(changeColorFast){
+		/*if(changeColorFast){
 			div = Time.deltaTime/ClignSpeed;
 			col = fast.renderer.material.color.r - div;
 			colp = fast.renderer.material.color.g + div;
@@ -1133,7 +1193,7 @@ public class InGameScript : MonoBehaviour {
 			colp = slow.renderer.material.color.g + div;
 			slow.renderer.material.color = fillColor(col, colp, colp, 0.5f);
 			if(col <= 0.5f) changeColorSlow = false;
-		}
+		}*/
 		
 		
 		if(ct < ComboType.FULLCOMBO && combo > 100){
