@@ -78,7 +78,7 @@ public class TimeBar : MonoBehaviour {
 	public void setDuration(float begin, float end){
 		timeBegin = begin;
 		timeEnd = end;
-		refreshLabel(end);
+		refreshLabel(end - begin);
 	}
 	
 	public void updateTimeBar(float timetotal){
@@ -87,7 +87,7 @@ public class TimeBar : MonoBehaviour {
 			poolVector.y = beginY + ecartWithBeginY*((timetotal - timeBegin)/(timeEnd - timeBegin));
 			poolVector.z = cursorTimeObject.position.z;
 			cursorTimeObject.position = poolVector;
-			refreshLabel(timeEnd - timetotal);
+			refreshLabel(timeEnd - timetotal - timeBegin);
 		}
 	}
 	

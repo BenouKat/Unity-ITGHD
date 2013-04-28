@@ -211,9 +211,11 @@ public class InGameScript : MonoBehaviour {
 	public Color normalbeatColor;
 	public Color idlebeatColor;
 	public Color beatthebeatColor;
-	public double recordScore;
+	private double recordScore;
 	public UISprite judgeSprite;
-	public Vector3 baseScaleJudgeSprite;
+	public Vector3[] baseScaleJudgeSprite;
+	private Vector3 actualBaseScaleJudge;
+	public float coefficientScaleJudge;
 	public float zoomPower;
 	public float speedZoomDecrease;
 	private float actualZoom;
@@ -236,12 +238,14 @@ public class InGameScript : MonoBehaviour {
 	public UILabel LabelDescriptionSong;
 	public UILabel LabelDescriptionMaster;
 	public UISprite SpriteLevelText;
+	public Vector3[] baseScaleLevelSprite;
+	public float coefficientScaleLevel;
 	public UILabel LabelLevelNumber;
 	public GameObject buttonRetry;
-	private UISlicedSprite bkgrRetry;
+	private UISprite bkgrRetry;
 	private UILabel lblRetry;
 	public GameObject buttonGiveUp;
-	private UISlicedSprite bkgrGiveUp;
+	private UISprite bkgrGiveUp;
 	private UILabel lblGiveUp;
 	public GameObject inputSpeedmod;
 	private UISlicedSprite bkgrInput;
@@ -249,6 +253,9 @@ public class InGameScript : MonoBehaviour {
 	public UILabel labelSpeedmod;
 	private float alphaButtonDie;
 	public float speedAlphaButtonDie;
+	public UISprite FullComboSprite;
+	public Vector3[] baseScaleFCSprite;
+	public float coefficientScaleFCSprite;
 	
 	
 	//DISPLAY
@@ -724,7 +731,8 @@ public class InGameScript : MonoBehaviour {
 		
 		
 		
-		SpriteLevelText.name = Enum.GetName(typeof(Difficulty), (thesong.difficulty)).ToLower();
+		SpriteLevelText.spriteName = Enum.GetName(typeof(Difficulty), (thesong.difficulty)).ToLower();
+		SpriteLevelText.transform.localScale = baseScaleLevelSprite[(int)thesong.difficulty]*coefficientScaleLevel;
 		if(recordScore != -1)
 		{
 			scoreBeatLabel.text = recordScore.ToString("00.00") + "%";	
@@ -735,7 +743,8 @@ public class InGameScript : MonoBehaviour {
 		}
 		
 		judgeSprite.enabled = false;
-		baseScaleJudgeSprite = judgeSprite.transform.localScale;
+		
+		//baseScaleJudgeSprite = judgeSprite.transform.localScale;
 		
 		clearFail.enabled = false;
 		blackSprite.enabled = false;
@@ -743,10 +752,10 @@ public class InGameScript : MonoBehaviour {
 		scaleProgressClearFail = 0f;
 		alphaBlackSprite = 0f;
 		
-		bkgrGiveUp = buttonGiveUp.transform.FindChild("Background").GetComponent<UISlicedSprite>();
+		bkgrGiveUp = buttonGiveUp.transform.FindChild("Background").GetComponent<UISprite>();
 		lblGiveUp = buttonGiveUp.transform.FindChild("Label").GetComponent<UILabel>();
 		
-		bkgrRetry = buttonRetry.transform.FindChild("Background").GetComponent<UISlicedSprite>();
+		bkgrRetry = buttonRetry.transform.FindChild("Background").GetComponent<UISprite>();
 		lblRetry = buttonRetry.transform.FindChild("Label").GetComponent<UILabel>();
 		
 		bkgrInput = inputSpeedmod.transform.FindChild("Background").GetComponent<UISlicedSprite>();
@@ -952,10 +961,7 @@ public class InGameScript : MonoBehaviour {
 
 			}
 			
-			
-			
-			//GUI part, because GUI is so slow :(
-			//Utile ?
+			//GUI part
 			RefreshGUIPart();
 			
 			//Start song
@@ -1002,10 +1008,10 @@ public class InGameScript : MonoBehaviour {
 					dead = true;
 					
 					clearFail.enabled = true;
-					clearFail.name = "Failed";
+					clearFail.spriteName = "Failed";
 					blackSprite.enabled = true;
 					normalScaleClearFail = clearFail.transform.localScale;
-					clearFail.transform.localScale = fillVector(clearFail.transform.localScale.x/10f, clearFail.transform.localScale.y*10f, clearFail.transform.localScale.z);
+					clearFail.transform.localScale = fillVector(clearFail.transform.localScale.x*10f, clearFail.transform.localScale.y/10f, clearFail.transform.localScale.z);
 					clearFail.color = fillColor (clearFail.color.r, clearFail.color.g, clearFail.color.b, 0f);
 					buttonRetry.SetActiveRecursively(true);
 					buttonGiveUp.SetActiveRecursively(true);
@@ -1031,8 +1037,11 @@ public class InGameScript : MonoBehaviour {
 				if(!appearClearok){
 					
 					//FC / FEC / FFC
-					var contains = perfect ? "Perf" : (fullFantCombo ? "FFC" : (fullExCombo ? "FEC" : ( fullCombo ? "FBC" : "noPS")) );
+					var contains = perfect ? "Perfect" : (fullFantCombo ? "FFC" : (fullExCombo ? "FEC" : ( fullCombo ? "FBC" : "noPS")) );
 					if(!contains.Contains("noPS")){
+						FullComboSprite.enabled = true;
+						FullComboSprite.spriteName = (contains == "FBC" ? "FC" : contains);
+						FullComboSprite.transform.localScale = baseScaleFCSprite[perfect ? 3 : (fullFantCombo ? 2 : (fullExCombo ? 1 : 0))]*coefficientScaleFCSprite; 
 						particleComboCam.gameObject.active = true;
 						foreach(var part in clearcombo.Where(c => c.Key.Contains(contains))){
 							part.Value.gameObject.active = true;
@@ -1043,7 +1052,7 @@ public class InGameScript : MonoBehaviour {
 					clearFail.enabled = true;
 					blackSprite.enabled = true;
 					normalScaleClearFail = clearFail.transform.localScale;
-					clearFail.transform.localScale = fillVector(clearFail.transform.localScale.x/10f, clearFail.transform.localScale.y*10f, clearFail.transform.localScale.z);
+					clearFail.transform.localScale = fillVector(clearFail.transform.localScale.x*10f, clearFail.transform.localScale.y/10f, clearFail.transform.localScale.z);
 					clearFail.color = fillColor (clearFail.color.r, clearFail.color.g, clearFail.color.b, 0f);
 					appearClearok = true;
 					
@@ -1291,9 +1300,9 @@ public class InGameScript : MonoBehaviour {
 	#region GUI
 	void RefreshGUIPart(){
 		if(scoreToDisplay == Precision.FANTASTIC){
-				judgeSprite.color = fillColor(judgeSprite.color.r, judgeSprite.color.g, judgeSprite.color.b, alphaFantasticLimit + Mathf.PingPong(Time.time*speedClignotementFantastic, 1f - alphaFantasticLimit));
+			judgeSprite.color = fillColor(judgeSprite.color.r, judgeSprite.color.g, judgeSprite.color.b, alphaFantasticLimit + Mathf.PingPong(Time.time*speedClignotementFantastic, 1f - alphaFantasticLimit));
 		}else{
-			judgeSprite.color = fillColor(judgeSprite.color.r, judgeSprite.color.g, judgeSprite.color.b, 1f);
+			judgeSprite.color = fillColor(judgeSprite.color.r, judgeSprite.color.g, judgeSprite.color.b, alphaFantasticLimit);
 		}
 		
 		if(judgeSprite.enabled && timeDisplayScore > limitDisplayScore)
@@ -1303,10 +1312,11 @@ public class InGameScript : MonoBehaviour {
 		
 		if(actualZoom > 1f){
 			actualZoom -= speedZoomDecrease*Time.deltaTime;
-			judgeSprite.transform.localScale = baseScaleJudgeSprite*actualZoom;
+			judgeSprite.transform.localScale = actualBaseScaleJudge*actualZoom;
 		}
 		
-		if(comboLabel.color.a > 0.73f)
+		
+		if(comboLabel.color.a > 0.40f)
 		{
 			comboLabel.color = fillColor(comboLabel.color.r, comboLabel.color.g, comboLabel.color.b, comboLabel.color.a - Time.deltaTime*speedAlphaCombo);
 		}
@@ -1956,7 +1966,7 @@ public class InGameScript : MonoBehaviour {
 				score = 0f;	
 			}
 			scoreRefresh();
-			if(score >= recordScore && scoreBeatLabel.color == normalbeatColor)
+			if(score >= recordScore && scoreBeatLabel.effectColor == normalbeatColor)
 			{
 				scoreBeatLabel.effectColor = beatthebeatColor;
 			}
@@ -2012,15 +2022,14 @@ public class InGameScript : MonoBehaviour {
 				firstMisteak = timetotalchart;
 				ct = ComboType.NONE;
 			}
+			
 		}
-		
-		
-		if(comboLabel.color == dangerColor && (combo >= 25f || ct == ComboType.NONE))
+		theTimeBar.updatePS(ct, combo);
+		if(comboLabel.color.g == dangerColor.b && combo >= 25)
 		{
-			theTimeBar.updatePS(ct, combo);
 			comboLabel.color = normalColor;
 			comboLabel.effectColor = normalOutlineColor;
-		}else if(combo >= 100 && comboLabel.color == normalColor)
+		}else if(combo >= 100)
 		{
 			switch(ct)
 			{
@@ -2139,7 +2148,7 @@ public class InGameScript : MonoBehaviour {
 		DataManager.Instance.timeCombo = timeCombo;
 		for(int i=0; i<timeOfLife.Count; i++)
 		{
-			if(!timeCombo.ContainsKey(timeOfLife[i])) lifeGraph.Add(timeOfLife[i], numberLife[i]);	
+			if(!lifeGraph.ContainsKey(timeOfLife[i])) lifeGraph.Add(timeOfLife[i], numberLife[i]);	
 		}
 		DataManager.Instance.lifeGraph = lifeGraph;
 		DataManager.Instance.firstEx = firstEx;
@@ -2189,6 +2198,8 @@ public class InGameScript : MonoBehaviour {
 	
 	public void displayPrec(double prec){
 		judgeSprite.enabled = true;
+		timeDisplayScore = 0f;
+		scoreToDisplay = timeToPrec(prec);
 		if(scoreToDisplay != Precision.DECENT && scoreToDisplay != Precision.WAYOFF)
 		{
 			actualZoom = zoomPower;
@@ -2196,9 +2207,10 @@ public class InGameScript : MonoBehaviour {
 		{
 			actualZoom = 1f;
 		}
-		
-		judgeSprite.name = timeToPrec(prec).ToString();
-		judgeSprite.transform.localScale = baseScaleJudgeSprite*actualZoom;
+		judgeSprite.spriteName = scoreToDisplay.ToString();
+		judgeSprite.MakePixelPerfect();
+		actualBaseScaleJudge = baseScaleJudgeSprite[(int)scoreToDisplay]*coefficientScaleJudge;
+		judgeSprite.transform.localScale = actualBaseScaleJudge*actualZoom;
 	}
 	
 	Precision timeToPrec(double prec){

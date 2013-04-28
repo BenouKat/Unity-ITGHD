@@ -125,49 +125,52 @@ public class LifeBar : MonoBehaviour {
 				lifebar[lifebar.Length - 1].transform.localScale = baseScale[lifebar.Length - 1];
 			}
 			
-			if(realLife >= 100f)
-			{
-				if(!turnActivated && Ring.transform.eulerAngles.x < 60f)
-				{
-					poolVector.x = 60f;
-					poolVector.y = Ring.transform.eulerAngles.y;
-					poolVector.z = Ring.transform.eulerAngles.z;
-					Ring.transform.eulerAngles = Vector3.Lerp(Ring.transform.eulerAngles, poolVector, speedTurnMax*Time.deltaTime);
-					if(Ring.transform.eulerAngles.x > 59.99f)
-					{
-						turnActivated = true;
-						Ring.transform.eulerAngles = poolVector;
-					}
-				}
-				Ring.transform.Rotate(0f, 0f, speedTurn*Time.deltaTime);
-			}else if(turnActivated)
-			{
-				poolVector.x = 0f;
-				poolVector.y = Ring.transform.eulerAngles.y;
-				poolVector.z = 0f;
-				Ring.transform.eulerAngles = Vector3.Lerp(Ring.transform.eulerAngles, poolVector, speedTurnMax*Time.deltaTime);
-				if(Vector3.Distance(Ring.transform.eulerAngles, poolVector) < 0.01f)
-				{
-					turnActivated = false;
-					Ring.transform.eulerAngles = poolVector;
-				}
-			}
-			
 			realLife = Mathf.Lerp(realLife, objectivLife, thelerp);
 			if(Mathf.Abs(realLife - objectivLife) < limit) realLife = objectivLife;
 			
 			lifeInfo.text = realLife < 100f ? realLife.ToString("00") + "%" : "SYNC";
 			
-			if(realLife <= 25f)
-			{
-				lifeHUD.color = Color.Lerp(white, colorDanger, Mathf.PingPong(lerpDanger, 1f));
-				lerpDanger += speedClignDanger*Time.deltaTime;
-			}else if(lerpDanger != 0f)
-			{
-				lifeHUD.color = white;
-				lerpDanger = 0f;
-			}
+			
 				
+		}
+		
+		if(realLife >= 100f)
+		{
+			if(!turnActivated && Ring.transform.eulerAngles.x < 60f)
+			{
+				poolVector.x = 60f;
+				poolVector.y = Ring.transform.eulerAngles.y;
+				poolVector.z = Ring.transform.eulerAngles.z;
+				Ring.transform.eulerAngles = Vector3.Lerp(Ring.transform.eulerAngles, poolVector, speedTurnMax*Time.deltaTime);
+				if(Ring.transform.eulerAngles.x > 59.99f)
+				{
+					turnActivated = true;
+					Ring.transform.eulerAngles = poolVector;
+				}
+			}
+			Ring.transform.Rotate(0f, 0f, speedTurn*Time.deltaTime);
+		}else if(turnActivated)
+		{
+			poolVector.x = 0f;
+			poolVector.y = Ring.transform.eulerAngles.y;
+			poolVector.z = 0f;
+			Ring.transform.eulerAngles = Vector3.Lerp(Ring.transform.eulerAngles, poolVector, speedTurnMax*Time.deltaTime);
+			if(Vector3.Distance(Ring.transform.eulerAngles, poolVector) < 0.01f)
+			{
+				turnActivated = false;
+				Ring.transform.eulerAngles = poolVector;
+			}
+		}
+		
+		
+		if(realLife <= 25f)
+		{
+			lifeHUD.color = Color.Lerp(white, colorDanger, Mathf.PingPong(lerpDanger, 1f));
+			lerpDanger += speedClignDanger*Time.deltaTime;
+		}else if(lerpDanger != 0f)
+		{
+			lifeHUD.color = white;
+			lerpDanger = 0f;
 		}
 		
 		matCube[0].SetFloat("_Shininess", lowBrillance + Mathf.PingPong((Time.time*speedBrillance), maxBrillance - lowBrillance) + 0.001f);
