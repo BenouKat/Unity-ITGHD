@@ -1008,7 +1008,7 @@ public class InGameScript : MonoBehaviour {
 					dead = true;
 					
 					clearFail.enabled = true;
-					clearFail.spriteName = "Failed";
+					clearFail.spriteName = "Fail";
 					blackSprite.enabled = true;
 					normalScaleClearFail = clearFail.transform.localScale;
 					clearFail.transform.localScale = fillVector(clearFail.transform.localScale.x*10f, clearFail.transform.localScale.y/10f, clearFail.transform.localScale.z);
@@ -1081,12 +1081,14 @@ public class InGameScript : MonoBehaviour {
 			oneSecond += Time.deltaTime;
 			if(!dead) MoveCameraBefore();
 			if(dead){
-			
 				//Etape 1 : Faire apparaitre le fail
-				if(scaleProgressClearFail < 1f){
-					scaleProgressClearFail += speedScaleClearFail*Time.deltaTime;
-					clearFail.transform.localScale = Vector3.Lerp(clearFail.transform.localScale, normalScaleClearFail, scaleProgressClearFail > 1f ? 1f : scaleProgressClearFail);
-					clearFail.color = fillColor (clearFail.color.r, clearFail.color.g, clearFail.color.b, scaleProgressClearFail*4f > 1f ? 1f : scaleProgressClearFail*4f);
+				if(scaleProgressClearFail < 1f){ 
+					if(oneSecond >= TEMPO_FailAppear)
+					{
+						scaleProgressClearFail += speedScaleClearFail*Time.deltaTime;
+						clearFail.transform.localScale = Vector3.Lerp(clearFail.transform.localScale, normalScaleClearFail, scaleProgressClearFail > 1f ? 1f : scaleProgressClearFail);
+						clearFail.color = fillColor (clearFail.color.r, clearFail.color.g, clearFail.color.b, scaleProgressClearFail*4f > 1f ? 1f : scaleProgressClearFail*4f);
+					}
 				}
 				//Etape 2 : Faire apparaitre le fondu noir
 				else if(alphaBlackSprite < 1f)
@@ -1131,6 +1133,7 @@ public class InGameScript : MonoBehaviour {
 						Application.LoadLevel("ScoreScene");
 					}
 				}
+				
 			}else if(oneSecond >= 0.5f && !scenechartfaded){
 				GetComponent<FadeManager>().FadeOut();
 				scenechartfaded = true;
@@ -1167,6 +1170,10 @@ public class InGameScript : MonoBehaviour {
 			matArrowModel.color -= fillColor(poolFloat,poolFloat,poolFloat, 0f);
 		}
 		
+		if(dead && scaleProgressClearFail >= 1f)
+		{
+			judgeSprite.color = fillColor(judgeSprite.color.r, judgeSprite.color.g, judgeSprite.color.b, alphaFailLimit + Mathf.PingPong(Time.time*speedClignotementFail, 1f - alphaFailLimit));
+		}
 		/*
 		if(timetotalchart >= firstArrow && timetotalchart < lastArrow){
 			var div = (float)((timetotalchart - firstArrow)/(lastArrow - firstArrow));
