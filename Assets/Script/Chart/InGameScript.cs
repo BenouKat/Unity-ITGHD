@@ -256,6 +256,9 @@ public class InGameScript : MonoBehaviour {
 	public UISprite FullComboSprite;
 	public Vector3[] baseScaleFCSprite;
 	public float coefficientScaleFCSprite;
+	public UISprite fastSprite;
+	public UISprite slowSprite;
+	public float speedFastSlowAlpha;
 	
 	
 	//DISPLAY
@@ -1017,6 +1020,9 @@ public class InGameScript : MonoBehaviour {
 					buttonGiveUp.SetActiveRecursively(true);
 					inputSpeedmod.SetActiveRecursively(true);
 					labelSpeedmod.enabled = true;
+					judgeSprite.enabled = false;
+					fastSprite.enabled = false;
+					slowSprite.enabled = false;
 					
 					mainAudioSource.Stop ();
 					mainAudioSource.volume = 1f;
@@ -1328,6 +1334,16 @@ public class InGameScript : MonoBehaviour {
 			comboLabel.color = fillColor(comboLabel.color.r, comboLabel.color.g, comboLabel.color.b, comboLabel.color.a - Time.deltaTime*speedAlphaCombo);
 		}
 		
+		if(fastSprite.color.a > 0f)
+		{
+			fastSprite.color = fillColor (1f, 1f, 1f, fastSprite.color.a - speedFastSlowAlpha*Time.deltaTime);	
+		}
+		
+		if(slowSprite.color.a > 0f)
+		{
+			slowSprite.color = fillColor (1f, 1f, 1f, slowSprite.color.a - speedFastSlowAlpha*Time.deltaTime);
+		}
+		
 		timeDisplayScore += Time.deltaTime;
 		
 	}
@@ -1464,9 +1480,14 @@ public class InGameScript : MonoBehaviour {
 			}
 			
 			if(prec > precToTime(Precision.FANTASTIC) && prec < precToTime(Precision.WAYOFF)){
-				stateSpeed = -1f*Mathf.Sign((float)(arrowSelected.time - timetotalchart));
-			}else{
-				stateSpeed = 0f;	
+				if(realprec < 0f)
+				{
+					slowSprite.color = fillColor(1f, 1f, 1f, 1f);
+					fastSprite.color = fillColor(1f, 1f, 1f, 0f);
+				}else{
+					fastSprite.color = fillColor(1f, 1f, 1f, 1f);
+					slowSprite.color = fillColor (1f, 1f, 1f, 0f);
+				}
 			}
 			
 		}
@@ -1524,9 +1545,14 @@ public class InGameScript : MonoBehaviour {
 			}
 			
 			if(prec > precToTime(Precision.FANTASTIC) && prec < precToTime(Precision.WAYOFF)){
-				stateSpeed = -1f*Mathf.Sign((float)(arrowSelected.time - timetotalchart));
-			}else{
-				stateSpeed = 0f;	
+				if(realprec < 0f)
+				{
+					slowSprite.color = fillColor(1f, 1f, 1f, 1f);
+					fastSprite.color = fillColor(1f, 1f, 1f, 0f);
+				}else{
+					fastSprite.color = fillColor(1f, 1f, 1f, 1f);
+					slowSprite.color = fillColor (1f, 1f, 1f, 0f);
+				}	
 			}
 		}
 		
@@ -1582,9 +1608,14 @@ public class InGameScript : MonoBehaviour {
 			}
 			
 			if(prec > precToTime(Precision.FANTASTIC) && prec < precToTime(Precision.WAYOFF)){
-				stateSpeed = -1f*Mathf.Sign((float)(arrowSelected.time - timetotalchart));
-			}else{
-				stateSpeed = 0f;	
+				if(realprec < 0f)
+				{
+					slowSprite.color = fillColor(1f, 1f, 1f, 1f);
+					fastSprite.color = fillColor(1f, 1f, 1f, 0f);
+				}else{
+					fastSprite.color = fillColor(1f, 1f, 1f, 1f);
+					slowSprite.color = fillColor (1f, 1f, 1f, 0f);
+				}	
 			}
 		
 		}
@@ -1641,9 +1672,14 @@ public class InGameScript : MonoBehaviour {
 			}
 			
 			if(prec > precToTime(Precision.FANTASTIC) && prec < precToTime(Precision.WAYOFF)){
-				stateSpeed = -1f*Mathf.Sign((float)(arrowSelected.time - timetotalchart));
-			}else{
-				stateSpeed = 0f;	
+				if(realprec < 0f)
+				{
+					slowSprite.color = fillColor(1f, 1f, 1f, 1f);
+					fastSprite.color = fillColor(1f, 1f, 1f, 0f);
+				}else{
+					fastSprite.color = fillColor(1f, 1f, 1f, 1f);
+					slowSprite.color = fillColor (1f, 1f, 1f, 0f);
+				}	
 			}
 		}
 		
