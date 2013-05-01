@@ -36,11 +36,14 @@ public class TimeBar : MonoBehaviour {
 	
 	public UILabel labelTime;
 	
+	private float oldTime;
+	
 	private Vector3 poolVector;
 	
 	void Start () {
 		lerpColor = 1f;
 		lerpClign = 0f;
+		oldTime = -100000f;
 		psLowCombo.Play();
 		activeCombo = true;
 		hitBarMaterial = hitBar.renderer.material;
@@ -87,7 +90,7 @@ public class TimeBar : MonoBehaviour {
 			poolVector.y = beginY + ecartWithBeginY*((timetotal - timeBegin)/(timeEnd - timeBegin));
 			poolVector.z = cursorTimeObject.position.z;
 			cursorTimeObject.position = poolVector;
-			refreshLabel(timeEnd - timetotal - timeBegin);
+			refreshLabel(timeEnd - timetotal);
 		}
 	}
 	
@@ -132,12 +135,16 @@ public class TimeBar : MonoBehaviour {
 	
 	public void refreshLabel(float timeArgs)
 	{
-		if(timeArgs >= 0f)
+		if((int)timeArgs != (int)oldTime)
 		{
-			labelTime.text = (timeArgs/60f).ToString("0") + ":" + (timeArgs%60).ToString("00");
-		}else
-		{
-			labelTime.text = "0:00";	
+			if(timeArgs >= 0f)
+			{
+				labelTime.text = (timeArgs/60f).ToString("0") + ":" + (timeArgs%60).ToString("00");
+			}else
+			{
+				labelTime.text = "0:00";	
+			}
+			oldTime = timeArgs;
 		}
 	}
 	

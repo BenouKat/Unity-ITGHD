@@ -59,17 +59,21 @@ public class MineScript : MonoBehaviour {
 	// Update is called once per frame
 	void LateUpdate () {
 		if(!missed){
-			if(associatedArrow.time <= igs.getTotalTimeChart() && (Input.GetKey(associatedKeyCode1) || Input.GetKey(associatedKeyCode2))){
-				this.pm();
-				secondAudioSource.Stop();
-				secondAudioSource.PlayOneShot(explosionSound);
-				igs.GainScoreAndLife("MINE");
-				igs.AddMineToScoreCombo();
-				igs.removeMineFromList(associatedArrow, state);
-				arrowLeft.SetActiveRecursively(false);
-			}else if(associatedArrow.time <= igs.getTotalTimeChart()){
-				missed = true;
-				igs.removeMineFromList(associatedArrow, state);
+			if(associatedArrow.time <= igs.getTotalTimeChart()){
+				if((Input.GetKey(associatedKeyCode1) || Input.GetKey(associatedKeyCode2)))
+				{
+					this.pm();
+					secondAudioSource.Stop();
+					secondAudioSource.PlayOneShot(explosionSound);
+					igs.GainScoreAndLife("MINE");
+					igs.AddMineToScoreCombo();
+					igs.removeMineFromList(associatedArrow, state);
+					arrowLeft.SetActiveRecursively(false);
+				}else
+				{
+					missed = true;
+					igs.removeMineFromList(associatedArrow, state);
+				}
 			}
 		}else{
 			if(igs.desactiveGameObjectMissed(associatedArrow.goArrow, associatedArrow.goFreeze, associatedArrow.distanceDisappear))

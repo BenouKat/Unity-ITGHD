@@ -51,8 +51,10 @@ public class LifeBar : MonoBehaviour {
 	private int poolIndex = 0;
 	private Vector3 poolVector = new Vector3(0f, 0f, 0f);
 	private float lerpDanger;
+	private float oldRealLife;
 	
 	void Start () {
+		oldRealLife = -50f;
 		matCube = new Material[lifebar.Length];
 		lerpDanger = 0f;
 		realLife = 40f;
@@ -128,25 +130,30 @@ public class LifeBar : MonoBehaviour {
 			realLife = Mathf.Lerp(realLife, objectivLife, thelerp);
 			if(Mathf.Abs(realLife - objectivLife) < limit) realLife = objectivLife;
 			
-			lifeInfo.text = realLife < 100f ? realLife.ToString("00") + "%" : "SYNC";
-			
+			if(realLife != oldRealLife)
+			{
+				lifeInfo.text = realLife < 100f ? (realLife - 0.5f).ToString("00") + "%" : "SYNC";
+				oldRealLife = realLife;
+			}
 			
 				
 		}
 		
 		if(realLife >= 100f)
 		{
-			if(!turnActivated && Ring.transform.eulerAngles.x < 60f)
+			if(Ring.transform.eulerAngles.x < 60f)
 			{
 				poolVector.x = 60f;
 				poolVector.y = Ring.transform.eulerAngles.y;
 				poolVector.z = Ring.transform.eulerAngles.z;
 				Ring.transform.eulerAngles = Vector3.Lerp(Ring.transform.eulerAngles, poolVector, speedTurnMax*Time.deltaTime);
-				if(Ring.transform.eulerAngles.x > 59.99f)
+				if(Ring.transform.eulerAngles.x >= 59.99f)
 				{
 					turnActivated = true;
 					Ring.transform.eulerAngles = poolVector;
 				}
+			}else if(!turnActivated){
+				turnActivated = true;	
 			}
 			Ring.transform.Rotate(0f, 0f, speedTurn*Time.deltaTime);
 		}else if(turnActivated)

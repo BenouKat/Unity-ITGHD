@@ -25,10 +25,8 @@ public class Arrow {
 	public List<Arrow> neighboors;
 	
 	//Pool
-	private Color typeFreeze = new Color(0.4f, 0.4f, 0.4f, 1f);
-	private Color typeRoll = new Color(0.4f, 0.4f, 0f, 1f);
-	private Color typeFreezeNormal = new Color(1f, 1f, 1f, 1f);
-	private Color typeRollNormal = new Color(1f, 1f, 0f, 1f);
+	private Color typeFreezeNormal = new Color(0.65f, 0.65f, 0.65f, 1f);
+	private Color typeRollNormal = new Color(0.725f, 0.635f, 0.24f, 1f);
 	private Color col = new Color(0f, 0f, 0f, 0f);
 	private float poolValueFreeze;
 	
@@ -53,11 +51,6 @@ public class Arrow {
 		EndFreeze = particule;
 		posEnding = pos;
 		col = goFreeze.transform.GetChild(0).renderer.material.color;
-		if(arrowType == ArrowType.FREEZE) {
-			goFreeze.renderer.material.color = typeFreeze;
-		}else{
-			goFreeze.renderer.material.color = typeRoll;
-		}
 		col.a = 0f;
 		goFreeze.transform.GetChild(0).renderer.material.color = col;
 		distanceDisappear = distanceDisappearBase + ((goFreeze.transform.localScale.y)*2f);
@@ -76,21 +69,23 @@ public class Arrow {
 	}
 	
 	public void changeColorFreeze(float valueFreeze, float maxValue){	
-		poolValueFreeze = (Mathf.Pow(valueFreeze, 0.5f)/Mathf.Pow(maxValue, 0.5f));
-		if(arrowType == ArrowType.FREEZE) {
-			col.r = 1f - poolValueFreeze*1.5f;
-			col.g = 1f - poolValueFreeze*1.5f;
-			col.b = 1f - poolValueFreeze*1.5f;
+		//poolValueFreeze = (Mathf.Pow(valueFreeze, 0.5f)/Mathf.Pow(maxValue, 0.5f));
+		poolValueFreeze = valueFreeze/maxValue;
+		if(arrowType == ArrowType.FREEZE)
+		{
+			col.r = typeFreezeNormal.r - poolValueFreeze;
+			col.g = typeFreezeNormal.g - poolValueFreeze;
+			col.b = typeFreezeNormal.b - poolValueFreeze;
 			col.a = 1f;
-			goFreeze.renderer.material.color = col;
-		}else{
-			col.r = 1f - poolValueFreeze*1.5f;
-			col.g = 1f - poolValueFreeze*1.5f;
-			col.b = 0;
+		}else
+		{
+			col.r = typeRollNormal.r - poolValueFreeze;
+			col.g = typeRollNormal.g - poolValueFreeze;
+			col.b = typeRollNormal.b - poolValueFreeze;
 			col.a = 1f;
-			goFreeze.renderer.material.color = col;
 		}
 		
+		goFreeze.renderer.material.color = col;
 	}
 	
 	

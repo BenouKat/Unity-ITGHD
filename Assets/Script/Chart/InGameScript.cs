@@ -11,6 +11,7 @@ public class InGameScript : MonoBehaviour {
 	private GameObject arrow;
 	public List<GameObject> typeArrow;
 	public GameObject freeze;
+	public GameObject roll;
 	public GameObject mines;
 	public Camera MainCamera;
 	private Transform TMainCamera;
@@ -195,6 +196,7 @@ public class InGameScript : MonoBehaviour {
 	
 	
 	//NEW GUI
+	public UICamera cameraUI;
 	public UILabel comboLabel;
 	public Color dangerColor;
 	public Color dangerOutlineColor;
@@ -346,6 +348,7 @@ public class InGameScript : MonoBehaviour {
 	private Rect poolRect = new Rect(0f, 0f, 0f, 0f);
 	private Color poolColor = new Color(0f, 0f, 0f, 0f);
 	private Vector3 poolVector = new Vector3(0f, 0f, 0f);
+	private Vector2 poolVector2 = new Vector2(0f, 0f);
 	private float poolFloat = 0f;
 	private KeyValuePair<Arrow, float> poolArrow;
 	private ParticleSystem poolPS;
@@ -441,6 +444,7 @@ public class InGameScript : MonoBehaviour {
 		
 		
 		RenderSettings.skybox = DataManager.Instance.skyboxList.ElementAt(rand);
+		RenderSettings.skybox.SetColor("_Tint", fillColor(0.35f, 0.35f, 0.35f, 0.5f));
 		DataManager.Instance.skyboxIndexSelected = rand;
 		displayValue = DataManager.Instance.displaySelected;
 		
@@ -764,6 +768,9 @@ public class InGameScript : MonoBehaviour {
 		bkgrInput = inputSpeedmod.transform.FindChild("Background").GetComponent<UISlicedSprite>();
 		lblInput = inputSpeedmod.transform.FindChild("Label").GetComponent<UILabel>();
 		
+		
+		Screen.showCursor = false;
+		
 		/*
 		infoSongCalc = new Rect(infoSong.x*Screen.width, infoSong.y*Screen.height, infoSong.width*Screen.width, infoSong.height*Screen.height);
 		infoSongCalcShadow = new Rect(infoSong.x*Screen.width + 1, infoSong.y*Screen.height + 1, infoSong.width*Screen.width, infoSong.height*Screen.height);
@@ -776,6 +783,7 @@ public class InGameScript : MonoBehaviour {
 	
 	void OnApplicationQuit()
 	{
+		RenderSettings.skybox.SetColor("_Tint", fillColor(0.5f, 0.5f, 0.5f, 0.5f));
 		DataManager.Instance.removeRatedSong();
 	}
 	
@@ -1023,6 +1031,8 @@ public class InGameScript : MonoBehaviour {
 					judgeSprite.enabled = false;
 					fastSprite.enabled = false;
 					slowSprite.enabled = false;
+					cameraUI.enabled = true;
+					Screen.showCursor = true;
 					
 					mainAudioSource.Stop ();
 					mainAudioSource.volume = 1f;
@@ -1073,6 +1083,8 @@ public class InGameScript : MonoBehaviour {
 					if(alphaBlackSprite >= 1f)
 					{
 							SendDataToDatamanager();
+							RenderSettings.skybox.SetColor("_Tint", fillColor(0.5f, 0.5f, 0.5f, 0.5f));
+							Screen.showCursor = true;
 							Application.LoadLevel("ScoreScene");
 					}
 					alphaBlackSprite += speedAlphaBlackSprite*Time.deltaTime;
@@ -1136,6 +1148,7 @@ public class InGameScript : MonoBehaviour {
 					if(deadAndRetry){
 						Application.LoadLevel("ChartScene");
 					}else if(deadAndGiveUp){
+						RenderSettings.skybox.SetColor("_Tint", fillColor(0.5f, 0.5f, 0.5f, 0.5f));
 						Application.LoadLevel("ScoreScene");
 					}
 				}
@@ -1251,16 +1264,19 @@ public class InGameScript : MonoBehaviour {
 		bpsForActualFrame = thesong.getBPS(actualBPM);
 		moveForActualFrame = -((float)(bpsForActualFrame*timechart))*speedmod +  changeBPM;
 		TMainCamera.position = fillVector(3f, moveForActualFrame - 5, -10f);
-
-		foreach(var el in arrowFrozen.Keys){
-			posMoveArrow = el.goArrow.transform.position;
-			el.goArrow.transform.position = fillVector(posMoveArrow.x, moveForActualFrame, posMoveArrow.z);
-			posMoveArrow = el.goArrow.transform.position;
-			divMoveArrow = ((el.posEnding.y - posMoveArrow.y)/2f);
-			el.goFreeze.transform.position = fillVector(el.goFreeze.transform.position.x, (posMoveArrow.y + divMoveArrow) , el.goFreeze.transform.position.z);
-			el.goFreeze.transform.localScale = fillVector(1f, -divMoveArrow, 0.1f);
-			el.goFreeze.transform.GetChild(0).transform.localScale = fillVector((el.posEnding.y - posMoveArrow.y)/(el.posEnding.y - el.posBegining.y), 1f, 0.1f);
-			el.changeColorFreeze(arrowFrozen[el], unfrozed);
+		
+		if(arrowFrozen.Any()){
+			foreach(var el in arrowFrozen.Keys){
+				posMoveArrow = el.goArrow.transform.position;
+				el.goArrow.transform.position = fillVector(posMoveArrow.x, moveForActualFrame, posMoveArrow.z);
+				posMoveArrow = el.goArrow.transform.position;
+				divMoveArrow = ((el.posEnding.y - posMoveArrow.y)/2f);
+				el.goFreeze.transform.position = fillVector(el.goFreeze.transform.position.x, (posMoveArrow.y + divMoveArrow) , el.goFreeze.transform.position.z);
+				el.goFreeze.transform.localScale = fillVector(1f, -divMoveArrow, 0.1f);
+				el.goFreeze.renderer.material.SetTextureScale("_BumpMap", fillVector2(0.5f, -divMoveArrow));
+				el.goFreeze.transform.GetChild(0).transform.localScale = fillVector((el.posEnding.y - posMoveArrow.y)/(el.posEnding.y - el.posBegining.y), 1f, 0.1f);
+				el.changeColorFreeze(arrowFrozen[el], unfrozed);
+			}
 		}
 	}
 	
@@ -1312,7 +1328,7 @@ public class InGameScript : MonoBehaviour {
 	
 	#region GUI
 	void RefreshGUIPart(){
-		if(scoreToDisplay == Precision.FANTASTIC){
+		if(scoreToDisplay == Precision.FANTASTIC && timeDisplayScore > limitDisplayScore){
 			judgeSprite.color = fillColor(judgeSprite.color.r, judgeSprite.color.g, judgeSprite.color.b, alphaFantasticLimit + Mathf.PingPong(Time.time*speedClignotementFantastic, 1f - alphaFantasticLimit));
 		}else{
 			judgeSprite.color = fillColor(judgeSprite.color.r, judgeSprite.color.g, judgeSprite.color.b, alphaFantasticLimit);
@@ -1674,10 +1690,10 @@ public class InGameScript : MonoBehaviour {
 			if(prec > precToTime(Precision.FANTASTIC) && prec < precToTime(Precision.WAYOFF)){
 				if(realprec < 0f)
 				{
-					slowSprite.color = fillColor(1f, 1f, 1f, 1f);
+					slowSprite.color = fillColor(1f, 1f, 1f, 0.8f);
 					fastSprite.color = fillColor(1f, 1f, 1f, 0f);
 				}else{
-					fastSprite.color = fillColor(1f, 1f, 1f, 1f);
+					fastSprite.color = fillColor(1f, 1f, 1f, 0.8f);
 					slowSprite.color = fillColor (1f, 1f, 1f, 0f);
 				}	
 			}
@@ -1984,6 +2000,13 @@ public class InGameScript : MonoBehaviour {
 		poolVector.z = z;
 		
 		return poolVector;
+	}
+				
+	public Vector2 fillVector2(float x, float y){
+		poolVector2.x = x;
+		poolVector2.y = y;
+					
+		return poolVector2;
 	}
 	
 	public void GainScoreAndLife(string s){
@@ -2627,9 +2650,10 @@ public class InGameScript : MonoBehaviour {
 					}else if(note[i] == '3'){
 						barr = true;
 						var theArrow = ArrowFreezed[i];
-						if(ArrowFreezed[i] != null){
-							var goFreeze = (GameObject) Instantiate(freeze, new Vector3(i*2, (theArrow.goArrow.transform.position.y + ((-ypos - theArrow.goArrow.transform.position.y)/2f)) , 1f), freeze.transform.rotation);
-							goFreeze.transform.localScale = new Vector3(1f, -((-ypos - theArrow.goArrow.transform.position.y)/2f), 0.1f);
+						if(theArrow != null){
+							var goFreeze = (GameObject) Instantiate(theArrow.arrowType == ArrowType.FREEZE ? freeze : roll, new Vector3(i*2, (theArrow.goArrow.transform.position.y + ((-ypos - theArrow.goArrow.transform.position.y)/2f)) , 1f), freeze.transform.rotation);
+							goFreeze.transform.localScale = new Vector3(1f, -((-ypos - theArrow.goArrow.transform.position.y)/2f), 0.5f);
+							goFreeze.renderer.material.SetTextureScale("_BumpMap", fillVector2(0.5f, goFreeze.transform.localScale.y));
 							if(DataManager.Instance.skinSelected == 1 || DataManager.Instance.skinSelected == 3){
 							for(int j=0; j<theArrow.goArrow.transform.childCount;j++){
 								if(theArrow.goArrow.transform.GetChild(j).name.Contains("Deco")){
