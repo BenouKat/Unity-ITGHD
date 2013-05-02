@@ -2202,6 +2202,52 @@ public class InGameScript : MonoBehaviour {
 		return false;
 	}
 	
+	public void setButtonChoice(bool retry)
+	{
+		
+		speedmodstring = lblInput.text;
+					
+		if(!String.IsNullOrEmpty(speedmodstring)){
+			double result;
+			if(System.Double.TryParse(speedmodstring, out result)){
+				if(result >= (double)0.25 && result <= (double)15){
+					speedmodSelected = (float)result;
+					speedmodok = true;
+					var bpmdisplaying = thesong.bpmToDisplay;
+					if(bpmdisplaying.Contains("->")){
+						bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[0])*speedmodSelected*(1f + (rateSelected/100f))).ToString("0") + "->" + (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[1])*speedmodSelected*(1f + (rateSelected/100f))).ToString("0");
+					}else{
+						bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying)*speedmodSelected*(1f + (rateSelected/100f))).ToString("0");
+					}
+					labelSpeedmod.color = new Color(1f, 1f, 1f, 1f);
+					labelSpeedmod.text = "Speedmod : x" + speedmodSelected.ToString("0.00") + " (" + bpmdisplaying + " BPM)";
+				}else{
+					labelSpeedmod.color = new Color(0.7f, 0.2f, 0.2f, 1f);
+					labelSpeedmod.text = "Speedmod must be between x0.25 and x15";
+					speedmodok = false;
+				}
+			}else{
+				labelSpeedmod.color = new Color(0.7f, 0.2f, 0.2f, 1f);
+				labelSpeedmod.text = "Speedmod is not a valid value";
+				speedmodok = false;
+			}
+		}else{
+			labelSpeedmod.color = new Color(0.7f, 0.2f, 0.2f, 1f);
+			labelSpeedmod.text = "Empty value";
+			speedmodok = false;
+		}
+		
+		if(speedmodok)
+		{
+			if(retry)
+			{
+				deadAndRetry = true;
+			}else
+			{
+				deadAndGiveUp = true;	
+			}
+		}
+	}
 	
 	void SendDataToDatamanager(){
 		DataManager.Instance.scoreEarned = score;

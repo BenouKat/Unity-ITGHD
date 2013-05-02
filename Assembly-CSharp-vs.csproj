@@ -132,6 +132,7 @@
      <Compile Include="Assets\NGUI\Scripts\UI\UIViewport.cs" />
      <Compile Include="Assets\Script\Chart\Arrow.cs" />
      <Compile Include="Assets\Script\Chart\ArrowScript.cs" />
+     <Compile Include="Assets\Script\Chart\ClickButtonEvent.cs" />
      <Compile Include="Assets\Script\Chart\InGameScript.cs" />
      <Compile Include="Assets\Script\Chart\LifeBar.cs" />
      <Compile Include="Assets\Script\Chart\ManageGameObject.cs" />
