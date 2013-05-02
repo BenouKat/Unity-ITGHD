@@ -92,7 +92,9 @@ public class DataManager{
 	public int raceSelected;
 	public bool[] displaySelected;
 	public int deathSelected;
+	public double personalScore;
 	public double recordScore;
+	public string recordName;
 	
 	
 	

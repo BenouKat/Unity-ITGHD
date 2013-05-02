@@ -460,9 +460,11 @@ public class GeneralScript : MonoBehaviour {
 		var bestfriendscore = kv.Key;
 		var bestnamefriendscore = kv.Value;
 		DataManager.Instance.recordScore = bestfriendscore;
+		DataManager.Instance.recordName = bestnamefriendscore;
 		var isScoreFail = false;
 		
 		var mystats = ProfileManager.Instance.FindTheSongStat(songSelected[getZoneInfo().getActualySelected()].sip);
+		DataManager.Instance.personalScore = -1; 
 		if(mystats != null){
 			score = mystats.score;
 			isScoreFail = mystats.fail;
@@ -504,6 +506,13 @@ public class GeneralScript : MonoBehaviour {
 			}
 			
 		}
+		if(!isScoreFail)
+		{
+			DataManager.Instance.personalScore = score;	
+		}else{
+			DataManager.Instance.personalScore = -1;
+		}
+		
 		queryreturn = score + ";" + bestfriendscore + ";" + bestnamefriendscore + ";" + (isScoreFail ? "1" : "0");
 		return queryreturn;
 	}

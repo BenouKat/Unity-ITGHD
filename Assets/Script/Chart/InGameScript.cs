@@ -212,8 +212,11 @@ public class InGameScript : MonoBehaviour {
 	public UILabel scoreBeatLabel;
 	public Color normalbeatColor;
 	public Color idlebeatColor;
+	public Color beatthepersonalColor;
 	public Color beatthebeatColor;
+	private double persoRecordScore;
 	private double recordScore;
+	private string recordName;
 	public UISprite judgeSprite;
 	public Vector3[] baseScaleJudgeSprite;
 	private Vector3 actualBaseScaleJudge;
@@ -252,6 +255,7 @@ public class InGameScript : MonoBehaviour {
 	public GameObject inputSpeedmod;
 	private UISlicedSprite bkgrInput;
 	private UILabel lblInput;
+	private UIInput theUIInput;
 	public UILabel labelSpeedmod;
 	private float alphaButtonDie;
 	public float speedAlphaButtonDie;
@@ -371,7 +375,9 @@ public class InGameScript : MonoBehaviour {
 		isFullExComboRace = DataManager.Instance.raceSelected == 10;
 		targetScoreInverse = DataManager.Instance.giveTargetScoreOfRace(DataManager.Instance.raceSelected);
 		typeOfDeath = DataManager.Instance.deathSelected;
+		persoRecordScore = DataManager.Instance.personalScore;
 		recordScore = DataManager.Instance.recordScore;
+		recordName = DataManager.Instance.recordName;
 		KeyCodeDown = DataManager.Instance.KeyCodeDown;
 		KeyCodeUp = DataManager.Instance.KeyCodeUp;
 		KeyCodeLeft = DataManager.Instance.KeyCodeLeft;
@@ -647,16 +653,15 @@ public class InGameScript : MonoBehaviour {
 			infoToDisplay += "First try\n";
 		}
 		
-		var kv = ProfileManager.Instance.FindTheBestScore(thesong.sip);
-		if(kv.Key != -1)
-		{	
-			infoToDisplay += "Friends best :" + kv.Key.ToString("0.00") + "%" + "\n";
-			infoToDisplay += "Mastered by " + kv.Value + "\n";
-		}else{
-			infoToDisplay += "No friends score entry\n";
+		
+		if(recordScore != -1)
+		{
+			LabelDescriptionMaster.text = "Best : " + recordName;
+		}else
+		{
+			LabelDescriptionMaster.text = "Best : --";	
 		}
 		
-		LabelDescriptionMaster.text = infoToDisplay;
 		
 		LabelLevelNumber.text = thesong.level.ToString();
 		LabelLevelNumber.color = DataManager.Instance.diffColor[(int)thesong.difficulty];
@@ -751,6 +756,8 @@ public class InGameScript : MonoBehaviour {
 		
 		judgeSprite.enabled = false;
 		
+		
+		
 		//baseScaleJudgeSprite = judgeSprite.transform.localScale;
 		
 		clearFail.enabled = false;
@@ -767,6 +774,9 @@ public class InGameScript : MonoBehaviour {
 		
 		bkgrInput = inputSpeedmod.transform.FindChild("Background").GetComponent<UISlicedSprite>();
 		lblInput = inputSpeedmod.transform.FindChild("Label").GetComponent<UILabel>();
+		theUIInput = inputSpeedmod.GetComponent<UIInput>();
+		
+		theUIInput.text = speedmodSelected.ToString("0.00");
 		
 		
 		Screen.showCursor = false;
@@ -1118,6 +1128,7 @@ public class InGameScript : MonoBehaviour {
 					}
 				//Etape 3 : Faire apparaitre les boutons et le texte
 				}else if(!deadAndGiveUp && !deadAndRetry && alphaButtonDie < 1f){
+					speedmodok = false;
 					alphaButtonDie += speedAlphaButtonDie*Time.deltaTime;
 					bkgrRetry.color = fillColor(bkgrRetry.color.r, bkgrRetry.color.g, bkgrRetry.color.b, alphaButtonDie);
 					lblRetry.color = fillColor(lblRetry.color.r, lblRetry.color.g, lblRetry.color.b, alphaButtonDie);
@@ -1127,11 +1138,40 @@ public class InGameScript : MonoBehaviour {
 					lblInput.color = fillColor(lblInput.color.r, lblInput.color.g, lblInput.color.b, alphaButtonDie);
 					labelSpeedmod.color = fillColor(labelSpeedmod.color.r, labelSpeedmod.color.g, labelSpeedmod.color.b, alphaButtonDie);
 				}else if(!deadAndGiveUp && !deadAndRetry){
-					//wait
+					speedmodstring = theUIInput.text;
+					
+					if(!String.IsNullOrEmpty(speedmodstring)){
+						double result;
+						if(System.Double.TryParse(speedmodstring, out result)){
+							if(result >= (double)0.25 && result <= (double)15){
+								speedmodSelected = (float)result;
+								speedmodok = true;
+								var bpmdisplaying = thesong.bpmToDisplay;
+								if(bpmdisplaying.Contains("->")){
+									bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[0])*speedmodSelected*(1f + (rateSelected/100f))).ToString("0") + "->" + (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[1])*speedmodSelected*(1f + (rateSelected/100f))).ToString("0");
+								}else{
+									bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying)*speedmodSelected*(1f + (rateSelected/100f))).ToString("0");
+								}
+								labelSpeedmod.color = new Color(1f, 1f, 1f, 1f);
+								labelSpeedmod.text = "Speedmod : x" + speedmodSelected.ToString("0.00") + " (" + bpmdisplaying + " BPM)";
+							}else{
+								labelSpeedmod.color = new Color(0.7f, 0.2f, 0.2f, 1f);
+								labelSpeedmod.text = "Speedmod must be between x0.25 and x15";
+								speedmodok = false;
+							}
+						}else{
+							labelSpeedmod.color = new Color(0.7f, 0.2f, 0.2f, 1f);
+							labelSpeedmod.text = "Speedmod is not a valid value";
+							speedmodok = false;
+						}
+					}else{
+						labelSpeedmod.color = new Color(0.7f, 0.2f, 0.2f, 1f);
+						labelSpeedmod.text = "Empty value";
+						speedmodok = false;
+					}
 				//Etape 5 : Faire disparaitre le fail et le reste en fondu
 				}else if(alphaButtonDie > 0f)
 				{
-					
 					bkgrRetry.color += fillColor(bkgrRetry.color.r, bkgrRetry.color.g, bkgrRetry.color.b, alphaButtonDie);
 					lblRetry.color += fillColor(lblRetry.color.r, lblRetry.color.g, lblRetry.color.b, alphaButtonDie);
 					bkgrGiveUp.color += fillColor(bkgrGiveUp.color.r, bkgrGiveUp.color.g, bkgrGiveUp.color.b, alphaButtonDie);
@@ -1139,7 +1179,6 @@ public class InGameScript : MonoBehaviour {
 					bkgrInput.color += fillColor(bkgrInput.color.r, bkgrInput.color.g, bkgrInput.color.b, alphaButtonDie);
 					lblInput.color += fillColor(lblInput.color.r, lblInput.color.g, lblInput.color.b, alphaButtonDie);
 					labelSpeedmod.color += fillColor(labelSpeedmod.color.r, labelSpeedmod.color.g, labelSpeedmod.color.b, alphaButtonDie);
-					blackSprite.color = fillColor(blackSprite.color.r, blackSprite.color.g, blackSprite.color.b, alphaButtonDie);
 					alphaButtonDie -= speedAlphaButtonDie*Time.deltaTime;
 				}
 				//Etape 6 : Changement
@@ -2032,7 +2071,11 @@ public class InGameScript : MonoBehaviour {
 				score = 0f;	
 			}
 			scoreRefresh();
-			if(score >= recordScore && scoreBeatLabel.effectColor == normalbeatColor)
+			if(score >= persoRecordScore && scoreBeatLabel.effectColor == normalbeatColor)
+			{
+				scoreBeatLabel.effectColor = beatthepersonalColor;
+			}
+			if(score >= recordScore && scoreBeatLabel.effectColor == beatthepersonalColor)
 			{
 				scoreBeatLabel.effectColor = beatthebeatColor;
 			}
@@ -2204,40 +2247,7 @@ public class InGameScript : MonoBehaviour {
 	
 	public void setButtonChoice(bool retry)
 	{
-		
-		speedmodstring = lblInput.text;
-					
-		if(!String.IsNullOrEmpty(speedmodstring)){
-			double result;
-			if(System.Double.TryParse(speedmodstring, out result)){
-				if(result >= (double)0.25 && result <= (double)15){
-					speedmodSelected = (float)result;
-					speedmodok = true;
-					var bpmdisplaying = thesong.bpmToDisplay;
-					if(bpmdisplaying.Contains("->")){
-						bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[0])*speedmodSelected*(1f + (rateSelected/100f))).ToString("0") + "->" + (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[1])*speedmodSelected*(1f + (rateSelected/100f))).ToString("0");
-					}else{
-						bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying)*speedmodSelected*(1f + (rateSelected/100f))).ToString("0");
-					}
-					labelSpeedmod.color = new Color(1f, 1f, 1f, 1f);
-					labelSpeedmod.text = "Speedmod : x" + speedmodSelected.ToString("0.00") + " (" + bpmdisplaying + " BPM)";
-				}else{
-					labelSpeedmod.color = new Color(0.7f, 0.2f, 0.2f, 1f);
-					labelSpeedmod.text = "Speedmod must be between x0.25 and x15";
-					speedmodok = false;
-				}
-			}else{
-				labelSpeedmod.color = new Color(0.7f, 0.2f, 0.2f, 1f);
-				labelSpeedmod.text = "Speedmod is not a valid value";
-				speedmodok = false;
-			}
-		}else{
-			labelSpeedmod.color = new Color(0.7f, 0.2f, 0.2f, 1f);
-			labelSpeedmod.text = "Empty value";
-			speedmodok = false;
-		}
-		
-		if(speedmodok)
+		if(speedmodok && !deadAndGiveUp && !deadAndRetry)
 		{
 			if(retry)
 			{
