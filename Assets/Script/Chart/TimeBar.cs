@@ -34,11 +34,14 @@ public class TimeBar : MonoBehaviour {
 	
 	private bool activeCombo;
 	
+	public UISprite HUDTime;
 	public UILabel labelTime;
 	
 	private float oldTime;
 	
 	private Vector3 poolVector;
+	
+	private bool activated = true;
 	
 	void Start () {
 		lerpColor = 1f;
@@ -95,31 +98,33 @@ public class TimeBar : MonoBehaviour {
 	}
 	
 	public void updatePS(ComboType ct, int combo){
-		if(combo >= 100){
-			if(psLowCombo.isPlaying) psLowCombo.Stop();
-			if(ct == ComboType.FULLFANTASTIC){
-				if(!psFFC.gameObject.active) psFFC.gameObject.active = true;
-				if(!psFFC.isPlaying) psFFC.Play();
-			}else if(ct == ComboType.FULLEXCELLENT){
-				if(!psFEC.gameObject.active) psFEC.gameObject.active = true;
-				if(!psFEC.isPlaying) psFEC.Play();
-				if(psFFC.isPlaying) psFFC.Stop();
-			}else{
-				if(!psBigCombo.gameObject.active) psBigCombo.gameObject.active = true;
-				if(psFFC.isPlaying) psFFC.Stop();
-				if(psFEC.isPlaying) psFEC.Stop();
-				if(!psBigCombo.isPlaying) psBigCombo.Play();
+		if(activated){
+			if(combo >= 100){
+				if(psLowCombo.isPlaying) psLowCombo.Stop();
+				if(ct == ComboType.FULLFANTASTIC){
+					if(!psFFC.gameObject.active) psFFC.gameObject.active = true;
+					if(!psFFC.isPlaying) psFFC.Play();
+				}else if(ct == ComboType.FULLEXCELLENT){
+					if(!psFEC.gameObject.active) psFEC.gameObject.active = true;
+					if(!psFEC.isPlaying) psFEC.Play();
+					if(psFFC.isPlaying) psFFC.Stop();
+				}else{
+					if(!psBigCombo.gameObject.active) psBigCombo.gameObject.active = true;
+					if(psFFC.isPlaying) psFFC.Stop();
+					if(psFEC.isPlaying) psFEC.Stop();
+					if(!psBigCombo.isPlaying) psBigCombo.Play();
+				}
+			}else if(combo >= 25 && !activeCombo){
+				if(!psLowCombo.gameObject.active) psLowCombo.gameObject.active = true;
+				psBadCombo.Stop();
+				psLowCombo.Play();
+				activeCombo = true;
 			}
-		}else if(combo >= 25 && !activeCombo){
-			if(!psLowCombo.gameObject.active) psLowCombo.gameObject.active = true;
-			psBadCombo.Stop();
-			psLowCombo.Play();
-			activeCombo = true;
 		}
 	}
 	
 	public void breakPS(){
-		if(activeCombo){
+		if(activeCombo && activated){
 			activeCombo = false;
 			psFFC.Stop();
 			psFEC.Stop();
@@ -146,6 +151,13 @@ public class TimeBar : MonoBehaviour {
 			}
 			oldTime = timeArgs;
 		}
+	}
+	
+	public void disableTime()
+	{
+		labelTime.enabled = false;
+		HUDTime.enabled = false;
+		activated = false;
 	}
 	
 	

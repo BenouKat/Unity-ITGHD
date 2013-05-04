@@ -46,7 +46,6 @@ public class ArrowScript : MonoBehaviour {
 				igs.ComboStop(true);
 				igs.displayPrec(1);
 				igs.GainScoreAndLife("MISS");
-				igs.stateSpeed = 0f;
 			}
 			
 			if(associatedArrow.imJump){

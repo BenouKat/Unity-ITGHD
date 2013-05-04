@@ -26,8 +26,6 @@ public class InGameScript : MonoBehaviour {
 	private Material matArrowModel;
 	public GameObject lifeBar;
 	public GameObject timeBar;
-	//public GameObject slow;
-	//public GameObject fast;
 	public Camera particleComboCam;
 	
 	private LifeBar theLifeBar;
@@ -80,23 +78,9 @@ public class InGameScript : MonoBehaviour {
 	
 	//Temps pour l'affichage des scores
 	
-	public float baseZoom = 20f;
-	public float vitesseZoom = 0.1f;
 	
-	private float alpha;
 	private float zoom;
 	private Precision scoreToDisplay;
-	public Rect posScore = new Rect(0.38f,0.3f,0.25f,0.25f);
-	private Dictionary<Precision, int> countScore;
-	
-	//SLOWFAST
-	public float ClignSpeed;
-	public float stateSpeed; //-1 : fast, 0 : rien, 1 : slow
-	private bool changeColorSlow = false;
-	private bool changeColorFast = false;
-	private float div;
-	private float col;
-	private float colp;
 	
 	//LIFE
 	private float life;
@@ -110,7 +94,6 @@ public class InGameScript : MonoBehaviour {
 	private float fantasticValue;
 	private Dictionary<string, float> scoreBase;
 	private Dictionary<string, int> scoreCount;
-	public Rect posPercent = new Rect(0.39f, 0f, 0.45f, 0.05f);
 	
 	//PassToDataManager
 	private List<double> precAverage;
@@ -150,48 +133,16 @@ public class InGameScript : MonoBehaviour {
 	private Dictionary<string, ParticleSystem> precUp;
 	private Dictionary<string, ParticleSystem> precDown;
 	private Dictionary<string, ParticleSystem> clearcombo;
-	public ParticleSystem[] slowandfast; //0 slow 1 fast
 	
 	
 	
 	//GUI
 	
-	private Dictionary<string, Texture2D> TextureBase;
-	private Dictionary<Precision, Texture2D> TexturePrec;
-	private List<Texture2D> TextureScore;
-	private List<Texture2D> TextureCombo;
-	private float wd;
-	private float hg;
-	private float hgt;
-	public float ecart;
-	public float ecartCombo;
-	private int[] displaying; //score decoup
-	private int[] thetab; //combo decoup
-	public GUISkin skin;
-	public Rect infoDifficulty;
-	public Rect infoLevelDifficulty;
-	public Rect infoSong;
-	public Rect SpeedModTextAera;
-	public Rect SpeedModText;
-	public Rect SpeedModTextInfo;
 	private string speedmodstring;
 	private float speedmodSelected;
 	private bool speedmodok;
-	private int levelToDisplay;
 	private string infoToDisplay;
-	private Rect infoDifficultyCalc;
-	private Rect infoDifficultyLevelCalc;
-	private Rect infoSongCalc;
-	private Rect infoDifficultyCalcShadow;
-	private Rect infoDifficultyLevelCalcShadow;
-	private Rect infoSongCalcShadow;
-	private Color black = new Color(0f, 0f, 0f, 1f);
 	private Color white = new Color(1f, 1f, 1f, 1f);
-	private int[] outScoreTab = new int[5];
-	private string outScoreString;
-	private int[] outComboTab = new int[5];
-	private string outComboString;
-	private int tabLenght = 0;
 	private KeyValuePair<Precision, double> precFounded;
 	
 	
@@ -208,6 +159,8 @@ public class InGameScript : MonoBehaviour {
 	public Color maxOutlineColor;
 	public Color normalColor;
 	public Color normalOutlineColor;
+	public UISprite HUDScore;
+	public UISprite HUDCombo;
 	public UILabel scoreLabel;
 	public UILabel scoreBeatLabel;
 	public Color normalbeatColor;
@@ -237,6 +190,7 @@ public class InGameScript : MonoBehaviour {
 	public float alphaFantasticLimit = 0.8f;
 	public float speedClignotementFail = 20f;
 	public float alphaFailLimit = 0.9f;
+	private bool nojudge;
 	public float TEMPO_FailAppear;
 	public float TEMPO_BlackAppear;
 	public float TEMPO_ButtonAppear;
@@ -268,8 +222,6 @@ public class InGameScript : MonoBehaviour {
 	
 	
 	//DISPLAY
-	private Color bumpColor;
-	public float bumpfadeSpeed = 0.5f;
 	public bool[] displayValue;
 	
 	//START
@@ -294,16 +246,8 @@ public class InGameScript : MonoBehaviour {
 	
 	//COMBO
 	private int combo;
-	public Rect posCombo = new Rect(0.40f, 0.5f, 0.45f, 0.05f);
-	public Rect posdispCombo = new Rect(0.40f, 0.5f, 0.45f, 0.05f);
 	private ComboType ct;
-	public float speedCombofade;
-	private float colorCombo;
-	private Color theColorCombo;
-	private bool alreadytaged = true;
-	private int signCombo = -1;
 	private int comboMisses;
-	private float alphaCombo;
 	public float speedAlphaCombo;
 	
 	//FAIL OR CLEAR
@@ -317,27 +261,9 @@ public class InGameScript : MonoBehaviour {
 	private bool isFullComboRace;
 	private bool isFullExComboRace;
 	private int typeOfDeath; // 0 : Immediatly, 1 : After 30 misses, 2 : Never
-	public float timeFailAppear;
-	private float timeFailDisappear;
 	public float timeClearDisappear;
-	private float zoomfail;
-	public float speedzoom;
-	public float speedziwp;
-	private float zwip;
-	public Rect posFail;
-	public Rect posClear;
-	public Rect posRetry;
-	public Rect posGiveUp;
 	private bool appearClearok;
-	private bool disappearClearok;
-	public float speedAlphaFailFade;
-	private float failalpha;
-	private float buttonfailalpha;
-	public float speedbuttonfailalpha;
-	private bool cacheFailed;
 	public float speedFadeAudio;
-	private float passalpha;
-	public Rect fullComboPos;
 	private bool deadAndRetry;
 	private bool deadAndGiveUp;
 	
@@ -349,7 +275,6 @@ public class InGameScript : MonoBehaviour {
 	public AudioSource mainAudioSource;
 	
 	//POOL
-	private Rect poolRect = new Rect(0f, 0f, 0f, 0f);
 	private Color poolColor = new Color(0f, 0f, 0f, 0f);
 	private Vector3 poolVector = new Vector3(0f, 0f, 0f);
 	private Vector2 poolVector2 = new Vector2(0f, 0f);
@@ -510,39 +435,10 @@ public class InGameScript : MonoBehaviour {
 		TMainCamera = MainCamera.transform;
 		MoveCameraBefore();
 		
-		//Textures
-		/*
-		TextureBase = new Dictionary<string, Texture2D>();
-		TexturePrec = new Dictionary<Precision, Texture2D>();
-		TextureScore = new List<Texture2D>();
-		TextureCombo = new List<Texture2D>();
-		TexturePrec.Add(Precision.FANTASTIC, (Texture2D) Resources.Load("Fantastic"));
-		TexturePrec.Add(Precision.EXCELLENT, (Texture2D) Resources.Load("Excellent"));
-		TexturePrec.Add(Precision.GREAT, (Texture2D) Resources.Load("Great"));
-		TexturePrec.Add(Precision.DECENT, (Texture2D) Resources.Load("Decent"));
-		TexturePrec.Add(Precision.WAYOFF, (Texture2D) Resources.Load("Wayoff"));
-		TexturePrec.Add(Precision.MISS, (Texture2D) Resources.Load("Miss"));
-		for(int i=0; i<10; i++){
-			TextureScore.Add((Texture2D) Resources.Load("Numbers/S" + i));
-			TextureCombo.Add((Texture2D) Resources.Load("Numbers/C" + i));
-		}
-		
-		TextureBase.Add("PERCENT", (Texture2D) Resources.Load("Numbers/Percent"));
-		TextureBase.Add("DOT", (Texture2D) Resources.Load("Numbers/Dot"));
-		TextureBase.Add("COMBODISPLAY", (Texture2D) Resources.Load("DisplayCombo"));
-		TextureBase.Add("BLACK", (Texture2D) Resources.Load("black"));
-		TextureBase.Add("FAIL", (Texture2D) Resources.Load("Fail"));
-		TextureBase.Add("CLEAR", (Texture2D) Resources.Load("Clear"));
-		TextureBase.Add("FC", (Texture2D) Resources.Load("FC"));
-		TextureBase.Add("FEC", (Texture2D) Resources.Load("FEC"));
-		TextureBase.Add("FFC", (Texture2D) Resources.Load("FFC"));
-		TextureBase.Add("PERFECT", (Texture2D) Resources.Load("Perfect"));
-		TextureBase.Add("DIFFICULTY", (Texture2D) Resources.Load(Enum.GetName(typeof(Difficulty), (thesong.difficulty)).ToLower()));*/
 		
 		//stuff
 		scoreToDisplay = Precision.NONE;
 		timeDisplayScore = Mathf.Infinity;
-		alpha = 1f;
 		scenechartfaded = false;
 		
 		
@@ -597,15 +493,7 @@ public class InGameScript : MonoBehaviour {
 		
 		//combo
 		ct = ComboType.FULLFANTASTIC;
-		colorCombo = 1f;
 		comboMisses = 0;
-		alphaCombo = 0.5f;
-		theColorCombo = white;
-		//GUI
-		/*wd = posPercent.width*128;
-		hg = posPercent.height*1024;
-		hgt = posPercent.height*254;*/
-		//ecart = 92f;
 		
 		scoreRefresh();
 		comboRefresh();
@@ -619,13 +507,7 @@ public class InGameScript : MonoBehaviour {
 		fullFantCombo = false;
 		perfect = false;
 		dead = false;
-		zwip = 0;
 		appearClearok = false;
-		disappearClearok = false;
-		zoomfail = 0f;
-		failalpha = 0f;
-		passalpha = 0f;
-		cacheFailed = true;
 		
 		
 		//GUI
@@ -656,7 +538,7 @@ public class InGameScript : MonoBehaviour {
 		
 		if(recordScore != -1)
 		{
-			LabelDescriptionMaster.text = "Best : " + recordName;
+			LabelDescriptionMaster.text = "Best : " + recordName + " [" + recordScore.ToString("0.00") + "%]";
 		}else
 		{
 			LabelDescriptionMaster.text = "Best : --";	
@@ -667,9 +549,61 @@ public class InGameScript : MonoBehaviour {
 		LabelLevelNumber.color = DataManager.Instance.diffColor[(int)thesong.difficulty];
 		
 		
+		
+		
+		
+		
+		SpriteLevelText.spriteName = Enum.GetName(typeof(Difficulty), (thesong.difficulty)).ToLower();
+		SpriteLevelText.transform.localScale = baseScaleLevelSprite[(int)thesong.difficulty]*coefficientScaleLevel;
+		if(recordScore != -1)
+		{
+			scoreBeatLabel.text = persoRecordScore == -1 ? recordScore.ToString("00.00") + "%" : persoRecordScore.ToString("00.00") + "%";	
+			scoreBeatLabel.effectColor = normalbeatColor;
+		}else{
+			scoreBeatLabel.text = "--%";
+			scoreBeatLabel.effectColor = idlebeatColor;
+		}
+		
+		judgeSprite.enabled = false;
+		
+		
+		
+		clearFail.enabled = false;
+		blackSprite.enabled = false;
+		
+		scaleProgressClearFail = 0f;
+		alphaBlackSprite = 0f;
+		
+		bkgrGiveUp = buttonGiveUp.transform.FindChild("Background").GetComponent<UISprite>();
+		lblGiveUp = buttonGiveUp.transform.FindChild("Label").GetComponent<UILabel>();
+		
+		bkgrRetry = buttonRetry.transform.FindChild("Background").GetComponent<UISprite>();
+		lblRetry = buttonRetry.transform.FindChild("Label").GetComponent<UILabel>();
+		
+		bkgrInput = inputSpeedmod.transform.FindChild("Background").GetComponent<UISlicedSprite>();
+		lblInput = inputSpeedmod.transform.FindChild("Label").GetComponent<UILabel>();
+		theUIInput = inputSpeedmod.GetComponent<UIInput>();
+		
+		theUIInput.text = speedmodSelected.ToString("0.00");
+		
+		var bpmdisplaying = thesong.bpmToDisplay;
+		if(bpmdisplaying.Contains("->")){
+			bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[0])*speedmodSelected*(1f + (rateSelected/100f))).ToString("0") + "->" + (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[1])*speedmodSelected*(1f + (rateSelected/100f))).ToString("0");
+		}else{
+			bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying)*speedmodSelected*(1f + (rateSelected/100f))).ToString("0");
+		}
+		labelSpeedmod.text = "Speedmod : x" + speedmodSelected.ToString("0.00") + " (" + bpmdisplaying + " BPM)";
+
+		
+		Screen.showCursor = false;
+		
+		
+		
 		//Transformation display
 		if(displayValue[4]){ //No judge
 			limitDisplayScore = -1f;
+			fastSprite.enabled = false;
+			slowSprite.enabled = false;
 		}
 		
 		if(displayValue[5]){ //No background
@@ -714,14 +648,27 @@ public class InGameScript : MonoBehaviour {
 			
 		}
 		
-		//No score : inside the code
+		//No score
+		if(displayValue[7])
+		{
+			scoreLabel.enabled = false;
+			scoreBeatLabel.enabled = false;
+			HUDScore.enabled = false;
+		}
 		
 		//No UI
 		if(displayValue[8]){
+			//Set renderer recursively disable
 			for(int i=0;i<lifeBar.transform.childCount; i++){
 				if(lifeBar.transform.GetChild(i).childCount > 0){
 					for(int j=0;j<lifeBar.transform.GetChild(i).childCount; j++){
-						lifeBar.transform.GetChild(i).GetChild(j).renderer.enabled = false;	
+						if(lifeBar.transform.GetChild(i).GetChild(j).childCount > 0){
+							for(int k=0;j<lifeBar.transform.GetChild(i).GetChild(j).childCount; k++){
+								lifeBar.transform.GetChild(i).GetChild(j).GetChild(k).renderer.enabled = false;	
+							}
+						}else{
+							lifeBar.transform.GetChild(i).GetChild(j).renderer.enabled = false;	
+						}
 					}
 				}else{
 					lifeBar.transform.GetChild(i).renderer.enabled = false;	
@@ -731,63 +678,15 @@ public class InGameScript : MonoBehaviour {
 			for(int i=0;i<timeBar.transform.childCount; i++){
 				timeBar.transform.GetChild(i).renderer.enabled = false;	
 			}
-			/*for(int i=0;i<fast.transform.childCount; i++){
-				fast.transform.GetChild(i).renderer.enabled = false;	
-			}
-			for(int i=0;i<slow.transform.childCount; i++){
-				slow.transform.GetChild(i).renderer.enabled = false;	
-			}
-			slow.renderer.enabled = false;
-			fast.renderer.enabled = false;*/
+			theTimeBar.disableTime();
+			theLifeBar.disableLifeBar();
+			comboLabel.enabled = false;
+			HUDCombo.enabled = false;
 		}
 		
 		
 		
-		SpriteLevelText.spriteName = Enum.GetName(typeof(Difficulty), (thesong.difficulty)).ToLower();
-		SpriteLevelText.transform.localScale = baseScaleLevelSprite[(int)thesong.difficulty]*coefficientScaleLevel;
-		if(recordScore != -1)
-		{
-			scoreBeatLabel.text = recordScore.ToString("00.00") + "%";	
-			scoreBeatLabel.effectColor = normalbeatColor;
-		}else{
-			scoreBeatLabel.text = "--%";
-			scoreBeatLabel.effectColor = idlebeatColor;
-		}
-		
-		judgeSprite.enabled = false;
-		
-		
-		
-		//baseScaleJudgeSprite = judgeSprite.transform.localScale;
-		
-		clearFail.enabled = false;
-		blackSprite.enabled = false;
-		
-		scaleProgressClearFail = 0f;
-		alphaBlackSprite = 0f;
-		
-		bkgrGiveUp = buttonGiveUp.transform.FindChild("Background").GetComponent<UISprite>();
-		lblGiveUp = buttonGiveUp.transform.FindChild("Label").GetComponent<UILabel>();
-		
-		bkgrRetry = buttonRetry.transform.FindChild("Background").GetComponent<UISprite>();
-		lblRetry = buttonRetry.transform.FindChild("Label").GetComponent<UILabel>();
-		
-		bkgrInput = inputSpeedmod.transform.FindChild("Background").GetComponent<UISlicedSprite>();
-		lblInput = inputSpeedmod.transform.FindChild("Label").GetComponent<UILabel>();
-		theUIInput = inputSpeedmod.GetComponent<UIInput>();
-		
-		theUIInput.text = speedmodSelected.ToString("0.00");
-		
-		
-		Screen.showCursor = false;
-		
-		/*
-		infoSongCalc = new Rect(infoSong.x*Screen.width, infoSong.y*Screen.height, infoSong.width*Screen.width, infoSong.height*Screen.height);
-		infoSongCalcShadow = new Rect(infoSong.x*Screen.width + 1, infoSong.y*Screen.height + 1, infoSong.width*Screen.width, infoSong.height*Screen.height);
-		infoDifficultyCalc = new Rect(infoDifficulty.x*Screen.width, infoDifficulty.y*Screen.height, infoDifficulty.width*Screen.width, infoDifficulty.height*Screen.height);
-		infoDifficultyLevelCalc = new Rect(infoLevelDifficulty.x*Screen.width, infoLevelDifficulty.y*Screen.height, infoLevelDifficulty.width*Screen.width, infoLevelDifficulty.height*Screen.height);
-		infoDifficultyLevelCalcShadow = new Rect(infoLevelDifficulty.x*Screen.width + 1, infoLevelDifficulty.y*Screen.height + 1, infoLevelDifficulty.width*Screen.width, infoLevelDifficulty.height*Screen.height);
-		*/
+		GC.Collect();
 	}
 	
 	
@@ -796,143 +695,6 @@ public class InGameScript : MonoBehaviour {
 		RenderSettings.skybox.SetColor("_Tint", fillColor(0.5f, 0.5f, 0.5f, 0.5f));
 		DataManager.Instance.removeRatedSong();
 	}
-	
-	
-	/*
-	void OnGUI(){
-		
-		GUI.skin = skin;
-		GUI.depth = 2;
-		
-		//fake stuff
-		GUI.Label(fillRect(0.9f*Screen.width, 0.05f*Screen.height, 200f, 200f), fps.ToString());		
-		//end fake stuff
-		GUI.DrawTexture(infoDifficultyCalc, TextureBase["DIFFICULTY"]);
-		
-		GUI.color = black;
-		GUI.Label(infoDifficultyLevelCalcShadow, levelToDisplay.ToString(), "infoDiff");
-		GUI.Label(infoSongCalcShadow, infoToDisplay , "infoSong");
-		
-		GUI.color = DataManager.Instance.diffColor[(int)thesong.difficulty];
-		GUI.Label(infoDifficultyLevelCalc, levelToDisplay.ToString(), "infoDiff");
-		
-		GUI.color = white;
-		GUI.Label(infoSongCalc, infoToDisplay , "infoSong");
-		
-		if(timeDisplayScore < limitDisplayScore && !clear){
-
-			GUI.color = fillColor(1f, 1f, 1f, alpha);
-			GUI.DrawTexture(fillRect(posScore.x*Screen.width - zoom, posScore.y*Screen.height, posScore.width*Screen.width + zoom*2, posScore.height*Screen.height), TexturePrec[scoreToDisplay]); 
-		}
-		
-		GUI.color = white;
-		
-		if(!displayValue[7]){
-				
-			for(int i=0;i<5;i++){
-				if((i == 3 && displaying[3] == 0 && displaying[4] == 0) || (i == 4 && displaying[4] == 0)) break;
-				GUI.DrawTexture(fillRect((posPercent.x + ecart*(4-i))*Screen.width, posPercent.y*Screen.height,  posPercent.width*Screen.width,  posPercent.height*Screen.height), TextureScore[displaying[i]]);
-			}
-			GUI.DrawTexture(fillRect((posPercent.x + ((ecart*2)+(ecart/2f)))*Screen.width, posPercent.y*Screen.height,  posPercent.width*Screen.width, posPercent.height*Screen.height), TextureBase["DOT"]);
-			GUI.DrawTexture(fillRect((posPercent.x + ecart*5)*Screen.width + posPercent.width, posPercent.y*Screen.height, posPercent.width*Screen.width, posPercent.height*Screen.height), TextureBase["PERCENT"]);
-		}
-		
-		if(!displayValue[8]){
-			if(combo >= 5f){
-				//var czoom = zoom/4f;
-				GUI.color = fillColor(theColorCombo.r , theColorCombo.g, theColorCombo.b, alphaCombo);
-				for(int i=0; i<tabLenght; i++){
-					GUI.DrawTexture(fillRect((posCombo.x + ((ecartCombo*(tabLenght-(i+1))/2f) -ecartCombo*((float)i/2f)))*Screen.width, 
-					posCombo.y*Screen.height, posCombo.width*Screen.width, posCombo.height*Screen.height), TextureCombo[thetab[i]]);
-				}
-			}
-		}
-		
-		
-		
-		if(dead){
-			if(oneSecond > timeFailAppear){
-				
-				GUI.color = new Color(1f, 1f, 1f, failalpha);
-				GUI.DrawTexture(new Rect(0f,0f, Screen.width*1.2f, Screen.height*1.2f), TextureBase["BLACK"]);
-				var ratiow = (float)posFail.width/(float)Mathf.Max (posFail.width, posFail.height);
-				var ratioh = (float)posFail.height/(float)Mathf.Max (posFail.width, posFail.height);
-				GUI.color = new Color(1f, 1f, 1f, failalpha*alpha);
-				if(!cacheFailed) GUI.DrawTexture(new Rect((posFail.x - zwip - ratiow*zoomfail/2f)*Screen.width, (posFail.y + zwip - ratioh*zoomfail/2f)*Screen.height ,
-					(posFail.width + zwip*2 + ratiow*zoomfail)*Screen.width, (posFail.height - zwip*2 + ratioh*zoomfail)*Screen.height), TextureBase["FAIL"]);
-				if(failalpha >= 1f){
-					GUI.color = new Color(1f, 1f, 1f, buttonfailalpha);
-					if(GUI.Button(new Rect(posRetry.x*Screen.width, posRetry.y*Screen.height, posRetry.width*Screen.width, posRetry.height*Screen.height), "Retry") && !deadAndRetry && !deadAndGiveUp && buttonfailalpha > 0.5f && speedmodok && GetComponent<DebugOffset>().validValue){
-							DataManager.Instance.speedmodSelected = speedmodSelected;
-							deadAndRetry = true;
-					}
-					
-					if(GUI.Button(new Rect(posGiveUp.x*Screen.width, posGiveUp.y*Screen.height, posGiveUp.width*Screen.width, posGiveUp.height*Screen.height), "Give up") && !deadAndRetry && !deadAndGiveUp && buttonfailalpha > 0.5f && GetComponent<DebugOffset>().validValue){
-							deadAndGiveUp = true;
-					}
-					
-					GUI.color = new Color(0.7f, 0.7f, 0.7f, buttonfailalpha);
-					GUI.Label(new Rect(SpeedModText.x*Screen.width, SpeedModText.y*Screen.height, SpeedModText.width*Screen.width, SpeedModText.height*Screen.height), TextManager.Instance.texts["Util"]["SPEEDMOD_TEXT"]);
-					speedmodstring = GUI.TextArea (new Rect(SpeedModTextAera.x*Screen.width, SpeedModTextAera.y*Screen.height, SpeedModTextAera.width*Screen.width, SpeedModTextAera.height*Screen.height), speedmodstring.Trim(), 5);
-								
-					if(!String.IsNullOrEmpty(speedmodstring)){
-						double result;
-						if(System.Double.TryParse(speedmodstring, out result)){
-							if(result >= (double)0.25 && result <= (double)15){
-								speedmodSelected = (float)result;
-								speedmodok = true;
-								var bpmdisplaying = thesong.bpmToDisplay;
-								if(bpmdisplaying.Contains("->")){
-									bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[0])*speedmodSelected*(1f + (rateSelected/100f))).ToString("0") + "->" + (System.Convert.ToDouble(bpmdisplaying.Replace(">", "").Split('-')[1])*speedmodSelected*(1f + (rateSelected/100f))).ToString("0");
-								}else{
-									bpmdisplaying = (System.Convert.ToDouble(bpmdisplaying)*speedmodSelected*(1f + (rateSelected/100f))).ToString("0");
-								}
-								GUI.Label(new Rect((SpeedModTextInfo.x)*Screen.width, SpeedModTextInfo.y*Screen.height, SpeedModTextInfo.width*Screen.width, SpeedModTextInfo.height*Screen.height), "Speedmod : x" + speedmodSelected.ToString("0.00") + " (" + bpmdisplaying + " BPM)");
-							}else{
-								GUI.color = new Color(0.7f, 0.2f, 0.2f, 1f);
-								GUI.Label(new Rect((SpeedModTextInfo.x)*Screen.width, SpeedModTextInfo.y*Screen.height, SpeedModTextInfo.width*Screen.width, SpeedModTextInfo.height*Screen.height), "Speedmod must be between x0.25 and x15");
-								GUI.color = new Color(1f, 1f, 1f, 1f);
-								speedmodok = false;
-							}
-						}else{
-							GUI.color = new Color(0.7f, 0.2f, 0.2f, 1f);
-							GUI.Label(new Rect((SpeedModTextInfo.x)*Screen.width, SpeedModTextInfo.y*Screen.height, SpeedModTextInfo.width*Screen.width, SpeedModTextInfo.height*Screen.height), "Speedmod is not a valid value");
-							GUI.color = new Color(1f, 1f, 1f, 1f);
-							speedmodok = false;
-						}
-					}else{
-						GUI.color = new Color(0.7f, 0.2f, 0.2f, 1f);
-						GUI.Label(new Rect((SpeedModTextInfo.x)*Screen.width, SpeedModTextInfo.y*Screen.height, SpeedModTextInfo.width*Screen.width, SpeedModTextInfo.height*Screen.height), "Empty value");
-						GUI.color = new Color(1f, 1f, 1f, 1f);
-						speedmodok = false;
-					}
-				}
-			}
-			
-		}
-				
-		if(clear){
-			//if(oneSecond > timeFailAppear){
-				var ratiow = (float)posClear.width/(float)Mathf.Max (posClear.width, posClear.height);
-				var ratioh = (float)posClear.height/(float)Mathf.Max (posClear.width, posClear.height);
-				if(fullCombo || fullExCombo || fullFantCombo || perfect){
-					GUI.color = new Color(1f, 1f, 1f, passalpha*alpha);
-					GUI.DrawTexture(new Rect(fullComboPos.x*Screen.width,fullComboPos.y*Screen.width, fullComboPos.width*Screen.width, fullComboPos.height*Screen.height), TextureBase[perfect ? "PERFECT" : (fullFantCombo ? "FFC" : (fullExCombo ? "FEC" : "FC"))]);
-				}
-				//GUI.DrawTexture(new Rect(0f,0f, Screen.width*1.2f, Screen.height*1.2f), TextureBase["BLACK"]);
-				
-				GUI.color = new Color(1f, 1f, 1f, 1f);
-				if(appearFailok) GUI.DrawTexture(new Rect((posClear.x - zwip - ratiow*zoomfail/2f)*Screen.width, (posClear.y + zwip - ratioh*zoomfail/2f)*Screen.height ,
-					(posClear.width + zwip*2 + ratiow*zoomfail)*Screen.width, (posClear.height - zwip*2 + ratioh*zoomfail)*Screen.height), TextureBase["CLEAR"]);	
-				GUI.color = new Color(1f, 1f, 1f, failalpha);
-				GUI.DrawTexture(new Rect(0f,0f, Screen.width*1.2f, Screen.height*1.2f), TextureBase["BLACK"]);
-			//}
-			
-		}
-		
-	}*/
-	
-	
 	
 	
 	// Update is called once per frame
@@ -1137,7 +899,9 @@ public class InGameScript : MonoBehaviour {
 					bkgrInput.color = fillColor(bkgrInput.color.r, bkgrInput.color.g, bkgrInput.color.b, alphaButtonDie);
 					lblInput.color = fillColor(lblInput.color.r, lblInput.color.g, lblInput.color.b, alphaButtonDie);
 					labelSpeedmod.color = fillColor(labelSpeedmod.color.r, labelSpeedmod.color.g, labelSpeedmod.color.b, alphaButtonDie);
+					theUIInput.activeColor = fillColor (1f, 1f, 1f, alphaButtonDie);
 				}else if(!deadAndGiveUp && !deadAndRetry){
+					
 					speedmodstring = theUIInput.text;
 					
 					if(!String.IsNullOrEmpty(speedmodstring)){
@@ -1172,19 +936,22 @@ public class InGameScript : MonoBehaviour {
 				//Etape 5 : Faire disparaitre le fail et le reste en fondu
 				}else if(alphaButtonDie > 0f)
 				{
-					bkgrRetry.color += fillColor(bkgrRetry.color.r, bkgrRetry.color.g, bkgrRetry.color.b, alphaButtonDie);
-					lblRetry.color += fillColor(lblRetry.color.r, lblRetry.color.g, lblRetry.color.b, alphaButtonDie);
-					bkgrGiveUp.color += fillColor(bkgrGiveUp.color.r, bkgrGiveUp.color.g, bkgrGiveUp.color.b, alphaButtonDie);
-					lblGiveUp.color += fillColor(lblGiveUp.color.r, lblGiveUp.color.g, lblGiveUp.color.b, alphaButtonDie);
-					bkgrInput.color += fillColor(bkgrInput.color.r, bkgrInput.color.g, bkgrInput.color.b, alphaButtonDie);
-					lblInput.color += fillColor(lblInput.color.r, lblInput.color.g, lblInput.color.b, alphaButtonDie);
-					labelSpeedmod.color += fillColor(labelSpeedmod.color.r, labelSpeedmod.color.g, labelSpeedmod.color.b, alphaButtonDie);
 					alphaButtonDie -= speedAlphaButtonDie*Time.deltaTime;
+					clearFail.color = fillColor (1f, 1f, 1f, alphaButtonDie);
+					bkgrRetry.color = fillColor(bkgrRetry.color.r, bkgrRetry.color.g, bkgrRetry.color.b, alphaButtonDie);
+					lblRetry.color = fillColor(lblRetry.color.r, lblRetry.color.g, lblRetry.color.b, alphaButtonDie);
+					bkgrGiveUp.color = fillColor(bkgrGiveUp.color.r, bkgrGiveUp.color.g, bkgrGiveUp.color.b, alphaButtonDie);
+					lblGiveUp.color = fillColor(lblGiveUp.color.r, lblGiveUp.color.g, lblGiveUp.color.b, alphaButtonDie);
+					bkgrInput.color = fillColor(bkgrInput.color.r, bkgrInput.color.g, bkgrInput.color.b, alphaButtonDie);
+					lblInput.color = fillColor(lblInput.color.r, lblInput.color.g, lblInput.color.b, alphaButtonDie);
+					labelSpeedmod.color = fillColor(labelSpeedmod.color.r, labelSpeedmod.color.g, labelSpeedmod.color.b, alphaButtonDie);
+					theUIInput.activeColor = fillColor (1f, 1f, 1f, alphaButtonDie);
 				}
 				//Etape 6 : Changement
 				else{
 					SendDataToDatamanager();
 					if(deadAndRetry){
+						DataManager.Instance.speedmodSelected = speedmodSelected;
 						Application.LoadLevel("ChartScene");
 					}else if(deadAndGiveUp){
 						RenderSettings.skybox.SetColor("_Tint", fillColor(0.5f, 0.5f, 0.5f, 0.5f));
@@ -1232,64 +999,10 @@ public class InGameScript : MonoBehaviour {
 		{
 			judgeSprite.color = fillColor(judgeSprite.color.r, judgeSprite.color.g, judgeSprite.color.b, alphaFailLimit + Mathf.PingPong(Time.time*speedClignotementFail, 1f - alphaFailLimit));
 		}
-		/*
-		if(timetotalchart >= firstArrow && timetotalchart < lastArrow){
-			var div = (float)((timetotalchart - firstArrow)/(lastArrow - firstArrow));
-			progressBar.transform.localPosition = new Vector3(progressBar.transform.localPosition.x, - (10f - 10f*div), 8f);
-			progressBar.transform.localScale = new Vector3(progressBar.transform.localScale.x, 10f*div, 1f);
-		}*/
 		theTimeBar.updateTimeBar((float)timetotalchart);
 		
 		
-		/*if(stateSpeed > 0){
-			slow.renderer.material.color = fillColor(1f, 0f, 0f, 0.5f);
-			if(!slowandfast[0].gameObject.active) slowandfast[0].gameObject.active = true;
-			slowandfast[0].Play();
-			stateSpeed = 0f;
-			changeColorSlow = true;
-		}else if(stateSpeed < 0){
-			fast.renderer.material.color = fillColor(1f, 0f, 0f, 0.5f);
-			if(!slowandfast[1].gameObject.active) slowandfast[1].gameObject.active = true;
-			slowandfast[1].Play();
-			stateSpeed = 0f;
-			changeColorFast = true;
-		}*/
 		
-		/*if(changeColorFast){
-			div = Time.deltaTime/ClignSpeed;
-			col = fast.renderer.material.color.r - div;
-			colp = fast.renderer.material.color.g + div;
-			fast.renderer.material.color = fillColor(col, colp, colp, 0.5f);
-			if(col <= 0.5f) changeColorFast = false;
-		}else if(changeColorSlow){
-			div = Time.deltaTime/ClignSpeed;
-			col = slow.renderer.material.color.r - div;
-			colp = slow.renderer.material.color.g + div;
-			slow.renderer.material.color = fillColor(col, colp, colp, 0.5f);
-			if(col <= 0.5f) changeColorSlow = false;
-		}*/
-		
-		
-		if(ct < ComboType.FULLCOMBO && combo > 100){
-			switch (ct){
-			case ComboType.FULLEXCELLENT:
-				
-				if((colorCombo <= 0.3f && signCombo == -1) || (colorCombo >= 1f && signCombo == 1) ){ signCombo *= -1; }
-				colorCombo += signCombo*Time.deltaTime/speedCombofade;
-				theColorCombo = fillColor(1f, 1f, colorCombo, 1f);
-				alreadytaged = false;
-				break;
-			case ComboType.FULLFANTASTIC:
-				if((colorCombo <= 0.3f && signCombo == -1) || (colorCombo >= 1f && signCombo == 1) ){ signCombo *= -1; }
-				colorCombo += signCombo*Time.deltaTime/speedCombofade;
-				theColorCombo = fillColor(colorCombo, 1f, 1f, 1f);
-				alreadytaged = false;
-				break;
-			}
-		}else if(!alreadytaged){
-			theColorCombo = white;
-			alreadytaged = true;
-		}
 	}
 	
 	
@@ -2012,15 +1725,6 @@ public class InGameScript : MonoBehaviour {
 	#endregion
 	
 	#region util
-	public Rect fillRect(float x, float y, float w, float h)
-	{
-		poolRect.x = x;
-		poolRect.y = y;
-		poolRect.width = w;
-		poolRect.height = h;
-		
-		return poolRect;
-	}
 	
 	public Color fillColor(float r, float g, float b, float a)
 	{
@@ -2074,6 +1778,7 @@ public class InGameScript : MonoBehaviour {
 			if(score >= persoRecordScore && scoreBeatLabel.effectColor == normalbeatColor)
 			{
 				scoreBeatLabel.effectColor = beatthepersonalColor;
+				scoreBeatLabel.text = recordScore.ToString("00.00") + "%";
 			}
 			if(score >= recordScore && scoreBeatLabel.effectColor == beatthepersonalColor)
 			{
@@ -2097,7 +1802,6 @@ public class InGameScript : MonoBehaviour {
 	
 	public void GainCombo(int c, Precision prec){
 		combo+= c;
-		alphaCombo = 1f;
 		if(ct != ComboType.NONE && prec != Precision.FANTASTIC){
 			if(ct == ComboType.FULLFANTASTIC){
 				switch(prec){
@@ -2285,28 +1989,6 @@ public class InGameScript : MonoBehaviour {
 		DataManager.Instance.firstArrow = firstArrow;
 		ProfileManager.Instance.currentProfile.updateGameTime(timetotalchart);
 	}
-	
-	IEnumerator swipTexture(bool reverse, float height, float wait){
-		
-		if(!reverse){
-			zwip = height/2f;
-			while(zwip > 0f){
-				zwip -= height/2f*Time.deltaTime/speedziwp;
-				yield return new WaitForFixedUpdate();
-			}
-			zwip = 0f;
-		}else{
-			yield return new WaitForSeconds(wait);
-			zwip = 0f;
-			while(zwip < height/2f){
-				zwip += height/2f*Time.deltaTime/speedziwp;
-				yield return new WaitForFixedUpdate();
-			}
-			zwip = height/2f;
-			cacheFailed = true;
-			//Lancer la scène de score
-		}
-	}
 	#endregion
 	
 	#region Precision
@@ -2340,11 +2022,6 @@ public class InGameScript : MonoBehaviour {
 		precFounded = DataManager.Instance.PrecisionValues.FirstOrDefault(c => (prec <= c.Value));
 		
 		return precFounded.Equals(default(KeyValuePair<Precision, double>)) ? Precision.MISS : precFounded.Key;
-		
-		
-		/*precFounded = DataManager.Instance.PrecisionValues.Where(c => (prec <= c.Value));
-		if(precFounded.Count() > 0) return precFounded.First().Key;
-		return Precision.MISS;*/
 		
 		
 	}

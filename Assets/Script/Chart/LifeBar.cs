@@ -53,6 +53,8 @@ public class LifeBar : MonoBehaviour {
 	private float lerpDanger;
 	private float oldRealLife;
 	
+	private bool activated = true;
+	
 	void Start () {
 		oldRealLife = -50f;
 		matCube = new Material[lifebar.Length];
@@ -187,34 +189,42 @@ public class LifeBar : MonoBehaviour {
 	
 	public void ChangeBar(float newlife){
 		objectivLife = newlife;
-		if(newlife >= 100f && !lifeMaxPlayin){
-			psLifeUp.Stop(); 
-			lifeUpPlayin = false;
-			if(!psMaxLife.gameObject.active) psMaxLife.gameObject.active = true;
-			psMaxLife.Play();
-			lifeMaxPlayin = true;
-		}else if(newlife > realLife && newlife > 25f && !lifeUpPlayin && !lifeMaxPlayin && newlife > (thelostlife + 10f)){
-			if(!psLifeUp.gameObject.active) psLifeUp.gameObject.active = true;
-			psLifeUp.Play();
-			lifeUpPlayin = true;
-		}else if(newlife < realLife){
-			psLifeUp.Stop();
-			lifeUpPlayin = false;
-			psMaxLife.Stop();
-			lifeMaxPlayin = false;
-			thelostlife = newlife;
+		if(activated){
+			if(newlife >= 100f && !lifeMaxPlayin){
+				psLifeUp.Stop(); 
+				lifeUpPlayin = false;
+				if(!psMaxLife.gameObject.active) psMaxLife.gameObject.active = true;
+				psMaxLife.Play();
+				lifeMaxPlayin = true;
+			}else if(newlife > realLife && newlife > 25f && !lifeUpPlayin && !lifeMaxPlayin && newlife > (thelostlife + 10f)){
+				if(!psLifeUp.gameObject.active) psLifeUp.gameObject.active = true;
+				psLifeUp.Play();
+				lifeUpPlayin = true;
+			}else if(newlife < realLife){
+				psLifeUp.Stop();
+				lifeUpPlayin = false;
+				psMaxLife.Stop();
+				lifeMaxPlayin = false;
+				thelostlife = newlife;
+			}
+			
+			if(newlife <= 25f && !lifeLowPlayin){
+				if(!psLowLife.gameObject.active) psLowLife.gameObject.active = true;
+				psLowLife.Play();
+				lifeLowPlayin = true;
+			}else if(newlife > 25f && lifeLowPlayin){
+				psLowLife.Stop();
+				lifeLowPlayin = false;
+			}
 		}
 		
-		if(newlife <= 25f && !lifeLowPlayin){
-			if(!psLowLife.gameObject.active) psLowLife.gameObject.active = true;
-			psLowLife.Play();
-			lifeLowPlayin = true;
-		}else if(newlife > 25f && lifeLowPlayin){
-			psLowLife.Stop();
-			lifeLowPlayin = false;
-		}
-		
-		
+	}
+	
+	public void disableLifeBar()
+	{
+		lifeHUD.enabled = false;
+		lifeInfo.enabled = false;
+		activated = false;
 	}
 	
 	
