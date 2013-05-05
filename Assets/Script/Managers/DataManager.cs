@@ -55,7 +55,7 @@ public class DataManager{
 	//GENERAL OPTION
 	
 	//General
-	public float globalOffsetSeconds = -0.135f;
+	public float globalOffsetSeconds = -0.100f;
 	public float userGOS;
 	public int mouseMolSpeed;
 	public bool dancepadMode;

@@ -654,6 +654,7 @@ public class InGameScript : MonoBehaviour {
 			scoreLabel.enabled = false;
 			scoreBeatLabel.enabled = false;
 			HUDScore.enabled = false;
+			LabelDescriptionMaster.enabled = false;
 		}
 		
 		//No UI
@@ -663,7 +664,7 @@ public class InGameScript : MonoBehaviour {
 				if(lifeBar.transform.GetChild(i).childCount > 0){
 					for(int j=0;j<lifeBar.transform.GetChild(i).childCount; j++){
 						if(lifeBar.transform.GetChild(i).GetChild(j).childCount > 0){
-							for(int k=0;j<lifeBar.transform.GetChild(i).GetChild(j).childCount; k++){
+							for(int k=0;k<lifeBar.transform.GetChild(i).GetChild(j).childCount; k++){
 								lifeBar.transform.GetChild(i).GetChild(j).GetChild(k).renderer.enabled = false;	
 							}
 						}else{
@@ -692,7 +693,7 @@ public class InGameScript : MonoBehaviour {
 	
 	void OnApplicationQuit()
 	{
-		RenderSettings.skybox.SetColor("_Tint", fillColor(0.5f, 0.5f, 0.5f, 0.5f));
+		if(!displayValue[5]) RenderSettings.skybox.SetColor("_Tint", fillColor(0.5f, 0.5f, 0.5f, 0.5f));
 		DataManager.Instance.removeRatedSong();
 	}
 	
@@ -954,7 +955,7 @@ public class InGameScript : MonoBehaviour {
 						DataManager.Instance.speedmodSelected = speedmodSelected;
 						Application.LoadLevel("ChartScene");
 					}else if(deadAndGiveUp){
-						RenderSettings.skybox.SetColor("_Tint", fillColor(0.5f, 0.5f, 0.5f, 0.5f));
+						if(!displayValue[5]) RenderSettings.skybox.SetColor("_Tint", fillColor(0.5f, 0.5f, 0.5f, 0.5f));
 						Application.LoadLevel("ScoreScene");
 					}
 				}
@@ -1454,6 +1455,8 @@ public class InGameScript : MonoBehaviour {
 		
 		if(Input.GetKeyDown(KeyCode.Escape) && thesong.duration*0.75f > timetotalchart){
 			if(!clear && !fail){
+				Screen.showCursor = true;
+				if(!displayValue[5]) RenderSettings.skybox.SetColor("_Tint", fillColor(0.5f, 0.5f, 0.5f, 0.5f));
 				GetComponent<FadeManager>().enabled = true;
 				GetComponent<FadeManager>().FadeIn("solo");
 			}
@@ -1970,7 +1973,7 @@ public class InGameScript : MonoBehaviour {
 		{
 			if(!timeCombo.ContainsKey(timeOfCombo[i])) timeCombo.Add(timeOfCombo[i], numberCombo[i]);	
 		}
-		timeCombo.Add(timetotalchart, combo);
+		if(!timeCombo.ContainsKey(timetotalchart)) timeCombo.Add(timetotalchart, combo);
 		DataManager.Instance.timeCombo = timeCombo;
 		for(int i=0; i<timeOfLife.Count; i++)
 		{

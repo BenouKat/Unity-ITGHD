@@ -135,6 +135,10 @@ public class LifeBar : MonoBehaviour {
 			if(realLife != oldRealLife)
 			{
 				lifeInfo.text = realLife < 100f ? (realLife - 0.5f).ToString("00") + "%" : "SYNC";
+				if(realLife - 0.5f <= 0f)
+				{
+					lifeInfo.text = "00%";
+				}
 				oldRealLife = realLife;
 			}
 			
