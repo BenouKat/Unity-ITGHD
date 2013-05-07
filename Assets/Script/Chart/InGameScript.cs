@@ -282,6 +282,10 @@ public class InGameScript : MonoBehaviour {
 	private KeyValuePair<Arrow, float> poolArrow;
 	private ParticleSystem poolPS;
 	
+	//NETWORK
+	private bool inNetworkMode;
+	private NetworkChartScript ncs;
+	
 	//DEBUG
 	//private int iwashere;
 	#endregion
@@ -318,6 +322,11 @@ public class InGameScript : MonoBehaviour {
 		var rand = (int)(UnityEngine.Random.value*DataManager.Instance.skyboxList.Count);
 		if(rand == DataManager.Instance.skyboxList.Count){
 			rand--;	
+		}
+		inNetworkMode = (Application.loadedLevelName == "LANChartScene");
+		if(inNetworkMode)
+		{
+			ncs = GetComponent<NetworkChartScript>();
 		}
 		
 		
@@ -771,19 +780,33 @@ public class InGameScript : MonoBehaviour {
 			if(thesong.duration < timetotalchart && !fail && !clear){
 				if(!arrowLeftList.Any() && !arrowRightList.Any() && !arrowUpList.Any() && !arrowDownList.Any())
 				{
-					if(life > 0f){
-						clear = true;
+					if(!inNetworkMode)
+					{
+						if(life > 0f){
+							clear = true;
+						}else{
+							fail = true;
+						}
+						if(scoreCount["DECENT"] == 0 && scoreCount["WAYOFF"] == 0 && scoreCount["MISS"] == 0){
+							if(score >= 100f || scoreInverse == 100f) perfect = true;
+							if(scoreCount["EXCELLENT"] == 0 && scoreCount["GREAT"] == 0) fullFantCombo = true;
+							if(scoreCount["GREAT"] == 0) fullExCombo = true;
+							fullCombo = true;
+							secondAudioSource.PlayOneShot(comboSound); 
+						}
+						oneSecond = 0f;
 					}else{
-						fail = true;
+						//si les autres ont fini
+						clear = true;
+						if(scoreCount["DECENT"] == 0 && scoreCount["WAYOFF"] == 0 && scoreCount["MISS"] == 0){
+							if(score >= 100f || scoreInverse == 100f) perfect = true;
+							if(scoreCount["EXCELLENT"] == 0 && scoreCount["GREAT"] == 0) fullFantCombo = true;
+							if(scoreCount["GREAT"] == 0) fullExCombo = true;
+							fullCombo = true;
+							secondAudioSource.PlayOneShot(comboSound); 
+						}
+						oneSecond = 0f;
 					}
-					if(scoreCount["DECENT"] == 0 && scoreCount["WAYOFF"] == 0 && scoreCount["MISS"] == 0){
-						if(score >= 100f || scoreInverse == 100f) perfect = true;
-						if(scoreCount["EXCELLENT"] == 0 && scoreCount["GREAT"] == 0) fullFantCombo = true;
-						if(scoreCount["GREAT"] == 0) fullExCombo = true;
-						fullCombo = true;
-						secondAudioSource.PlayOneShot(comboSound); 
-					}
-					oneSecond = 0f;
 				}
 			}
 			
@@ -839,6 +862,7 @@ public class InGameScript : MonoBehaviour {
 					}
 					
 					clearFail.enabled = true;
+					if(inNetworkMode && life < 0f) clearFail.spriteName = "Fail";
 					blackSprite.enabled = true;
 					normalScaleClearFail = clearFail.transform.localScale;
 					clearFail.transform.localScale = fillVector(clearFail.transform.localScale.x*10f, clearFail.transform.localScale.y/10f, clearFail.transform.localScale.z);
@@ -856,7 +880,7 @@ public class InGameScript : MonoBehaviour {
 					if(alphaBlackSprite >= 1f)
 					{
 							SendDataToDatamanager();
-							RenderSettings.skybox.SetColor("_Tint", fillColor(0.5f, 0.5f, 0.5f, 0.5f));
+							if(!displayValue[5]) RenderSettings.skybox.SetColor("_Tint", fillColor(0.5f, 0.5f, 0.5f, 0.5f));
 							Screen.showCursor = true;
 							Application.LoadLevel("ScoreScene");
 					}
@@ -869,7 +893,7 @@ public class InGameScript : MonoBehaviour {
 			
 			
 		}else{
-			oneSecond += Time.deltaTime;
+			if(!inNetworkMode || (inNetworkMode && ncs.readyToPlay)) oneSecond += Time.deltaTime;
 			if(!dead) MoveCameraBefore();
 			if(dead){
 				//Etape 1 : Faire apparaitre le fail
@@ -1453,7 +1477,7 @@ public class InGameScript : MonoBehaviour {
 		}
 		
 		
-		if(Input.GetKeyDown(KeyCode.Escape) && thesong.duration*0.75f > timetotalchart){
+		if(!inNetworkMode && Input.GetKeyDown(KeyCode.Escape) && thesong.duration*0.75f > timetotalchart){
 			if(!clear && !fail){
 				Screen.showCursor = true;
 				if(!displayValue[5]) RenderSettings.skybox.SetColor("_Tint", fillColor(0.5f, 0.5f, 0.5f, 0.5f));
@@ -1991,6 +2015,11 @@ public class InGameScript : MonoBehaviour {
 		DataManager.Instance.fail = fail;
 		DataManager.Instance.firstArrow = firstArrow;
 		ProfileManager.Instance.currentProfile.updateGameTime(timetotalchart);
+	}
+	
+	public void askingForInfo()
+	{
+		ncs.objectToSend(score, life, (int)ct, fail);	
 	}
 	#endregion
 	

@@ -462,9 +462,9 @@ public class OptionZoneLAN : MonoBehaviour {
 		DataManager.Instance.scoreJudgeSelected = scoreJudgeSelected;
 		DataManager.Instance.hitJudgeSelected = hitJudgeSelected;
 		DataManager.Instance.lifeJudgeSelected = lifeJudgeSelected;
-		DataManager.Instance.raceSelected = raceSelected;
+		DataManager.Instance.raceSelected = 0;
 		DataManager.Instance.displaySelected = displaySelected;
-		DataManager.Instance.deathSelected = deathSelected;
+		DataManager.Instance.deathSelected = 2;
 	}
 	
 	public void onPopin()

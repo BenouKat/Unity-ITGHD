@@ -143,6 +143,7 @@
      <Compile Include="Assets\Script\Chart\TimeBar.cs" />
      <Compile Include="Assets\Script\FrameWork\CublastPlayer.cs" />
      <Compile Include="Assets\Script\FrameWork\OpenChart.cs" />
+     <Compile Include="Assets\Script\FrameWork\PlayerState.cs" />
      <Compile Include="Assets\Script\FrameWork\Profile.cs" />
      <Compile Include="Assets\Script\FrameWork\SerializableSong.cs" />
      <Compile Include="Assets\Script\FrameWork\SerializableSongStorage.cs" />
@@ -154,6 +155,7 @@
      <Compile Include="Assets\Script\LAN\GeneralScriptLAN.cs" />
      <Compile Include="Assets\Script\LAN\InfoZoneLAN.cs" />
      <Compile Include="Assets\Script\LAN\LaunchSongZoneLAN.cs" />
+     <Compile Include="Assets\Script\LAN\NetworkChartScript.cs" />
      <Compile Include="Assets\Script\LAN\NetworkScript.cs" />
      <Compile Include="Assets\Script\LAN\NetworkWheelScript.cs" />
      <Compile Include="Assets\Script\LAN\OpeningLANScene.cs" />

@@ -134,8 +134,11 @@ public class LaunchSongZoneLAN : MonoBehaviour {
 					displayLoading = true;
 				}
 			}else{
-				DataManager.Instance.loadRatedSong();
-				Application.LoadLevel("ChartScene");
+				Network.SetSendingEnabled(0, false);
+				Network.isMessageQueueRunning = false;
+				LANManager.Instance.statut = LANStatut.GAME;
+				Network.SetLevelPrefix(9); //Numero du level à mettre;
+				Application.LoadLevel("LANChartScene");
 			}
 				
 		}else if(alphaSongLaunch[5] >= 1){
