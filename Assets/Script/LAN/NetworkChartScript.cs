@@ -14,15 +14,30 @@ public class NetworkChartScript : MonoBehaviour {
 	
 	
 	//GAME
-	public Dictionary<NetworkPlayer, PlayerState> dataPlayer;
-	public int[] positions;
-	public float[] scores;
-	public float[] lives;
-	public int[] comboType;
-	public bool[] hasFailed;
+	private Dictionary<NetworkPlayer, PlayerState> dataPlayer;
+	private int[] positions;
+	private float[] scores;
+	private float[] lives;
+	private int[] comboType;
+	private bool[] hasFailed;
 	
+	private float oldScore;
+	private float oldLife;
+	private int oldCT;
+	
+	private bool updateRequired;
+	
+	public float refreshTime;
+	private float time;
+	
+	
+	//GUI
+	
+	
+	//POOL
 	private PlayerState poolPS;
 	private int poolIndex;
+	private string[] poolString;
 	
 	void Awake()
 	{
@@ -34,6 +49,7 @@ public class NetworkChartScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		timeReady = 0f;
+		time = 0f;
 		if(LANManager.Instance.isCreator)
 		{
 			LANManager.Instance.players[Network.player].statut = LANStatut.GAME;	
@@ -47,6 +63,7 @@ public class NetworkChartScript : MonoBehaviour {
 			lives = new float[LANManager.Instance.players.Count];
 			comboType = new int[LANManager.Instance.players.Count];
 			hasFailed = new bool[LANManager.Instance.players.Count];
+			poolString = new string[LANManager.Instance.players.Count];
 		}
 	}
 	
@@ -61,6 +78,20 @@ public class NetworkChartScript : MonoBehaviour {
 				}else{
 					timeReady += Time.deltaTime;
 				}
+			}
+		}else{
+			if(time >= refreshTime)
+			{
+				askInfo();
+				if(LANManager.Instance.isCreator)
+				{
+					if(updateRequired)
+					{
+						sendInfo();
+					}
+				}
+			}else{
+				time += Time.deltaTime;
 			}
 		}
 	}
@@ -90,7 +121,9 @@ public class NetworkChartScript : MonoBehaviour {
 	{
 		LANManager.Instance.players[player].statut = (LANStatut)statut;
 		
-		if(!dataPlayer.ContainsKey(player)) dataPlayer.Add(player, new PlayerState());	
+		if(!dataPlayer.ContainsKey(player)) dataPlayer.Add(player, new PlayerState());
+		
+		sendPrimaryInfo();
 		
 		if(!readyToPlay)
 		{
@@ -128,7 +161,18 @@ public class NetworkChartScript : MonoBehaviour {
 	
 	public void objectToSend(float score, float life, int ct, bool failed)
 	{
-		
+		if(score != oldScore || life != oldLife || ct != oldCT)
+		{
+			if(LANManager.Instance.isCreator)
+			{
+				getInfo(Network.player, score, life, ct, failed);
+			}else{
+				networkView.RPC("getInfo", RPC.Server, Network.player, score, life, ct, failed);
+			}
+			oldScore = score;
+			life = oldLife;
+			oldCT = ct;
+		}
 	}
 	
 	
@@ -136,17 +180,23 @@ public class NetworkChartScript : MonoBehaviour {
 	[RPC]
 	public void getInfo(NetworkPlayer player, float score, float life, int ct, bool failed)
 	{
-			
+		updateRequired = true;
+		dataPlayer[player].fillPlayerState(score, life, ct, failed);
 	}
 	
 	//server
 	public void sendInfo()
 	{
 		//a revoir
-		dataPlayer = dataPlayer.OrderByDescending(c => c.Value.score).ToDictionary(k => k.Key, v => v.Value);
+		/*dataPlayer = dataPlayer.OrderByDescending(c => c.Value.score).ToDictionary(k => k.Key, v => v.Value);
 		for(poolIndex=0; poolIndex<dataPlayer.Count; poolIndex++)
 		{
 			dataPlayer.ElementAt(poolIndex).Value.position = poolIndex+1;
+		}*/
+		
+		foreach(KeyValuePair<NetworkPlayer, PlayerState> el in dataPlayer.OrderByDescending(c => c.Value.score))
+		{
+			dataPlayer[el.Key].position = poolIndex+1;
 		}
 		
 		for(poolIndex=0; poolIndex<LANManager.Instance.players.Count; poolIndex++)
@@ -158,6 +208,25 @@ public class NetworkChartScript : MonoBehaviour {
 			comboType[poolIndex] = poolPS.comboType;
 			hasFailed[poolIndex] = poolPS.hasFailed;
 		}
+		updateRequired = false;
+		networkView.RPC ("refreshInfo", RPCMode.Others, positions, scores, lives, comboType, hasFailed);
+		refreshInfo(positions, scores, lives, comboType, hasFailed);
+	}
+	
+	public void sendPrimaryInfo()
+	{
+	
+		for(poolIndex=0; poolIndex<LANManager.Instance.players.Count; poolIndex++)
+		{
+			if(dataPlayer.containsKey(LANManager.Instance.players.ElementAt(poolIndex).Key))
+			{
+				poolPS = dataPlayer[LANManager.Instance.players.ElementAt(poolIndex).Key];
+				poolString[i] = poolPS.name;
+			}else{
+				poolString[i] = "";
+			}
+		}
+		updateRequired = false;
 		networkView.RPC ("refreshInfo", RPCMode.Others, positions, scores, lives, comboType, hasFailed);
 		refreshInfo(positions, scores, lives, comboType, hasFailed);
 	}
@@ -166,6 +235,13 @@ public class NetworkChartScript : MonoBehaviour {
 	[RPC]
 	public void refreshInfo(int[] pos, float[] score, float[] life, int[] ct, bool[] failed)
 	{
-		//Remplir les HUD
+		//Remplir les HUD info
+	}
+	
+	//client and server side
+	[RPC]
+	public void refreshPrimaryInfo(string[] name)
+	{
+		//Remplir les HUD des noms
 	}
 }

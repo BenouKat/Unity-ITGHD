@@ -16,8 +16,16 @@ public class PlayerState {
 		position = 0;
 		score = 0f;
 		life = 50f;
-		comboType = 0;
+		comboType = 3;
 		hasFinished = false;
 		hasFailed = false;
+	}
+	
+	public void fillPlayerState(float fscore, float flife, int fct, bool fhasFailed)
+	{
+		score = fscore;
+		life = flife;
+		comboType = fct;
+		hasFailed = fhasFailed;
 	}
 }

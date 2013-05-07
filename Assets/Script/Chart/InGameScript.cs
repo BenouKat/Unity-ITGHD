@@ -2019,7 +2019,15 @@ public class InGameScript : MonoBehaviour {
 	
 	public void askingForInfo()
 	{
-		ncs.objectToSend(score, life, (int)ct, fail);	
+		ncs.objectToSend(score, life, 
+		(ct != ComboType.NONE && combo < 100) ?
+			(int)ComboType.NONE
+		:
+			(ct == ComboType.NONE && combo < 25) ?
+				4
+			:
+				(int)ct
+		, fail);
 	}
 	#endregion
 	
