@@ -326,6 +326,7 @@ public class InGameScript : MonoBehaviour {
 		inNetworkMode = (Application.loadedLevelName == "LANChartScene");
 		if(inNetworkMode)
 		{
+			Debug.Log ("NETWORK MODE !!!");
 			ncs = GetComponent<NetworkChartScript>();
 		}
 		
@@ -544,15 +545,16 @@ public class InGameScript : MonoBehaviour {
 			infoToDisplay += "First try\n";
 		}
 		
-		
-		if(recordScore != -1)
-		{
-			LabelDescriptionMaster.text = "Best : " + recordName + " [" + recordScore.ToString("0.00") + "%]";
-		}else
-		{
-			LabelDescriptionMaster.text = "Best : --";	
+		if(!inNetworkMode){
+			if(recordScore != -1)
+			{
+				LabelDescriptionMaster.text = "Best : " + recordName + " [" + recordScore.ToString("0.00") + "%]";
+			}else
+			{
+				LabelDescriptionMaster.text = "Best : --";	
+			}
+			
 		}
-		
 		
 		LabelLevelNumber.text = thesong.level.ToString();
 		LabelLevelNumber.color = DataManager.Instance.diffColor[(int)thesong.difficulty];
@@ -561,16 +563,18 @@ public class InGameScript : MonoBehaviour {
 		
 		
 		
-		
 		SpriteLevelText.spriteName = Enum.GetName(typeof(Difficulty), (thesong.difficulty)).ToLower();
 		SpriteLevelText.transform.localScale = baseScaleLevelSprite[(int)thesong.difficulty]*coefficientScaleLevel;
-		if(recordScore != -1)
-		{
-			scoreBeatLabel.text = persoRecordScore == -1 ? recordScore.ToString("00.00") + "%" : persoRecordScore.ToString("00.00") + "%";	
-			scoreBeatLabel.effectColor = normalbeatColor;
-		}else{
-			scoreBeatLabel.text = "--%";
-			scoreBeatLabel.effectColor = idlebeatColor;
+		
+		if(!inNetworkMode){
+			if(recordScore != -1)
+			{
+				scoreBeatLabel.text = persoRecordScore == -1 ? recordScore.ToString("00.00") + "%" : persoRecordScore.ToString("00.00") + "%";	
+				scoreBeatLabel.effectColor = normalbeatColor;
+			}else{
+				scoreBeatLabel.text = "--%";
+				scoreBeatLabel.effectColor = idlebeatColor;
+			}
 		}
 		
 		judgeSprite.enabled = false;
@@ -777,7 +781,7 @@ public class InGameScript : MonoBehaviour {
 			BumpsBPM();
 			
 			//Fail/Clear part
-			if(thesong.duration < timetotalchart && !fail && !clear){
+			if(thesong.duration < timetotalchart && (!fail || inNetworkMode) && !clear){
 				if(!arrowLeftList.Any() && !arrowRightList.Any() && !arrowUpList.Any() && !arrowDownList.Any())
 				{
 					if(!inNetworkMode)
@@ -797,6 +801,7 @@ public class InGameScript : MonoBehaviour {
 						oneSecond = 0f;
 					}else{
 						//si les autres ont fini
+						fail = false;
 						clear = true;
 						if(scoreCount["DECENT"] == 0 && scoreCount["WAYOFF"] == 0 && scoreCount["MISS"] == 0){
 							if(score >= 100f || scoreInverse == 100f) perfect = true;
@@ -806,6 +811,7 @@ public class InGameScript : MonoBehaviour {
 							secondAudioSource.PlayOneShot(comboSound); 
 						}
 						oneSecond = 0f;
+					
 					}
 				}
 			}
@@ -862,7 +868,7 @@ public class InGameScript : MonoBehaviour {
 					}
 					
 					clearFail.enabled = true;
-					if(inNetworkMode && life < 0f) clearFail.spriteName = "Fail";
+					if(inNetworkMode && life <= 0f) clearFail.spriteName = "Fail";
 					blackSprite.enabled = true;
 					normalScaleClearFail = clearFail.transform.localScale;
 					clearFail.transform.localScale = fillVector(clearFail.transform.localScale.x*10f, clearFail.transform.localScale.y/10f, clearFail.transform.localScale.z);
@@ -882,7 +888,19 @@ public class InGameScript : MonoBehaviour {
 							SendDataToDatamanager();
 							if(!displayValue[5]) RenderSettings.skybox.SetColor("_Tint", fillColor(0.5f, 0.5f, 0.5f, 0.5f));
 							Screen.showCursor = true;
-							Application.LoadLevel("ScoreScene");
+							if(!inNetworkMode)
+							{
+								Application.LoadLevel("ScoreScene");
+							}else{
+								//TEMPORAIRE
+								Network.SetSendingEnabled(0, false);
+								Network.isMessageQueueRunning = false;
+								LANManager.Instance.statut = LANStatut.SELECTSONG;
+								Network.SetLevelPrefix(8);
+								ncs.cleanPlayerDisconnected();
+								ncs.saveData();
+								Application.LoadLevel("LANWheel");
+							}
 					}
 					alphaBlackSprite += speedAlphaBlackSprite*Time.deltaTime;
 					blackSprite.color = fillColor(blackSprite.color.r, blackSprite.color.g, blackSprite.color.b, alphaBlackSprite);
@@ -1802,14 +1820,17 @@ public class InGameScript : MonoBehaviour {
 				score = 0f;	
 			}
 			scoreRefresh();
-			if(score >= persoRecordScore && scoreBeatLabel.effectColor == normalbeatColor)
+			if(!inNetworkMode)
 			{
-				scoreBeatLabel.effectColor = beatthepersonalColor;
-				scoreBeatLabel.text = recordScore.ToString("00.00") + "%";
-			}
-			if(score >= recordScore && scoreBeatLabel.effectColor == beatthepersonalColor)
-			{
-				scoreBeatLabel.effectColor = beatthebeatColor;
+				if(score >= persoRecordScore && scoreBeatLabel.effectColor == normalbeatColor)
+				{
+					scoreBeatLabel.effectColor = beatthepersonalColor;
+					scoreBeatLabel.text = recordScore.ToString("00.00") + "%";
+				}
+				if(score >= recordScore && scoreBeatLabel.effectColor == beatthepersonalColor)
+				{
+					scoreBeatLabel.effectColor = beatthebeatColor;
+				}
 			}
 		}
 		
@@ -2021,7 +2042,7 @@ public class InGameScript : MonoBehaviour {
 	{
 		ncs.objectToSend(score, life, 
 		(ct != ComboType.NONE && combo < 100) ?
-			(int)ComboType.NONE
+			5
 		:
 			(ct == ComboType.NONE && combo < 25) ?
 				4

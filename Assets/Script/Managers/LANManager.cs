@@ -28,6 +28,7 @@ public class LANManager{
 	
 	//For server
 	public Dictionary<NetworkPlayer, CublastPlayer> players;
+	public Dictionary<NetworkPlayer, PlayerState> dataPlayerSave;
 	
 	//Elimination
 	public int roundNumber;

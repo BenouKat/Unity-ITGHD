@@ -42,9 +42,7 @@ public class OptionZoneLAN : MonoBehaviour {
 	private Judge hitJudgeSelected;
 	private Judge lifeJudgeSelected;
 	private int skinSelected;
-	private int raceSelected;
 	private bool[] displaySelected;
-	private int deathSelected;
 	private bool speedmodok;
 	private bool rateok;
 	private string ratestring;
@@ -89,8 +87,6 @@ public class OptionZoneLAN : MonoBehaviour {
 		hitJudgeSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.hitJudgeSelected : Judge.NORMAL;
 		lifeJudgeSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.lifeJudgeSelected : Judge.NORMAL;
 		skinSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.skinSelected : 0;
-		raceSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.raceSelected : 0;
-		deathSelected = DataManager.Instance.songSelected != null ? DataManager.Instance.deathSelected :0;
 		
 		
 		

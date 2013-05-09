@@ -21,11 +21,10 @@ public class PlayerState {
 		hasFailed = false;
 	}
 	
-	public void fillPlayerState(float fscore, float flife, int fct, bool fhasFailed)
+	public void fillPlayerState(float fscore, float flife, int fct)
 	{
 		score = fscore;
 		life = flife;
 		comboType = fct;
-		hasFailed = fhasFailed;
 	}
 }

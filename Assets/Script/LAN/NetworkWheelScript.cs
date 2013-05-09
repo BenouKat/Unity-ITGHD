@@ -21,7 +21,7 @@ public class NetworkWheelScript : MonoBehaviour {
 	}
 	// Use this for initialization
 	void Start () {
-		
+		//Init à faire
 	}
 	
 	// Update is called once per frame
