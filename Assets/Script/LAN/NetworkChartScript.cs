@@ -10,6 +10,8 @@ public class NetworkChartScript : MonoBehaviour {
 	
 	//START
 	public bool readyToPlay;
+	public bool readyFinish;
+	public bool startVerifyFinish;
 	public float timeSendReady;
 	private float timeReady;
 	
@@ -82,6 +84,8 @@ public class NetworkChartScript : MonoBehaviour {
 		time = 0f;
 		oldPosition = 0;
 		alreadyInitialized = false;
+		readyFinish = false;
+		startVerifyFinish = false;
 		igs = GetComponent<InGameScript>();
 		LANManager.Instance.statut = LANStatut.GAME;
 		if(LANManager.Instance.isCreator)
@@ -144,6 +148,25 @@ public class NetworkChartScript : MonoBehaviour {
 				time = 0f;
 			}else{
 				time += Time.deltaTime;
+			}
+		}
+		
+		if(LANManager.Instance.isCreator && startVerifyFinish)
+		{
+			var everyoneValid = true;
+			for(int i=0; i<dataPlayer.Count; i++)
+			{
+				if(!dataPlayer.ElementAt(i).Value.hasFinished)
+				{
+					everyoneValid = false;	
+				}
+			}
+			
+			if(everyoneValid)
+			{
+				startVerifyFinish = false;
+				networkView.RPC ("sendFinish", RPCMode.Others);
+				sendFinish();
 			}
 		}
 	}
@@ -444,5 +467,17 @@ public class NetworkChartScript : MonoBehaviour {
 		{
 			hudToColor.color = colorLife[1];
 		}
+	}
+	
+	[RPC]
+	public void hasFinished(NetworkPlayer player)
+	{
+		dataPlayer[player].hasFinished = true;	
+	}
+	
+	[RPC]
+	void sendFinish()
+	{
+		readyFinish = true;	
 	}
 }

@@ -21,7 +21,7 @@ public class NetworkWheelScript : MonoBehaviour {
 	}
 	// Use this for initialization
 	void Start () {
-		//Init à faire
+		LANManager.Instance.isPicker = false;
 	}
 	
 	// Update is called once per frame
@@ -123,7 +123,12 @@ public class NetworkWheelScript : MonoBehaviour {
 			{
 				for(int i=1; i < LANManager.Instance.players.Count; i++)
 				{
-					networkView.RPC ("sendPickInfo", LANManager.Instance.players.ElementAt(i).Key, i == LANManager.Instance.turn);
+					if(LANManager.Instance.players.ElementAt(i).Key.ToString() == "0")
+					{
+						sendPickInfo(i == LANManager.Instance.turn);
+					}else{
+						networkView.RPC ("sendPickInfo", LANManager.Instance.players.ElementAt(i).Key, i == LANManager.Instance.turn);
+					}
 				}
 			}
 			LANManager.Instance.turn++;
@@ -147,7 +152,12 @@ public class NetworkWheelScript : MonoBehaviour {
 			{
 				for(int i=1; i < LANManager.Instance.players.Count; i++)
 				{
-					networkView.RPC ("sendPickInfo", LANManager.Instance.players.ElementAt(i).Key, i == LANManager.Instance.turn);
+					if(LANManager.Instance.players.ElementAt(i).Key.ToString() == "0")
+					{
+						sendPickInfo(i == LANManager.Instance.turn);
+					}else{
+						networkView.RPC ("sendPickInfo", LANManager.Instance.players.ElementAt(i).Key, i == LANManager.Instance.turn);
+					}
 				}
 			}
 			break;

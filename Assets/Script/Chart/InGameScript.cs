@@ -811,7 +811,13 @@ public class InGameScript : MonoBehaviour {
 							secondAudioSource.PlayOneShot(comboSound); 
 						}
 						oneSecond = 0f;
-					
+						if(LANManager.Instance.isCreator)
+						{
+							ncs.startVerifyFinish = true;
+							ncs.hasFinished(Network.player);	
+						}else{
+							networkView.RPC("hasFinished", RPCMode.Server, Network.player);
+						}
 					}
 				}
 			}
@@ -849,7 +855,7 @@ public class InGameScript : MonoBehaviour {
 					GetComponent<DebugOffset>().enabled = true;
 				}
 			}else if(clear){
-				oneSecond += Time.deltaTime;
+				if(!inNetworkMode || (inNetworkMode && ncs.readyFinish)) oneSecond += Time.deltaTime;
 				if(mainAudioSource.volume > 0) mainAudioSource.volume -= Time.deltaTime/speedFadeAudio;
 					
 				if(!appearClearok){
