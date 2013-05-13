@@ -52,9 +52,10 @@ public class NetworkChartScript : MonoBehaviour {
 	public UILabel positionScore;
 	public UILabel bestPlayer;
 	
-	private bool differenceScoreAsked;
+	private bool isDifferenceFirst;
 	private float yourScore;
 	private float firstScore;
+	private float secondScore;
 	public Color notFirstColor;
 	
 	
@@ -72,6 +73,7 @@ public class NetworkChartScript : MonoBehaviour {
 	
 	void Awake()
 	{
+		Network.SetLevelPrefix(9);
 		Network.SetSendingEnabled(0, true);
 		Network.isMessageQueueRunning = true;	
 		playersDisconnected = new List<NetworkPlayer>();
@@ -82,6 +84,7 @@ public class NetworkChartScript : MonoBehaviour {
 	void Start () {
 		timeReady = timeSendReady;
 		time = 0f;
+		readyToPlay = false;
 		oldPosition = 0;
 		alreadyInitialized = false;
 		readyFinish = false;
@@ -316,7 +319,7 @@ public class NetworkChartScript : MonoBehaviour {
 		}
 		
 		
-		differenceScoreAsked = false;
+		isDifferenceFirst = false;
 		for(poolIndex=0; poolIndex<positions.Count(); poolIndex++)
 		{
 			if(poolIndex == positionInTab)
@@ -330,14 +333,14 @@ public class NetworkChartScript : MonoBehaviour {
 				{
 					if(positions[positionInTab] == 1)
 					{
-						positionScore.text = "0.00%";
-						positionScore.effectColor = igs.beatthebeatColor;
+						isDifferenceFirst = false;
+						bestPlayer.text = "You are the leader !";
+						
 					}else
 					{
-						differenceScoreAsked = true;	
-						yourScore = scores[positionInTab];
-						bestPlayer.text = "You are the leader !";
+						isDifferenceFirst = true;
 					}
+					yourScore = scores[positionInTab];
 				}
 			}else{
 				
@@ -355,13 +358,20 @@ public class NetworkChartScript : MonoBehaviour {
 					firstScore = scores[poolIndex];	
 					bestPlayer.text = "Best : " + NPnames[pooldecalIndex].text;
 				}
+				if(positions[poolIndex] == 2)
+				{
+					secondScore = scores[poolIndex];
+				}
 			}
 		}
 		
-		if(differenceScoreAsked)
+		if(isDifferenceFirst)
 		{
 			positionScore.text = (firstScore - yourScore).ToString("0.00") + "%";
 			positionScore.effectColor = notFirstColor;
+		}else{
+			positionScore.text = (yourScore - secondScore).ToString("0.00") + "%";
+			positionScore.effectColor = igs.beatthebeatColor;
 		}
 	}
 	

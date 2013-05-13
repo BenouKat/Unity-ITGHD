@@ -326,7 +326,7 @@ public class InGameScript : MonoBehaviour {
 		inNetworkMode = (Application.loadedLevelName == "LANChartScene");
 		if(inNetworkMode)
 		{
-			Debug.Log ("NETWORK MODE !!!");
+			Debug.Log("NETWORK MODE");
 			ncs = GetComponent<NetworkChartScript>();
 		}
 		
@@ -800,7 +800,7 @@ public class InGameScript : MonoBehaviour {
 						}
 						oneSecond = 0f;
 					}else{
-						//si les autres ont fini
+						Debug.Log("normal fail part network");
 						fail = false;
 						clear = true;
 						if(scoreCount["DECENT"] == 0 && scoreCount["WAYOFF"] == 0 && scoreCount["MISS"] == 0){

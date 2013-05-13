@@ -38,6 +38,11 @@ public class NetworkScript : MonoBehaviour {
 		LoadManager.Instance.Loading();
 		
 	}
+	
+	void Awake()
+	{
+		Network.SetLevelPrefix(7);	
+	}
 	// Use this for initialization
 	void Start () {
 		//TestShort();

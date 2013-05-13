@@ -16,6 +16,7 @@ public class NetworkWheelScript : MonoBehaviour {
 	
 	void Awake()
 	{
+		Network.SetLevelPrefix(8);
 		Network.SetSendingEnabled(0, true);
 		Network.isMessageQueueRunning = true;
 	}
