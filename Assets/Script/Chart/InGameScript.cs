@@ -781,7 +781,7 @@ public class InGameScript : MonoBehaviour {
 			BumpsBPM();
 			
 			//Fail/Clear part
-			if(thesong.duration < timetotalchart && (!fail || inNetworkMode) && !clear){
+			if(thesong.duration < timetotalchart && (!(fail) || inNetworkMode) && !clear){
 				if(!arrowLeftList.Any() && !arrowRightList.Any() && !arrowUpList.Any() && !arrowDownList.Any())
 				{
 					if(!inNetworkMode)
@@ -1842,7 +1842,7 @@ public class InGameScript : MonoBehaviour {
 		
 		if(life <= 0f || scoreInverse < targetScoreInverse){
 			//Debug.Log ("Fail at life");
-			fail = true;
+			if(!inNetworkMode || !clear) fail = true;
 		}
 	}
 	
@@ -1919,7 +1919,7 @@ public class InGameScript : MonoBehaviour {
 		theTimeBar.HitBar(prec);
 		if(isFullExComboRace && ct == ComboType.FULLCOMBO){
 			//Debug.Log("Fail at FEC race");
-			fail = true;
+			if(!inNetworkMode || !clear) fail = true;
 		}
 	}
 	
@@ -1963,7 +1963,7 @@ public class InGameScript : MonoBehaviour {
 		comboRefresh();
 		if(isFullComboRace || isFullExComboRace){
 			//Debug.Log ("Fail at combo race");
-			fail = true;
+			if(!inNetworkMode || !clear) fail = true;
 		}
 		if(miss){
 			comboMisses++;

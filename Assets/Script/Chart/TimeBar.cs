@@ -144,7 +144,7 @@ public class TimeBar : MonoBehaviour {
 		{
 			if(timeArgs >= 0f)
 			{
-				labelTime.text = (timeArgs/60f).ToString("0") + ":" + (timeArgs%60).ToString("00");
+				labelTime.text = (timeArgs/60f).ToString("0") + ":" + ((int)(timeArgs) % 60).ToString("00");
 			}else
 			{
 				labelTime.text = "0:00";	
