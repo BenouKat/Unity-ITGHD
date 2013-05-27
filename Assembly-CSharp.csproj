@@ -157,6 +157,7 @@
      <Compile Include="Assets\Script\LAN\LAN Score\CameraMove.cs" />
      <Compile Include="Assets\Script\LAN\LAN Score\FakeChartScript.cs" />
      <Compile Include="Assets\Script\LAN\LAN Score\MoveArrowScore.cs" />
+     <Compile Include="Assets\Script\LAN\LAN Score\NetworkScoreScript.cs" />
      <Compile Include="Assets\Script\LAN\LAN Score\OnButtonClicked.cs" />
      <Compile Include="Assets\Script\LAN\LAN Select\OpeningLANScene.cs" />
      <Compile Include="Assets\Script\LAN\LAN WheelSong\GeneralScriptLAN.cs" />

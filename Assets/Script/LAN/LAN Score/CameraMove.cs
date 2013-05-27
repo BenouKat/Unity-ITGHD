@@ -6,15 +6,14 @@ public class CameraMove : MonoBehaviour {
 	public GameObject[] positionCamera;
 	private GameObject cameraGUI;
 	
-	public int actualPosition;
+	private int actualPosition;
 	
-	public bool onMove;
-	public int directionMove;
-	public int stateAnim;
+	private bool onMove;
+	private int stateAnim;
 	
 	public float speedMove;
 	public float speedMoveCameraGUI;
-	public Vector3 positionOutCameraGUI;
+	public Transform positionOutCameraGUI;
 	private Vector3 basePos = new Vector3(0f, 0f, 0f);
 	public float toleranceGUI;
 	public float toleranceGUIAppear;
@@ -22,7 +21,7 @@ public class CameraMove : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		actualPosition = 0;
-		cameraGUI = transform.FindChild("CameraGUI").gameObject;
+		cameraGUI = transform.FindChild("GUICamera").gameObject;
 	}
 	
 	// Update is called once per frame
@@ -32,12 +31,12 @@ public class CameraMove : MonoBehaviour {
 			switch(stateAnim)
 			{
 			case 0:
-				if(Vector3.Distance(cameraGUI.transform.localPosition, -directionMove*positionOutCameraGUI) <= toleranceGUI)
+				if(Quaternion.Angle(cameraGUI.transform.localRotation, positionOutCameraGUI.localRotation) <= toleranceGUI)
 				{
-					cameraGUI.transform.localPosition = -directionMove*positionOutCameraGUI;	
+					cameraGUI.transform.localRotation = positionOutCameraGUI.localRotation;	
 					stateAnim++;
 				}else{
-					cameraGUI.transform.localPosition = Vector3.Lerp(cameraGUI.transform.localPosition, -directionMove*positionOutCameraGUI, speedMoveCameraGUI*Time.deltaTime);
+					cameraGUI.transform.localRotation = Quaternion.Lerp(cameraGUI.transform.localRotation, positionOutCameraGUI.localRotation, speedMoveCameraGUI*Time.deltaTime);
 				}
 				break;
 				
@@ -46,7 +45,6 @@ public class CameraMove : MonoBehaviour {
 				{
 					transform.position = positionCamera[actualPosition].transform.position;
 					transform.rotation = positionCamera[actualPosition].transform.rotation;
-					cameraGUI.transform.localPosition = directionMove*positionOutCameraGUI;
 					stateAnim++;
 				}else{
 					transform.position = Vector3.Lerp(transform.position, positionCamera[actualPosition].transform.position, speedMove*Time.deltaTime);
@@ -54,12 +52,12 @@ public class CameraMove : MonoBehaviour {
 				}
 				break;
 			case 2:
-				if(Vector3.Distance(cameraGUI.transform.localPosition, basePos) <= toleranceGUIAppear)
+				if(Quaternion.Angle(cameraGUI.transform.localRotation, Quaternion.Euler(basePos)) <= toleranceGUIAppear)
 				{
-					cameraGUI.transform.localPosition = basePos;	
+					cameraGUI.transform.localRotation = Quaternion.Euler(basePos);	
 					onMove = false;
 				}else{
-					cameraGUI.transform.localPosition = Vector3.Lerp(cameraGUI.transform.localPosition, basePos, speedMoveCameraGUI*Time.deltaTime);
+					cameraGUI.transform.localRotation = Quaternion.Lerp(cameraGUI.transform.localRotation, Quaternion.Euler(basePos), speedMoveCameraGUI*Time.deltaTime);
 				}
 				break;
 			}
@@ -76,7 +74,6 @@ public class CameraMove : MonoBehaviour {
 			actualPosition = 0;	
 		}
 		onMove = true;
-		directionMove = 1;
 	}
 	
 	public void moveBackward()
@@ -88,6 +85,5 @@ public class CameraMove : MonoBehaviour {
 			actualPosition = positionCamera.Length - 1;	
 		}
 		onMove = true;
-		directionMove = -1;
 	}
 }
