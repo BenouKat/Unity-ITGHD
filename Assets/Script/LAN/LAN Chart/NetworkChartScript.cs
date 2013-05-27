@@ -192,6 +192,7 @@ public class NetworkChartScript : MonoBehaviour {
 		for(int i=0; i<playersDisconnected.Count; i++)
 		{
 			LANManager.Instance.players.Remove(playersDisconnected.ElementAt(i));	
+			dataPlayer.Remove(playersDisconnected.ElementAt(i));
 		}
 		playersDisconnected.Clear();
 	}
@@ -480,8 +481,9 @@ public class NetworkChartScript : MonoBehaviour {
 	}
 	
 	[RPC]
-	public void hasFinished(NetworkPlayer player)
+	public void hasFinished(NetworkPlayer player, string dataStat)
 	{
+		dataPlayer[player].statistics = dataStat;
 		dataPlayer[player].hasFinished = true;	
 	}
 	

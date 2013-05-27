@@ -6,7 +6,7 @@ public class CameraMove : MonoBehaviour {
 	public GameObject[] positionCamera;
 	private GameObject cameraGUI;
 	
-	private int actualPosition;
+	public int actualPosition;
 	
 	private bool onMove;
 	private int stateAnim;

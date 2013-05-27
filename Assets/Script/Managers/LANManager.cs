@@ -244,5 +244,27 @@ public class LANManager{
 		
 		return stringParse;
 	}
+	
+	
+	public int convertPlaceToPoint(int place)
+	{
+		switch(place)
+		case 0:
+			return 10;
+		case 1:
+			return 8;
+		case 2:
+			return 6;
+		case 3 :
+			return 4;
+		case 4 :
+			return 3;
+		case 5 :
+			return 2;
+		case 6 : 
+			return 1;
+		case 7 :
+			return 0;
+	}
 
 }

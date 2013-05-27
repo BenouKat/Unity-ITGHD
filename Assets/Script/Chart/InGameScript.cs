@@ -811,12 +811,38 @@ public class InGameScript : MonoBehaviour {
 							secondAudioSource.PlayOneShot(comboSound); 
 						}
 						oneSecond = 0f;
+						var theaverage = 0;
+						for(int i = 0; i<precAverage.Count; i++)
+						{
+							theaverage += Mathf.Abs((float)precAverage[i]);
+						}
+						theaverage = (theaverage/precAverage.Count);
 						if(LANManager.Instance.isCreator)
 						{
 							ncs.startVerifyFinish = true;
-							ncs.hasFinished(Network.player);	
+							ncs.hasFinished(Network.player, 
+								scoreCount["FANTASTIC"] + ";" +
+								scoreCount["EXCELLENT"] + ";" +
+								scoreCount["GREAT"] + ";" +
+								scoreCount["DECENT"] + ";" +
+								scoreCount["WAYOFF"] + ";" +
+								scoreCount["MISS"] + ";" +
+								(firstMisteak/thesong.duration) + ";" +
+								(int)theaverage + ";" +
+								numberCombo.Max().ToString();
+							);	
 						}else{
-							networkView.RPC("hasFinished", RPCMode.Server, Network.player);
+							networkView.RPC("hasFinished", RPCMode.Server, Network.player, 
+								scoreCount["FANTASTIC"] + ";" +
+								scoreCount["EXCELLENT"] + ";" +
+								scoreCount["GREAT"] + ";" +
+								scoreCount["DECENT"] + ";" +
+								scoreCount["WAYOFF"] + ";" +
+								scoreCount["MISS"] + ";" +
+								(firstMisteak/thesong.duration) + ";" +
+								(int)theaverage + ";" +
+								numberCombo.Max().ToString();
+							);
 						}
 					}
 				}
@@ -898,14 +924,13 @@ public class InGameScript : MonoBehaviour {
 							{
 								Application.LoadLevel("ScoreScene");
 							}else{
-								//TEMPORAIRE
 								Network.SetSendingEnabled(0, false);
 								Network.isMessageQueueRunning = false;
-								LANManager.Instance.statut = LANStatut.SELECTSONG;
-								Network.SetLevelPrefix(8);
+								LANManager.Instance.statut = LANStatut.RESULT;
+								Network.SetLevelPrefix(10);
 								ncs.cleanPlayerDisconnected();
 								ncs.saveData();
-								Application.LoadLevel("LANWheel");
+								Application.LoadLevel("LANScore");
 							}
 					}
 					alphaBlackSprite += speedAlphaBlackSprite*Time.deltaTime;
