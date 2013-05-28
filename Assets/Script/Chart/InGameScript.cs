@@ -829,7 +829,7 @@ public class InGameScript : MonoBehaviour {
 								scoreCount["MISS"] + ";" +
 								(firstMisteak/thesong.duration) + ";" +
 								(int)theaverage + ";" +
-								numberCombo.Max().ToString();
+								numberCombo.Max().ToString()
 							);	
 						}else{
 							networkView.RPC("hasFinished", RPCMode.Server, Network.player, 
@@ -841,7 +841,7 @@ public class InGameScript : MonoBehaviour {
 								scoreCount["MISS"] + ";" +
 								(firstMisteak/thesong.duration) + ";" +
 								(int)theaverage + ";" +
-								numberCombo.Max().ToString();
+								numberCombo.Max().ToString()
 							);
 						}
 					}

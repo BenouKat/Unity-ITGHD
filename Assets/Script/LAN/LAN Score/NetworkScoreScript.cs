@@ -255,8 +255,7 @@ public class NetworkScoreScript : MonoBehaviour {
 				{
 					tchild.FindChild("ComboType").GetComponent<UISprite>().spriteName = (score >= 100f ? "Perfect" : 
 																							(el.comboType == 0 ? "FFC" :
-																								el.ComboType == 1 ? "FEC" :
-																									el.ComboType == 2 ? "FC"))
+																								(el.ComboType == 1 ? "FEC" : "FC")));
 				}
 			}
 		}
