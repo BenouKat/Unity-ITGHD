@@ -108,9 +108,9 @@ public class SongZoneLAN : MonoBehaviour {
 					if(!locked){
 						var papa = theGo.transform.parent;
 						var thepart = papa.Find("Selection").gameObject;
-						if(particleOnPlay != null && particleOnPlay != thepart && particleOnPlay.active) 
+						if(particleOnPlay != null && particleOnPlay != thepart && particleOnPlay.activeInHierarchy) 
 						{
-							particleOnPlay.active = false;
+							particleOnPlay.SetActive(false);
 						}
 						var splitedNameSong = songCubePack[papa.gameObject].Split(';');
 						if(gs.songSelected == null || ((gs.songSelected.First().Value.title + ";" + gs.songSelected.First().Value.subtitle) != splitedNameSong[0] + ";" + splitedNameSong[1]))
@@ -122,7 +122,7 @@ public class SongZoneLAN : MonoBehaviour {
 							cubeSelected = papa.gameObject;
 						}
 						particleOnPlay = thepart;
-						particleOnPlay.active = true;
+						particleOnPlay.SetActive(true);
 					}
 					
 					if(Input.GetMouseButtonDown(0)){
@@ -130,9 +130,9 @@ public class SongZoneLAN : MonoBehaviour {
 						if(locked){
 							var papa = theGo.transform.parent;
 							var thepart = papa.Find("Selection").gameObject;
-							if(particleOnPlay != null && particleOnPlay != thepart && particleOnPlay.active) 
+							if(particleOnPlay != null && particleOnPlay != thepart && particleOnPlay.activeInHierarchy) 
 							{
-								particleOnPlay.active = false;
+								particleOnPlay.SetActive(false);
 							}
 							var splitedNameSong = songCubePack[papa.gameObject].Split(';');
 							if(gs.songSelected == null || ((gs.songSelected.First().Value.title + ";" + gs.songSelected.First().Value.subtitle) != splitedNameSong[0] + ";" + splitedNameSong[1]))
@@ -144,13 +144,13 @@ public class SongZoneLAN : MonoBehaviour {
 								cubeSelected = papa.gameObject;
 							}
 							particleOnPlay = thepart;
-							particleOnPlay.active = true;
+							particleOnPlay.SetActive(true);
 						}else{
 							locked = true;
 						}
 					}
 					
-				}else if(particleOnPlay != null && particleOnPlay.active){
+				}else if(particleOnPlay != null && particleOnPlay.activeInHierarchy){
 					
 					if(!locked){
 						unFocus();
@@ -159,7 +159,7 @@ public class SongZoneLAN : MonoBehaviour {
 				
 				
 				
-			}else if(particleOnPlay != null && particleOnPlay.active){
+			}else if(particleOnPlay != null && particleOnPlay.activeInHierarchy){
 				if(!locked){
 					unFocus();
 				}
@@ -168,7 +168,7 @@ public class SongZoneLAN : MonoBehaviour {
 			//inputs
 			if(Input.GetMouseButtonDown(1)){
 				locked = false;
-				if(particleOnPlay == null || !particleOnPlay.active)
+				if(particleOnPlay == null || !particleOnPlay.activeInHierarchy)
 				{
 					unFocus();	
 				}
@@ -202,15 +202,15 @@ public class SongZoneLAN : MonoBehaviour {
 		
 			if(oldpos > newpos){
 			
-				foreach(var cubeel2 in songCubePack.Where(c => !c.Key.active && (c.Key.transform.position.y > camerasong.transform.position.y - decalSongListY*numberToDisplay) && !(c.Key.transform.position.y > camerasong.transform.position.y + startSongListY) && !String.IsNullOrEmpty(c.Value))){
-					cubeel2.Key.SetActiveRecursively(true);
-					if(cubeSelected == null || cubeSelected != cubeel2.Key || packSelected != packLocked) cubeel2.Key.transform.FindChild("Selection").gameObject.active = false;
+				foreach(var cubeel2 in songCubePack.Where(c => !c.Key.activeInHierarchy && (c.Key.transform.position.y > camerasong.transform.position.y - decalSongListY*numberToDisplay) && !(c.Key.transform.position.y > camerasong.transform.position.y + startSongListY) && !String.IsNullOrEmpty(c.Value))){
+					cubeel2.Key.SetActive(true);
+					if(cubeSelected == null || cubeSelected != cubeel2.Key || packSelected != packLocked) cubeel2.Key.transform.FindChild("Selection").gameObject.SetActive(false);
 					
 				}
 				
 				
-				foreach(var cubeel in songCubePack.Where(c => c.Key.active && (c.Key.transform.position.y > camerasong.transform.position.y + startSongListY))){
-					cubeel.Key.SetActiveRecursively(false);
+				foreach(var cubeel in songCubePack.Where(c => c.Key.activeInHierarchy && (c.Key.transform.position.y > camerasong.transform.position.y + startSongListY))){
+					cubeel.Key.SetActive(false);
 					if(startnumber > currentstartnumber) currentstartnumber++;
 				}
 	
@@ -218,18 +218,18 @@ public class SongZoneLAN : MonoBehaviour {
 				
 			}else if(oldpos < newpos){
 				
-				foreach(var cubeel2 in songCubePack.Where(c => c.Key.active && (c.Key.transform.position.y < camerasong.transform.position.y - decalSongListY*numberToDisplay))){
+				foreach(var cubeel2 in songCubePack.Where(c => c.Key.activeInHierarchy && (c.Key.transform.position.y < camerasong.transform.position.y - decalSongListY*numberToDisplay))){
 	
-					cubeel2.Key.SetActiveRecursively(false);
+					cubeel2.Key.SetActive(false);
 					
 				}
 				
 				
-				foreach(var cubeel in songCubePack.Where(c => !c.Key.active && (c.Key.transform.position.y < camerasong.transform.position.y + 5f) && (c.Key.transform.position.y > camerasong.transform.position.y - decalSongListY*(numberToDisplay - 2)) && !String.IsNullOrEmpty(c.Value))){
+				foreach(var cubeel in songCubePack.Where(c => !c.Key.activeInHierarchy && (c.Key.transform.position.y < camerasong.transform.position.y + 5f) && (c.Key.transform.position.y > camerasong.transform.position.y - decalSongListY*(numberToDisplay - 2)) && !String.IsNullOrEmpty(c.Value))){
 	
-					cubeel.Key.SetActiveRecursively(true);
+					cubeel.Key.SetActive(true);
 					if(startnumber < currentstartnumber) currentstartnumber--;
-					if(cubeSelected == null || cubeSelected != cubeel.Key || packSelected != packLocked) cubeel.Key.transform.FindChild("Selection").gameObject.active = false;
+					if(cubeSelected == null || cubeSelected != cubeel.Key || packSelected != packLocked) cubeel.Key.transform.FindChild("Selection").gameObject.SetActive(false);
 					
 				}
 				
@@ -381,7 +381,7 @@ public class SongZoneLAN : MonoBehaviour {
 		{
 			var thego = (GameObject) Instantiate(cubeSong, new Vector3(-25f, pos, 20f), cubeSong.transform.rotation);
 			pos -= decalSongListY;
-			thego.SetActiveRecursively(false);
+			thego.SetActive(false);
 			songCubePack.Add(thego, "");
 		}
 	}
@@ -397,7 +397,7 @@ public class SongZoneLAN : MonoBehaviour {
 		locked = false;
 		if(particleOnPlay != null)
 		{
-			particleOnPlay.active = false;	
+			particleOnPlay.SetActive(false);	
 		}
 	}
 	
@@ -413,25 +413,25 @@ public class SongZoneLAN : MonoBehaviour {
 		for(int i=0; i < songList.Count; i++)
 		{
 			var key = songCubePack.ElementAt(i).Key;
-			if(!key.active)
+			if(!key.activeInHierarchy)
 			{
-				key.SetActiveRecursively(i <= numberToDisplay);
+				key.SetActive(i <= numberToDisplay);
 			}
 			var songChecked = songList.ElementAt(i).Value.First().Value;
 			songCubePack[key] = songChecked.title + ";" + songChecked.subtitle + ";" + songList.ElementAt(i).Key;
 			if(packLocked == packSelected && gs.songSelected != null && ((gs.songSelected.First().Value.title + ";" + gs.songSelected.First().Value.subtitle) == (songChecked.title + ";" + songChecked.subtitle)))
 			{
-				key.transform.FindChild("Selection").gameObject.active = true;	
+				key.transform.FindChild("Selection").gameObject.SetActive(true);	
 			}else
 			{
-				key.transform.FindChild("Selection").gameObject.active = false;
+				key.transform.FindChild("Selection").gameObject.SetActive(false);
 				
 			}
 		}
 		for(int i=songList.Count; i < songCubePack.Count; i++)
 		{
 			var key = songCubePack.ElementAt(i).Key;
-			if(key.active) key.SetActiveRecursively(false);
+			if(key.activeInHierarchy) key.SetActive(false);
 			songCubePack[key] = "";
 		}
 	}
@@ -452,7 +452,7 @@ public class SongZoneLAN : MonoBehaviour {
 				
 				var thego = (GameObject) Instantiate(cubeSong, new Vector3(-25f, pos, 0f), cubeSong.transform.rotation);
 				pos -= decalSongListY;
-				thego.SetActiveRecursively(false);
+				thego.SetActive(false);
 				songCubePack.Add(thego, "");
 			}
 		}
@@ -460,24 +460,24 @@ public class SongZoneLAN : MonoBehaviour {
 		for(int i=0; i < songList.Count; i++)
 		{
 			var key = songCubePack.ElementAt(i).Key;
-			if(!key.active)
+			if(!key.activeInHierarchy)
 			{
-				key.SetActiveRecursively(i <= numberToDisplay);
+				key.SetActive(i <= numberToDisplay);
 			}
 			var songChecked = songList.ElementAt(i).Value.First().Value;
 			songCubePack[key] = songChecked.title + ";" + songChecked.subtitle + ";" + songList.ElementAt(i).Key;
 			if(packLocked == packSelected && gs.songSelected != null && ((gs.songSelected.First().Value.title + ";" + gs.songSelected.First().Value.subtitle) == (songChecked.title + ";" + songChecked.subtitle)))
 			{
-				key.transform.FindChild("Selection").gameObject.active = true;	
+				key.transform.FindChild("Selection").gameObject.SetActive(true);	
 			}else
 			{
-				key.transform.FindChild("Selection").gameObject.active = false;	
+				key.transform.FindChild("Selection").gameObject.SetActive(false);	
 			}
 		}
 		for(int i=songList.Count; i < songCubePack.Count; i++)
 		{
 			var key = songCubePack.ElementAt(i).Key;
-			if(key.active) key.SetActiveRecursively(false);
+			if(key.activeInHierarchy) key.SetActive(false);
 			songCubePack[key] = "";
 		}
 	}
@@ -487,7 +487,7 @@ public class SongZoneLAN : MonoBehaviour {
 		for(int i=0; i < songCubePack.Count; i++)
 		{
 			var key = songCubePack.ElementAt(i).Key;
-			if(key.active) key.SetActiveRecursively(false);
+			if(key.activeInHierarchy) key.SetActive(false);
 		}
 	}
 	

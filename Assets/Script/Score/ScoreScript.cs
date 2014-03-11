@@ -286,10 +286,10 @@ public class ScoreScript : MonoBehaviour {
 			if(time > 0.5f){
 				if(Mathf.Abs(openerCadreScore.First().transform.position.y - 7.5f) <= 0.1f && !statok){
 					for(int i=0;i<openerCadreScore.Count;i++){
-						openerCadreScore.ElementAt(i).active = false;
+						openerCadreScore.ElementAt(i).SetActive(false);
 					}	
 					statok = true;
-					cadreScore.SetActiveRecursively(true);
+					cadreScore.SetActive(true);
 				}else{
 					for(int i=0;i<openerCadreScore.Count;i++){
 						openerCadreScore.ElementAt(i).transform.position = Vector3.Lerp(openerCadreScore.ElementAt(i).transform.position, new Vector3(openerCadreScore.ElementAt(i).transform.position.x, center + Mathf.Pow(-1, i)*3.2f, openerCadreScore.ElementAt(i).transform.position.z), Time.deltaTime/speedTransTableau );
@@ -306,15 +306,15 @@ public class ScoreScript : MonoBehaviour {
 				if(Mathf.Abs(openerGraphScore.First().transform.position.x - 4f) <= 0.1f && !graphok){
 					if(Mathf.Abs(openerGraphScore.First().transform.position.y - 2f) <= 0.1f && !graphok){
 						for(int i=0;i<openerGraphScore.Count;i++){
-							openerGraphScore.ElementAt(i).active = false;
+							openerGraphScore.ElementAt(i).SetActive(false);
 						}	
 						graphok = true;
-						cadreGraph.SetActiveRecursively(true);
+						cadreGraph.SetActive(true);
 						foreach(var ls in lrToActivate){
-							ls.gameObject.SetActiveRecursively(true);	
+							ls.gameObject.SetActive(true);	
 						}
 						foreach(var ds in dzToActivate){
-							ds.SetActiveRecursively(true);	
+							ds.SetActive(true);	
 						}
 					}else{
 						for(int i=0;i<openerGraphScore.Count;i++){
@@ -742,7 +742,7 @@ public class ScoreScript : MonoBehaviour {
 			for(int i=0;i<=indexfe;i++){
 				graphFant.SetPosition(i, new Vector3( -160f + (240f*((float)i/200f)) , 19f*(((float)life[i] - 50f)/50f), 0f));
 			}
-			graphFant.gameObject.SetActiveRecursively(false);
+			graphFant.gameObject.SetActive(false);
 			lrToActivate.Add(graphFant);
 		}else{
 			Destroy(graphFant.gameObject);	
@@ -755,7 +755,7 @@ public class ScoreScript : MonoBehaviour {
 			for(int i=indexfe;i<=indexfg;i++){
 				graphEx.SetPosition(i - indexfe, new Vector3( -160f + (240f*((float)i/200f)) , 19f*(((float)life[i] - 50f)/50f), 0f));
 			}	
-			graphEx.gameObject.SetActiveRecursively(false);
+			graphEx.gameObject.SetActive(false);
 			lrToActivate.Add(graphEx);
 		}else{
 			Destroy(graphEx.gameObject);	
@@ -768,7 +768,7 @@ public class ScoreScript : MonoBehaviour {
 			for(int i=indexfg;i<=indexfm;i++){
 				graphGreat.SetPosition(i - indexfg, new Vector3( -160f + (240f*((float)i/200f)) , 19f*(((float)life[i] - 50f)/50f), 0f));
 			}	
-			graphGreat.gameObject.SetActiveRecursively(false);
+			graphGreat.gameObject.SetActive(false);
 			lrToActivate.Add(graphGreat);
 		}else{
 			Destroy(graphGreat.gameObject);	
@@ -781,7 +781,7 @@ public class ScoreScript : MonoBehaviour {
 			for(int i=indexfm;i<200;i++){
 				graphAll.SetPosition(i - indexfm, new Vector3( -160f + (240f*((float)i/200f)) , 19f*(((float)life[i] - 50f)/50f), 0f));
 			}
-			graphAll.gameObject.SetActiveRecursively(false);
+			graphAll.gameObject.SetActive(false);
 			lrToActivate.Add(graphAll);
 		}else{
 			Destroy(graphAll);	
@@ -802,7 +802,7 @@ public class ScoreScript : MonoBehaviour {
 				var thezone = (GameObject) Instantiate(cubeDangerZone, new Vector3(((fin + debut)/2f), cubeDangerZone.transform.position.y, cubeDangerZone.transform.position.z), cubeDangerZone.transform.rotation);
 				thezone.transform.localScale = new Vector3((fin - debut), thezone.transform.localScale.y, thezone.transform.localScale.z);
 				thezone.renderer.material.color = new Color(1f, 1f, 0f, 0.3f);
-				thezone.SetActiveRecursively(false);
+				thezone.SetActive(false);
 				dzToActivate.Add(thezone);
 			}
 		}
@@ -814,7 +814,7 @@ public class ScoreScript : MonoBehaviour {
 				var thezone = (GameObject) Instantiate(cubeDangerZone, new Vector3(((fin + debut)/2f), cubeDangerZone.transform.position.y, cubeDangerZone.transform.position.z - 1), cubeDangerZone.transform.rotation);
 				thezone.transform.localScale = new Vector3((fin - debut), thezone.transform.localScale.y, thezone.transform.localScale.z);
 				thezone.renderer.material.color = new Color(1f, 0f, 0f, 0.3f);
-				thezone.SetActiveRecursively(false);
+				thezone.SetActive(false);
 				dzToActivate.Add(thezone);
 			}
 		}
@@ -828,12 +828,12 @@ public class ScoreScript : MonoBehaviour {
 				if(indexMedal > 0) indexMedal -= 1;
 		}
 		if(indexMedal != -1){
-			medals.ElementAt(indexMedal).SetActiveRecursively(true);
+			medals.ElementAt(indexMedal).SetActive(true);
 		}
 		
 		
 		camToRender.RenderToCubemap(cmToChange);
-		camToRender.gameObject.active = false;
+		camToRender.gameObject.SetActive(false);
 		
 		//Record
 		

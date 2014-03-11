@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 public class NetworkScoreScript : MonoBehaviour {
 	
@@ -37,9 +39,9 @@ public class NetworkScoreScript : MonoBehaviour {
 		{
 			for(int i=0; i<LANManager.Instance.players.Count; i++)
 			{
-				LANManager.Instance.players.ElementAt(i).isReady = false;
+				LANManager.Instance.players.ElementAt(i).Value.isReady = false;
 			}
-			sendStatus(Network.player, LANStatut.RESULT);
+			sendStatus(Network.player, (int)LANStatut.RESULT);
 		}
 	}
 	
@@ -63,7 +65,7 @@ public class NetworkScoreScript : MonoBehaviour {
 			{
 				if(LANManager.Instance.isCreator)
 				{
-					isAskedForQuit(Network.Player);
+					isAskedForQuit(Network.player);
 				}else{
 					networkView.RPC("isAskedForQuit", RPCMode.Server, Network.player);
 				}
@@ -77,13 +79,13 @@ public class NetworkScoreScript : MonoBehaviour {
 		
 		for(int i=0; i<LANManager.Instance.players.Count; i++)
 		{
-			if(!LANManager.Instance.players.ElementAt(i).isReady)
+			if(!LANManager.Instance.players.ElementAt(i).Value.isReady)
 			{
 				return;
 			}
 		}
 		
-		networkView.RPC("quitScene", RPC.Others);
+		networkView.RPC("quitScene", RPCMode.Others);
 		quitScene();
 		
 	}
@@ -92,7 +94,7 @@ public class NetworkScoreScript : MonoBehaviour {
 	{
 		Network.SetSendingEnabled(0, false);
 		Network.isMessageQueueRunning = false;
-		LANManager.Instance.statut = LANStatut.SONGWHEEL;
+		LANManager.Instance.statut = LANStatut.SELECTSONG;
 		Network.SetLevelPrefix(8);
 		Application.LoadLevel("LANWheel");
 	}
@@ -115,7 +117,7 @@ public class NetworkScoreScript : MonoBehaviour {
 		
 		for(int i=0; i<LANManager.Instance.players.Count; i++)
 		{
-			if(LANManager.Instance.players.ElementAt(i).statut != LANStatut.RESULT){
+			if(LANManager.Instance.players.ElementAt(i).Value.statut != LANStatut.RESULT){
 				return;
 			}
 		}
@@ -131,15 +133,15 @@ public class NetworkScoreScript : MonoBehaviour {
 			stringData += el.name + ";" + el.score + ";" + (el.life <= 0f ? "1" : "0") + ";" + el.comboType + ";" + el.statistics;
 		}
 		
-		var listPlayersTemp = dataString.Split(':');
+		var listPlayersTemp = stringData.Split(':');
 		var listDataPlayerTemp = new Dictionary<NetworkPlayer, PlayerState>();
 		
-		for(int i=0; i<listPlayersTemp.Lenght; i++)
+		for(int i=0; i<listPlayersTemp.Length; i++)
 		{
 			var thestat = listPlayersTemp[i].Split(';');
 			listDataPlayerTemp.Add(LANManager.Instance.dataPlayerSave.ElementAt(i).Key, new PlayerState(thestat[0], (float)System.Convert.ToDouble(thestat[1]), thestat[2] == "1", System.Convert.ToInt32(thestat[3]), System.Convert.ToInt32(thestat[4]), System.Convert.ToInt32(thestat[5]), System.Convert.ToInt32(thestat[6]), System.Convert.ToInt32(thestat[7]), System.Convert.ToInt32(thestat[8]), System.Convert.ToInt32(thestat[9]), (float)System.Convert.ToDouble(thestat[10]), System.Convert.ToInt32(thestat[11]), System.Convert.ToInt32(thestat[12])));
 		}
-		listDataPlayerTemp = listDataPlayerTemp.OrderBy(c => c.Value.hasFailed).ThenByDescending(c => c.Value.score).ToDictionary(c.Key, d.Value);
+		listDataPlayerTemp = listDataPlayerTemp.OrderBy(c => c.Value.hasFailed).ThenByDescending(c => c.Value.score).ToDictionary(c => c.Key, d => d.Value);
 		
 		for(int i=0; i<listDataPlayerTemp.Count; i++)
 		{
@@ -154,7 +156,7 @@ public class NetworkScoreScript : MonoBehaviour {
 				
 			case LANMode.SCORETOURN:
 				LANManager.Instance.players[listDataPlayerTemp.ElementAt(i).Key].scores += listDataPlayerTemp.ElementAt(i).Value.score;
-				stringLeaderboard += LANManager.Instance.players[listDataPlayerTemp.ElementAt(i).Key].name + ";" + LANManager.Instance.players[listDataPlayerTemp.ElementAt(i).Key].score;
+				stringLeaderboard += LANManager.Instance.players[listDataPlayerTemp.ElementAt(i).Key].name + ";" + LANManager.Instance.players[listDataPlayerTemp.ElementAt(i).Key].scores;
 				break;
 				
 			case LANMode.POINTTOURN:
@@ -164,7 +166,7 @@ public class NetworkScoreScript : MonoBehaviour {
 				
 			case LANMode.ELIMINATION:
 				LANManager.Instance.players[listDataPlayerTemp.ElementAt(i).Key].scores += listDataPlayerTemp.ElementAt(i).Value.score;
-				stringLeaderboard += LANManager.Instance.players[listDataPlayerTemp.ElementAt(i).Key].name + ";" + LANManager.Instance.players[listDataPlayerTemp.ElementAt(i).Key].score;
+				stringLeaderboard += LANManager.Instance.players[listDataPlayerTemp.ElementAt(i).Key].name + ";" + LANManager.Instance.players[listDataPlayerTemp.ElementAt(i).Key].scores;
 				break;
 			}
 			
@@ -187,7 +189,7 @@ public class NetworkScoreScript : MonoBehaviour {
 		var listPlayers = dataString.Split(':');
 		var listDataPlayer = new List<PlayerState>();
 		
-		for(int i=0; i<listPlayers.Lenght; i++)
+		for(int i=0; i<listPlayers.Length; i++)
 		{
 			var thestat = listPlayers[i].Split(';');
 			listDataPlayer.Add(new PlayerState(thestat[0], (float)System.Convert.ToDouble(thestat[1]), thestat[2] == "1", System.Convert.ToInt32(thestat[3]), System.Convert.ToInt32(thestat[4]), System.Convert.ToInt32(thestat[5]), System.Convert.ToInt32(thestat[6]), System.Convert.ToInt32(thestat[7]), System.Convert.ToInt32(thestat[8]), System.Convert.ToInt32(thestat[9]), (float)System.Convert.ToDouble(thestat[10]), System.Convert.ToInt32(thestat[11]), System.Convert.ToInt32(thestat[12])));
@@ -197,18 +199,18 @@ public class NetworkScoreScript : MonoBehaviour {
 		for(int i=0; i<8; i++)
 		{
 			
-			if(i >= dataString.Lenght)
+			if(i >= listPlayers.Length)
 			{
-				panelGlobalGO.transform.FindChild("Player" + (i + 1)).gameObject.setActiveRecursively(false);
-				panelIndividualGO.transform.FindChild("Player" + (i + 1)).gameObject.setActiveRecursively(false);
+				panelGlobalGO.transform.FindChild("Player" + (i + 1)).gameObject.SetActive(false);
+				panelIndividualGO.transform.FindChild("Player" + (i + 1)).gameObject.SetActive(false);
 			}else{
-				panelGlobalGO.transform.FindChild("Player" + (i + 1)).gameObject.setActiveRecursively(true);
-				panelIndividualGO.transform.FindChild("Player" + (i + 1)).gameObject.setActiveRecursively(true);
+				panelGlobalGO.transform.FindChild("Player" + (i + 1)).gameObject.SetActive(true);
+				panelIndividualGO.transform.FindChild("Player" + (i + 1)).gameObject.SetActive(true);
 				var el = listDataPlayer.ElementAt(i);
 				var tchild = panelGlobalGO.transform.FindChild("Player" + (i + 1));
 				//Go
 				tchild.FindChild("Name").GetComponent<UILabel>().text = el.name;
-				tchild.FindChild("Score").GetComponent<UILabel>().text = el.score;
+				tchild.FindChild("Score").GetComponent<UILabel>().text = el.score.ToString("00.00");
 				if(el.hasFailed)
 				{
 					tchild.FindChild("Score").GetComponent<UILabel>().effectColor = new Color(1f, 0.2f, 0.2f, 1f);
@@ -216,21 +218,21 @@ public class NetworkScoreScript : MonoBehaviour {
 				
 				//indiv
 				tchild = panelIndividualGO.transform.FindChild("Player" + (i + 1));
-				var stringScore = giveNoteOfScore(el.score);
+				var stringScore = DataManager.Instance.giveNoteOfScore(el.score);
 				tchild.FindChild("Name").GetComponent<UILabel>().text = el.name;
 				
 				if(el.score >= 96f)
 				{
 					if(el.score >= 98f)
 					{
-						tchild.FindChild("SILVER").gameObject.SetActiveRecursively(true);
+						tchild.FindChild("SILVER").gameObject.SetActive(true);
 					}else if(el.score >= 99f){
-						tchild.FindChild("GOLD").gameObject.SetActiveRecursively(true);
+						tchild.FindChild("GOLD").gameObject.SetActive(true);
 					}else if(el.score >= 100f)
 					{
-						tchild.FindChild("QUAD").gameObject.SetActiveRecursively(true);
+						tchild.FindChild("QUAD").gameObject.SetActive(true);
 					}else{
-						tchild.FindChild("BRONZE").gameObject.SetActiveRecursively(true);
+						tchild.FindChild("BRONZE").gameObject.SetActive(true);
 					}
 				}else{
 					tchild.FindChild("Note").GetComponent<UISprite>().spriteName = stringScore.Split(';')[1];
@@ -238,24 +240,24 @@ public class NetworkScoreScript : MonoBehaviour {
 				
 				if(stringScore.Split(';')[0] == "-")
 				{
-					tchild.FindChild("Lucky").gameObject.active = true;
+					tchild.FindChild("Lucky").gameObject.SetActive(true);
 				}
 				else if(stringScore.Split(';')[0] == "+")
 				{
-					tchild.FindChild("Superb").gameObject.active = true;
+					tchild.FindChild("Superb").gameObject.SetActive(true);
 				}
 				
 				tchild.FindChild("Result").GetComponent<UILabel>().text = "Result : [FCOLOR]" + el.fcount + "[FFFFFF]/[ECOLOR]" + el.excount + "[FFFFFF]/[GCOLOR]" + el.gcount +  "[FFFFFF]/[DCOLOR]" + el.dcount + "[FFFFFF]/[WCOLOR]" + el.wcount + "[FFFFFF]/[MCOLOR]" + el.mcount;
 				
-				tchild.FindChild("Mistake").GetComponent<UILabel>().text = "First Mistake : " + (el.firstmistake < 0f ? "None" : (el.firstmistake.ToString("0.0") + "%"));
+				tchild.FindChild("Mistake").GetComponent<UILabel>().text = "First Mistake : " + (el.firstMistake < 0f ? "None" : (el.firstMistake.ToString("0.0") + "%"));
 				tchild.FindChild("Combo").GetComponent<UILabel>().text = "Max Combo : " + el.maxCombo;
 				tchild.FindChild("Prec").GetComponent<UILabel>().text = "Av. Prec. : " + el.average + "ms";
 				
-				if(comboType < 3)
+				if(el.comboType < 3)
 				{
-					tchild.FindChild("ComboType").GetComponent<UISprite>().spriteName = (score >= 100f ? "Perfect" : 
+					tchild.FindChild("ComboType").GetComponent<UISprite>().spriteName = (el.score >= 100f ? "Perfect" : 
 																							(el.comboType == 0 ? "FFC" :
-																								(el.ComboType == 1 ? "FEC" : "FC")));
+																								(el.comboType == 1 ? "FEC" : "FC")));
 				}
 			}
 		}
@@ -264,12 +266,12 @@ public class NetworkScoreScript : MonoBehaviour {
 		var splitLeaderBoard = stringLeaderboard.Split(':');
 		for(int i=0; i<8; i++)
 		{
-			if(i >= splitLeaderBoard.Lenght)
+			if(i >= splitLeaderBoard.Length)
 			{
-				panelMatchGO.transform.FindChild("Player" + (i + 1)).gameObject.setActiveRecursively(false);
+				panelMatchGO.transform.FindChild("Player" + (i + 1)).gameObject.SetActive(false);
 			}else{
-				panelMatchGO.transform.FindChild("Player" + (i + 1)).gameObject.setActiveRecursively(true);
-				var childLB = splitLeaderBoard.Split(';');
+				panelMatchGO.transform.FindChild("Player" + (i + 1)).gameObject.SetActive(true);
+				var childLB = splitLeaderBoard[i].Split(';');
 				var tchild = panelMatchGO.transform.FindChild("Player" + (i + 1));
 				
 				tchild.FindChild("Name").GetComponent<UILabel>().text = childLB[0];

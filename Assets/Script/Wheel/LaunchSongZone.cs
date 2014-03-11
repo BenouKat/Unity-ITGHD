@@ -119,7 +119,7 @@ public class LaunchSongZone : MonoBehaviour {
 	
 	public void activate()
 	{
-		gs.Fond1.gameObject.active = false;
+		gs.Fond1.gameObject.SetActive(false);
 		Explode1.Play();
 		Explode2.Play();
 		Explode3.Play();

@@ -63,11 +63,11 @@ public class TimeBar : MonoBehaviour {
 			hitBar2Material.color = Color.Lerp(hitBar2Material.color, black, lerpColor);
 		}
 		
-		if(psFFC.gameObject.active)
+		if(psFFC.gameObject.activeInHierarchy)
 		{
 			lerpClign += Time.deltaTime*speedClign;
 			cubeHitBarMaterial.color = Color.Lerp(DataManager.Instance.precColor[0], white, Mathf.PingPong(lerpClign, 1));
-		}else if(psFEC.gameObject.active)
+		}else if(psFEC.gameObject.activeInHierarchy)
 		{
 			lerpClign += Time.deltaTime*speedClign;
 			cubeHitBarMaterial.color = Color.Lerp(DataManager.Instance.precColor[1], white, Mathf.PingPong(lerpClign, 1));
@@ -102,20 +102,20 @@ public class TimeBar : MonoBehaviour {
 			if(combo >= 100){
 				if(psLowCombo.isPlaying) psLowCombo.Stop();
 				if(ct == ComboType.FULLFANTASTIC){
-					if(!psFFC.gameObject.active) psFFC.gameObject.active = true;
+					if(!psFFC.gameObject.activeInHierarchy) psFFC.gameObject.SetActive(true);
 					if(!psFFC.isPlaying) psFFC.Play();
 				}else if(ct == ComboType.FULLEXCELLENT){
-					if(!psFEC.gameObject.active) psFEC.gameObject.active = true;
+					if(!psFEC.gameObject.activeInHierarchy) psFEC.gameObject.SetActive(true);
 					if(!psFEC.isPlaying) psFEC.Play();
 					if(psFFC.isPlaying) psFFC.Stop();
 				}else{
-					if(!psBigCombo.gameObject.active) psBigCombo.gameObject.active = true;
+					if(!psBigCombo.gameObject.activeInHierarchy) psBigCombo.gameObject.SetActive(true);
 					if(psFFC.isPlaying) psFFC.Stop();
 					if(psFEC.isPlaying) psFEC.Stop();
 					if(!psBigCombo.isPlaying) psBigCombo.Play();
 				}
 			}else if(combo >= 25 && !activeCombo){
-				if(!psLowCombo.gameObject.active) psLowCombo.gameObject.active = true;
+				if(!psLowCombo.gameObject.activeInHierarchy) psLowCombo.gameObject.SetActive(true);
 				psBadCombo.Stop();
 				psLowCombo.Play();
 				activeCombo = true;
@@ -130,9 +130,9 @@ public class TimeBar : MonoBehaviour {
 			psFEC.Stop();
 			psBigCombo.Stop();
 			psLowCombo.Stop();
-			if(!psBadCombo.gameObject.active) psBadCombo.gameObject.active = true;
+			if(!psBadCombo.gameObject.activeInHierarchy) psBadCombo.gameObject.SetActive(true);
 			psBadCombo.Play();
-			if(!psCrashCombo.gameObject.active) psCrashCombo.gameObject.active = true;
+			if(!psCrashCombo.gameObject.activeInHierarchy) psCrashCombo.gameObject.SetActive(true);
 			psCrashCombo.Play();
 			cubeHitBarMaterial.color = white;
 		}

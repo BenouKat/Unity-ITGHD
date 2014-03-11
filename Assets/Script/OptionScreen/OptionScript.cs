@@ -84,7 +84,7 @@ public class OptionScript : MonoBehaviour {
 	private int antiAliasing;
 	
 	//KeyMapping
-	//8 game objet + 8 label / button + un label général
+	//8 game objet + 8 label / button + un label gï¿½nï¿½ral
 	/*
 	0 : Left 1
 	1 : Down 1
@@ -692,7 +692,7 @@ public class OptionScript : MonoBehaviour {
 			bgScreen.renderer.material.color = new Color(bgScreen.renderer.material.color.r*15f, bgScreen.renderer.material.color.g*15f, bgScreen.renderer.material.color.b*15f, 1f);
 			optionMenuMode = StateOption.OPTION;
 			if(theSelected.name == "Key Mapping"){
-				KeyMapParentObject.SetActiveRecursively(true);
+				KeyMapParentObject.SetActive(true);
 			}
 		}else{
 			screen.transform.position = Vector3.Lerp(screen.transform.position, new Vector3(0f, 0f, 0f), speedFadeScreen*Time.deltaTime);
@@ -715,8 +715,8 @@ public class OptionScript : MonoBehaviour {
 			bgScreen.renderer.material.color = Color.Lerp(bgScreen.renderer.material.color , new Color(colorBasicScreen.r, colorBasicScreen.g, colorBasicScreen.b, 0f) , lerpColorScreenFade);
 		}
 		
-		if(theSelected.name == "Key Mapping" && KeyMapParentObject.active){
-			KeyMapParentObject.SetActiveRecursively(false);
+		if(theSelected.name == "Key Mapping" && KeyMapParentObject.activeInHierarchy){
+			KeyMapParentObject.SetActive(false);
 		}
 	}
 	

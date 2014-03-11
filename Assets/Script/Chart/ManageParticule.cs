@@ -11,8 +11,8 @@ public class ManageParticule : MonoBehaviour {
 	
 	
 	void FixedUpdate() {
-		if(gameObject.active && !gameObject.transform.particleSystem.isPlaying){
-			gameObject.active = false;
+		if(gameObject.activeInHierarchy && !gameObject.transform.particleSystem.isPlaying){
+			gameObject.SetActive(false);
 		}
 	
 	}

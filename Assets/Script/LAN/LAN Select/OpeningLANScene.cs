@@ -256,7 +256,7 @@ public class OpeningLANScene : MonoBehaviour {
 	
 	void OnGUIOptionChoose()
 	{
-		if(!cache.active)
+		if(!cache.activeInHierarchy)
 		{
 			GUI.color = new Color(1f, 1f, 1f, (0.7f*alphaOption) + alphaTitle);
 			GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), tex["black"]);
@@ -352,7 +352,7 @@ public class OpeningLANScene : MonoBehaviour {
 	
 	void OnGUIJoinEntering()
 	{
-		if(!cache.active)
+		if(!cache.activeInHierarchy)
 		{
 			GUI.color = new Color(1f, 1f, 1f, (0.7f*alphaOption) + alphaTitle);
 			GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), tex["black"]);
@@ -557,8 +557,8 @@ public class OpeningLANScene : MonoBehaviour {
 	
 	public IEnumerator roomTransition()
 	{
-		psFlash.gameObject.active = true;
-		cache.active = true;
+		psFlash.gameObject.SetActive(true);
+		cache.SetActive(true);
 		while(alphaTitle < 1f)
 		{
 			alphaTitle += speedAlphaTitle*Time.deltaTime;

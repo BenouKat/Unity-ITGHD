@@ -266,6 +266,8 @@ public class LANManager{
 				return 1;
 			case 7 :
 				return 0;
+			default:
+				return 0;
 		}
 	}
 

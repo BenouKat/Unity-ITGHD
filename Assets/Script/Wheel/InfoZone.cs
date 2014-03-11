@@ -157,10 +157,10 @@ public class InfoZone : MonoBehaviour {
 			if(theGo != null && theGo.tag == "ZoneDiff"){
 				onHoverDifficulty = (Difficulty)int.Parse(theGo.name);
 				if(Input.GetMouseButtonDown(0)){
-					PSDiff[(int)actualySelected].gameObject.active = false;
+					PSDiff[(int)actualySelected].gameObject.SetActive(false);
 					actualySelected = (Difficulty)int.Parse(theGo.name);
 					trulySelected = (Difficulty)int.Parse(theGo.name);
-					PSDiff[(int)actualySelected].gameObject.active = true;
+					PSDiff[(int)actualySelected].gameObject.SetActive(true);
 					displayGraph();
 					verifyScore();
 				}
@@ -325,9 +325,9 @@ public class InfoZone : MonoBehaviour {
 	{
 		refreshNumberDiff();
 		activeDiff();
-		PSDiff[(int)actualySelected].gameObject.active = false;
+		PSDiff[(int)actualySelected].gameObject.SetActive(false);
 		activeDiffPS();
-		PSDiff[(int)actualySelected].gameObject.active = true;
+		PSDiff[(int)actualySelected].gameObject.SetActive(true);
 		displayGraph();
 		verifyScore();
 		graph.enabled = true;
@@ -336,7 +336,7 @@ public class InfoZone : MonoBehaviour {
 	public void disableDifficultyDisplayed()
 	{
 		graph.enabled = false;
-		PSDiff[(int)actualySelected].gameObject.active = false;
+		PSDiff[(int)actualySelected].gameObject.SetActive(false);
 		desactiveDiff();
 	}
 	
@@ -374,7 +374,7 @@ public class InfoZone : MonoBehaviour {
 				PSDiff[i].transform.position = new Vector3(PSDiff[i].transform.position.x, basePosDifficulty[countpos] + decalPSDiffY, PSDiff[i].transform.position.z);
 				RayDiff[i].transform.position = new Vector3(RayDiff[i].transform.position.x, basePosDifficulty[countpos] + decalRayDiffY, RayDiff[i].transform.position.z);
 				countpos++;
-				for(int j=0; j<diffSelected[(Difficulty)i].transform.GetChildCount(); j++){
+				for(int j=0; j<diffSelected[(Difficulty)i].transform.childCount; j++){
 					if((int.Parse(diffSelected[(Difficulty)i].transform.GetChild(j).name)) <= gs.songSelected[(Difficulty)i].level){
 						if(diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.GetColor("_TintColor") != diffActiveColor[(Difficulty)i]) diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.SetColor("_TintColor",diffActiveColor[(Difficulty)i]);
 					}else{
@@ -384,7 +384,7 @@ public class InfoZone : MonoBehaviour {
 			}else{
 				diffSelected[(Difficulty)i].transform.Translate(0f, -100f, 0f);
 				RayDiff[i].transform.Translate(0f, -100f, 0f);
-				for(int j=0; j<diffSelected[(Difficulty)i].transform.GetChildCount(); j++){
+				for(int j=0; j<diffSelected[(Difficulty)i].transform.childCount; j++){
 					if(diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.GetColor("_TintColor") == diffActiveColor[(Difficulty)i]) diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.SetColor("_TintColor",new Color(diffActiveColor[(Difficulty)i].r/10f, diffActiveColor[(Difficulty)i].g/10f, diffActiveColor[(Difficulty)i].b/10f, 1f));
 				}
 			}
@@ -444,10 +444,10 @@ public class InfoZone : MonoBehaviour {
 		bestnamefriendscore = result[2];
 		isScoreFail = result[3] == "1";
 		if(DataManager.Instance.giveNoteOfScore((float)score) != DataManager.Instance.giveNoteOfScore((float)oldscore) && oldscore >= 96f){
-			medals.FirstOrDefault(c => c.name == DataManager.Instance.giveNoteOfScore((float)oldscore).Split(';')[1]).SetActiveRecursively(false);
+			medals.FirstOrDefault(c => c.name == DataManager.Instance.giveNoteOfScore((float)oldscore).Split(';')[1]).SetActive(false);
 		}
 		if(score >= 96f){
-			medals.FirstOrDefault(c => c.name == DataManager.Instance.giveNoteOfScore((float)score).Split(';')[1]).SetActiveRecursively(true);
+			medals.FirstOrDefault(c => c.name == DataManager.Instance.giveNoteOfScore((float)score).Split(';')[1]).SetActive(true);
 		}
 		
 	}
@@ -456,9 +456,9 @@ public class InfoZone : MonoBehaviour {
 	public void onEnterOption()
 	{
 		enterOption = true;
-		PSDiff[(int)actualySelected].gameObject.active = false;
+		PSDiff[(int)actualySelected].gameObject.SetActive(false);
 		for(int i=0;i<RayDiff.Count;i++){
-			RayDiff[i].active = false;	
+			RayDiff[i].SetActive(false);	
 		}
 		recoverPosition = diffSelected[actualySelected].transform.position;
 		graph.enabled = false;
@@ -468,9 +468,9 @@ public class InfoZone : MonoBehaviour {
 	public void onExitOption()
 	{
 		exitOption = true;
-		PSDiff[(int)actualySelected].gameObject.active = true;
+		PSDiff[(int)actualySelected].gameObject.SetActive(true);
 		for(int i=0;i<RayDiff.Count;i++){
-			RayDiff[i].active = true;	
+			RayDiff[i].SetActive(true);	
 		}
 		graph.enabled = true;
 		activeModule = true;
@@ -479,9 +479,9 @@ public class InfoZone : MonoBehaviour {
 	public void onEnterLaunch()
 	{
 		enterLaunch = true;
-		PSDiff[(int)actualySelected].gameObject.active = false;
+		PSDiff[(int)actualySelected].gameObject.SetActive(false);
 		for(int i=0;i<RayDiff.Count;i++){
-			RayDiff[i].active = false;	
+			RayDiff[i].SetActive(false);	
 		}
 		for(int i=0;i<diffSelected.Count;i++){
 			if(i != (int)actualySelected)

@@ -26,7 +26,7 @@ public class OptionManager : MonoBehaviour {
 		}
 		
 		if(disableOnAwake){
-			gameObject.active = false;	
+			gameObject.SetActive(false);	
 		}
 	
 	}

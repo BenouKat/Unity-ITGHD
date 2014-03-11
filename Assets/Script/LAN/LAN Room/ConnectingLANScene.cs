@@ -174,14 +174,10 @@ public class ConnectingLANScene : MonoBehaviour {
 		{
 			actualColor -= speedColorLoading*Time.deltaTime;
 			cubeLoading.renderer.material.color = new Color(actualColor, actualColor, actualColor, 1f);
-		}else if(cubeLoading.active)
+		}else if(cubeLoading.activeInHierarchy)
 		{
-			cubeLoading.active = false;	
-			hiddenPart.SetActiveRecursively(true);
-			for(int i = 0; i < hiddenPart.transform.childCount; i++)
-			{
-				hiddenPart.transform.GetChild(i).gameObject.active = true;
-			}
+			cubeLoading.SetActive(false);	
+			hiddenPart.SetActive(true);
 			if(LANManager.Instance.isCreator)
 			{
 				cubePlayers.transform.GetChild(0).renderer.material.color = new Color(1f, 1f, 1f, 1f);
@@ -189,11 +185,11 @@ public class ConnectingLANScene : MonoBehaviour {
 			
 		}
 		
-		if(hiddenPart.active)
+		if(hiddenPart.activeInHierarchy)
 		{
 			
 			cubePlayers.transform.position = Vector3.Lerp(cubePlayers.transform.position, cubePlayersPosition.transform.position, speedTranslationCubes*Time.deltaTime);
-			for(int i = 0; i < cubePlayers.transform.GetChildCount(); i ++)
+			for(int i = 0; i < cubePlayers.transform.childCount; i ++)
 			{
 				cubePlayers.transform.GetChild(i).localPosition = Vector3.Lerp(cubePlayers.transform.GetChild(i).localPosition, cubePlayersPosition.transform.GetChild(i).localPosition, speedTranslationPlayercubes*Time.deltaTime);	
 			}
@@ -202,7 +198,7 @@ public class ConnectingLANScene : MonoBehaviour {
 				(Vector3.Distance(cubePlayers.transform.GetChild(0).localPosition, cubePlayersPosition.transform.GetChild(0).localPosition) <= 0.01f))
 			{
 				cubePlayers.transform.position = Vector3.Lerp(cubePlayers.transform.position, cubePlayersPosition.transform.position, speedTranslationCubes*Time.deltaTime);
-				for(int i = 0; i < cubePlayers.transform.GetChildCount(); i ++)
+				for(int i = 0; i < cubePlayers.transform.childCount; i ++)
 				{
 					cubePlayers.transform.GetChild(i).localPosition = Vector3.Lerp(cubePlayers.transform.GetChild(i).localPosition, cubePlayersPosition.transform.GetChild(i).localPosition, speedTranslationPlayercubes*Time.deltaTime);	
 				}	
@@ -280,7 +276,7 @@ public class ConnectingLANScene : MonoBehaviour {
 			Application.LoadLevel("LANWheel");
 		}
 		
-		for(int i=0; i < cubePlayerPositionFinal.transform.GetChildCount(); i++)
+		for(int i=0; i < cubePlayerPositionFinal.transform.childCount; i++)
 		{
 			cubePlayers.transform.GetChild(i).position = Vector3.Lerp(cubePlayers.transform.GetChild(i).position, cubePlayerPositionFinal.transform.GetChild(i).position, speedTranslationCubes*Time.deltaTime);
 		}
@@ -457,7 +453,7 @@ public class ConnectingLANScene : MonoBehaviour {
 						if(!LANManager.Instance.players.ElementAt(i).Value.isReady)
 						{
 							var cubeSelec = hitNet.FirstOrDefault(c => c.Value == LANManager.Instance.players.ElementAt(i).Key).Key;
-							cubeSelec.transform.Find("3 - Unready").gameObject.active = true;
+							cubeSelec.transform.Find("3 - Unready").gameObject.SetActive(true);
 							cubeSelec.transform.Find("3 - Unready").particleSystem.Play();
 							GetComponent<ChatScript>().sendDirectMessage("Info", LANManager.Instance.players.ElementAt(i).Value.name + " is not ready");
 							someoneNotReady = true;
@@ -503,7 +499,7 @@ public class ConnectingLANScene : MonoBehaviour {
 				{
 					hitNet.Add(cubePlayers.transform.GetChild(i).gameObject, player);
 					
-					cubePlayers.transform.GetChild(i).Find("0 - Connected").gameObject.active = true;
+					cubePlayers.transform.GetChild(i).Find("0 - Connected").gameObject.SetActive(true);
 					cubePlayers.transform.GetChild(i).Find("0 - Connected").particleSystem.Play();
 					cubePlayers.transform.GetChild(i).gameObject.renderer.material.color = new Color(1f, 1f, 1f, 1f);
 					return true;
@@ -517,7 +513,7 @@ public class ConnectingLANScene : MonoBehaviour {
 	public void removeHitNet(NetworkPlayer player)
 	{
 		var cube = hitNet.First(c => c.Value == player).Key;
-		cube.transform.Find("1 - Disconnected").gameObject.active = true;
+		cube.transform.Find("1 - Disconnected").gameObject.SetActive(true);
 		cube.transform.Find("1 - Disconnected").particleSystem.Play();
 		cube.renderer.material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
 		if(playerSelected == cube)
@@ -563,7 +559,7 @@ public class ConnectingLANScene : MonoBehaviour {
 					if(hitNetClient.ElementAt(i).Value.name == nameEvent && hitNetClient.ElementAt(i).Value.idFile == id)
 					{
 						
-						hitNetClient.ElementAt(i).Key.transform.Find("0 - Connected").gameObject.active = true;
+						hitNetClient.ElementAt(i).Key.transform.Find("0 - Connected").gameObject.SetActive(true);
 						hitNetClient.ElementAt(i).Key.transform.Find("0 - Connected").particleSystem.Play();
 						hitNetClient.ElementAt(i).Key.renderer.material.color = new Color(1f, 1f, 1f, 1f);
 						break;
@@ -580,7 +576,7 @@ public class ConnectingLANScene : MonoBehaviour {
 						{
 							profileAlreadyGetted.Remove(oldList.ElementAt(i).Key);
 						}
-						oldList.ElementAt(i).Key.transform.Find("1 - Disconnected").gameObject.active = true;
+						oldList.ElementAt(i).Key.transform.Find("1 - Disconnected").gameObject.SetActive(true);
 						oldList.ElementAt(i).Key.transform.Find("1 - Disconnected").particleSystem.Play();
 						oldList.ElementAt(i).Key.renderer.material.color = new Color(0.5f, 0.5f, 0.5f, 1f);
 						break;
@@ -603,13 +599,13 @@ public class ConnectingLANScene : MonoBehaviour {
 		{
 			var key = LANManager.Instance.players.FirstOrDefault(c => c.Value.name == name && c.Value.idFile == id).Key;
 			var realkey = hitNet.FirstOrDefault(c => c.Value == key).Key;
-			realkey.transform.Find("2 - Ready").gameObject.active = true;
+			realkey.transform.Find("2 - Ready").gameObject.SetActive(true);
 			realkey.transform.Find("2 - Ready").particleSystem.Play();
 			realkey.renderer.material.color = new Color(0.5f, 0.8f, 1f, 1f);
 			LANManager.Instance.players[key].isReady = true;
 		}else{
 			var key = hitNetClient.FirstOrDefault(c => c.Value.name == name && c.Value.idFile == id).Key;
-			key.transform.Find("2 - Ready").gameObject.active = true;
+			key.transform.Find("2 - Ready").gameObject.SetActive(true);
 			key.transform.Find("2 - Ready").particleSystem.Play();
 			key.renderer.material.color = new Color(0.5f, 0.8f, 1f, 1f);
 			hitNetClient[key].isReady = true;

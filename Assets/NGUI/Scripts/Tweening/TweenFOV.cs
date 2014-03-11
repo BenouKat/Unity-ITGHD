@@ -28,7 +28,7 @@ public class TweenFOV : UITweener
 	/// Current field of view value.
 	/// </summary>
 
-	public float fov { get { return cachedCamera.fov; } set { cachedCamera.fov = value; } }
+	public float fov { get { return cachedCamera.fieldOfView; } set { cachedCamera.fieldOfView = value; } }
 
 	/// <summary>
 	/// Perform the tween.
@@ -36,7 +36,7 @@ public class TweenFOV : UITweener
 
 	override protected void OnUpdate (float factor, bool isFinished)
 	{
-		cachedCamera.fov = from * (1f - factor) + to * factor;
+		cachedCamera.fieldOfView = from * (1f - factor) + to * factor;
 	}
 
 	/// <summary>

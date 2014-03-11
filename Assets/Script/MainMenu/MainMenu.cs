@@ -334,7 +334,7 @@ public class MainMenu : MonoBehaviour {
 								sousChoixEnPlace = false;
 								selection = forbiddenTouch;
 								if(selection == "Free"){
-									packFree.SetActiveRecursively(true);
+									packFree.SetActive(true);
 								}
 								this.updat = UpdateSwitchMode;
 							}
@@ -476,7 +476,7 @@ public class MainMenu : MonoBehaviour {
 				packFree.transform.localPosition = new Vector3(-40f, 0f, 0f);
 				if(selection == "Back") selection = "";
 				sousChoixEnPlace = false;
-				packFree.SetActiveRecursively(false);
+				packFree.SetActive(false);
 				this.updat = UpdateMainMenu;
 				DisplayLabel = false;
 				
@@ -497,7 +497,7 @@ public class MainMenu : MonoBehaviour {
 			}
 			
 		}else if(selection == "Solo" || selection == "LAN" || selection == "Double"){
-			for(int i=0; i<packFree.transform.GetChildCount();i++){
+			for(int i=0; i<packFree.transform.childCount;i++){
 				if(packFree.transform.GetChild(i).GetChild(0).name != selection){
 					packFree.transform.GetChild(i).transform.position -= new Vector3(0f, Time.deltaTime/speedTransistionSousChoix, 0f);
 				}

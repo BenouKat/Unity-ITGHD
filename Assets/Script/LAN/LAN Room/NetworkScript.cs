@@ -323,8 +323,8 @@ public class NetworkScript : MonoBehaviour {
 	[RPC]
 	void launchGame()
 	{
-		cls.halo.gameObject.SetActiveRecursively(true);
-		cls.cubeMid.gameObject.active = true;
+		cls.halo.gameObject.SetActive(true);
+		cls.cubeMid.gameObject.SetActive(true);
 		GetComponent<ChatScript>().activeChat(false);
 		LANManager.Instance.statut = LANStatut.ANIMENTERING;
 		cls.stateScene = LANConnexionState.ANIMENTERING;

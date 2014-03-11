@@ -12,7 +12,7 @@ public class TurnSphere : MonoBehaviour {
 	
 	void Start(){
 		sphere = new List<GameObject>();
-		for(int i=0;i<gameObject.transform.GetChildCount();i++){
+		for(int i=0;i<gameObject.transform.childCount;i++){
 			if(gameObject.transform.GetChild(i).name.Contains("Sphere")){
 				sphere.Add(	gameObject.transform.GetChild(i).gameObject);
 			}

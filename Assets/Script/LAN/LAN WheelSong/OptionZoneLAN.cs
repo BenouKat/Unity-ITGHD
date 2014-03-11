@@ -376,7 +376,7 @@ public class OptionZoneLAN : MonoBehaviour {
 			yield return new WaitForSeconds(Time.deltaTime);	
 		}
 		var posInit = cacheOption.transform.position;
-		cacheOption.active = true;
+		cacheOption.SetActive(true);
 		for(int i=0;i<stateLoading.Length;i++){
 			matCache.color = new Color(matCache.color.r, matCache.color.g, matCache.color.b, 1f);
 			stateLoading[i] = true;
@@ -386,7 +386,7 @@ public class OptionZoneLAN : MonoBehaviour {
 			yield return new WaitForSeconds(timeOption);
 			cacheOption.transform.Translate(0f, -2f, 0f);
 		}
-		cacheOption.active = false;
+		cacheOption.SetActive(false);
 		cacheOption.transform.position = posInit;
 		animok = true;
 		

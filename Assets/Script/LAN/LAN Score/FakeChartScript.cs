@@ -33,8 +33,8 @@ public class FakeChartScript : MonoBehaviour {
 				var theTarget = targetArrows.ElementAt(randPos);
 				GameObject theGoInst = (GameObject) Instantiate((randColor  == 0) ? redCube : ((randColor == 1) ? blueCube : greenCube), theTarget.transform.position, theTarget.transform.rotation);
 				theGoInst.transform.localPosition = new Vector3(theGoInst.transform.localPosition.x, theGoInst.transform.localPosition.y, -40f);
-				theGoInst.transform.FindChild("Destroy Cube Particle").gameObject.active = false;
-				theGoInst.transform.FindChild("Explode Cube Particle").gameObject.active = false;
+				theGoInst.transform.FindChild("Destroy Cube Particle").gameObject.SetActive(false);
+				theGoInst.transform.FindChild("Explode Cube Particle").gameObject.SetActive(false);
 			}
 			time = 0f;
 		}

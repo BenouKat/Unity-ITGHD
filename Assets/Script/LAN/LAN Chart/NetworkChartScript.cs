@@ -439,7 +439,7 @@ public class NetworkChartScript : MonoBehaviour {
 					NPscores[pooldecalIndex].enabled = true;
 					NPscores[pooldecalIndex].text = "00.00%";
 					NPHUD[pooldecalIndex].enabled = true;
-					NPStreak[pooldecalIndex].active = true;
+					NPStreak[pooldecalIndex].SetActive(true);
 				}
 			}
 		}

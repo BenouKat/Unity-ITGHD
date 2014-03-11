@@ -23,8 +23,8 @@ public class MoveArrowScore : MonoBehaviour {
 			{
 				isExploded = true;
 				renderer.enabled = false;
-				transform.FindChild("Destroy Cube Particle").gameObject.active = true;
-				transform.FindChild("Explode Cube Particle").gameObject.active = true;
+				transform.FindChild("Destroy Cube Particle").gameObject.SetActive(true);
+				transform.FindChild("Explode Cube Particle").gameObject.SetActive(true);
 				Destroy(gameObject, 3f);
 			}
 		}

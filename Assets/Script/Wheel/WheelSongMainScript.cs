@@ -333,6 +333,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		var thePackPosition = -1;
 		foreach(var el in LoadManager.Instance.ListSong().Keys){
 			var thego = (GameObject) Instantiate(miniCubePack, new Vector3(0f, 13f, 20f), miniCubePack.transform.rotation);
+			thego.SetActive(true);
 			if(LoadManager.Instance.ListTexture().ContainsKey(el)) thego.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[el];
 			if(tempPack.ContainsKey(el)){ 
 				tempPack.Add(el + "(" + tempPack.Count + ")", thego);	
@@ -602,9 +603,9 @@ public class WheelSongMainScript : MonoBehaviour {
 							FadeOutBanner = true;
 							graph.enabled = false;
 							songClip.Stop();
-							PSDiff[(int)actualySelected].gameObject.active = false;
+							PSDiff[(int)actualySelected].gameObject.SetActive(false);
 							desactiveDiff();
-							particleOnPlay.active = false;
+							particleOnPlay.SetActive(false);
 							locked = false;
 						}
 						startnumber = 0;
@@ -625,9 +626,9 @@ public class WheelSongMainScript : MonoBehaviour {
 							FadeOutBanner = true;
 							graph.enabled = false;
 							songClip.Stop();
-							PSDiff[(int)actualySelected].gameObject.active = false;
+							PSDiff[(int)actualySelected].gameObject.SetActive(false);
 							desactiveDiff();
-							particleOnPlay.active = false;
+							particleOnPlay.SetActive(false);
 							locked = false;
 						}
 						startnumber = 0;
@@ -778,9 +779,9 @@ public class WheelSongMainScript : MonoBehaviour {
 				ProfileManager.Instance.currentProfile.lastBPM = bpmstring;
 				ProfileManager.Instance.currentProfile.inBPMMode = DataManager.Instance.BPMEntryMode;
 					
-				PSDiff[(int)actualySelected].gameObject.active = false;
+				PSDiff[(int)actualySelected].gameObject.SetActive(false);
 				for(int i=0;i<RayDiff.Count;i++){
-					RayDiff[i].active = false;	
+					RayDiff[i].SetActive(false);	
 				}
 				var ecartjump = 0;
 				for(int i=0; i<(int)actualySelected; i++){
@@ -800,7 +801,7 @@ public class WheelSongMainScript : MonoBehaviour {
 					optionSeparator[i].enabled = false;
 				}
 				Line1.Stop ();
-				Fond1.gameObject.active = false;
+				Fond1.gameObject.SetActive(false);
 				Explode1.Play();
 				Explode2.Play();
 				Explode3.Play();
@@ -813,9 +814,9 @@ public class WheelSongMainScript : MonoBehaviour {
 			//Option
 			if(GUI.Button(new Rect(Option.x*Screen.width, Option.y*Screen.height, Option.width*Screen.width, Option.height*Screen.height), textButton, "labelGo") && !movinOption && !movinNormal && animok){
 				if(textButton == "Option"){
-					PSDiff[(int)actualySelected].gameObject.active = false;
+					PSDiff[(int)actualySelected].gameObject.SetActive(false);
 					for(int i=0;i<RayDiff.Count;i++){
-						RayDiff[i].active = false;	
+						RayDiff[i].SetActive(false);	
 					}
 					var ecartjump = 0;
 					for(int i=0; i<(int)actualySelected; i++){
@@ -1365,9 +1366,9 @@ public class WheelSongMainScript : MonoBehaviour {
 				diffSelected[actualySelected].transform.position = new Vector3(0.45f, DataManager.Instance.posYDiff[ecartjump], 2f);
 				plane.transform.position = new Vector3(10f, 7f, 20f);
 				movinNormal = false;
-				PSDiff[(int)actualySelected].gameObject.active = true;
+				PSDiff[(int)actualySelected].gameObject.SetActive(true);
 				for(int i=0;i<RayDiff.Count;i++){
-					RayDiff[i].active = true;	
+					RayDiff[i].SetActive(true);	
 				}
 				graph.enabled = true;
 				textButton = "Option";
@@ -1506,18 +1507,18 @@ public class WheelSongMainScript : MonoBehaviour {
 					if(!locked){
 						var papa = theGo.transform.parent;
 						var thepart = papa.Find("Selection").gameObject;
-						if(particleOnPlay != null && particleOnPlay != thepart && particleOnPlay.active) 
+						if(particleOnPlay != null && particleOnPlay != thepart && particleOnPlay.activeInHierarchy) 
 						{
 							
-							particleOnPlay.active = false;
+							particleOnPlay.SetActive(false);
 						}
 						if(songSelected == null || ((songSelected.First().Value.title + "/" + songSelected.First().Value.subtitle) != linkOnRender[papa.gameObject])){
 							songSelected = packOnRender.FirstOrDefault(c => (c.Value.First().Value.title + "/" + c.Value.First().Value.subtitle) == linkOnRender[papa.gameObject]).Value;
 							activeNumberDiff(songSelected);
 							activeDiff(songSelected);
-							PSDiff[(int)actualySelected].gameObject.active = false;
+							PSDiff[(int)actualySelected].gameObject.SetActive(false);
 							activeDiffPS(songSelected);
-							PSDiff[(int)actualySelected].gameObject.active = true;
+							PSDiff[(int)actualySelected].gameObject.SetActive(true);
 							displayGraph(songSelected);
 							verifyScore();
 							graph.enabled = true;
@@ -1529,7 +1530,7 @@ public class WheelSongMainScript : MonoBehaviour {
 							if(alphaBanner > 0) FadeOutBanner = true;
 						}
 						particleOnPlay = thepart;
-						particleOnPlay.active = true;
+						particleOnPlay.SetActive(true);
 					}
 					
 					if(Input.GetMouseButtonDown(0)){
@@ -1537,17 +1538,17 @@ public class WheelSongMainScript : MonoBehaviour {
 						if(locked){
 							var papa = theGo.transform.parent;
 							var thepart = papa.Find("Selection").gameObject;
-							if(particleOnPlay != null && particleOnPlay != thepart && particleOnPlay.active) 
+							if(particleOnPlay != null && particleOnPlay != thepart && particleOnPlay.activeInHierarchy) 
 							{
-								particleOnPlay.active = false;
+								particleOnPlay.SetActive(false);
 							}
 							if(songSelected == null || ((songSelected.First().Value.title + "/" + songSelected.First().Value.subtitle) != linkOnRender[papa.gameObject])){
 								songSelected = packOnRender.FirstOrDefault(c => (c.Value.First().Value.title + "/" + c.Value.First().Value.subtitle) == linkOnRender[papa.gameObject]).Value;
 								activeNumberDiff(songSelected);
 								activeDiff(songSelected);
-								PSDiff[(int)actualySelected].gameObject.active = false;
+								PSDiff[(int)actualySelected].gameObject.SetActive(false);
 								activeDiffPS(songSelected);
-								PSDiff[(int)actualySelected].gameObject.active = true;
+								PSDiff[(int)actualySelected].gameObject.SetActive(true);
 								displayGraph(songSelected);
 								verifyScore();
 								graph.enabled = true;
@@ -1559,13 +1560,13 @@ public class WheelSongMainScript : MonoBehaviour {
 								time = 0f;
 							}
 							particleOnPlay = thepart;
-							particleOnPlay.active = true;
+							particleOnPlay.SetActive(true);
 						}else{
 							locked = true;
 						}
 					}
 					
-				}else if(particleOnPlay != null && particleOnPlay.active){
+				}else if(particleOnPlay != null && particleOnPlay.activeInHierarchy){
 					
 					if(!locked){
 						cubeSelected = null;
@@ -1573,31 +1574,31 @@ public class WheelSongMainScript : MonoBehaviour {
 						FadeOutBanner = true;
 						graph.enabled = false;
 						songClip.Stop();
-						PSDiff[(int)actualySelected].gameObject.active = false;
+						PSDiff[(int)actualySelected].gameObject.SetActive(false);
 						desactiveDiff();
-						particleOnPlay.active = false;
+						particleOnPlay.SetActive(false);
 						foreach(var med in medals)
 						{
-							if(med.active) med.SetActiveRecursively(false);
+							if(med.activeInHierarchy) med.SetActive(false);
 						}
 					}
 				}
 				
 				
 				
-			}else if(particleOnPlay != null && particleOnPlay.active){
+			}else if(particleOnPlay != null && particleOnPlay.activeInHierarchy){
 				if(!locked){
 					cubeSelected = null;
 					songSelected = null;
 					FadeOutBanner = true;
 					songClip.Stop();
-					PSDiff[(int)actualySelected].gameObject.active = false;
+					PSDiff[(int)actualySelected].gameObject.SetActive(false);
 					graph.enabled = false;
 					desactiveDiff();
-					particleOnPlay.active = false;
+					particleOnPlay.SetActive(false);
 					foreach(var med in medals)
 					{
-						if(med.active) med.SetActiveRecursively(false);
+						if(med.activeInHierarchy) med.SetActive(false);
 					}
 				}
 			}
@@ -1612,10 +1613,10 @@ public class WheelSongMainScript : MonoBehaviour {
 				if(theGo != null && theGo.tag == "ZoneDiff"){
 					onHoverDifficulty = (Difficulty)int.Parse(theGo.name);
 					if(Input.GetMouseButtonDown(0)){
-						PSDiff[(int)actualySelected].gameObject.active = false;
+						PSDiff[(int)actualySelected].gameObject.SetActive(false);
 						actualySelected = (Difficulty)int.Parse(theGo.name);
 						trulySelected = (Difficulty)int.Parse(theGo.name);
-						PSDiff[(int)actualySelected].gameObject.active = true;
+						PSDiff[(int)actualySelected].gameObject.SetActive(true);
 						displayGraph(songSelected);
 						verifyScore();
 					}
@@ -1678,28 +1679,28 @@ public class WheelSongMainScript : MonoBehaviour {
 			//Move song list
 			if(oldpos > newpos){
 			
-				foreach(var cubeel2 in songCubeOnRender.Where(c => !c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y - 3f*numberToDisplay) && !(c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value)){
-					cubeel2.Key.SetActiveRecursively(true);
-					if(cubeSelected == null || cubeSelected != cubeel2.Key) cubeel2.Key.transform.FindChild("Selection").gameObject.active = false;
+				foreach(var cubeel2 in songCubeOnRender.Where(c => !c.Key.activeInHierarchy && (c.Key.transform.position.y > camerapack.transform.position.y - 3f*numberToDisplay) && !(c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value)){
+					cubeel2.Key.SetActive(true);
+					if(cubeSelected == null || cubeSelected != cubeel2.Key) cubeel2.Key.transform.FindChild("Selection").gameObject.SetActive(false);
 					
 				}
 				
 				
-				foreach(var cubeel in songCubeOnRender.Where(c => c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value)){
-					cubeel.Key.SetActiveRecursively(false);
+				foreach(var cubeel in songCubeOnRender.Where(c => c.Key.activeInHierarchy && (c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value)){
+					cubeel.Key.SetActive(false);
 					if(startnumber > currentstartnumber) currentstartnumber++;
 					cubeBase.transform.position = new Vector3(basePosCubeBase.x, basePosCubeBase.y - (3f*currentstartnumber), basePosCubeBase.z);
 				}
 				/*var cubeel2 = songCubeOnRender.FirstOrDefault(c => !c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y - 3f*numberToDisplay) && !(c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
 				if(cubeel2 != null) {
-					cubeel2.SetActiveRecursively(true);
+					cubeel2.SetActive(true);
 					if(cubeSelected == null || cubeSelected != cubeel2) cubeel2.transform.FindChild("Selection").gameObject.active = false;
 				}
 				
 				
 				var cubeel = songCubeOnRender.FirstOrDefault(c => c.Key.active && (c.Key.transform.position.y > camerapack.transform.position.y + 2f) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
 				if(cubeel != null) {
-					cubeel.SetActiveRecursively(false);
+					cubeel.SetActive(false);
 					cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, cubeBase.transform.position.y -3f, cubeBase.transform.position.z);
 				}
 				*/
@@ -1707,18 +1708,18 @@ public class WheelSongMainScript : MonoBehaviour {
 				
 			}else if(oldpos < newpos){
 				
-				foreach(var cubeel2 in songCubeOnRender.Where(c => c.Key.active && (c.Key.transform.position.y < camerapack.transform.position.y - 3f*numberToDisplay) && packs.ElementAt(nextnumberPack).Key == c.Value)){
+				foreach(var cubeel2 in songCubeOnRender.Where(c => c.Key.activeInHierarchy && (c.Key.transform.position.y < camerapack.transform.position.y - 3f*numberToDisplay) && packs.ElementAt(nextnumberPack).Key == c.Value)){
 
-					cubeel2.Key.SetActiveRecursively(false);
+					cubeel2.Key.SetActive(false);
 					
 				}
 				
 				
-				foreach(var cubeel in songCubeOnRender.Where(c => !c.Key.active && (c.Key.transform.position.y < camerapack.transform.position.y + 5f) && (c.Key.transform.position.y > camerapack.transform.position.y - 3f*(numberToDisplay - 2)) && packs.ElementAt(nextnumberPack).Key == c.Value)){
+				foreach(var cubeel in songCubeOnRender.Where(c => !c.Key.activeInHierarchy && (c.Key.transform.position.y < camerapack.transform.position.y + 5f) && (c.Key.transform.position.y > camerapack.transform.position.y - 3f*(numberToDisplay - 2)) && packs.ElementAt(nextnumberPack).Key == c.Value)){
 
-					cubeel.Key.SetActiveRecursively(true);
+					cubeel.Key.SetActive(true);
 					if(startnumber < currentstartnumber) currentstartnumber--;
-					if(cubeSelected == null || cubeSelected != cubeel.Key) cubeel.Key.transform.FindChild("Selection").gameObject.active = false;
+					if(cubeSelected == null || cubeSelected != cubeel.Key) cubeel.Key.transform.FindChild("Selection").gameObject.SetActive(false);
 					cubeBase.transform.position = new Vector3(basePosCubeBase.x, basePosCubeBase.y - (3f*currentstartnumber), basePosCubeBase.z);
 					
 				}
@@ -1726,12 +1727,12 @@ public class WheelSongMainScript : MonoBehaviour {
 				/*
 				var cubeel2 = songCubeOnRender.FirstOrDefault(c => c.Key.active && (c.Key.transform.position.y < camerapack.transform.position.y - 3f*numberToDisplay) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
 				if(cubeel2 != null) {
-					cubeel2.SetActiveRecursively(false);
+					cubeel2.SetActive(false);
 				}
 				
 				var cubeel = songCubeOnRender.FirstOrDefault(c => !c.Key.active && (c.Key.transform.position.y < camerapack.transform.position.y + 5f) && (c.Key.transform.position.y > camerapack.transform.position.y - 3f*(numberToDisplay - 2)) && packs.ElementAt(nextnumberPack).Key == c.Value).Key;
 				if(cubeel != null) {
-					cubeel.SetActiveRecursively(true);
+					cubeel.SetActive(true);
 					if(cubeSelected == null || cubeSelected != cubeel) cubeel.transform.FindChild("Selection").gameObject.active = false;
 					cubeBase.transform.position = new Vector3(cubeBase.transform.position.x, cubeBase.transform.position.y +3f, cubeBase.transform.position.z);
 				}*/
@@ -1841,7 +1842,7 @@ public class WheelSongMainScript : MonoBehaviour {
 	IEnumerator startOptionFade(){
 		
 		var posInit = cacheOption.transform.position;
-		cacheOption.active = true;
+		cacheOption.SetActive(true);
 		for(int i=0;i<stateLoading.Length;i++){
 			matCache.color = new Color(matCache.color.r, matCache.color.g, matCache.color.b, 1f);
 			stateLoading[i] = true;
@@ -1851,7 +1852,7 @@ public class WheelSongMainScript : MonoBehaviour {
 			yield return new WaitForSeconds(timeOption);
 			cacheOption.transform.Translate(0f, -2f, 0f);
 		}
-		cacheOption.active = false;
+		cacheOption.SetActive(false);
 		cacheOption.transform.position = posInit;
 		animok = true;
 	}
@@ -1860,7 +1861,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		
 		var posInit = cacheOption.transform.position;
 		cacheOption.transform.Translate(0f, -16f, 0f);
-		cacheOption.active = true;
+		cacheOption.SetActive(true);
 		for(int i=stateLoading.Length-1;i>=0;i--){
 			matCache.color = new Color(matCache.color.r, matCache.color.g, matCache.color.b, 1f);
 			stateLoading[i] = false;
@@ -1872,7 +1873,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		}
 		OptionMode = false;
 		movinNormal = true;
-		cacheOption.active = false;
+		cacheOption.SetActive(false);
 		cacheOption.transform.position = posInit;
 		animok = true;
 	}
@@ -1992,12 +1993,12 @@ public class WheelSongMainScript : MonoBehaviour {
 		var countpos = 0;
 		for(int i=(int)Difficulty.BEGINNER; i<=(int)Difficulty.EDIT; i++){
 			if(so.ContainsKey((Difficulty)i)){
-				//diffSelected[(Difficulty)i].SetActiveRecursively(true);	
+				//diffSelected[(Difficulty)i].SetActive(true);	
 				diffSelected[(Difficulty)i].transform.position = new Vector3(diffSelected[(Difficulty)i].transform.position.x, DataManager.Instance.posYDiff[countpos], diffSelected[(Difficulty)i].transform.position.z);
 				PSDiff[i].transform.position = new Vector3(PSDiff[i].transform.position.x, DataManager.Instance.posYZoneDiff[countpos], PSDiff[i].transform.position.z);
 				RayDiff[i].transform.position = new Vector3(RayDiff[i].transform.position.x, DataManager.Instance.posYZoneDiff[countpos], RayDiff[i].transform.position.z);
 				countpos++;
-				for(int j=0; j<diffSelected[(Difficulty)i].transform.GetChildCount(); j++){
+				for(int j=0; j<diffSelected[(Difficulty)i].transform.childCount; j++){
 					if((int.Parse(diffSelected[(Difficulty)i].transform.GetChild(j).name)) <= so[(Difficulty)i].level){
 						if(diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.GetColor("_TintColor") != diffActiveColor[(Difficulty)i]) diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.SetColor("_TintColor",diffActiveColor[(Difficulty)i]);
 					}else{
@@ -2007,7 +2008,7 @@ public class WheelSongMainScript : MonoBehaviour {
 			}else{
 				diffSelected[(Difficulty)i].transform.Translate(0f, -100f, 0f);
 				RayDiff[i].transform.Translate(0f, -100f, 0f);
-				for(int j=0; j<diffSelected[(Difficulty)i].transform.GetChildCount(); j++){
+				for(int j=0; j<diffSelected[(Difficulty)i].transform.childCount; j++){
 					if(diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.GetColor("_TintColor") == diffActiveColor[(Difficulty)i]) diffSelected[(Difficulty)i].transform.GetChild(j).renderer.material.SetColor("_TintColor",new Color(diffActiveColor[(Difficulty)i].r/10f, diffActiveColor[(Difficulty)i].g/10f, diffActiveColor[(Difficulty)i].b/10f, 1f));
 				}
 			}
@@ -2038,10 +2039,10 @@ public class WheelSongMainScript : MonoBehaviour {
 	void activePack(string s){
 		foreach(var el in songCubePack){
 			if(el.Value == s && el.Key.transform.position.y > - 3f*numberToDisplay){
-				el.Key.SetActiveRecursively(true);
-				el.Key.transform.FindChild("Selection").gameObject.active = false;
-			}else if(el.Key.active){
-				el.Key.SetActiveRecursively(false);
+				el.Key.SetActive(true);
+				el.Key.transform.FindChild("Selection").gameObject.SetActive(false);
+			}else if(el.Key.activeInHierarchy){
+				el.Key.SetActive(false);
 			}
 		}
 		plane.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[packs.ElementAt(nextnumberPack).Key];
@@ -2053,18 +2054,18 @@ public class WheelSongMainScript : MonoBehaviour {
 	void activeCustomPack(){
 		foreach(var el in customSongCubePack){
 			if(el.Key.transform.position.y > - 3f*numberToDisplay){
-				el.Key.SetActiveRecursively(true);
-				el.Key.transform.FindChild("Selection").gameObject.active = false;
-			}else if(el.Key.active){
-				el.Key.SetActiveRecursively(false);
+				el.Key.SetActive(true);
+				el.Key.transform.FindChild("Selection").gameObject.SetActive(false);
+			}else if(el.Key.activeInHierarchy){
+				el.Key.SetActive(false);
 			}
 		}
 	}
 	
 	void desactivePack(){
 		foreach(var el in songCubePack){
-			if(el.Key.active){
-				el.Key.SetActiveRecursively(false);
+			if(el.Key.activeInHierarchy){
+				el.Key.SetActive(false);
 			}
 		}
 	}
@@ -2089,7 +2090,7 @@ public class WheelSongMainScript : MonoBehaviour {
 			foreach(var song in el.Value){
 				var thego = (GameObject) Instantiate(cubeSong, new Vector3(-25f, pos, 0f), cubeSong.transform.rotation);
 				pos -= 3f;
-				thego.SetActiveRecursively(false);
+				thego.SetActive(false);
 				songCubePack.Add(thego,el.Key);
 				LinkCubeSong.Add(thego, song.Value.First().Value.title + "/" + song.Value.First().Value.subtitle);
 
@@ -2107,7 +2108,7 @@ public class WheelSongMainScript : MonoBehaviour {
 		foreach(var song in theSongList){
 			var thego = (GameObject) Instantiate(cubeSong, new Vector3(-25f, pos, 0f), cubeSong.transform.rotation);
 			pos -= 3f;
-			thego.SetActiveRecursively(false);
+			thego.SetActive(false);
 			customSongCubePack.Add(thego,packs.ElementAt(nextnumberPack).Key);
 			customLinkCubeSong.Add(thego, song.Value.First().Value.title + "/" + song.Value.First().Value.subtitle);
 
@@ -2260,10 +2261,10 @@ public class WheelSongMainScript : MonoBehaviour {
 			
 		}
 		if(DataManager.Instance.giveNoteOfScore((float)score) != DataManager.Instance.giveNoteOfScore((float)oldscore) && oldscore >= 96f){
-			medals.FirstOrDefault(c => c.name == DataManager.Instance.giveNoteOfScore((float)oldscore).Split(';')[1]).SetActiveRecursively(false);
+			medals.FirstOrDefault(c => c.name == DataManager.Instance.giveNoteOfScore((float)oldscore).Split(';')[1]).SetActive(false);
 		}
 		if(score >= 96f){
-			medals.FirstOrDefault(c => c.name == DataManager.Instance.giveNoteOfScore((float)score).Split(';')[1]).SetActiveRecursively(true);
+			medals.FirstOrDefault(c => c.name == DataManager.Instance.giveNoteOfScore((float)score).Split(';')[1]).SetActive(true);
 		}
 		
 	}

@@ -343,7 +343,8 @@ public class InGameScript : MonoBehaviour {
 		}
 		arrow = typeArrow.ElementAt(DataManager.Instance.skinSelected);
 		var modelskin = GameObject.Find("ArrowModelSkin" + DataManager.Instance.skinSelected);
-		modelskin.SetActiveRecursively(false);
+		modelskin.SetActive(false);
+		
 		arrowLeft = (GameObject) Instantiate(modelskin, new Vector3(0f, 0f, 2f), modelskin.transform.rotation);
 		if(DataManager.Instance.skinSelected == 3){
 			arrowLeft.transform.FindChild("RotationCenter").Rotate(0f, 0f, 90f);
@@ -352,8 +353,9 @@ public class InGameScript : MonoBehaviour {
 			arrowLeft.transform.FindChild("ParticulePrec").Rotate(0f, 0f, -90f);
 			arrowLeft.transform.FindChild("ParticulePrec").localPosition = new Vector3(-1f, 0f, 0f);
 		}
-		
+		arrowLeft.SetActive(true);
 		arrowLeft.transform.parent = MainCamera.gameObject.transform;
+		
 		arrowRight = (GameObject) Instantiate(modelskin, new Vector3(6f, 0f, 2f), modelskin.transform.rotation);
 		if(DataManager.Instance.skinSelected == 3){
 			arrowRight.transform.FindChild("RotationCenter").Rotate(0f, 0f, -90f);
@@ -362,7 +364,9 @@ public class InGameScript : MonoBehaviour {
 			arrowRight.transform.FindChild("ParticulePrec").Rotate(0f, 0f, 90f);
 			arrowRight.transform.FindChild("ParticulePrec").localPosition = new Vector3(1f, 0f, 0f);
 		}
+		arrowRight.SetActive(true);
 		arrowRight.transform.parent = MainCamera.gameObject.transform;
+		
 		arrowDown = (GameObject) Instantiate(modelskin, new Vector3(2f, 0f, 2f), modelskin.transform.rotation);
 		if(DataManager.Instance.skinSelected == 3){
 			arrowDown.transform.FindChild("RotationCenter").Rotate(0f, 0f, 180f);
@@ -371,8 +375,11 @@ public class InGameScript : MonoBehaviour {
 			arrowDown.transform.FindChild("ParticulePrec").Rotate(0f, 0f, -180f);
 			arrowDown.transform.FindChild("ParticulePrec").localPosition = new Vector3(0f, 1f, 0f);
 		}
+		arrowDown.SetActive(true);
 		arrowDown.transform.parent = MainCamera.gameObject.transform;
+		
 		arrowUp = (GameObject) Instantiate(modelskin, new Vector3(4f, 0f, 2f), modelskin.transform.rotation);
+		arrowUp.SetActive(true);
 		arrowUp.transform.parent = MainCamera.gameObject.transform;
 		
 		arrowTarget = new Transform[4];
@@ -429,7 +436,7 @@ public class InGameScript : MonoBehaviour {
 			precRight.Add( el.ToString(), (ParticleSystem) arrowRight.transform.FindChild("ParticulePrec").gameObject.transform.FindChild(el.ToString()).particleSystem );
 			precUp.Add( el.ToString(), (ParticleSystem) arrowUp.transform.FindChild("ParticulePrec").gameObject.transform.FindChild(el.ToString()).particleSystem );
 		}
-		for(int i=0; i< particleComboCam.transform.GetChildCount(); i++){
+		for(int i=0; i< particleComboCam.transform.childCount; i++){
 			clearcombo.Add(particleComboCam.transform.GetChild(i).name, particleComboCam.transform.GetChild(i).particleSystem);
 		}
 		
@@ -622,7 +629,7 @@ public class InGameScript : MonoBehaviour {
 		if(displayValue[5]){ //No background
 			RenderSettings.skybox = null;
 			Background.GetComponent<MoveBackground>().enabled = false;
-			Background.SetActiveRecursively(false);
+			Background.SetActive(false);
 			
 		}
 		
@@ -811,7 +818,7 @@ public class InGameScript : MonoBehaviour {
 							secondAudioSource.PlayOneShot(comboSound); 
 						}
 						oneSecond = 0f;
-						var theaverage = 0;
+						var theaverage = 0f;
 						for(int i = 0; i<precAverage.Count; i++)
 						{
 							theaverage += Mathf.Abs((float)precAverage[i]);
@@ -858,9 +865,9 @@ public class InGameScript : MonoBehaviour {
 					normalScaleClearFail = clearFail.transform.localScale;
 					clearFail.transform.localScale = fillVector(clearFail.transform.localScale.x*10f, clearFail.transform.localScale.y/10f, clearFail.transform.localScale.z);
 					clearFail.color = fillColor (clearFail.color.r, clearFail.color.g, clearFail.color.b, 0f);
-					buttonRetry.SetActiveRecursively(true);
-					buttonGiveUp.SetActiveRecursively(true);
-					inputSpeedmod.SetActiveRecursively(true);
+					buttonRetry.SetActive(true);
+					buttonGiveUp.SetActive(true);
+					inputSpeedmod.SetActive(true);
 					labelSpeedmod.enabled = true;
 					judgeSprite.enabled = false;
 					fastSprite.enabled = false;
@@ -892,9 +899,9 @@ public class InGameScript : MonoBehaviour {
 						FullComboSprite.enabled = true;
 						FullComboSprite.spriteName = (contains == "FBC" ? "FC" : contains);
 						FullComboSprite.transform.localScale = baseScaleFCSprite[perfect ? 3 : (fullFantCombo ? 2 : (fullExCombo ? 1 : 0))]*coefficientScaleFCSprite; 
-						particleComboCam.gameObject.active = true;
+						//particleComboCam.gameObject.SetActive(true);
 						foreach(var part in clearcombo.Where(c => c.Key.Contains(contains))){
-							part.Value.gameObject.active = true;
+							part.Value.gameObject.SetActive(true);
 							part.Value.Play();
 						}
 					}
@@ -1713,31 +1720,31 @@ public class InGameScript : MonoBehaviour {
 	#region Particules	
 	void StartParticleLeft(Precision prec){
 		poolPS = precLeft[prec < Precision.DECENT && combo >= 100 ? prec.ToString() + "C" : prec.ToString()];
-		if(!poolPS.gameObject.active) poolPS.gameObject.active = true;
+		if(!poolPS.gameObject.activeInHierarchy) poolPS.gameObject.SetActive(true);
 		poolPS.Play();
 	}
 	
 	void StartParticleDown(Precision prec){
 		poolPS = precDown[prec < Precision.DECENT && combo >= 100 ? prec.ToString() + "C" : prec.ToString()];
-		if(!poolPS.gameObject.active) poolPS.gameObject.active = true;
+		if(!poolPS.gameObject.activeInHierarchy) poolPS.gameObject.SetActive(true);
 		poolPS.Play();
 	}
 	
 	void StartParticleUp(Precision prec){
 		poolPS = precUp[prec < Precision.DECENT && combo >= 100 ? prec.ToString() + "C" : prec.ToString()];
-		if(!poolPS.gameObject.active) poolPS.gameObject.active = true;
+		if(!poolPS.gameObject.activeInHierarchy) poolPS.gameObject.SetActive(true);
 		poolPS.Play();
 	}
 	
 	void StartParticleRight(Precision prec){
 		poolPS = precRight[prec < Precision.DECENT && combo >= 100 ? prec.ToString() + "C" : prec.ToString()];
-		if(!poolPS.gameObject.active) poolPS.gameObject.active = true;
+		if(!poolPS.gameObject.activeInHierarchy) poolPS.gameObject.SetActive(true);
 		poolPS.Play();
 	}
 	
 	void StartParticleFreezeLeft(bool state){
 		poolPS = precLeft["FREEZE"];
-		if(!poolPS.gameObject.active) poolPS.gameObject.active = true;
+		if(!poolPS.gameObject.activeInHierarchy) poolPS.gameObject.SetActive(true);
 		poolPS.Play();
 		poolPS.time = 1f;
 		poolPS.loop = state;
@@ -1745,7 +1752,7 @@ public class InGameScript : MonoBehaviour {
 	
 	void StartParticleFreezeRight(bool state){
 		poolPS = precRight["FREEZE"];
-		if(!poolPS.gameObject.active) poolPS.gameObject.active = true;
+		if(!poolPS.gameObject.activeInHierarchy) poolPS.gameObject.SetActive(true);
 		poolPS.Play();
 		poolPS.time = 1f;
 		poolPS.loop = state;
@@ -1754,7 +1761,7 @@ public class InGameScript : MonoBehaviour {
 	
 	void StartParticleFreezeDown(bool state){
 		poolPS = precDown["FREEZE"];
-		if(!poolPS.gameObject.active) poolPS.gameObject.active = true;
+		if(!poolPS.gameObject.activeInHierarchy) poolPS.gameObject.SetActive(true);
 		poolPS.Play();
 		poolPS.time = 1f;
 		poolPS.loop = state;
@@ -1763,7 +1770,7 @@ public class InGameScript : MonoBehaviour {
 	
 	void StartParticleFreezeUp(bool state){
 		poolPS = precUp["FREEZE"];
-		if(!poolPS.gameObject.active) poolPS.gameObject.active = true;
+		if(!poolPS.gameObject.activeInHierarchy) poolPS.gameObject.SetActive(true);
 		poolPS.Play();
 		poolPS.time = 1f;
 		poolPS.loop = state;
@@ -1772,28 +1779,28 @@ public class InGameScript : MonoBehaviour {
 	
 	public void StartParticleMineLeft(){
 		poolPS = precLeft["MINE"];
-		if(!poolPS.gameObject.active) poolPS.gameObject.active = true;
+		if(!poolPS.gameObject.activeInHierarchy) poolPS.gameObject.SetActive(true);
 		poolPS.Play();
 		
 	}
 	
 	public void StartParticleMineRight(){
 		poolPS = precRight["MINE"];
-		if(!poolPS.gameObject.active) poolPS.gameObject.active = true;
+		if(!poolPS.gameObject.activeInHierarchy) poolPS.gameObject.SetActive(true);
 		poolPS.Play();
 		
 	}
 	
 	public void StartParticleMineDown(){
 		poolPS = precDown["MINE"];
-		if(!poolPS.gameObject.active) poolPS.gameObject.active = true;
+		if(!poolPS.gameObject.activeInHierarchy) poolPS.gameObject.SetActive(true);
 		poolPS.Play();
 		
 	}
 	
 	public void StartParticleMineUp(){
 		poolPS = precUp["MINE"];
-		if(!poolPS.gameObject.active) poolPS.gameObject.active = true;
+		if(!poolPS.gameObject.activeInHierarchy) poolPS.gameObject.SetActive(true);
 		poolPS.Play();
 		
 	}
@@ -2009,7 +2016,7 @@ public class InGameScript : MonoBehaviour {
 		{
 			go.transform.renderer.enabled = false;	
 		}
-		for(int i=0; i < go.transform.GetChildCount(); i++)
+		for(int i=0; i < go.transform.childCount; i++)
 		{
 			go.transform.GetChild(i).renderer.enabled = false;	
 		}
@@ -2374,6 +2381,7 @@ public class InGameScript : MonoBehaviour {
 						barr = true;
 						tripleselect++;
 						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
+						goArrow.SetActive(true);
 						if(DataManager.Instance.skinSelected == 1 || DataManager.Instance.skinSelected == 3){
 							for(int j=0; j<goArrow.transform.childCount;j++){
 								if(goArrow.transform.GetChild(j).name.Contains("Deco")){
@@ -2419,12 +2427,13 @@ public class InGameScript : MonoBehaviour {
 							break;
 						}
 						listNeighboors.Add(theArrow);
-						//goArrow.SetActiveRecursively(false);
+						//goArrow.SetActive(false);
 						GetComponent<ManageGameObject>().Add(goArrow);
 						//barrow = true;
 					}else if(note[i] == '2'){
 						barr = true;
 						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
+						goArrow.SetActive(true);
 						if(DataManager.Instance.skinSelected == 1 || DataManager.Instance.skinSelected == 3){
 							for(int j=0; j<goArrow.transform.childCount;j++){
 								if(goArrow.transform.GetChild(j).name.Contains("Deco")){
@@ -2470,13 +2479,14 @@ public class InGameScript : MonoBehaviour {
 							break;
 						}
 						listNeighboors.Add(theArrow);
-						//goArrow.SetActiveRecursively(false);
+						//goArrow.SetActive(false);
 						GetComponent<ManageGameObject>().Add(goArrow);
 					}else if(note[i] == '3'){
 						barr = true;
 						var theArrow = ArrowFreezed[i];
 						if(theArrow != null){
 							var goFreeze = (GameObject) Instantiate(theArrow.arrowType == ArrowType.FREEZE ? freeze : roll, new Vector3(i*2, (theArrow.goArrow.transform.position.y + ((-ypos - theArrow.goArrow.transform.position.y)/2f)) , 1f), freeze.transform.rotation);
+							goFreeze.SetActive(true);
 							goFreeze.transform.localScale = new Vector3(1f, -((-ypos - theArrow.goArrow.transform.position.y)/2f), 0.5f);
 							goFreeze.renderer.material.SetTextureScale("_BumpMap", fillVector2(0.5f, goFreeze.transform.localScale.y));
 							if(DataManager.Instance.skinSelected == 1 || DataManager.Instance.skinSelected == 3){
@@ -2497,6 +2507,7 @@ public class InGameScript : MonoBehaviour {
 					}else if(note[i] == '4'){
 						barr = true;
 						var goArrow = (GameObject) Instantiate(arrow, new Vector3(i*2, -ypos, 0f), arrow.transform.rotation);
+						goArrow.SetActive(true);
 						if(DataManager.Instance.skinSelected == 1 || DataManager.Instance.skinSelected == 3){
 							for(int j=0; j<goArrow.transform.childCount;j++){
 								if(goArrow.transform.GetChild(j).name.Contains("Deco")){
@@ -2542,10 +2553,11 @@ public class InGameScript : MonoBehaviour {
 							break;
 						}
 						listNeighboors.Add(theArrow);
-						//goArrow.SetActiveRecursively(false);
+						//goArrow.SetActive(false);
 						GetComponent<ManageGameObject>().Add(goArrow);
 					}else if(note[i] == 'M'){
 						var goArrow = (GameObject) Instantiate(mines, new Vector3(i*2, -ypos, 0f), mines.transform.rotation);
+						goArrow.SetActive(true);
 						var theArrow = new Arrow(goArrow, ArrowType.MINE, timetotal);
 						switch(i){
 						case 0:

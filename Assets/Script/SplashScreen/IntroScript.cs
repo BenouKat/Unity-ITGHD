@@ -353,13 +353,13 @@ public class IntroScript : MonoBehaviour {
 		if(EnvolCube.Count > 0 && Camera.main.transform.eulerAngles.y < 45f){
 			for(int i=0;i<EnvolCube.Count;i++){
 				if(angleStart.ElementAt(i) > Camera.main.transform.eulerAngles.y){
-					if(EnvolCube.ElementAt(i).active == false){
-						EnvolCube.ElementAt(i).SetActiveRecursively(true);
+					if(EnvolCube.ElementAt(i).activeInHierarchy == false){
+						EnvolCube.ElementAt(i).SetActive(true);
 					}
 					EnvolCube.ElementAt(i).transform.position += EnvolCube.ElementAt(i).transform.forward*Time.deltaTime*speedCube.ElementAt(i);
 					if(EnvolCube.ElementAt(i).transform.position.z > 0){
 						EnvolCube.ElementAt(i).transform.GetChild(0).particleSystem.Stop();
-						EnvolCube.ElementAt(i).active = false;
+						EnvolCube.ElementAt(i).SetActive(false);
 						EnvolCube.Remove(EnvolCube.ElementAt(i));
 						angleStart.Remove(angleStart.ElementAt(i));
 						speedCube.Remove(speedCube.ElementAt(i));

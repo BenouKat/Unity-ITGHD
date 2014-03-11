@@ -197,11 +197,11 @@ public class LifeBar : MonoBehaviour {
 			if(newlife >= 100f && !lifeMaxPlayin){
 				psLifeUp.Stop(); 
 				lifeUpPlayin = false;
-				if(!psMaxLife.gameObject.active) psMaxLife.gameObject.active = true;
+				if(!psMaxLife.gameObject.activeInHierarchy) psMaxLife.gameObject.SetActive(true);
 				psMaxLife.Play();
 				lifeMaxPlayin = true;
 			}else if(newlife > realLife && newlife > 25f && !lifeUpPlayin && !lifeMaxPlayin && newlife > (thelostlife + 10f)){
-				if(!psLifeUp.gameObject.active) psLifeUp.gameObject.active = true;
+				if(!psLifeUp.gameObject.activeInHierarchy) psLifeUp.gameObject.SetActive(true);
 				psLifeUp.Play();
 				lifeUpPlayin = true;
 			}else if(newlife < realLife){
@@ -213,7 +213,7 @@ public class LifeBar : MonoBehaviour {
 			}
 			
 			if(newlife <= 25f && !lifeLowPlayin){
-				if(!psLowLife.gameObject.active) psLowLife.gameObject.active = true;
+				if(!psLowLife.gameObject.activeInHierarchy) psLowLife.gameObject.SetActive(true);
 				psLowLife.Play();
 				lifeLowPlayin = true;
 			}else if(newlife > 25f && lifeLowPlayin){
