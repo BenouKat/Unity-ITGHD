@@ -118,7 +118,7 @@ public class NetworkScript : MonoBehaviour {
 		if(myExtIPWWW!=null)
 		{
 			yield return myExtIPWWW;
-			string myExtIP=myExtIPWWW.data;
+			string myExtIP=myExtIPWWW.text;
 			myExtIP=myExtIP.Substring(myExtIP.IndexOf(":")+1);
 			myExtIP=myExtIP.Substring(0,myExtIP.IndexOf("<"));	
 			LANManager.Instance.actualIP = myExtIP.Trim();

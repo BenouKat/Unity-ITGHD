@@ -15,6 +15,7 @@ public class OpeningLANScene : MonoBehaviour {
 		NONE
 	}
 	
+	public AudioSource audioS;
 	
 	public GameObject ringJoin;
 	public GameObject[] optionJoinCube;
@@ -56,7 +57,6 @@ public class OpeningLANScene : MonoBehaviour {
 	public Rect labelRound;
 	public Rect infoRound;
 	public Rect textFieldRound;
-	private string roundValue;
 	public Rect labelInfoMaster;
 	public Rect labelMaster;
 	public Rect posBackMaster;
@@ -141,7 +141,6 @@ public class OpeningLANScene : MonoBehaviour {
 		alphaOption = 0f;
 		alphaTitle = 0f;
 		alphaDisappearTitle = 1f;
-		roundValue = LANManager.Instance.roundNumber.ToString();
 		fm = GetComponent<FadeManager>();
 		ipValue = "";
 		shininess = 0f;
@@ -151,6 +150,28 @@ public class OpeningLANScene : MonoBehaviour {
 		
 		baseMaterialColor = selectedMaterial.color;
 		rotationBase = ring.transform.rotation;
+		
+		audioS.Play();
+		StartCoroutine(soundVolume(true));
+	}
+	
+	IEnumerator soundVolume(bool up)
+	{
+		if(up)
+		{
+			while(audioS.volume < 1f)
+			{
+				audioS.volume += Time.deltaTime;	
+				yield return 0;
+			}
+		}else{
+			while(audioS.volume > 0f)
+			{
+				audioS.volume -= Time.deltaTime;	
+				yield return 0;
+			}
+		}
+		
 	}
 	
 	
@@ -560,6 +581,7 @@ public class OpeningLANScene : MonoBehaviour {
 	{
 		psFlash.gameObject.SetActive(true);
 		cache.SetActive(true);
+		StartCoroutine(soundVolume(false));
 		while(alphaTitle < 1f)
 		{
 			alphaTitle += speedAlphaTitle*Time.deltaTime;

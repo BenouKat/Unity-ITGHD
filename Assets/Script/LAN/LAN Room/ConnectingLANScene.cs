@@ -5,6 +5,8 @@ using System.Linq;
 
 public class ConnectingLANScene : MonoBehaviour {
 	
+	public AudioSource audioS;
+	
 	public GameObject cubeLoading;
 	public GameObject cubePlayers;
 	public GameObject cubePlayersPosition;
@@ -116,6 +118,25 @@ public class ConnectingLANScene : MonoBehaviour {
 		}
 		
 		fm = GetComponent<FadeManager>();
+	}
+	
+	IEnumerator soundVolume(bool up)
+	{
+		if(up)
+		{
+			while(audioS.volume < 1f)
+			{
+				audioS.volume += Time.deltaTime;	
+				yield return 0;
+			}
+		}else{
+			while(audioS.volume > 0f)
+			{
+				audioS.volume -= Time.deltaTime;	
+				yield return 0;
+			}
+		}
+		
 	}
 	
 	// Update is called once per frame
@@ -462,6 +483,7 @@ public class ConnectingLANScene : MonoBehaviour {
 					if(!someoneNotReady)
 					{
 						//launch	
+						StartCoroutine(soundVolume(false));
 						networkView.RPC("launchGame", RPCMode.All);
 					}
 				}

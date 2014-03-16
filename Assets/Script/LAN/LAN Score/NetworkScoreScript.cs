@@ -59,7 +59,7 @@ public class NetworkScoreScript : MonoBehaviour {
 	
 	void OnGUI()
 	{
-		if(!cam.onMove && !quitAsked)
+		if(!cam.onMove && !quitAsked && readyToQuit)
 		{
 			GUI.skin = skin;
 			if(GUI.Button(new Rect(thequitButton.x*Screen.width, thequitButton.y*Screen.height, thequitButton.width*Screen.width, thequitButton.height*Screen.height), "Ready"))
@@ -138,8 +138,6 @@ public class NetworkScoreScript : MonoBehaviour {
 				return;
 			}
 		}
-			
-			
 		
 		var stringData = "";
 		var stringLeaderboard = "";
@@ -202,7 +200,7 @@ public class NetworkScoreScript : MonoBehaviour {
 	{
 		fm.FadeOut();
 	
-		readyToQuit = true;
+		readyToQuit = true;	
 		var listPlayers = dataString.Split(':');
 		var listDataPlayer = new List<PlayerState>();
 		
