@@ -61,6 +61,7 @@ public class PackZoneLAN : MonoBehaviour {
 		
 		foreach(var el in LoadManager.Instance.ListSong().Keys){
 			var thego = (GameObject) Instantiate(miniCubePack, new Vector3(0f, 13f, 20f), miniCubePack.transform.rotation);
+			thego.SetActive(true);
 			if(LoadManager.Instance.ListTexture().ContainsKey(el)) thego.renderer.material.mainTexture = LoadManager.Instance.ListTexture()[el];
 			tempPack.Add(thego, el); 
 			if(el == DataManager.Instance.packSelected) thePackPosition = position;

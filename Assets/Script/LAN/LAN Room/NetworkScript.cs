@@ -84,7 +84,6 @@ public class NetworkScript : MonoBehaviour {
 	
 	void OnServerInitialized()
 	{		
-		
 		if(Network.player.externalIP.Contains("UNASSIGNED"))
 		{
 			if(Network.player.ipAddress == "0.0.0.0")
@@ -98,6 +97,9 @@ public class NetworkScript : MonoBehaviour {
 			LANManager.Instance.actualIP = Network.player.externalIP;
 		}
 		
+		//External IP test
+		StartCoroutine(checkRealIP());
+		
 		Network.maxConnections = 8;
 		Debug.Log("Initialized ! " + LANManager.Instance.actualIP + " : " + LANManager.Instance.actualPort);
 		
@@ -108,6 +110,19 @@ public class NetworkScript : MonoBehaviour {
 		LANManager.Instance.dataArrived = true;
 		LANManager.Instance.getTheRightToChange = LANManager.Instance.songDiffSystem == 1;
 		cls.stateScene = LANConnexionState.INITIALIZESCENE;
+	}
+	
+	IEnumerator checkRealIP()
+	{
+		WWW myExtIPWWW = new WWW("http://checkip.dyndns.org");
+		if(myExtIPWWW!=null)
+		{
+			yield return myExtIPWWW;
+			string myExtIP=myExtIPWWW.data;
+			myExtIP=myExtIP.Substring(myExtIP.IndexOf(":")+1);
+			myExtIP=myExtIP.Substring(0,myExtIP.IndexOf("<"));	
+			LANManager.Instance.actualIP = myExtIP.Trim();
+		}
 	}
 	
 	//server side

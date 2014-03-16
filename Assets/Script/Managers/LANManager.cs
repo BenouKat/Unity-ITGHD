@@ -103,11 +103,10 @@ public class LANManager{
 		turn = 0;
 		players = new Dictionary<NetworkPlayer, CublastPlayer>();
 		numberOfPlayersConnected = 0;
-		roundNumber = 5;
+		roundNumber = 0;
 		isCreator = true;
 		
 		actualIP = "";
-		actualPort = 0;
 		
 		actualRound = 0;
 		

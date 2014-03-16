@@ -137,6 +137,7 @@ public class OpeningLANScene : MonoBehaviour {
 		finalSelected = -1;
 		alphaClign = 1f;
 		stateLAN = LANManager.Instance.rejectedByServer ? StateLAN.ERROR : StateLAN.JOINCHOOSE;
+		LANManager.Instance.init();
 		alphaOption = 0f;
 		alphaTitle = 0f;
 		alphaDisappearTitle = 1f;
@@ -276,7 +277,7 @@ public class OpeningLANScene : MonoBehaviour {
 		
 		//Round
 		GUI.color = new Color(1f, 1f, 1f, 1f - alphaTitle);
-		if(finalSelected != 0) //Not in ffa
+		/*if(finalSelected != 0) //Not in ffa
 		{
 			GUI.Label(new Rect(labelRound.x*Screen.width, labelRound.y*Screen.height, labelRound.width*Screen.width, labelRound.height*Screen.height), TextManager.Instance.texts["LAN"]["OPTIONRound"]);
 			
@@ -286,7 +287,7 @@ public class OpeningLANScene : MonoBehaviour {
 		if(finalSelected == 3) //Special Elimination
 		{
 			GUI.Label(new Rect(infoRound.x*Screen.width, infoRound.y*Screen.height, infoRound.width*Screen.width, infoRound.height*Screen.height), TextManager.Instance.texts["LAN"]["INFOElimination"]);
-		}
+		}*/
 		
 		//Host system
 		GUI.Label(new Rect(labelInfoMaster.x*Screen.width, labelInfoMaster.y*Screen.height, labelInfoMaster.width*Screen.width, labelInfoMaster.height*Screen.height), TextManager.Instance.texts["LAN"]["OPTIONHost"]);
@@ -584,7 +585,7 @@ public class OpeningLANScene : MonoBehaviour {
 		}else
 		{
 			LANManager.Instance.isCreator = true;
-			LANManager.Instance.roundNumber = System.Convert.ToInt32(roundValue);
+			//LANManager.Instance.roundNumber = System.Convert.ToInt32(roundValue);
 			LANManager.Instance.modeLANselected = (LANMode)finalSelected;
 			if(finalSelected == 0) //ffa
 			{
@@ -613,6 +614,8 @@ public class OpeningLANScene : MonoBehaviour {
 	
 	public bool isRoundNumberValid()
 	{
+		return true;
+		/*
 		var result = 0;
 		if(finalSelected == 0) //ffa
 		{
@@ -626,7 +629,7 @@ public class OpeningLANScene : MonoBehaviour {
 		}
 		error = true;
 		return false;
-		
+		*/
 	}
 	
 }

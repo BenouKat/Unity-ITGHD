@@ -807,7 +807,7 @@ public class InGameScript : MonoBehaviour {
 						}
 						oneSecond = 0f;
 					}else{
-						Debug.Log("normal fail part network");
+						numberCombo.Add(combo);
 						fail = false;
 						clear = true;
 						if(scoreCount["DECENT"] == 0 && scoreCount["WAYOFF"] == 0 && scoreCount["MISS"] == 0){
@@ -823,7 +823,7 @@ public class InGameScript : MonoBehaviour {
 						{
 							theaverage += Mathf.Abs((float)precAverage[i]);
 						}
-						theaverage = (theaverage/precAverage.Count);
+						theaverage = precAverage.Count == 0 ? 0f : (theaverage/(float)precAverage.Count);
 						if(LANManager.Instance.isCreator)
 						{
 							ncs.startVerifyFinish = true;
@@ -855,7 +855,7 @@ public class InGameScript : MonoBehaviour {
 				}
 			}
 			
-			if(fail){
+			if(fail && !inNetworkMode){
 				if((typeOfDeath != 2 && (typeOfDeath == 0 || comboMisses >= 30)) || thesong.duration < timetotalchart){
 					dead = true;
 					
@@ -937,7 +937,7 @@ public class InGameScript : MonoBehaviour {
 								Network.SetLevelPrefix(10);
 								ncs.cleanPlayerDisconnected();
 								ncs.saveData();
-								Application.LoadLevel("LANScore");
+								Application.LoadLevel("LANScoreScene");
 							}
 					}
 					alphaBlackSprite += speedAlphaBlackSprite*Time.deltaTime;

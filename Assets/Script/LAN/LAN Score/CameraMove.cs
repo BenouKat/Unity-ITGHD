@@ -8,7 +8,7 @@ public class CameraMove : MonoBehaviour {
 	
 	public int actualPosition;
 	
-	private bool onMove;
+	[HideInInspector] public bool onMove;
 	private int stateAnim;
 	
 	public float speedMove;

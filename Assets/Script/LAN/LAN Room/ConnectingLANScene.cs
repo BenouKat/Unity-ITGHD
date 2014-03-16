@@ -360,7 +360,7 @@ public class ConnectingLANScene : MonoBehaviour {
 			GUI.DrawTexture(new Rect(posMode.x*Screen.width, posMode.y*Screen.height, posMode.width*Screen.width, posMode.height*Screen.height), tex["mode" + (int)LANManager.Instance.modeLANselected]);
 			if(LANManager.Instance.modeLANselected > LANMode.FFA)
 			{
-				GUI.Label(new Rect(posRound.x*Screen.width, posRound.y*Screen.height, posRound.width*Screen.width, posRound.height*Screen.height), "Rounds : " + LANManager.Instance.roundNumber);
+				//GUI.Label(new Rect(posRound.x*Screen.width, posRound.y*Screen.height, posRound.width*Screen.width, posRound.height*Screen.height), "Rounds : " + LANManager.Instance.roundNumber);
 			}
 		
 			GUI.Label(new Rect(posSongSelection.x*Screen.width, posSongSelection.y*Screen.height, posSongSelection.width*Screen.width, posSongSelection.height*Screen.height), "Selection : " + LANManager.Instance.convertHostSystemToString(LANManager.Instance.hostSystem));

@@ -138,6 +138,7 @@ public class LaunchSongZoneLAN : MonoBehaviour {
 				Network.isMessageQueueRunning = false;
 				LANManager.Instance.statut = LANStatut.GAME;
 				Network.SetLevelPrefix(9); //Numero du level à mettre;
+				LANManager.Instance.actualRound++;
 				Application.LoadLevel("LANChartScene");
 			}
 				

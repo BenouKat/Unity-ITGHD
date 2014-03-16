@@ -24,6 +24,7 @@ public class NetworkScoreScript : MonoBehaviour {
 	public GUISkin skin;
 	public Rect thequitButton;
 	
+	private bool quitAsked = false;
 	
 	public FadeManager fm;
 	void Awake()
@@ -58,11 +59,12 @@ public class NetworkScoreScript : MonoBehaviour {
 	
 	void OnGUI()
 	{
-		if(cam)
+		if(!cam.onMove && !quitAsked)
 		{
 			GUI.skin = skin;
 			if(GUI.Button(new Rect(thequitButton.x*Screen.width, thequitButton.y*Screen.height, thequitButton.width*Screen.width, thequitButton.height*Screen.height), "Ready"))
 			{
+				quitAsked = true;
 				if(LANManager.Instance.isCreator)
 				{
 					isAskedForQuit(Network.player);
@@ -73,6 +75,7 @@ public class NetworkScoreScript : MonoBehaviour {
 		}
 	}
 	
+	[RPC] 
 	void isAskedForQuit(NetworkPlayer player)
 	{
 		LANManager.Instance.players[player].isReady = true;
@@ -90,6 +93,7 @@ public class NetworkScoreScript : MonoBehaviour {
 		
 	}
 	
+	[RPC]
 	void quitScene()
 	{
 		Network.SetSendingEnabled(0, false);
@@ -102,6 +106,19 @@ public class NetworkScoreScript : MonoBehaviour {
 	void OnApplicationQuit()
 	{
 		Network.Disconnect();
+	}
+	
+	void OnDisconnectedFromServer(NetworkDisconnection info)
+	{
+		if(!LANManager.Instance.rejectedByServer)
+		{
+			LANManager.Instance.rejectedByServer = true;
+			LANManager.Instance.errorToDisplay = TextManager.Instance.texts["LAN"]["DISCONNECTED"] + info.ToString();
+			if(LANManager.Instance.rejectedByServer)
+			{
+				Application.LoadLevel("LAN");
+			}
+		}
 	}
 	
 	[RPC]
@@ -156,7 +173,7 @@ public class NetworkScoreScript : MonoBehaviour {
 				
 			case LANMode.SCORETOURN:
 				LANManager.Instance.players[listDataPlayerTemp.ElementAt(i).Key].scores += listDataPlayerTemp.ElementAt(i).Value.score;
-				stringLeaderboard += LANManager.Instance.players[listDataPlayerTemp.ElementAt(i).Key].name + ";" + LANManager.Instance.players[listDataPlayerTemp.ElementAt(i).Key].scores;
+				stringLeaderboard += LANManager.Instance.players[listDataPlayerTemp.ElementAt(i).Key].name + ";" + LANManager.Instance.players[listDataPlayerTemp.ElementAt(i).Key].scores.ToString("00.00");
 				break;
 				
 			case LANMode.POINTTOURN:
@@ -166,7 +183,7 @@ public class NetworkScoreScript : MonoBehaviour {
 				
 			case LANMode.ELIMINATION:
 				LANManager.Instance.players[listDataPlayerTemp.ElementAt(i).Key].scores += listDataPlayerTemp.ElementAt(i).Value.score;
-				stringLeaderboard += LANManager.Instance.players[listDataPlayerTemp.ElementAt(i).Key].name + ";" + LANManager.Instance.players[listDataPlayerTemp.ElementAt(i).Key].scores;
+				stringLeaderboard += LANManager.Instance.players[listDataPlayerTemp.ElementAt(i).Key].name + ";" + LANManager.Instance.players[listDataPlayerTemp.ElementAt(i).Key].scores.ToString("00.00");
 				break;
 			}
 			
@@ -199,18 +216,15 @@ public class NetworkScoreScript : MonoBehaviour {
 		for(int i=0; i<8; i++)
 		{
 			
-			if(i >= listPlayers.Length)
+			if(i < listPlayers.Length)
 			{
-				panelGlobalGO.transform.FindChild("Player" + (i + 1)).gameObject.SetActive(false);
-				panelIndividualGO.transform.FindChild("Player" + (i + 1)).gameObject.SetActive(false);
-			}else{
 				panelGlobalGO.transform.FindChild("Player" + (i + 1)).gameObject.SetActive(true);
 				panelIndividualGO.transform.FindChild("Player" + (i + 1)).gameObject.SetActive(true);
 				var el = listDataPlayer.ElementAt(i);
 				var tchild = panelGlobalGO.transform.FindChild("Player" + (i + 1));
 				//Go
 				tchild.FindChild("Name").GetComponent<UILabel>().text = el.name;
-				tchild.FindChild("Score").GetComponent<UILabel>().text = el.score.ToString("00.00");
+				tchild.FindChild("Score").GetComponent<UILabel>().text = el.score.ToString("00.00") + "%";
 				if(el.hasFailed)
 				{
 					tchild.FindChild("Score").GetComponent<UILabel>().effectColor = new Color(1f, 0.2f, 0.2f, 1f);
@@ -220,44 +234,57 @@ public class NetworkScoreScript : MonoBehaviour {
 				tchild = panelIndividualGO.transform.FindChild("Player" + (i + 1));
 				var stringScore = DataManager.Instance.giveNoteOfScore(el.score);
 				tchild.FindChild("Name").GetComponent<UILabel>().text = el.name;
-				
-				if(el.score >= 96f)
+				if(el.hasFailed)
 				{
-					if(el.score >= 98f)
+					tchild.FindChild("Name").GetComponent<UILabel>().effectColor = new Color(0.6f, 0f, 0f, 1f);
+					tchild.FindChild("Note").gameObject.SetActive(false);
+				}
+				
+				if(!el.hasFailed)
+				{
+					if(el.score >= 96f)
 					{
-						tchild.FindChild("SILVER").gameObject.SetActive(true);
-					}else if(el.score >= 99f){
-						tchild.FindChild("GOLD").gameObject.SetActive(true);
-					}else if(el.score >= 100f)
-					{
-						tchild.FindChild("QUAD").gameObject.SetActive(true);
+						if(el.score >= 98f)
+						{
+							tchild.FindChild("SILVER").gameObject.SetActive(true);
+						}else if(el.score >= 99f){
+							tchild.FindChild("GOLD").gameObject.SetActive(true);
+						}else if(el.score >= 100f)
+						{
+							tchild.FindChild("QUAD").gameObject.SetActive(true);
+						}else{
+							tchild.FindChild("BRONZE").gameObject.SetActive(true);
+						}
 					}else{
-						tchild.FindChild("BRONZE").gameObject.SetActive(true);
+						tchild.FindChild("Note").GetComponent<UISprite>().spriteName = "Note" + stringScore.Split(';')[1];
 					}
-				}else{
-					tchild.FindChild("Note").GetComponent<UISprite>().spriteName = stringScore.Split(';')[1];
+					
+					if(stringScore.Split(';')[0] == "-")
+					{
+						tchild.FindChild("Lucky").gameObject.SetActive(true);
+					}
+					else if(stringScore.Split(';')[0] == "+")
+					{
+						tchild.FindChild("Superb").gameObject.SetActive(true);
+					}
 				}
 				
-				if(stringScore.Split(';')[0] == "-")
-				{
-					tchild.FindChild("Lucky").gameObject.SetActive(true);
-				}
-				else if(stringScore.Split(';')[0] == "+")
-				{
-					tchild.FindChild("Superb").gameObject.SetActive(true);
-				}
 				
-				tchild.FindChild("Result").GetComponent<UILabel>().text = "Result : [FCOLOR]" + el.fcount + "[FFFFFF]/[ECOLOR]" + el.excount + "[FFFFFF]/[GCOLOR]" + el.gcount +  "[FFFFFF]/[DCOLOR]" + el.dcount + "[FFFFFF]/[WCOLOR]" + el.wcount + "[FFFFFF]/[MCOLOR]" + el.mcount;
 				
-				tchild.FindChild("Mistake").GetComponent<UILabel>().text = "First Mistake : " + (el.firstMistake < 0f ? "None" : (el.firstMistake.ToString("0.0") + "%"));
+				tchild.FindChild("Results").GetComponent<UILabel>().text = "Result : [88FFFF]" + el.fcount + "[FFFFFF]/[FFFF44]" + el.excount + "[FFFFFF]/[55FF55]" + el.gcount +  "[FFFFFF]/[FF55DD]" + el.dcount + "[FFFFFF]/[FF8822]" + el.wcount + "[FFFFFF]/[FF2222]" + el.mcount;
+				
+				//tchild.FindChild("Mistake").GetComponent<UILabel>().text = "First Mistake : " + (el.firstMistake < 0f ? "None" : (el.firstMistake.ToString("0.0") + "%"));
 				tchild.FindChild("Combo").GetComponent<UILabel>().text = "Max Combo : " + el.maxCombo;
 				tchild.FindChild("Prec").GetComponent<UILabel>().text = "Av. Prec. : " + el.average + "ms";
 				
 				if(el.comboType < 3)
 				{
-					tchild.FindChild("ComboType").GetComponent<UISprite>().spriteName = (el.score >= 100f ? "Perfect" : 
+					tchild.FindChild("ComboRank").gameObject.SetActive(true);
+					tchild.FindChild("ComboRank").GetComponent<UISprite>().spriteName = (el.score >= 100f ? "Perfect" : 
 																							(el.comboType == 0 ? "FFC" :
 																								(el.comboType == 1 ? "FEC" : "FC")));
+					tchild.FindChild("ComboRank").GetComponent<UISprite>().MakePixelPerfect();
+					tchild.FindChild("ComboRank").gameObject.transform.localScale = tchild.FindChild("ComboRank").gameObject.transform.localScale*0.75f;
 				}
 			}
 		}
@@ -266,10 +293,8 @@ public class NetworkScoreScript : MonoBehaviour {
 		var splitLeaderBoard = stringLeaderboard.Split(':');
 		for(int i=0; i<8; i++)
 		{
-			if(i >= splitLeaderBoard.Length)
+			if(i < splitLeaderBoard.Length)
 			{
-				panelMatchGO.transform.FindChild("Player" + (i + 1)).gameObject.SetActive(false);
-			}else{
 				panelMatchGO.transform.FindChild("Player" + (i + 1)).gameObject.SetActive(true);
 				var childLB = splitLeaderBoard[i].Split(';');
 				var tchild = panelMatchGO.transform.FindChild("Player" + (i + 1));

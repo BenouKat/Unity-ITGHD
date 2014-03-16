@@ -167,6 +167,10 @@ public class NetworkChartScript : MonoBehaviour {
 			
 			if(everyoneValid)
 			{
+				for(int i=0; i<dataPlayer.Count; i++)
+				{
+					dataPlayer.ElementAt(i).Value.hasFinished = false;
+				}
 				startVerifyFinish = false;
 				networkView.RPC ("sendFinish", RPCMode.Others);
 				sendFinish();
@@ -185,6 +189,19 @@ public class NetworkChartScript : MonoBehaviour {
 		
 		playersDisconnected.Add(player);
 		//LANManager.Instance.players.Remove(player);
+	}
+	
+	void OnDisconnectedFromServer(NetworkDisconnection info)
+	{
+		if(!LANManager.Instance.rejectedByServer)
+		{
+			LANManager.Instance.rejectedByServer = true;
+			LANManager.Instance.errorToDisplay = TextManager.Instance.texts["LAN"]["DISCONNECTED"] + info.ToString();
+			if(LANManager.Instance.rejectedByServer)
+			{
+				Application.LoadLevel("LAN");
+			}
+		}
 	}
 	
 	public void cleanPlayerDisconnected()
